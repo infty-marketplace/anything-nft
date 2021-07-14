@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <Navbar />
-    <img :src="banner" />
+    <img class='banner' :src="banner" />
     <p class="banner-text mt-5">Create, collect, and trade any craft as NFT.</p>
     <b-button variant="primary">Explore</b-button>
     <b-button variant="outline-primary ml-4">Create</b-button>
@@ -10,18 +10,18 @@
 </template>
 
 <script>
-import Navbar from './components/Navbar.vue'
-import Footer from './components/Footer.vue'
+import Navbar from "./components/Navbar.vue";
+import Footer from "./components/Footer.vue";
 export default {
-  name: 'App',
+  name: "App",
   components: {
     Navbar,
-    Footer
+    Footer,
   },
   data: () => ({
-    banner: require('./assets/imgs/banner.svg')
+    banner: require("./assets/imgs/banner.svg"),
   }),
-}
+};
 </script>
 
 <style>
@@ -31,12 +31,14 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
   width: 100vw;
 }
 </style>
 
 <style scoped>
+.banner {
+  margin-top: 150px;
+}
 .banner-text {
   font-size: 2rem;
   font-weight: 1000;
