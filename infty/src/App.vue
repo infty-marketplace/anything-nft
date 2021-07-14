@@ -2,7 +2,7 @@
   <div id="app">
     <Navbar />
     <img class='banner' :src="banner" />
-    <p class="banner-text">Create, collect, and trade any craft as NFT.</p>
+    <p class="banner-text mt-5">Create, collect, and trade any craft as NFT.</p>
     <b-button variant="primary">Explore</b-button>
     <b-button variant="outline-primary ml-4">Create</b-button>
     <Footer />
