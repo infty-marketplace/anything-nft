@@ -9,12 +9,13 @@
           <li><a href="#">Marketplace</a></li>
           <li><a href="#">Collections</a></li>
           <li><a href="#">About</a></li>
+          <li>
+            <b-icon id="wallet" icon="wallet2" aria-hidden="true"></b-icon>
+          </li>
         </ul>
       </nav>
       <!-- <a class="cta" href="#">Contact</a> -->
-      <div class="cta">
-        <a><b-icon icon="wallet2" aria-hidden="true"></b-icon></a>
-      </div>
+
       <p @click="menuOpen" class="menu cta">Menu</p>
     </header>
     <div class="overlay">
@@ -102,6 +103,18 @@ header {
 }
 
 .nav__links li a:hover {
+  color: #0088a9;
+}
+
+#wallet {
+  color: #edf0f1;
+  transition: color 0.3s ease 0s;
+  cursor: pointer;
+  margin-left: 1.5vw;
+  height: 120%;
+}
+
+#wallet:hover {
   color: #0088a9;
 }
 
