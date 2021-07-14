@@ -1,18 +1,23 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <Navbar />
+    <img :src="banner" />
+    <p>Create, buy, and sell your craft as NFT.</p>
+    <b-button>Button</b-button>
+    <b-button>Button</b-button>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-
+import Navbar from './components/Navbar.vue'
 export default {
   name: 'App',
   components: {
-    HelloWorld
-  }
+    Navbar
+  },
+  data: () => ({
+    banner: require('./assets/imgs/banner.svg')
+  }),
 }
 </script>
 
