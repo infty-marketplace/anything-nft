@@ -12,7 +12,7 @@ export default {
 .footer-container {
     position: absolute;
     bottom: 0;
-    width: 100vw;
+    width: 100%;
     background-color: rgb(185, 245, 245);
 }
 </style>
