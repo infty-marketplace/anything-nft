@@ -6,7 +6,10 @@
 
 <script>
 export default {
-  name: "App"
+  name: "App",
+  created() {
+    document.title = "Infty Marketplace"
+  }
 };
 </script>
 
