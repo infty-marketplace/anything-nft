@@ -2,9 +2,9 @@
   <div id="app">
     <Navbar />
     <img :src="banner" />
-    <p>Create, buy, and sell your craft as NFT.</p>
-    <b-button>Button</b-button>
-    <b-button>Button</b-button>
+    <p class="banner-text">Create, buy, and sell any craft as NFT.</p>
+    <b-button variant="primary">Explore</b-button>
+    <b-button variant="outline-primary ml-2">Create</b-button>
   </div>
 </template>
 
@@ -29,5 +29,12 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+}
+</style>
+
+<style scoped>
+.banner-text {
+  font-size: 2rem;
+  font-weight: 1000;
 }
 </style>
