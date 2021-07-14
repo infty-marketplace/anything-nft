@@ -1,5 +1,5 @@
 <template>
-    <div class='footer-container'>Copyright @ CutoffX</div>
+    <div class='footer-container mt-5'>Copyright @ CutoffX</div>
 </template>
 
 <script>
@@ -10,9 +10,7 @@ export default {
 
 <style scoped>
 .footer-container {
-    position: absolute;
-    bottom: 0;
-    width: 100vw;
+    width: 100%;
     background-color: rgb(185, 245, 245);
 }
 </style>

@@ -6,7 +6,7 @@
       </div>
       <nav>
         <ul class="nav__links">
-          <li><a href="#">Marketplace</a></li>
+          <li><a href="/marketplace">Marketplace</a></li>
           <li><a href="#">Collections</a></li>
           <li><a href="#">About</a></li>
           <li>
