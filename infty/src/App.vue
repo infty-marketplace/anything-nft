@@ -5,15 +5,18 @@
     <p class="banner-text mt-5">Create, buy, and sell any craft as NFT.</p>
     <b-button variant="primary">Explore</b-button>
     <b-button variant="outline-primary ml-4">Create</b-button>
+    <Footer />
   </div>
 </template>
 
 <script>
 import Navbar from './components/Navbar.vue'
+import Footer from './components/Footer.vue'
 export default {
   name: 'App',
   components: {
-    Navbar
+    Navbar,
+    Footer
   },
   data: () => ({
     banner: require('./assets/imgs/banner.svg')
@@ -29,6 +32,7 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+  width: 100vw;
 }
 </style>
 
