@@ -10,7 +10,9 @@
           <li><a href="#">Collections</a></li>
           <li><a href="#">About</a></li>
           <li>
-            <b-button pill variant='primary' class='wallet-btn'><b-icon class='ml-2 mr-2' icon="wallet2" aria-hidden="true"></b-icon></b-button>
+            <b-button pill variant='primary' class='wallet-btn' @click="connectWallet">
+              <b-icon class='ml-2 mr-2' icon="wallet2" aria-hidden="true"></b-icon>
+            </b-button>
           </li>
         </ul>
       </nav>
@@ -22,14 +24,19 @@
 export default {
   name: "Navbar",
   methods: {
-    menuOpen() {
-      const overlay = document.querySelector(".overlay");
-      overlay.classList.add("overlay--active");
-    },
-    menuClose() {
-      const overlay = document.querySelector(".overlay");
-      overlay.classList.remove("overlay--active");
-    },
+    async connectWallet() {
+      let accounts;
+      try {
+        accounts = await window.conflux.send("cfx_requestAccounts")
+      } catch (e) {
+        console.log(e)
+      }
+      if (accounts) {
+        this.$store.commit("setAccount", accounts[0])
+        console.log(this.$store.getters.getAccount)
+        window.alert('Connected')
+      }
+    }
   },
 };
 </script>
