@@ -1,22 +1,21 @@
 <template>
   <div>
     <header>
-      <a href="#" s
-        ><img class="logo" src="@/assets/imgs/infty-logo.png" alt="logo"
-      /></a>
+      <div class="logo" href="#">
+        <img class="logo-img" src="@/assets/imgs/infty-logo.png" alt="logo" />
+      </div>
       <nav>
         <ul class="nav__links">
           <li><a href="#">Marketplace</a></li>
           <li><a href="#">Collections</a></li>
           <li><a href="#">About</a></li>
-          <li>
-            <a><b-icon icon="wallet2" aria-hidden="true"></b-icon></a>
-          </li>
         </ul>
       </nav>
       <!-- <a class="cta" href="#">Contact</a> -->
+      <div class="cta">
+        <a><b-icon icon="wallet2" aria-hidden="true"></b-icon></a>
+      </div>
       <p @click="menuOpen" class="menu cta">Menu</p>
-      <div></div>
     </header>
     <div class="overlay">
       <a class="close">&times;</a>
@@ -54,26 +53,32 @@ export default {
 
 header {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
-  padding: 30px 10%;
+  padding: 10px 10%;
   background-color: rgb(18, 18, 18);
 }
 
 .logo {
+  margin-right: auto;
+  margin-top: 5px;
+}
+
+.logo-img {
   cursor: pointer;
-  width: 15%;
-  height: 15%;
+  margin-right: auto;
+  width: 3vw;
 }
 
 .nav__links a,
-.cta,
+.cta a,
 .overlay__content a {
   font-family: "Montserrat", sans-serif;
   font-weight: 500;
-  font-size: 15px;
+  font-size: 1.2rem;
   color: #edf0f1;
   text-decoration: none;
+  cursor: pointer;
 }
 
 .nav__links {
@@ -81,31 +86,37 @@ header {
   display: flex;
 }
 
+.cta,
 .nav__links li {
   padding: 0px 20px;
   cursor: pointer;
 }
 
+.cta a,
 .nav__links li a {
   transition: color 0.3s ease 0s;
+}
+
+.cta a:hover {
+  color: #0088a9;
 }
 
 .nav__links li a:hover {
   color: #0088a9;
 }
 
-.cta {
-  padding: 9px 25px;
-  background-color: rgba(0, 136, 169, 1);
-  border: none;
-  border-radius: 50px;
-  cursor: pointer;
+/* .cta { */
+/* padding: 9px 25px; */
+/* background-color: rgba(0, 136, 169, 1); */
+/* border: none; */
+/* border-radius: 50px; */
+/* cursor: pointer;
   transition: background-color 0.3s ease 0s;
-}
+} */
 
-.cta:hover {
+/* .cta:hover {
   background-color: rgba(0, 136, 169, 0.8);
-}
+} */
 
 /* Mobile Nav */
 
