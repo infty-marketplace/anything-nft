@@ -61,7 +61,7 @@
     <div class="bottom-details">
       <div class="bottom_text">
         <span class="copyright_text"
-          >Copyright @ CutoffX All rights reserved</span
+          >Copyright @ CutoffX &nbsp; &nbsp; All rights reserved</span
         >
         <span class="policy_terms">
           <a href="#">Privacy policy</a>
