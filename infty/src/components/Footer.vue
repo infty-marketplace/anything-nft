@@ -61,7 +61,7 @@
     <div class="bottom-details">
       <div class="bottom_text">
         <span class="copyright_text"
-          >Copyright @ CutoffX &nbsp; &nbsp; All rights reserved</span
+          >Copyright 2021 by CutoffX &nbsp; &nbsp; All rights reserved</span
         >
         <span class="policy_terms">
           <a href="#">Privacy policy</a>
@@ -89,16 +89,12 @@ export default {
   box-sizing: border-box;
   font-family: "Montserrat", sans-serif;
 }
-body {
-  min-height: 100vh;
-  width: 100%;
-  background: #eeeceb;
-}
+
 footer {
   /* position: fixed; */
   background: rgb(18, 18, 18);
   width: 100%;
-  padding-top: 30px;
+  padding-top: 5px;
   margin-top: 5%;
   /* padding-bottom: 30px; */
   bottom: 0;
