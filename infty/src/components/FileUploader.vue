@@ -1,11 +1,13 @@
 <template>
+  <div>
   <div class="drag-area">
     <div class="icon"><i class="fas fa-cloud-upload-alt"></i></div>
     <header>Drag & Drop to Upload File</header>
     <span>OR</span>
-    <button @click="btnClicked">Browse File</button>
+    <button v-if="!fileLoaded" @click="btnClicked">Browse File</button>
     <input type="file" @change="onUpload" hidden>
   </div>
+  <button v-if="fileLoaded" @click="btnClicked" style="float:right">Change File</button></div>
 </template>
 
 <script>
@@ -16,7 +18,8 @@ export default {
       dragText: undefined,
       button: undefined,
       input: undefined,
-      file: undefined
+      file: undefined,
+      fileLoaded: false,
   }),
   mounted() {
     const dropArea = document.querySelector(".drag-area");
@@ -38,6 +41,7 @@ export default {
     dropArea.addEventListener("drop", (event)=>{
         event.preventDefault(); //preventing from default behaviour
         this.file = event.dataTransfer.files[0];
+        this.fileLoaded = true;
         this.showFile(); //calling function
     });
   },
@@ -48,6 +52,7 @@ export default {
       onUpload() {
         this.file = this.input.files[0];
         this.dropArea.classList.add("active")
+        this.fileLoaded = true;
         this.showFile();
       },
       showFile() {

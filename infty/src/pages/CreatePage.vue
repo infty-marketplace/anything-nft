@@ -4,7 +4,7 @@
         <div class='content mt-5'>
             <h2>Create your own NFT</h2>
             <label class='mt-4'>Title*</label>
-            <b-form-input/>
+            <b-form-input placeholder="Enter name of the art..."/>
             <label class='mt-5'>Image*</label>
             <div style="display:flex;min-width:100%;justify-content:space-around;"><FileUploader/></div>
             <label class='mt-5'>Description</label>
