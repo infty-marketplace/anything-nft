@@ -1,10 +1,17 @@
 <template>
-    <div>Create Page</div>
+    <div>
+        <Navbar />
+        Create Page
+    </div>
 </template>
 
 <script>
+import Navbar from '../components/Navbar.vue'
 export default {
-  name: 'CreatePage'
+  name: 'CreatePage',
+  components: {
+      Navbar
+  }
 }
 </script>
 
