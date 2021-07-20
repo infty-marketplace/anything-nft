@@ -1,7 +1,7 @@
 <template>
   <div class='flex-wrapper'>
     <Navbar />
-    <div>
+    <div class="main">
         <img class='banner' :src="banner" />
         <p class="banner-text mt-5">Create, collect, and trade any craft as NFT.</p>
         <b-button variant="primary" href="/marketplace">Explore</b-button>
@@ -27,11 +27,8 @@ export default {
 </script>
 
 <style scoped>
-.flex-wrapper {
-    display: flex;
-    min-height: 100vh;
-    flex-direction: column;
-    justify-content: space-between;
+.main {
+    text-align: center;
 }
 .banner {
   margin-top: 150px;
