@@ -95,7 +95,7 @@ footer {
   background: rgb(18, 18, 18);
   width: 100%;
   padding-top: 5px;
-  margin-top: 5%;
+  /* margin-top: 5%; */
   /* padding-bottom: 30px; */
   bottom: 0;
   left: 0;

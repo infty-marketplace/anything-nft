@@ -1,11 +1,15 @@
 <template>
-  <div class='flex-wrapper'>
+  <div class="flex-wrapper">
     <Navbar />
-    <div>
-        <img class='banner' :src="banner" />
-        <p class="banner-text mt-5">Create, collect, and trade any craft as NFT.</p>
-        <b-button variant="primary" href="/marketplace">Explore</b-button>
-        <b-button variant="outline-primary ml-4" href="/mine/create">Create</b-button>
+    <div class="content">
+      <img class="banner" :src="banner" />
+      <p class="banner-text mt-5">
+        Create, collect, and trade any craft as NFT.
+      </p>
+      <b-button variant="primary" href="/marketplace">Explore</b-button>
+      <b-button variant="outline-primary ml-4" href="/mine/create"
+        >Create</b-button
+      >
     </div>
     <Footer />
   </div>
@@ -28,10 +32,10 @@ export default {
 
 <style scoped>
 .flex-wrapper {
-    display: flex;
-    min-height: 100vh;
-    flex-direction: column;
-    justify-content: space-between;
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  justify-content: space-between;
 }
 .banner {
   margin-top: 150px;
@@ -39,5 +43,8 @@ export default {
 .banner-text {
   font-size: 2rem;
   font-weight: 1000;
+}
+.content {
+  margin-bottom: 5%;
 }
 </style>
