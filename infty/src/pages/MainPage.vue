@@ -1,7 +1,7 @@
 <template>
   <div class="flex-wrapper">
     <Navbar />
-    <div class="content">
+    <div class="main">
       <img class="banner" :src="banner" />
       <p class="banner-text mt-5">
         Create, collect, and trade any craft as NFT.
@@ -31,11 +31,9 @@ export default {
 </script>
 
 <style scoped>
-.flex-wrapper {
-  display: flex;
-  min-height: 100vh;
-  flex-direction: column;
-  justify-content: space-between;
+.main {
+  text-align: center;
+  margin-bottom: 5%;
 }
 .banner {
   margin-top: 150px;
@@ -43,8 +41,5 @@ export default {
 .banner-text {
   font-size: 2rem;
   font-weight: 1000;
-}
-.content {
-  margin-bottom: 5%;
 }
 </style>
