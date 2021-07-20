@@ -8,8 +8,8 @@
 export default {
   name: "App",
   created() {
-    document.title = "Infty Marketplace"
-  }
+    document.title = "Infty Marketplace";
+  },
 };
 </script>
 
