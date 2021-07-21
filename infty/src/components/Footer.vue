@@ -8,9 +8,9 @@
           <i class="fab fa-slack"></i>
           <span class="logo_name">Logo</span>
         </div> -->
-        <div class="logo-details" href="#">
+        <router-link to='/'><div class="logo-details">
           <img class="logo-img" src="@/assets/imgs/infty-logo.png" alt="logo" />
-        </div>
+        </div></router-link>
         <div class="media-icons">
           <a href="https://github.com/InfTkm/anything-nft" target="_blank"
             ><b-icon icon="github"></b-icon>
@@ -95,7 +95,7 @@ footer {
   background: rgb(18, 18, 18);
   width: 100%;
   padding-top: 5px;
-  margin-top: 5%;
+  /* margin-top: 5%; */
   /* padding-bottom: 30px; */
   bottom: 0;
   left: 0;

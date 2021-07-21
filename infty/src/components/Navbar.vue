@@ -1,9 +1,9 @@
 <template>
   <div>
     <header>
-      <div class="logo" href="#">
+      <div class="logo"><router-link to='/'>
         <img class="logo-img" src="@/assets/imgs/infty-logo.png" alt="logo" />
-      </div>
+      </router-link></div>
       <nav>
         <ul class="nav__links">
           <li><a href="/marketplace">Marketplace</a></li>
