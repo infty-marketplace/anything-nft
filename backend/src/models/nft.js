@@ -10,9 +10,13 @@ const nftSchema = new Schema({
     price: { type: Number, required: true },
     currency: { type: String, required: true },
     percentage: { type: Number, required: true },
-    
+
     album_id: { type: String },
     owner: { type: String },
+
+    draw_smart_contract_address: { type: String },
+    share_smart_contract_address: { type: String },
+
 });
 
 const Nft = mongoose.model("Nft", nftSchema, "nfts");
