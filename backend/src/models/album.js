@@ -6,10 +6,11 @@ const albumSchema = new Schema({
     album_id: { type: String, required: true },
     description: { type: String },
     file: { data: Buffer, contentType: String },
+    status: {type: String},
 
     price: { type: Number, required: true },
     currency: { type: String, required: true },
-    percentage: { type: Number, required: true },
+    // percentage: { type: Number, required: true },
     
     nft_ids: { type: [String] },
     owner: { type: String },
