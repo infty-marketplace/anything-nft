@@ -10,7 +10,7 @@ const drawSchema = new Schema({
     quantity: { type: Number },
     currency: { type: String, required: true },
     deadline: { type: Number },
-    
+
     nft_id: { type: String },
     owner: { type: String },
 });

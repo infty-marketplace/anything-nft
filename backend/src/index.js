@@ -6,9 +6,8 @@ const userRouter = require("./routes/userRouter");
 const app = express();
 const apiPort = process.env.PORT || 3001;
 
-
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use("/api", userRouter);
 
