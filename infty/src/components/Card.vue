@@ -12,18 +12,24 @@
       <b>{{ card.author }}author</b>
     </b-card-text>
     <template #footer>
-      <span class="text-muted-left"
-        ><small class="text-muted"
-          ><b-icon icon="clock"></b-icon>&nbsp;{{ card.expirationDate }} days
-          left</small
-        ></span
-      >
-      <span class="text-muted-right"
-        ><small class="text-muted"
-          ><b-icon icon="suit-diamond-fill"></b-icon>&nbsp;Price:
-          {{ card.price }}</small
-        ></span
-      >
+      <div v-if="card.price">
+        <span class="text-muted-left"
+          ><small class="text-muted"
+            ><b-icon icon="clock"></b-icon>&nbsp;{{ card.expirationDate }} days
+            left</small
+          ></span
+        >
+        <span class="text-muted-right"
+          ><small class="text-muted"
+            ><b-icon icon="suit-diamond-fill"></b-icon>&nbsp;Price:
+            {{ card.price }}</small
+          ></span
+        >
+      </div>
+      <div v-else>
+        <small class='text-muted'>Currently Unlisted</small>
+        <small class='text-muted-right' ><b-button size='sm' style="margin-top: -3px" variant='primary'>List Item</b-button></small>
+      </div>
     </template>
   </b-card>
 </template>
@@ -43,10 +49,11 @@ export default {
 }
 .user-card:hover {
   transform: scale(1.02);
+  box-shadow: 0 0 5px rgba(33,33,33,.2); 
   cursor: pointer;
 }
-.text-muted-left {
-  margin-right: 42%;
+.text-muted-right {
+  float: right;
 }
 .card-detail {
   font-size: 0.875em;
