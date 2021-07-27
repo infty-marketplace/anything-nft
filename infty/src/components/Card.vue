@@ -1,31 +1,33 @@
 <template>
-  <b-card
-    class="user-card"
-    :img-src="card.url"
-    :key="card.url"
-    img-alt="Image"
-    img-top
-  >
-    <b-card-text class="card-detail">
-      <p>Card Name</p>
-      <p>{{ card.collection }}</p>
-      <b>{{ card.author }}author</b>
-    </b-card-text>
-    <template #footer>
-      <span class="text-muted-left"
-        ><small class="text-muted"
-          ><b-icon icon="clock"></b-icon>&nbsp;{{ card.expirationDate }} days
-          left</small
-        ></span
-      >
-      <span class="text-muted-right"
-        ><small class="text-muted"
-          ><b-icon icon="suit-diamond-fill"></b-icon>&nbsp;Price:
-          {{ card.price }}</small
-        ></span
-      >
-    </template>
-  </b-card>
+  <router-link :to="{ name: 'card-detail', params: { card: card } }">
+    <b-card
+      class="user-card"
+      :img-src="card.url"
+      :key="card.url"
+      img-alt="Image"
+      img-top
+    >
+      <b-card-text class="card-detail">
+        <p>Card Name</p>
+        <p>{{ card.collection }}</p>
+        <b>{{ card.author }}author</b>
+      </b-card-text>
+      <template #footer>
+        <span class="text-muted-left"
+          ><small class="text-muted"
+            ><b-icon icon="clock"></b-icon>&nbsp;{{ card.expirationDate }} days
+            left</small
+          ></span
+        >
+        <span class="text-muted-right"
+          ><small class="text-muted"
+            ><b-icon icon="suit-diamond-fill"></b-icon>&nbsp;Price:
+            {{ card.price }}</small
+          ></span
+        >
+      </template>
+    </b-card>
+  </router-link>
 </template>
 
 <script>

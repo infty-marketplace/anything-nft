@@ -182,6 +182,7 @@ export default {
       ],
       usersCards: [
         {
+          id: 1,
           collection: "SupDucks",
           author: "Ada Lovelace",
           price: Math.random().toFixed(2),
@@ -191,6 +192,7 @@ export default {
           expirationDate: `${Math.round(Math.random() * 10)}`,
         },
         {
+          id: 2,
           collection: "Art Blocks Curated",
           author: "Ada Lovelace",
           price: Math.random().toFixed(2),
@@ -200,6 +202,7 @@ export default {
           expirationDate: `${Math.round(Math.random() * 10)}`,
         },
         {
+          id: 3,
           collection: "Bored Ape Kennel Club",
           author: "Ada Lovelace",
           price: Math.random().toFixed(2),
@@ -209,6 +212,7 @@ export default {
           expirationDate: `${Math.round(Math.random() * 10)}`,
         },
         {
+          id: 4,
           collection: "Cool Cats",
           author: "Ada Lovelace",
           price: Math.random().toFixed(2),
@@ -218,6 +222,7 @@ export default {
           expirationDate: `${Math.round(Math.random() * 10)}`,
         },
         {
+          id: 5,
           collection: "ZED RUN",
           author: "Ada Lovelace",
           price: Math.random().toFixed(2),
@@ -227,6 +232,7 @@ export default {
           expirationDate: `${Math.round(Math.random() * 10)}`,
         },
         {
+          id: 6,
           collection: "FameLadySquad",
           author: "Ada Lovelace",
           price: Math.random().toFixed(2),
@@ -236,6 +242,7 @@ export default {
           expirationDate: `${Math.round(Math.random() * 10)}`,
         },
         {
+          id: 7,
           collection: "Sorare",
           author: "Ada Lovelace",
           price: Math.random().toFixed(2),
@@ -245,6 +252,7 @@ export default {
           expirationDate: `${Math.round(Math.random() * 10)}`,
         },
         {
+          id: 8,
           collection: "Meebits",
           author: "Ada Lovelace",
           price: Math.random().toFixed(2),
@@ -254,6 +262,7 @@ export default {
           expirationDate: `${Math.round(Math.random() * 10)}`,
         },
         {
+          id: 9,
           collection: "Ape Gang",
           author: "Ada Lovelace",
           price: Math.random().toFixed(2),
