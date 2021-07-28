@@ -5,6 +5,7 @@ import CreatePage from "./pages/CreatePage.vue";
 import MainPage from "./pages/MainPage.vue";
 import Marketplace from "./pages/Marketplace";
 import Collections from "./pages/Collections.vue";
+import DetailPage from "./pages/DetailPage.vue";
 Vue.use(Router);
 export default new Router({
   mode: "history",
