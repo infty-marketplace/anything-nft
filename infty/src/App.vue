@@ -20,10 +20,17 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
 }
+
 .flex-wrapper {
   display: flex;
   min-height: 100vh;
   flex-direction: column;
   justify-content: space-between;
+}
+
+.flex-wrapper-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
 }
 </style>

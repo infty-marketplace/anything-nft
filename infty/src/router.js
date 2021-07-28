@@ -4,7 +4,7 @@ import Router from "vue-router";
 import CreatePage from "./pages/CreatePage.vue";
 import MainPage from "./pages/MainPage.vue";
 import Marketplace from "./pages/Marketplace";
-import DetailPage from "./pages/DetailPage";
+import Collections from "./pages/Collections.vue";
 Vue.use(Router);
 export default new Router({
   mode: "history",
@@ -20,6 +20,10 @@ export default new Router({
     {
       path: "/mine/create",
       component: CreatePage,
+    },
+    {
+      path: "/mine/collections",
+      component: Collections,
     },
     {
       path: "/card/:id",

@@ -25,9 +25,13 @@
             {{ card.price }}</small
           ></span
         >
-      </template>
-    </b-card>
-  </router-link>
+      </div>
+      <div v-else>
+        <small class='text-muted'>Currently Unlisted</small>
+        <small class='text-muted-right' ><b-button size='sm' style="margin-top: -3px" variant='primary'>List Item</b-button></small>
+      </div>
+    </template>
+  </b-card>
 </template>
 
 <script>
@@ -45,10 +49,11 @@ export default {
 }
 .user-card:hover {
   transform: scale(1.02);
+  box-shadow: 0 0 5px rgba(33, 33, 33, 0.2);
   cursor: pointer;
 }
-.text-muted-left {
-  margin-right: 42%;
+.text-muted-right {
+  float: right;
 }
 .card-detail {
   font-size: 0.875em;
