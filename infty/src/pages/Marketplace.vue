@@ -1,6 +1,6 @@
 <template>
   <div class="marketplace">
-    <Navbar />
+    <Navbar active-index="0"/>
     <div>
       <div id="sidebar" style="width: 25%">
         <b-card no-body style="max-width: 20rem">
