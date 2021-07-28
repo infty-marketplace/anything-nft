@@ -5,7 +5,7 @@ const nftSchema = new Schema({
     title: { type: String, required: true },
     nft_id: { type: String, required: true },
     description: { type: String },
-    file: { data: Buffer, contentType: String, required: true },
+    file: {type:{ data: Buffer, contentType: String}, required: true },
 
     status: {type: String},
 
