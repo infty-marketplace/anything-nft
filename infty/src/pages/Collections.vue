@@ -16,7 +16,6 @@
         <b-btn variant='primary' class='add-btn'>
             <b-icon icon="plus-circle-fill"></b-icon>
         </b-btn></a>
-        
     </div>
 
 </template>

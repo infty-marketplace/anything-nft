@@ -17,6 +17,15 @@ Int: deadline, any timestamp related
   - address
 - description: create a logged in session at the backend
 
+### /api/update-profile
+- method: post
+- parameters: 
+  - first_name (optioanl, required upon creation)
+  - last_name (optional)
+  - description (optional)
+  - profile_picture (optional)
+- description: create/update the profile information of a user
+
 ### /api/profile/:address
 - method: get
 - description: return profile information, including display name, collections, personal signature, etc. anything in profile page should be returned.
