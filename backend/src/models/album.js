@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const albumSchema = new Schema({
     title: { type: String, required: true },
     album_id: { type: String, required: true },
-    description: { type: String，default: '' },
+    description: { type: String, default: '' },
     file: { type: { data: Buffer, contentType: String } },
     status: { type: String, require: true },
 
