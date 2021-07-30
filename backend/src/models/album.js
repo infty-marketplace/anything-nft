@@ -4,15 +4,21 @@ const Schema = mongoose.Schema;
 const albumSchema = new Schema({
     title: { type: String, required: true },
     album_id: { type: String, required: true },
-    description: { type: String },
-    file: { data: Buffer, contentType: String },
-    status: {type: String},
+    description: { type: String, default: '' },
+    file: { type: { data: Buffer, contentType: String } },
+    status: { type: String, require: true },
 
     price: { type: Number, required: true },
     currency: { type: String, required: true },
-    
-    nft_ids: { type: [String] },
-    owner: { type: String },
+
+    nft_ids: { type: [String], require: true },
+    owner: { type: String, require: true },
+}, {
+    timestamps: {
+        currentTime: () => Math.floor(Date.now() / 1000),
+        createdAt: 'created_at',
+        updatedAt: 'updated_at'
+    }
 });
 
 const Album = mongoose.model("Album", albumSchema, "albums");
