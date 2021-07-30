@@ -1,5 +1,5 @@
 <template>
-  <router-link :to="{ name: 'card-detail', params: { card: card } }">
+  <router-link :to="{ path:'/card/:id', name: 'card-detail', params: { id: card.nft_id || 'default_id', card: card } }">
     <b-card
       class="user-card"
       :img-src="card.url"
@@ -31,11 +31,41 @@
         </div>
         <div v-else>
           <small class="text-muted">Currently Unlisted</small>
+          
           <small class="text-muted-right"
-            ><b-button size="sm" style="margin-top: -3px" variant="primary"
-              >List Item</b-button
+            ><b-button size="sm" style="margin-top: -3px" variant="primary" @click="listNftClicked"
+              >List item</b-button
             ></small
           >
+          <small class="text-muted-right mr-2"
+            ><b-button size="sm" style="margin-top: -3px" variant="info" @click="raffleNftClicked"
+              >Raffle it</b-button
+            ></small
+          >
+          <b-modal ref="list-modal" title='List Item' @ok="handleListNft">
+            <label>Price</label>
+            <b-form-input class='mb-4' placeholder="How much in cfx..."/>
+            <label>Commision Fee</label>
+            <b-form-input class='mb-4' placeholder="How much in cfx... (Minimum 2.5%)"/>
+          </b-modal>
+          <b-modal ref="raffle-modal" title='Raffle It' @ok="handleListNft">
+            <label>Ticket Price</label>
+            <b-form-input class='mb-4' placeholder="How much in cfx..."/>
+            <label>Number of Tickets</label>
+            <b-form-input class='mb-4' placeholder="How many tickets..."/>
+            <label>Commision</label>
+            <b-form-input class='mb-4' placeholder="How much in cfx... (Minimum 5%)"/>
+            <b-form-checkbox
+              id="checkbox-1"
+              v-model="status"
+              name="checkbox-1"
+              value="accepted"
+              unchecked-value="not_accepted"
+            >
+              One Ticket Per Address
+            </b-form-checkbox>
+            
+          </b-modal>
         </div>
       </template>
     </b-card>
@@ -47,6 +77,23 @@ export default {
   name: "Card",
   props: {
     card: Object,
+  },
+  methods: {
+    listNftClicked(e) {
+      e.preventDefault();
+      this.$refs['list-modal'].show()
+    },
+    raffleNftClicked(e) {
+      e.preventDefault();
+      this.$refs['raffle-modal'].show()
+    },
+    handleListNft() {
+      this.$bvToast.toast("Listed Successfully", {
+        title: 'Congrats',
+        autoHideDelay: 3000,
+        appendToast: false,
+      })
+    },
   },
 };
 </script>

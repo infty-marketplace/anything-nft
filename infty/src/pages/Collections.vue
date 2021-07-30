@@ -1,6 +1,6 @@
 <template>
     <div class='flex-wrapper'>
-        <Navbar active-index='1'/>
+        <Navbar active-index='2'/>
         <div class='flex-wrapper-row m-3'>
         <b-tabs class='main-content' content-class="ml-5 mr-5">
             <b-tab title="NFT" active>
