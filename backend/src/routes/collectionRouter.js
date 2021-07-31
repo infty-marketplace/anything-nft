@@ -16,8 +16,8 @@ router.post("/create-album", () => {});
 router.post("/list-album", () => {});
 
 router.post("/purchase-nft", collectionController.purchaseNtf);
-router.post("/draw-nft", (collectionController.drawNft);
-router.post("/fund-nft", () => {});
+router.post("/draw-nft", collectionController.drawNft);
+router.post("/fund-nft", collectionController.fundNtf);
 
 router.post("/purchase-album", collectionController.purchaseAlbum);
 

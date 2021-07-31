@@ -347,4 +347,5 @@ module.exports = {
     purchaseNtf,
     purchaseAlbum,
     drawNft,
+    fundNtf,
 };
