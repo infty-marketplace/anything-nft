@@ -6,6 +6,7 @@ import MainPage from "./pages/MainPage.vue";
 import Marketplace from "./pages/Marketplace";
 import Collections from "./pages/Collections.vue";
 import DetailPage from "./pages/DetailPage.vue";
+import RafflePage from "./pages/RafflePage"
 Vue.use(Router);
 export default new Router({
   mode: "history",
@@ -25,6 +26,10 @@ export default new Router({
     {
       path: "/mine/collections",
       component: Collections,
+    },
+    {
+        path: "/raffles",
+        component: RafflePage
     },
     {
       path: "/card/:id",
