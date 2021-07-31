@@ -6,6 +6,7 @@ import MainPage from "./pages/MainPage.vue";
 import Marketplace from "./pages/Marketplace";
 import Collections from "./pages/Collections.vue";
 import DetailPage from "./pages/DetailPage.vue";
+import Profile from "./pages/Profile.vue"
 Vue.use(Router);
 export default new Router({
   mode: "history",
@@ -32,5 +33,9 @@ export default new Router({
       component: DetailPage,
       props: true,
     },
+    {
+      path: "/profile",
+      component: Profile,
+    }
   ],
 });
