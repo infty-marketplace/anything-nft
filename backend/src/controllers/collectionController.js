@@ -33,6 +33,17 @@ function getNftOwners(nft) {
     });
 }
 
+async function getAlbumNftsAndOwners(album) {
+    let nftOwners = [];
+    let nfts = [];
+    await album.nft_ids.forEach(async (id) => {
+        const nft = await Nft.findOne({ nft_id: id });
+        nfts.push(nft);
+        nftOwners = [...nftOwners, ...getNftOwners(nft)];
+    });
+    return { nfts: nfts, nftOwners: nftOwners };
+}
+
 async function mock() {
     const seller = new User({
         first_name: "seller",
@@ -167,11 +178,7 @@ async function purchaseNtf(req, res) {
     //check if this nft fullfills a album
     if (nft.album_id && nft.album_id !== "") {
         let album = await Album.findOne({ album_id: nft.album_id });
-        const nftOwners = [];
-        await album.nft_ids.forEach(async (id) => {
-            const nft = await Nft.findOne({ nft_id: id });
-            nftOwners = [...nftOwners, ...getNftOwners(nft)];
-        });
+        const { nfts, nftOwners } = getAlbumNftsAndOwners(album);
         if (nftOwners.length === album.nft_ids.length && Set(nftOwners).size === 1) {
             const albumTransactionDetails = {
                 buyer: body.buyer,
@@ -309,13 +316,7 @@ async function purchaseAlbum(req, res) {
     }
 
     // check if any associated nft is funded or if any associated nft is not owned by album owner
-    const nfts = [];
-    const nftOwners = [];
-    await album.nft_ids.forEach(async (id) => {
-        const nft = await Nft.findOne({ nft_id: id });
-        nfts.push(nft);
-        nftOwners = [...nftOwners, ...getNftOwners(nft)];
-    });
+    const { nfts, nftOwners } = getAlbumNftsAndOwners(album);
     if (nftOwners.length !== album.nft_ids.length || Set(nftOwners).size !== 1) {
         return res.status(400).json({ error: "album is not owned by a single owner" });
     }
