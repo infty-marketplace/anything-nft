@@ -46,7 +46,6 @@ describe("POST /api/purchase-nft", function () {
         album_id: ["album_id1"],
     };
     const buyer1 = { first_name: "buyer1", address: "buyer_address1", nft_ids: ["nft_id2"] };
-    const buyer2 = { first_name: "buyer2", address: "buyer_address2" };
     const album1 = {
         title: "album1",
         album_id: "album_id1",
@@ -95,7 +94,6 @@ describe("POST /api/purchase-nft", function () {
         await saveAll([
             new User(seller1),
             new User(buyer1),
-            new User(buyer2),
             new Nft(nft1),
             new Nft(nft2),
             new Nft(nft3),
