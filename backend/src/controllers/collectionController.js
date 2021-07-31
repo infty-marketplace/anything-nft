@@ -79,18 +79,26 @@ async function transferOwnership(transactionDetails, recordTransaction = true) {
 
     // get collection and update collection's owner
     let collection = null;
-    if (collectionType === "album") {
+    if (transactionDetails.transaction_type === "purchase-album") {
         collection = await Album.findOne({
             album_id: transactionDetails.collection_id,
         });
         collection.owner = transactionDetails.buyer;
-    } else if (collectionType === "nft") {
+    } else if (transactionDetails.transaction_type === "purchase-nft") {
         collection = await Nft.findOne({
             nft_id: transactionDetails.collection_id,
         });
         collection.owner = [
             { address: transactionDetails.buyer, percentage: 1 },
         ];
+    } else if (transactionDetails.transaction_type === "fund-nft") {
+        collection = await Nft.findOne({
+            nft_id: transactionDetails.collection_id,
+        });
+        collection.owner.push({
+            address: transactionDetails.buyer,
+            percentage: transactionDetails.percentage,
+        });
     }
 
     // update collection's status
@@ -178,6 +186,63 @@ async function purchaseNtf(req, res) {
     return res.status(200).send();
 }
 
+async function fundNtf(req, res) {
+    const body = req.body;
+    if (!body) {
+        return res.status(400).json({ error: "invalid request" });
+    }
+
+    let nft = await Nft.findOne({ nft_id: body.nft_id });
+    if (!nft) {
+        return res.status(404).json({ error: "nft not found" });
+    }
+    if (nft.status !== constants.STATUS_SALE) {
+        return res.status(400).json({ error: "ntf is not for sale" });
+    }
+    // owner[0] is the original seller, owner[1:] are the funder
+    const funders = nft.owner.slice(1);
+    const fundedPercentages = funders.reduce((pv, cv) => pv + cv.percentage, 0);
+    if (fundedPercentages + body.percentage > 1) {
+        return res.status(400).json({ error: "not enough shares" });
+    }
+
+    // create a transaction record
+    let transactionDetails = {
+        buyer: body.buyer,
+        seller: nft.owner[0].address,
+        transaction_type: "fund-nft",
+        price: nft.price,
+        currency: nft.currency,
+        collection_id: nft.nft_id,
+        percentage: body.percentage,
+    };
+
+    // if nft is fully funded, remove seller, trsander ownership to funders
+    if (fundedPercentages + nftTransactionDetails.percentage === 1) {
+        nft.owner = [];
+        await saveAll([nft]).catch((error) => {
+            return res.status(422).json({ error: error.message });
+        });
+        await funders.forEach(async (funder) => {
+            let transactionDetails = {
+                buyer: funder.address,
+                seller: transactionDetails.seller,
+                transaction_type: transactionDetails.transaction_type,
+                collection_id: transactionDetails.collection_id,
+                percentage: funder.percentage,
+            };
+            await transferOwnership(transferOwnership, false);
+        });
+    }
+    await saveAll([new Transaction(transactionDetails)])
+        .then(() => {
+            return res.status(200).send();
+        })
+        .catch((error) => {
+            return res.status(422).json({ error: error.message });
+        });
+}
+
 async function drawNft(req, res) {
     const body = req.body;
     if (!body) {
@@ -205,6 +270,7 @@ async function drawNft(req, res) {
         quantity: transactionDetails.quantity,
     });
 
+    // TODO: transfer upon deadline/all drawed
     await saveAll([draw, new Transaction(transactionDetails)])
         .then(() => {
             return res.status(200).send();
@@ -280,4 +346,5 @@ async function purchaseAlbum(req, res) {
 module.exports = {
     purchaseNtf,
     purchaseAlbum,
+    drawNft,
 };
