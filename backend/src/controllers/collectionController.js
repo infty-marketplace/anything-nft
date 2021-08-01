@@ -49,36 +49,6 @@ async function getAlbumNftsAndOwners(album) {
     return { nfts: nfts, nftOwners: nftOwners };
 }
 
-async function mock() {
-    const seller = new User({
-        first_name: "seller",
-        address: "seller_address1",
-        nft_ids: ["nft_id1"],
-    });
-
-    const buyer = new User({
-        first_name: "buyer1",
-        address: "buyer_address1",
-    });
-
-    const buyer2 = new User({
-        first_name: "buyer2",
-        address: "buyer_address2",
-    });
-
-    const nft = new Nft({
-        title: "nft1",
-        nft_id: "nft_id1",
-        status: constants.STATUS_SALE,
-        file: "file1",
-        price: 100,
-        currency: "cfx",
-        owner: [{ address: "seller_address1", percentage: 1 }],
-    });
-
-    await saveAll([nft, buyer, seller, buyer2]);
-}
-
 async function transferOwnership(transactionDetails, recordTransaction = true) {
     // get buyer/seller
     let buyer = await User.findOne({ address: transactionDetails.buyer });
@@ -120,7 +90,7 @@ async function transferOwnership(transactionDetails, recordTransaction = true) {
         collection = await Nft.findOne({ nft_id: transactionDetails.collection_id });
         const index = getNftOwners(collection).indexOf(transactionDetails.buyer);
         if (index >= 0) {
-            collection.owner[index].percentage = collection.owner[index].percentage + transactionDetails.percentage;
+            collection.owner[index].percentage += transactionDetails.percentage;
         } else {
             collection.owner.push({ address: transactionDetails.buyer, percentage: transactionDetails.percentage });
         }
@@ -160,7 +130,7 @@ async function purchaseNtf(req, res) {
         return res.status(400).json({ error: "nft is not owned by a single owner" });
     }
     if (owners.includes(body.buyer)) {
-        return res.status(400).json({ error: "buyer is owner" });
+        return res.status(400).json({ error: "buyer is the owner" });
     }
 
     // create a transaction record
@@ -196,9 +166,6 @@ async function purchaseNtf(req, res) {
 
 async function fundNtf(req, res) {
     const body = req.body;
-    if (!body) {
-        return res.status(400).json({ error: "invalid request" });
-    }
 
     let nft = await Nft.findOne({ nft_id: body.nft_id });
     if (!nft) {
@@ -208,17 +175,32 @@ async function fundNtf(req, res) {
         return res.status(400).json({ error: "ntf is not for sale" });
     }
     // owner[0] is the original seller, owner[1:] are the funder
-    let funders = nft.owner.slice(1);
+    let sellers = [];
+    let funders = [];
+    nft.owner.forEach((element) => {
+        if (element.percentage === 1) {
+            sellers.push(element);
+        } else {
+            funders.push(element);
+        }
+    });
     funders.push({ address: body.buyer, percentage: body.percentage });
+    // if no sellers, then the nft is already funded
+    if (sellers.length === 0) {
+        return res.status(400).json({ error: "nft is already funded" });
+    }
+    if (sellers.map((seller) => seller.address).includes(body.buyer)) {
+        return res.status(400).json({ error: "funder is the owner" });
+    }
     const fundedPercentages = funders.reduce((pv, cv) => pv + cv.percentage, 0);
     if (fundedPercentages > 1) {
-        return res.status(400).json({ error: "not enough shares" });
+        return res.status(400).json({ error: "exceed maximum percentage" });
     }
 
     // create a transaction record
     let transactionDetails = {
         buyer: body.buyer,
-        seller: nft.owner[0].address,
+        seller: sellers[0].address,
         transaction_type: "fund-nft",
         price: nft.price,
         currency: nft.currency,
@@ -233,7 +215,7 @@ async function fundNtf(req, res) {
         await saveAll([nft]).catch((error) => {
             return res.status(422).json({ error: error.message });
         });
-        await funders.forEach(async (funder) => {
+        for (const funder of funders) {
             let nftTransactionDetails = {
                 buyer: funder.address,
                 seller: transactionDetails.seller,
@@ -242,14 +224,14 @@ async function fundNtf(req, res) {
                 percentage: funder.percentage,
             };
             await transferOwnership(nftTransactionDetails, false);
-        });
+        }
     } else {
         // added the new funder to owner list
-        const index = getNftOwners(collection).indexOf(transactionDetails.buyer);
+        const index = getNftOwners(nft).indexOf(transactionDetails.buyer);
         if (index >= 0) {
-            collection.owner[index].percentage = collection.owner[index].percentage + transactionDetails.percentage;
+            nft.owner[index].percentage += transactionDetails.percentage;
         } else {
-            collection.owner.push({ address: transactionDetails.buyer, percentage: transactionDetails.percentage });
+            nft.owner.push({ address: transactionDetails.buyer, percentage: transactionDetails.percentage });
         }
     }
 
