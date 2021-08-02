@@ -41,7 +41,7 @@ const getDraw = async (req, res) => {
 
 // return a list of on sale NFT's id from cursor position, limit amount
 const getMarket = async (req, res) => {
-
+    
 
 }
 
