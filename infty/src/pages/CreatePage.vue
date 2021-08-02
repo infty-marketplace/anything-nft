@@ -1,7 +1,7 @@
 <template>
     <div class='flex-wrapper main'>
         <Navbar />
-        <div class='content mt-5'>
+        <div class='content mt-5 mb-5'>
             <h2>Create your own NFT</h2>
             <label class='mt-4'>Title*</label>
             <b-form-input placeholder="Enter name of the art..."/>

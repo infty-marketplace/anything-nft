@@ -6,9 +6,10 @@
       </router-link></div>
       <nav>
         <ul class="nav__links">
-          <li><a href="/marketplace">Marketplace</a></li>
-          <li><a href="#">Collections</a></li>
-          <li><a href="#">About</a></li>
+          <li v-bind:class="{active: activeIndex==0}"><a href="/marketplace">Marketplace</a></li>
+          <li v-bind:class="{active: activeIndex==1}"><a href="/raffles">Raffles</a></li>
+          <li v-bind:class="{active: activeIndex==2}"><a href="/mine/collections">Collections</a></li>
+          <li v-bind:class="{active: activeIndex==3}"><a href="#">About</a></li>
           <li>
             <b-button pill variant='primary' class='wallet-btn' @click="connectWallet">
               <b-icon class='ml-2 mr-2' icon="wallet2" aria-hidden="true"></b-icon>
@@ -23,6 +24,7 @@
 <script>
 export default {
   name: "Navbar",
+  props: ['activeIndex'],
   methods: {
     async connectWallet() {
       let accounts;
@@ -96,5 +98,9 @@ header {
 
 .wallet-btn {
   margin-left: 15px;
+}
+
+.active {
+  border-bottom: 2px solid #0088a9;
 }
 </style>

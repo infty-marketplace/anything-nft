@@ -1,6 +1,6 @@
 <template>
   <div class="marketplace">
-    <Navbar />
+    <Navbar active-index="0"/>
     <div>
       <div id="sidebar" style="width: 25%">
         <b-card no-body style="max-width: 20rem">
@@ -145,36 +145,7 @@
           </b-input-group>
         </div>
         <b-card-group columns>
-          <b-card
-            v-for="card in usersCards"
-            class="user-card"
-            :img-src="card.url"
-            :key="card.url"
-            img-alt="Image"
-            img-top
-          >
-            <b-card-text class="card-detail">
-              <p>Card Name</p>
-              <p>{{ card.collection }}</p>
-              <b>{{ card.author }}author</b>
-            </b-card-text>
-            <template #footer>
-              <span class="text-muted-left"
-                ><small class="text-muted"
-                  ><b-icon icon="clock"></b-icon>&nbsp;{{
-                    card.expirationDate
-                  }}
-                  days left</small
-                ></span
-              >
-              <span class="text-muted-right"
-                ><small class="text-muted"
-                  ><b-icon icon="suit-diamond-fill"></b-icon>&nbsp;Price:
-                  {{ card.price }}</small
-                ></span
-              >
-            </template>
-          </b-card>
+          <Card v-for="card in usersCards" :card="card" :key="card.url" />
         </b-card-group>
       </div>
     </div>
@@ -186,11 +157,13 @@
 <script>
 import Navbar from "../components/Navbar.vue";
 import Footer from "../components/Footer.vue";
+import Card from "../components/Card.vue";
 export default {
   name: "Marketplace",
   components: {
     Navbar,
     Footer,
+    Card,
   },
   mounted() {},
   data() {
@@ -209,83 +182,92 @@ export default {
       ],
       usersCards: [
         {
+          id: 1,
           collection: "SupDucks",
           author: "Ada Lovelace",
           price: Math.random().toFixed(2),
           url: `https://source.unsplash.com/random/200x200?sig=1${Math.round(
-            Math.random() * 1000
+            Math.random() * 100
           )}`,
           expirationDate: `${Math.round(Math.random() * 10)}`,
         },
         {
+          id: 2,
           collection: "Art Blocks Curated",
           author: "Ada Lovelace",
           price: Math.random().toFixed(2),
           url: `https://source.unsplash.com/random/200x200?sig=1${Math.round(
-            Math.random() * 1000
+            Math.random() * 100
           )}`,
           expirationDate: `${Math.round(Math.random() * 10)}`,
         },
         {
+          id: 3,
           collection: "Bored Ape Kennel Club",
           author: "Ada Lovelace",
           price: Math.random().toFixed(2),
           url: `https://source.unsplash.com/random/200x200?sig=1${Math.round(
-            Math.random() * 1000
+            Math.random() * 100
           )}`,
           expirationDate: `${Math.round(Math.random() * 10)}`,
         },
         {
+          id: 4,
           collection: "Cool Cats",
           author: "Ada Lovelace",
           price: Math.random().toFixed(2),
           url: `https://source.unsplash.com/random/200x200?sig=1${Math.round(
-            Math.random() * 1000
+            Math.random() * 100
           )}`,
           expirationDate: `${Math.round(Math.random() * 10)}`,
         },
         {
+          id: 5,
           collection: "ZED RUN",
           author: "Ada Lovelace",
           price: Math.random().toFixed(2),
           url: `https://source.unsplash.com/random/200x200?sig=1${Math.round(
-            Math.random() * 1000
+            Math.random() * 100
           )}`,
           expirationDate: `${Math.round(Math.random() * 10)}`,
         },
         {
+          id: 6,
           collection: "FameLadySquad",
           author: "Ada Lovelace",
           price: Math.random().toFixed(2),
           url: `https://source.unsplash.com/random/200x200?sig=1${Math.round(
-            Math.random() * 1000
+            Math.random() * 100
           )}`,
           expirationDate: `${Math.round(Math.random() * 10)}`,
         },
         {
+          id: 7,
           collection: "Sorare",
           author: "Ada Lovelace",
           price: Math.random().toFixed(2),
           url: `https://source.unsplash.com/random/200x200?sig=1${Math.round(
-            Math.random() * 1000
+            Math.random() * 100
           )}`,
           expirationDate: `${Math.round(Math.random() * 10)}`,
         },
         {
+          id: 8,
           collection: "Meebits",
           author: "Ada Lovelace",
           price: Math.random().toFixed(2),
           url: `https://source.unsplash.com/random/200x200?sig=1${Math.round(
-            Math.random() * 1000
+            Math.random() * 100
           )}`,
           expirationDate: `${Math.round(Math.random() * 10)}`,
         },
         {
+          id: 9,
           collection: "Ape Gang",
           author: "Ada Lovelace",
           price: Math.random().toFixed(2),
           url: `https://source.unsplash.com/random/200x200?sig=1${Math.round(
-            Math.random() * 1000
+            Math.random() * 100
           )}`,
           expirationDate: `${Math.round(Math.random() * 10)}`,
         },
@@ -341,22 +323,10 @@ export default {
   /* left: 0; */
   vertical-align: top;
 }
-.user-card {
-  transition: all 0.15s ease-in-out;
-}
-.user-card:hover {
-  transform: scale(1.02);
-  cursor: pointer;
-}
+
 #search-bar {
   width: 800px;
   display: inline-block;
   margin-top: 2em;
-}
-.text-muted-left {
-  margin-right: 42%;
-}
-.card-detail {
-  font-size: 0.875em;
 }
 </style>
