@@ -6,6 +6,8 @@ const Draw = require("../models/draw");
 const constants = require("../constants/index");
 const mongoose = require("mongoose");
 const multipart = require('connect-multiparty');
+const fs = require("fs");
+require('dotenv').config();
 
 const multipartMiddleware = multipart();
 
@@ -13,10 +15,11 @@ mongoose.set('useFindAndModify', false);
 
 const router = express.Router();
 const AWS = require('aws-sdk');
-const s3 = new AWS.S3({
-    accessKeyId: constants.S3_KEY_ID,
-    secretAccessKey: constants.S3_KEY_SECRET
+AWS.config.update({
+    accessKeyId: process.env.AWS_ACCESS_KEY,
+    secretAccessKey: process.env.AWS_SECRET_KEY
 });
+const s3 = new AWS.S3();
 
 router.get("/nft/:nft_id", ()=>{});
 router.get("/album/:album_id", ()=>{});
@@ -24,11 +27,12 @@ router.get("/draw/:draw_id", ()=>{});
 router.post("/market", ()=>{});
 
 router.post("/create-nft", multipartMiddleware, (req, res, next)=>{
+    const nftId = req.body.nftId;
     const params = {
         title: req.body.title,
-        nft_id: req.body.nftId,
+        nft_id: nftId,
         description: req.body.description,
-        file: req.body.file,
+        file: null,
 
         status: req.body.status,
 
@@ -41,16 +45,29 @@ router.post("/create-nft", multipartMiddleware, (req, res, next)=>{
         draw_smart_contract_address: req.body.drawContractAddress,
         share_smart_contract_address: req.body.shareContractAddress
     };
-    const newNFT = new Nft(params);
 
-    //var s3UploadParams = {Bucket: constants.S3_BUCKET_NAME, Key: '', Body: ''};
+    const tmp_path = req.files.file.path;
+    const fileToUpload = fs.createReadStream(tmp_path);
+    const s3UploadParams = {Bucket: process.env.S3_BUCKET_NAME, Key: nftId, Body: fileToUpload}; 
 
-    newNFT.save(function (err){
+    s3.upload(s3UploadParams, function(err, data) {
         if (err) {
-            return res.send(err);
+            throw err;
         }
-        return res.send("uploaded");
+        const uploadedUrl = data.Location;
+        params.file = uploadedUrl;
+        const newNFT = new Nft(params);
+        newNFT.save(function (err){
+            if (err) {
+                return res.send(err);
+            }
+            return res.send("File uploaded successfully");
+        });
+        
+        
     });
+
+    
 });
 
 router.post("/list-nft", (req, res, next)=>{
