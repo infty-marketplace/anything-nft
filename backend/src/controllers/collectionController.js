@@ -41,6 +41,13 @@ const getDraw = async (req, res) => {
 
 // return a list of on sale NFT's id from cursor position, limit amount
 const getMarket = async (req, res) => {
+    const body = req.body;
+    if (!body) {
+        return res.status(400).json({ error: "invalid request" });
+    }
+
+    const limit = body.limit;
+
     
 
 }
