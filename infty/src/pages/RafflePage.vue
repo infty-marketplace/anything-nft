@@ -2,19 +2,19 @@
   <div class="raffle-page">
     <Navbar active-index="1" />
     <div>
-      <div id="sidebar" style="width: 25%">
-        <b-card no-body style="max-width: 20rem">
+      <div id="sidebar" style="width: 20%">
+        <b-card nobody id="sidebar-card">
           <template #header>
-            <h4 class="mb-0">
+            <h4 class="mb-0 filter-header">
               <b-icon icon="filter-circle"></b-icon>&nbsp;Filter
             </h4>
           </template>
-          <b-list-group flush>
+          <b-list-group id="list-group" flush>
             <b-list-group-item>
               <b-button
                 pill
                 v-b-toggle.collapse-1
-                variant="outline-secondary"
+                variant="info"
                 class="category-button"
                 >Status</b-button
               >
@@ -36,7 +36,7 @@
               <b-button
                 pill
                 v-b-toggle.collapse-2
-                variant="outline-secondary"
+                variant="info"
                 class="category-button"
                 >Price</b-button
               >
@@ -57,7 +57,7 @@
                     placeholder="Max"
                     class="price-range"
                   ></b-form-input>
-                  <b-button id="price-apply-btn" variant="outline-primary"
+                  <b-button id="price-apply-btn" variant="outline-info"
                     >Apply</b-button
                   >
                 </b-card>
@@ -67,7 +67,7 @@
               <b-button
                 pill
                 v-b-toggle.collapse-3
-                variant="outline-secondary"
+                variant="info"
                 class="category-button"
                 >Collections</b-button
               >
@@ -96,7 +96,7 @@
               <b-button
                 pill
                 v-b-toggle.collapse-4
-                variant="outline-secondary"
+                variant="info"
                 class="category-button"
                 >Chains</b-button
               >
@@ -114,7 +114,7 @@
               <b-button
                 pill
                 v-b-toggle.collapse-5
-                variant="outline-secondary"
+                variant="info"
                 class="category-button"
                 >Categories</b-button
               >
@@ -151,17 +151,36 @@
           </div> -->
           <h2 id="banner-content">Currently 175 people participated!</h2>
         </div>
-        <div class="mt-4">
+        <div class="mt-4" v-for="card in usersCards" :key="card.url">
           <b-card
-            img-src="https://placekitten.com/300/300"
+            :img-src="card.url"
             img-alt="Card image"
             img-left
-            class="mb-3"
+            class="mb-3 pool-card"
           >
-            <b-card-text>
+            <div class="pool-card-info">
+              <div class="card-info">
+                <p>{{ card.title }}</p>
+                <p>Owner: {{ card.owner }}</p>
+                <p>Discription: {{ card.description }}</p>
+              </div>
+              <div class="transaction-info">
+                <div class="price">
+                  <b-badge class="price-item" style="background-color: #6be8aa"
+                    >20%</b-badge
+                  >
+                  <b-badge class="price-item" style="background-color: #f669a6"
+                    >10USD</b-badge
+                  >
+                </div>
+                <b-button class="buy-btn" pill variant="primary">Buy</b-button>
+              </div>
+            </div>
+
+            <!-- <b-card-text>
               Some quick example text to build on the card and make up the bulk
               of the card's content.
-            </b-card-text>
+            </b-card-text> -->
           </b-card>
         </div>
       </div>
@@ -181,6 +200,80 @@ export default {
     Navbar,
     Footer,
   },
+  data() {
+    return {
+      statusSelected: [],
+      statusOptions: [
+        { text: "today", value: "today" },
+        { text: "this week", value: "thisWeek" },
+        { text: "this month", value: "thisMonth" },
+        // { text: "Has Offers", value: "hasOffers" },
+      ],
+      priceTypeSelected: "usd",
+      priceTypeOptions: [
+        { value: "usd", text: "United States Dollar(USD)" },
+        { value: "eth", text: "Ether(ETH)" },
+      ],
+      usersCards: [
+        {
+          id: 1,
+          title: "my NFT",
+          description: "good",
+          owner: "cfx:dsfawe",
+          collection: "SupDucks",
+          author: "Ada Lovelace",
+          price: Math.random().toFixed(2),
+          url: `https://source.unsplash.com/random/200x200?sig=1${Math.round(
+            Math.random() * 100
+          )}`,
+          expirationDate: `${Math.round(Math.random() * 10)}`,
+        },
+        {
+          id: 2,
+          title: "my NFT",
+          description: "good",
+          owner: "cfx:dsfawe",
+          collection: "Art Blocks Curated",
+          author: "Ada Lovelace",
+          price: Math.random().toFixed(2),
+          url: `https://source.unsplash.com/random/200x200?sig=1${Math.round(
+            Math.random() * 100
+          )}`,
+          expirationDate: `${Math.round(Math.random() * 10)}`,
+        },
+        {
+          id: 3,
+          title: "my NFT",
+          description: "good",
+          owner: "cfx:dsfawe",
+          collection: "Bored Ape Kennel Club",
+          author: "Ada Lovelace",
+          price: Math.random().toFixed(2),
+          url: `https://source.unsplash.com/random/200x200?sig=1${Math.round(
+            Math.random() * 100
+          )}`,
+          expirationDate: `${Math.round(Math.random() * 10)}`,
+        },
+        {
+          id: 4,
+          title: "my NFT",
+          description: "good",
+          owner: "cfx:dsfawe",
+          collection: "Cool Cats",
+          author: "Ada Lovelace",
+          price: Math.random().toFixed(2),
+          url: `https://source.unsplash.com/random/200x200?sig=1${Math.round(
+            Math.random() * 100
+          )}`,
+          expirationDate: `${Math.round(Math.random() * 10)}`,
+        },
+      ],
+    };
+  },
+  methods() {
+    // sidebarHeight(){
+    // }
+  },
 };
 </script>
 <style  scoped>
@@ -191,9 +284,21 @@ export default {
 #sidebar {
   margin-top: 2em;
   display: inline-block;
-  /* height: 100%; */
   text-align: left;
   vertical-align: top;
+  border-radius: 10px;
+}
+.filter-header {
+  text-align: center;
+  font-family: "Palette Mosaic", cursive;
+  color: white;
+}
+#sidebar-card,
+.list-group-item {
+  background-color: #96cace;
+}
+.category-button {
+  width: 100%;
 }
 #banner {
   margin-top: 2em;
@@ -215,9 +320,55 @@ export default {
 .pool {
   width: 60%;
   margin-left: 5%;
-
   display: inline-block;
-
   vertical-align: top;
+}
+.pool-card {
+  background-color: rgb(122, 128, 213);
+  color: white;
+}
+.pool-card-info {
+  display: flex;
+  height: 90%;
+  margin-top: 5%;
+}
+.card-info {
+  width: 70%;
+  /* display: inline-block; */
+}
+.price {
+  padding: 10px;
+  /* display: flex; */
+  /* justify-content: space-evenly; */
+  text-align: center;
+}
+.price-item {
+  width: 80px;
+  height: 40px;
+  text-align: center;
+  line-height: 37px;
+  margin-left: 8px;
+}
+.buy-btn {
+  width: 60%;
+  height: 40px;
+  text-align: center;
+  margin-top: 2em;
+  margin-left: 20%;
+  background-color: #2b2fb5;
+  border: rgb(122, 128, 213);
+  /* line-height: 40px; */
+}
+.card.pool-card {
+  border: none;
+  border-radius: 10px;
+}
+#sidebar-card .collapse .card {
+  border: none;
+  background-color: #96cace;
+}
+#sidebar-card {
+  border-radius: 25px;
+  height: 100%;
 }
 </style>
