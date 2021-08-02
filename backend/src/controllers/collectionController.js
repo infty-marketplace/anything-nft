@@ -280,10 +280,6 @@ async function drawNft(req, res) {
 
 async function purchaseAlbum(req, res) {
     const body = req.body;
-    if (!body) {
-        return res.status(400).json({ error: "invalid request" });
-    }
-
     let album = await Album.findOne({ album_id: body.album_id });
 
     if (!album) {
@@ -293,13 +289,14 @@ async function purchaseAlbum(req, res) {
         return res.status(400).json({ error: "album is not for sale" });
     }
     if (album.owner === body.buyer) {
-        return res.status(400).json({ error: "buyer is owner" });
+        return res.status(400).json({ error: "buyer is the owner" });
     }
 
     // check if any associated nft is funded or if any associated nft is not owned by album owner
     const { nfts, nftOwners } = await getAlbumNftsAndOwners(album);
-    if (nftOwners.length !== album.nft_ids.length || Set(nftOwners).size !== 1) {
-        return res.status(400).json({ error: "album is not owned by a single owner" });
+    const uniqueNftOwners = [...new Set(nftOwners)];
+    if (nftOwners.length !== album.nft_ids.length || uniqueNftOwners.length !== 1) {
+        return res.status(400).json({ error: "album contains funded nft" });
     }
 
     // create a transaction record
@@ -313,10 +310,10 @@ async function purchaseAlbum(req, res) {
         commission_currency: body.commission_currency,
         collection_id: album.album_id,
     };
-    await wnership(transactionDetails);
+    await transferOwnership(transactionDetails);
 
     //update associated nft's information
-    await nfts.forEach(async (nft) => {
+    for (const nft of nfts) {
         const nftTransactionDetails = {
             buyer: body.buyer,
             seller: album.owner,
@@ -324,7 +321,7 @@ async function purchaseAlbum(req, res) {
             collection_id: nft.nft_id,
         };
         await transferOwnership(nftTransactionDetails, false);
-    });
+    }
 
     return res.status(200).send();
 }
