@@ -1,32 +1,53 @@
 const { Nft, Draw, Album } = require("../models");
-const ApiError = require("../utils/ApiError");
 
 const getNft = async (req, res) => {
-    const nft = await Nft.findOne(req.params.nft_id);
+    const body = req.body;
+    if (!body) {
+        return res.status(400).json({ error: "invalid request" });
+    }
+
+    const nft = await Nft.findOne(body.nft_id);
     if (!nft) {
-        throw new ApiError(httpStatus.NOT_FOUND, "NFT not found");
+        return res.status(404).json({ error: "nft not found" });
     }
     res.send(nft);
 };
 
 const getAlbum = async (req, res) => {
-    const album = await Album.findOne(req.params.album_id);
+    const body = req.body;
+    if (!body) {
+        return res.status(400).json({ error: "invalid request" });
+    }
+
+    const album = await Album.findOne(body.album_id);
     if (!album) {
-        throw new ApiError(httpStatus.NOT_FOUND, "Album not found");
+        return res.status(404).json({ error: "album not found" });
     }
     res.send(album);
 };
 
 const getDraw = async (req, res) => {
-    const draw = await Draw.findOne(req.params.draw_id);
+    const body = req.body;
+    if (!body) {
+        return res.status(400).json({ error: "invalid request" });
+    }
+
+    const draw = await Draw.findOne(body.draw_id);
     if (!draw) {
-        throw new ApiError(httpStatus.NOT_FOUND, "Draw not found");
+        return res.status(404).json({ error: "draw not found" });
     }
     res.send(draw);
 };
+
+// return a list of on sale NFT's id from cursor position, limit amount
+const getMarket = async (req, res) => {
+
+
+}
 
 module.exports = {
     getNft,
     getAlbum,
     getDraw,
+    getMarket
 };

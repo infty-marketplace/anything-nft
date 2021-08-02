@@ -1,14 +1,18 @@
 const { User } = require("../models");
-const ApiError = require("../utils/ApiError");
 
 const authUser = async (req, res) => {
     return res.status(200).send();
 };
 
 const getUser = async (req, res) => {
-    const user = await User.findOne(req.params.address);
+    const body = req.body;
+    if (!body) {
+        return res.status(400).json({ error: "invalid request" });
+    }
+
+    const user = await User.findOne(body.address);
     if (!user) {
-        throw new ApiError(httpStatus.NOT_FOUND, "User not found");
+        return res.status(404).json({ error: "user not found" });
     }
     res.send(user);
 };
