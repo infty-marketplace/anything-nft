@@ -27,6 +27,15 @@ async function saveAll(schedules) {
         });
 }
 
+async function getAlbumNfts(album) {
+    let nfts = [];
+    for (const id of album.nft_ids) {
+        const nft = await Nft.findOne({ nft_id: id });
+        nfts.push(nft);
+    }
+    return nfts;
+}
+
 function getNftOwners(nft, addressOnly = true) {
     const owners = nft.owner.filter((element) => {
         return element.percentage === 1;
@@ -51,29 +60,40 @@ function getNftFunders(nft, addressOnly = true) {
     return funders;
 }
 
-function getNftListOwners(nfts, addressOnly = true) {
+function getNftListOwners(nfts, addressOnly = true, unique = true) {
     let owners = [];
     for (const nft of nfts) {
         owners = [...owners, ...getNftOwners(nft, addressOnly)];
     }
-    return [...new Set(owners)];
+    if (unique) {
+        return [...new Set(owners)];
+    }
+    return owners;
 }
 
-function getNftListFunders(nfts, addressOnly = true) {
+function getNftListFunders(nfts, addressOnly = true, unique = true) {
     let funders = [];
     for (const nft of nfts) {
         funders = [...funders, ...getNftFunders(nft, addressOnly)];
     }
-    return [...new Set(funders)];
+    if (unique) {
+        return [...new Set(funders)];
+    }
+    return funders;
 }
 
-async function getAlbumNfts(album) {
-    let nfts = [];
-    for (const id of album.nft_ids) {
-        const nft = await Nft.findOne({ nft_id: id });
-        nfts.push(nft);
+function isNftFunded(nft) {
+    return getNftFunders(nft).length > 0 && getNftOwners(nft).length === 0;
+}
+
+async function isAlbumFunded(album) {
+    const nfts = await getAlbumNfts(album);
+    for (const nft of nfts) {
+        if (isNftFunded(nft)) {
+            return true;
+        }
     }
-    return nfts;
+    return false;
 }
 
 async function transferOwnership(transactionDetails, recordTransaction = true) {
@@ -152,7 +172,7 @@ async function purchaseNtf(req, res) {
         return res.status(400).json({ error: "ntf is not for sale" });
     }
 
-    if (getNftOwners(nft).length !== 1) {
+    if (isNftFunded(nft)) {
         return res.status(400).json({ error: "nft is completely funded" });
     }
     if (getNftOwners(nft).includes(body.buyer)) {
@@ -175,8 +195,9 @@ async function purchaseNtf(req, res) {
     //check if this nft fullfills a album
     if (nft.album_id && nft.album_id !== "") {
         let album = await Album.findOne({ album_id: nft.album_id });
-        // if every nft is not completely funded
-        if (getNftListOwners(await getAlbumNfts(album)).length === 1) {
+        // if every nft is not completely funded and every nft's owner is the same
+        const nfts = await getAlbumNfts(album);
+        if (!(await isAlbumFunded(album)) && getNftListOwners(nfts).length === 1) {
             const albumTransactionDetails = {
                 buyer: body.buyer,
                 seller: album.owner,
@@ -261,10 +282,6 @@ async function fundNtf(req, res) {
 
 async function drawNft(req, res) {
     const body = req.body;
-    if (!body) {
-        return res.status(400).json({ error: "invalid request" });
-    }
-
     let draw = await Draw.findOne({ draw_id: body.draw_id });
     if (!draw) {
         return res.status(404).json({ error: "draw not found" });
@@ -311,8 +328,7 @@ async function purchaseAlbum(req, res) {
     }
 
     // check if any associated nft is funded or if any associated nft is not owned by album owner
-    const nfts = await getAlbumNfts(album);
-    if (getNftListOwners(nfts).length !== 1) {
+    if (await isAlbumFunded(album)) {
         return res.status(400).json({ error: "album contains funded nft" });
     }
 
@@ -330,6 +346,7 @@ async function purchaseAlbum(req, res) {
     await transferOwnership(transactionDetails);
 
     //update associated nft's information
+    const nfts = await getAlbumNfts(album);
     for (const nft of nfts) {
         const nftTransactionDetails = {
             buyer: body.buyer,
