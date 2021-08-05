@@ -1,6 +1,8 @@
 const express = require("express");
 const collectionController = require("../controllers/collectionController");
+const multipart = require("connect-multiparty");
 
+const multipartMiddleware = multipart();
 const router = express.Router();
 
 router.get("/nft/:nft_id", collectionController.getNft);
@@ -8,17 +10,16 @@ router.get("/album/:album_id", collectionController.getAlbum);
 router.get("/draw/:draw_id", collectionController.getDraw);
 router.post("/market", collectionController.getMarket);
 
-router.post("/create-nft", () => {});
-router.post("/list-nft", () => {});
-router.post("/list-nft-draw", () => {});
+router.post("/create-nft", multipartMiddleware, collectionController.createNft);
+router.post("/list-nft", collectionController.listNft);
+router.post("/list-nft-draw", collectionController.listNftDraw);
+router.post("/create-album", collectionController.createAlbum);
+router.post("/list-album", collectionController.listAlbum);
 
-router.post("/create-album", () => {});
-router.post("/list-album", () => {});
+router.post("/purchase-nft", collectionController.purchaseNtf);
+router.post("/draw-nft", collectionController.drawNft);
+router.post("/fund-nft", collectionController.fundNtf);
 
-router.post("/purchase-nft", () => {});
-router.post("/draw-nft", () => {});
-router.post("/fund-nft", () => {});
-
-router.post("/purchase-album", () => {});
+router.post("/purchase-album", collectionController.purchaseAlbum);
 
 module.exports = router;
