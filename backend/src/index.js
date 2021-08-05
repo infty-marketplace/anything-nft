@@ -10,13 +10,13 @@ require("dotenv").config();
 const app = express();
 const apiPort = process.env.PORT || 3001;
 
-let session = require('express-session')({
-    secret: 'HeyWhatIsC',
+let session = require("express-session")({
+    secret: "HeyWhatIsC",
     resave: true,
     saveUninitialized: true,
     cookie: {
-        maxAge: 60 * 60 * 24
-    }
+        maxAge: 60 * 60 * 24,
+    },
 });
 app.use(session);
 

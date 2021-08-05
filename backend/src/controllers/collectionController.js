@@ -124,7 +124,7 @@ function createNft(req, res, next) {
 
 function listNft(req, res, next) {
     const nftId = req.body.nftId;
-    await Nft.findOneAndUpdate(
+    Nft.findOneAndUpdate(
         { nft_id: nftId },
         { status: constants.STATUS_SALE, price: req.body.price, currency: req.body.currency },
         (err) => {

@@ -3,7 +3,6 @@ const Schema = mongoose.Schema;
 
 const transactionSchema = new Schema(
     {
-        // timestamp: { type: Date, default: Date.now },
         buyer: { type: String, required: true },
         seller: { type: String, required: true },
 
@@ -27,10 +26,6 @@ const transactionSchema = new Schema(
     }
 );
 
-const Transaction = mongoose.model(
-    "Transaction",
-    transactionSchema,
-    "transactions"
-);
+const Transaction = mongoose.model("Transaction", transactionSchema, "transactions");
 
 module.exports = Transaction;
