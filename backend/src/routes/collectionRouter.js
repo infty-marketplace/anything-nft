@@ -40,16 +40,9 @@ router.post("/create-nft", multipartMiddleware, (req, res, next)=>{
         description: req.body.description,
         file: null,
 
-        status: "PRIVATE",
+        status: constants.STATUS_PRIVATE,
 
-        price: req.body.price,
-        currency: req.body.currency,
-
-        album_id: req.body.albumId,
-        owner: [{'address': req.body.userId, 'percentage': 100}],
-
-        draw_smart_contract_address: req.body.drawContractAddress,
-        share_smart_contract_address: req.body.shareContractAddress
+        owner: [{'address': req.body.address, 'percentage': 100}],
     };
 
     const tmp_path = req.files.file.path;
@@ -69,11 +62,7 @@ router.post("/create-nft", multipartMiddleware, (req, res, next)=>{
             }
             return res.send("File uploaded successfully");
         });
-        
-        
     });
-
-    
 });
 
 router.post("/list-nft", (req, res, next)=>{
@@ -85,6 +74,7 @@ router.post("/list-nft", (req, res, next)=>{
         return res.send("Status changed to sale");
     });
 });
+
 router.post("/list-nft-draw", (req, res, next)=>{
     const nftId = req.body.nftId;
 

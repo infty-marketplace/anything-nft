@@ -45,21 +45,30 @@ export default {
   }),
   methods: {
       createNft(){
-          console.log(1)
           const fd = new FormData();
           fd.append('file', this.imageData);
           fd.append('address', this.$store.getters.getAccount)
           fd.append('title', this.title)
           fd.append('description', this.description)
-          
 
-          axios.post("http://localhost:3001/api/create-nft", fd)
+          axios.post(this.$store.getters.getApiUrl+"/api/create-nft", fd)
             .then(res => {
-                console.log(res)
+                if (res.status == 200) {
+                    this.$bvToast.toast("NFT Created", {
+                        title: "Notification",
+                        autoHideDelay: 3000
+                    })
+                }
+            }).catch(err => {
+                console.log(err)
+                this.$bvToast.toast("NFT Creation Failed", {
+                    title: "Error",
+                    autoHideDelay: 3000
+                })
             })
       },
   },
-  created() {
+  mounted() {
       eventBus.$on("FileUploader.imageUploaded", (imageData) => {
         this.imageData = imageData;
       })
