@@ -1,12 +1,17 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const db = require("./database");
+const db = require("./database/mongodb");
 const userRouter = require("./routes/userRouter");
 const collectionRouter = require("./routes/collectionRouter");
+const cors = require("cors");
+
+require("dotenv").config();
 
 const app = express();
 const apiPort = process.env.PORT || 3001;
 
+
+app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
