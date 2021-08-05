@@ -5,10 +5,10 @@ const multipart = require("connect-multiparty");
 const multipartMiddleware = multipart();
 const router = express.Router();
 
-router.get("/nft/:nft_id", () => {});
-router.get("/album/:album_id", () => {});
-router.get("/draw/:draw_id", () => {});
-router.post("/market", () => {});
+router.get("/nft/:nft_id", collectionController.getNft);
+router.get("/album/:album_id", collectionController.getAlbum);
+router.get("/draw/:draw_id", collectionController.getDraw);
+router.post("/market", collectionController.getMarket);
 
 router.post("/create-nft", multipartMiddleware, collectionController.createNft);
 router.post("/list-nft", collectionController.listNft);
