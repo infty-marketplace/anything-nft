@@ -5,6 +5,7 @@ Vue.use(Vuex)
 const store = new Vuex.Store({
     state: {
         account: undefined,
+        apiUrl: "http://localhost:3001"
     },
     mutations: {
         setAccount: (state, acc) => {
@@ -12,9 +13,8 @@ const store = new Vuex.Store({
         }
     },
     getters: {
-        getAccount: (state) => {
-            return state.account;
-        }
+        getAccount: (state) => state.account,
+        getApiUrl: (state) => state.apiUrl
     }
 })
 
