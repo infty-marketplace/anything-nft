@@ -18,16 +18,6 @@ const userSchema = new Schema({
     }
 });
 
-/**
- * Check if address is taken
- * @param {string} address - The user's address
- * @returns {Promise<boolean>}
- */
-userSchema.statics.isAddressTaken = async function (address) {
-    const user = await this.findOne({ address });
-    return !!user;
-};
-
 const User = mongoose.model("User", userSchema, "users");
 
 module.exports = User;

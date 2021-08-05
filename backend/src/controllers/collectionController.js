@@ -1,4 +1,7 @@
-const { Nft, Draw, Album } = require("../models");
+const Nft = require("../models/nft");
+const Album = require("../models/album");
+const Draw = require("../models/draw");
+const constants = require("../constants");
 
 const getNft = async (req, res) => {
     const body = req.body;
@@ -47,14 +50,42 @@ const getMarket = async (req, res) => {
     }
 
     const limit = body.limit;
+    const offset = body.offset;
 
-    
+    const nftQuery = Nft.find({ status: constants.STATUS_SALE });
+    const albumQuery = Album.find({ status: constants.STATUS_SALE });
+    nftQuery.sort({ updatedAt: "desc" }).skip(offset);
+    albumQuery.sort({ updatedAt: "desc" }).skip(offset);
 
-}
+    if (limit) {
+        nftQuery.limit(limit + 1);
+        albumQuery.limit(limit + 1);
+    }
+
+    let nftIds = [];
+    nftQuery.exec((error, doc) => {
+        if (error) {
+            res.status(500).json(error);
+            return;
+        }
+        nftIds.push(doc);
+    });
+
+    let albumIds = [];
+    albumQuery.exec((error, doc) => {
+        if (error) {
+            res.status(500).json(error);
+            return;
+        }
+        albumIds.push(doc);
+    });
+
+    res.send({ nft_ids: nftIds, album_ids: albumIds });
+};
 
 module.exports = {
     getNft,
     getAlbum,
     getDraw,
-    getMarket
+    getMarket,
 };
