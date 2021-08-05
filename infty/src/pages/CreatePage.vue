@@ -4,13 +4,14 @@
         <div class='content mt-5 mb-5'>
             <h2>Create your own NFT</h2>
             <label class='mt-4'>Title*</label>
-            <b-form-input placeholder="Enter name of the art..."/>
+            <b-form-input v-model="title" placeholder="Enter name of the art..."/>
             <label class='mt-5'>Image*</label>
             <div style="display:flex;min-width:100%;justify-content:space-around;"><FileUploader/></div>
             <label class='mt-5'>Description</label>
             <b-form-textarea
                 id="description"
                 placeholder="Enter a detailed description..."
+                v-model='description'
                 rows="3"
             ></b-form-textarea>
             <div class='mt-5'>
@@ -38,6 +39,8 @@ export default {
       FileUploader,
   },
   data: () => ({
+      title: "",
+      description: "",
       imageData: undefined,
   }),
   methods: {
@@ -46,6 +49,9 @@ export default {
           const fd = new FormData();
           fd.append('file', this.imageData);
           fd.append('address', this.$store.getters.getAccount)
+          fd.append('title', this.title)
+          fd.append('description', this.description)
+          
 
           axios.post("http://localhost:3001/api/create-nft", fd)
             .then(res => {

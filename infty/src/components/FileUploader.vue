@@ -62,15 +62,7 @@ export default {
       event.preventDefault(); //preventing from default behaviour
       this.file = event.dataTransfer.files[0];
       this.fileLoaded = true;
-      let fileType = this.file.type; //getting selected file type
-      if (this.validExtensions.includes(fileType)) {
-        eventBus.$emit("FileUploader.imageUploaded", this.file)
-        this.showFile();
-      } else {
-        alert("This is not an Image File!");
-        this.dropArea.classList.remove("active");
-        this.dragText.textContent = "Drag & Drop to Upload File";
-      }
+      this.showFileOrAlert(this.file.type); //getting selected file type
     });
   },
   methods: {
@@ -80,7 +72,9 @@ export default {
     onUpload() {
       this.file = this.input.files[0];
       this.dropArea.classList.add("active");
-      let fileType = this.file.type; //getting selected file type
+      this.showFileOrAlert(this.file.type);
+    },
+    showFileOrAlert(fileType) {
       if (this.validExtensions.includes(fileType)) {
         this.showFile();
         eventBus.$emit("FileUploader.imageUploaded", this.file)

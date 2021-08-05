@@ -9,8 +9,8 @@ const nftSchema = new Schema({
 
     status: { type: String, required: true },
 
-    price: { type: Number, required: true },
-    currency: { type: String, required: true },
+    price: { type: Number },
+    currency: { type: String },
 
     album_id: { type: String },
     owner: { type: [{ address: String, percentage: Number }], required: true },

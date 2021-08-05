@@ -7,6 +7,9 @@ const constants = require("../constants/index");
 const mongoose = require("mongoose");
 const multipart = require('connect-multiparty');
 const fs = require("fs");
+
+const { makeid } = require('../utils/helpers')
+
 require('dotenv').config();
 
 const multipartMiddleware = multipart();
@@ -29,15 +32,15 @@ router.get("/draw/:draw_id", ()=>{});
 router.post("/market", ()=>{});
 
 router.post("/create-nft", multipartMiddleware, (req, res, next)=>{
-    const nftId = req.body.nftId;
-    console.log(1)
+    console.log("Create NFT")
+    const nftId = makeid(5);
     const params = {
         title: req.body.title,
         nft_id: nftId,
         description: req.body.description,
         file: null,
 
-        status: req.body.status,
+        status: "PRIVATE",
 
         price: req.body.price,
         currency: req.body.currency,
@@ -62,7 +65,7 @@ router.post("/create-nft", multipartMiddleware, (req, res, next)=>{
         const newNFT = new Nft(params);
         newNFT.save(function (err){
             if (err) {
-                return res.send(err);
+                return res.status(400).send(err);
             }
             return res.send("File uploaded successfully");
         });
