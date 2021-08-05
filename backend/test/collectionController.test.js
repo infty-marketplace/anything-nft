@@ -13,10 +13,10 @@ function getMockData() {
     const seller1 = {
         first_name: "seller1",
         address: "seller_address1",
-        nft_ids: ["nft_id1", "nft_id2", "nft_id3", "nft_id4"],
-        album_id: ["album_id1", "album_id2", "album3"],
+        nft_ids: ["nft_id1", "nft_id2", "nft_id3", "nft_id4", "nft_id5"],
+        album_id: ["album_id1", "album_id2", "album3", "album4"],
     };
-    const buyer1 = { first_name: "buyer1", address: "buyer_address1", nft_ids: ["nft_id2"] };
+    const buyer1 = { first_name: "buyer1", address: "buyer_address1", nft_ids: ["nft_id5"] };
     const buyer2 = { first_name: "buyer2", address: "buyer_address2" };
     const album1 = {
         title: "album1",
@@ -48,6 +48,16 @@ function getMockData() {
         nft_ids: ["nft_id2"],
         owner: seller1.address,
     };
+    const album4 = {
+        title: "album4",
+        album_id: "album_id4",
+        status: constants.STATUS_SALE,
+        file: "file4",
+        price: 100,
+        currency: "cfx",
+        nft_ids: ["nft_id5"],
+        owner: seller1.address,
+    };
     const nft1 = {
         title: "nft1",
         nft_id: "nft_id1",
@@ -61,6 +71,7 @@ function getMockData() {
     const nft2 = {
         title: "nft2",
         nft_id: "nft_id2",
+        album_id: "album_id3",
         status: constants.STATUS_SALE,
         file: "file3",
         price: 100,
@@ -90,10 +101,24 @@ function getMockData() {
         currency: "cfx",
         owner: [{ address: seller1.address, percentage: 1 }],
     };
+
+    const nft5 = {
+        title: "nft5",
+        nft_id: "nft_id5",
+        album_id: "",
+        status: constants.STATUS_SALE,
+        file: "file5",
+        price: 100,
+        currency: "cfx",
+        owner: [
+            { address: seller1.address, percentage: 0.3 },
+            { address: buyer1.address, percentage: 0.7 },
+        ],
+    };
     return {
         users: { seller1, buyer1, buyer2 },
-        nfts: { nft1, nft2, nft3, nft4 },
-        albums: { album1, album2, album3 },
+        nfts: { nft1, nft2, nft3, nft4, nft5 },
+        albums: { album1, album2, album3, album4 },
     };
 }
 
@@ -142,7 +167,7 @@ async function unmock(mockData) {
 }
 
 describe("POST /api/purchase-nft", function () {
-    const { seller1, buyer1, buyer2, nft1, nft2, nft3, nft4, album1, album2, album3 } = getMockDataObject();
+    const { seller1, buyer1, buyer2, nft1, nft2, nft3, nft4, nft5, album1, album2, album3 } = getMockDataObject();
 
     before(async () => {
         await mock(getMockData());
@@ -225,7 +250,7 @@ describe("POST /api/purchase-nft", function () {
         expect(res.body.error).to.equal("ntf is not for sale");
     });
 
-    it("should result in an error if the nft is funded", async () => {
+    it("should transfer the nft and album from seller to buyer if nft is not completely funded", async () => {
         const payload = {
             nft_id: nft2.nft_id,
             buyer: buyer2.address,
@@ -233,13 +258,38 @@ describe("POST /api/purchase-nft", function () {
             commission_currency: "cfx",
         };
         const res = await chai.request(server).post("/api/purchase-nft").send(payload);
+        expect(res.status).to.equal(200);
+
+        const nft = await Nft.findOne({ nft_id: nft2.nft_id });
+        expect(nft.owner[0].address).to.equal(buyer2.address);
+
+        const album = await Album.findOne({ album_id: album3.album_id });
+        expect(album.owner).to.equal(buyer2.address);
+
+        const seller = await User.findOne({ address: seller1.address });
+        expect(seller.nft_ids).not.to.contains(nft2.nft_id);
+        expect(seller.album_ids).not.to.contains(album3.album_id);
+
+        const buyer = await User.findOne({ address: buyer2.address });
+        expect(buyer.nft_ids).to.contains(nft2.nft_id);
+        expect(buyer.album_ids).to.contains(album3.album_id);
+    });
+
+    it("should result in error if nft is completely funded", async () => {
+        const payload = {
+            nft_id: nft5.nft_id,
+            buyer: buyer2.address,
+            commission: 1,
+            commission_currency: "cfx",
+        };
+        const res = await chai.request(server).post("/api/purchase-nft").send(payload);
         expect(res.status).to.equal(400);
-        expect(res.body.error).to.equal("nft is not owned by a single owner");
+        expect(res.body.error).to.equal("nft is completely funded");
     });
 });
 
 describe("POST /api/fund-nft", function () {
-    const { seller1, buyer1, buyer2, nft1, nft2, nft3, nft4, album1, album2, album3 } = getMockDataObject();
+    const { seller1, buyer1, buyer2, nft1, nft2, nft3, nft4, album1, album2, album3, album4 } = getMockDataObject();
 
     before(async () => {
         await mock(getMockData());
@@ -374,7 +424,7 @@ describe("POST /api/fund-nft", function () {
 });
 
 describe("POST /api/purchase-album", function () {
-    const { seller1, buyer1, buyer2, nft1, nft2, nft3, nft4, album1, album2, album3 } = getMockDataObject();
+    const { seller1, buyer1, buyer2, nft1, nft2, nft3, nft4, album1, album2, album3, album4 } = getMockDataObject();
 
     before(async () => {
         await mock(getMockData());
@@ -383,6 +433,7 @@ describe("POST /api/purchase-album", function () {
     after(async () => {
         await unmock(getMockData());
     });
+
     it("should result in an error if the buyer is the owner", async () => {
         const payload = {
             album_id: album1.album_id,
@@ -439,7 +490,7 @@ describe("POST /api/purchase-album", function () {
 
     it("should result in an error if album contains funded nft", async () => {
         const payload = {
-            album_id: album3.album_id,
+            album_id: album4.album_id,
             buyer: buyer1.address,
             commission: 1,
             commission_currency: "cfx",
@@ -448,4 +499,41 @@ describe("POST /api/purchase-album", function () {
         expect(res.status).to.equal(400);
         expect(res.body.error).to.equal("album contains funded nft");
     });
+
+    it("should result in an error if album contains funded nft", async () => {
+        const payload = {
+            album_id: album3.album_id,
+            buyer: buyer1.address,
+            commission: 1,
+            commission_currency: "cfx",
+        };
+        const res = await chai.request(server).post("/api/purchase-album").send(payload);
+        expect(res.status).to.equal(200);
+
+        const album = await Album.findOne({ album_id: album3.album_id });
+        expect(album.owner).to.equal(buyer1.address);
+        // 2 funders
+
+        const seller = await User.findOne({ address: seller1.address });
+        expect(seller.album_ids).not.to.contains(album3.album_id);
+        expect(seller.nft_ids).not.to.contains(nft2.nft_id);
+
+        const buyer = await User.findOne({ address: buyer1.address });
+        expect(buyer.album_ids).to.contains(album3.album_id);
+        expect(buyer.nft_ids).to.contains(nft2.nft_id);
+    });
 });
+
+// describe.only("mock", function () {
+//     const { seller1, buyer1, buyer2, nft1, nft2, nft3, nft4, album1, album2, album3 } = getMockDataObject();
+
+//     before(async () => {
+//         await unmock(getMockData());
+
+//         await mock(getMockData());
+//     });
+
+//     after(async () => {});
+
+//     it("mock db", async () => {});
+// });
