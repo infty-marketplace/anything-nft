@@ -14,7 +14,7 @@
               <b-button
                 pill
                 v-b-toggle.collapse-1
-                variant="info"
+                variant="outline-secondary"
                 class="category-button"
                 >Status</b-button
               >
@@ -36,7 +36,7 @@
               <b-button
                 pill
                 v-b-toggle.collapse-2
-                variant="info"
+                variant="outline-secondary"
                 class="category-button"
                 >Price</b-button
               >
@@ -57,7 +57,7 @@
                     placeholder="Max"
                     class="price-range"
                   ></b-form-input>
-                  <b-button id="price-apply-btn" variant="outline-info"
+                  <b-button id="price-apply-btn" variant="outline-primary"
                     >Apply</b-button
                   >
                 </b-card>
@@ -67,7 +67,7 @@
               <b-button
                 pill
                 v-b-toggle.collapse-3
-                variant="info"
+                variant="outline-secondary"
                 class="category-button"
                 >Collections</b-button
               >
@@ -96,7 +96,7 @@
               <b-button
                 pill
                 v-b-toggle.collapse-4
-                variant="info"
+                variant="outline-secondary"
                 class="category-button"
                 >Chains</b-button
               >
@@ -114,7 +114,7 @@
               <b-button
                 pill
                 v-b-toggle.collapse-5
-                variant="info"
+                variant="outline-secondary"
                 class="category-button"
                 >Categories</b-button
               >
@@ -134,11 +134,39 @@
           </b-list-group>
         </b-card>
       </div>
+
+      <b-modal
+        v-if="nftTicketToBuy"
+        ref="my-modal"
+        hide-footer
+        :title="nftTicketToBuy.title"
+        class="ticket-modal"
+      >
+        <div>
+          <div class="ticketInfo-form">
+            <p class="ticketInfo-label">Ticket Number:</p>
+            <b-form-spinbutton v-model="ticketNum" min="1" max="100">
+            </b-form-spinbutton>
+          </div>
+          <p>
+            <span class="ticketInfo-label">Total Price:</span>
+            {{ ticketNum * 10 }} USD
+          </p>
+        </div>
+        <b-button
+          class="buy-btn"
+          id="modal-buy"
+          variant="primary"
+          @click="hideModal"
+          >Buy Now</b-button
+        >
+      </b-modal>
+
       <div class="pool">
         <div id="banner">
           <img
             src="@/assets/imgs/currency.png"
-            alt="Girl in a jacket"
+            alt="currency"
             width="100"
             height="100"
           />
@@ -158,29 +186,33 @@
             img-left
             class="mb-3 pool-card"
           >
-            <div class="pool-card-info">
-              <div class="card-info">
+            <div class="pool-card-primary">
+              <div class="card-primary">
                 <p>{{ card.title }}</p>
                 <p>Owner: {{ card.owner }}</p>
                 <p>Discription: {{ card.description }}</p>
               </div>
-              <div class="transaction-info">
+              <div class="transaction-primary">
                 <div class="price">
-                  <b-badge class="price-item" style="background-color: #6be8aa"
+                  <b-badge
+                    class="price-item"
+                    style="background-color: rgb(236, 105, 166)"
                     >20%</b-badge
                   >
-                  <b-badge class="price-item" style="background-color: #f669a6"
+                  <b-badge
+                    class="price-item"
+                    style="background-color: rgb(236, 105, 166)"
                     >10USD</b-badge
                   >
                 </div>
-                <b-button class="buy-btn" pill variant="primary">Buy</b-button>
+                <b-button
+                  class="buy-btn"
+                  variant="primary"
+                  @click="buyNft(card)"
+                  >Buy</b-button
+                >
               </div>
             </div>
-
-            <!-- <b-card-text>
-              Some quick example text to build on the card and make up the bulk
-              of the card's content.
-            </b-card-text> -->
           </b-card>
         </div>
       </div>
@@ -268,18 +300,38 @@ export default {
           expirationDate: `${Math.round(Math.random() * 10)}`,
         },
       ],
+      ticketNum: 1,
+      nftTicketToBuy: null,
     };
   },
-  methods() {
-    // sidebarHeight(){
-    // }
+  methods: {
+    showModal() {
+      this.$refs["my-modal"].show();
+    },
+    hideModal() {
+      this.nftTicketToBuy = null;
+      this.$refs["my-modal"].hide();
+    },
+    buyNft(card) {
+      this.nftTicketToBuy = card;
+      if (this.nftTicketToBuy) {
+        this.showModal();
+      }
+    },
   },
 };
 </script>
 <style  scoped>
 @import url("https://fonts.googleapis.com/css2?family=Palette+Mosaic&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap");
+* {
+  font-family: "Montserrat", sans-serif;
+}
 .raffle-page {
-  background-color: black;
+  /* background: #0082c8; */
+  /* background: linear-gradient(to right, #667db6, #0082c8, #0082c8, #667db6); */
+  /* background: rgb(18, 18, 18); */
+  /* background: linear-gradient(to right, rgb(38, 38, 38), rgb(18, 18, 18)); /* W3C, IE 10+/ Edge,  */
 }
 #sidebar {
   margin-top: 2em;
@@ -289,13 +341,10 @@ export default {
   border-radius: 10px;
 }
 .filter-header {
-  text-align: center;
-  font-family: "Palette Mosaic", cursive;
-  color: white;
+  text-align: left;
 }
 #sidebar-card,
 .list-group-item {
-  background-color: #96cace;
 }
 .category-button {
   width: 100%;
@@ -303,7 +352,8 @@ export default {
 #banner {
   margin-top: 2em;
   border-radius: 10px;
-  background-image: linear-gradient(-20deg, #6e45e2 0%, #88d3ce 100%);
+  /* background-image: linear-gradient(-20deg, rgb(38, 38, 38), rgb(18, 18, 18)); */
+  background: linear-gradient(-20deg, #434343, #000000);
   height: 200px;
   display: flex;
   justify-content: center;
@@ -324,15 +374,16 @@ export default {
   vertical-align: top;
 }
 .pool-card {
-  background-color: rgb(122, 128, 213);
-  color: white;
+  /* background-color: rgb(38, 38, 38); */
+  /* color: white; */
+  /* padding: 4px; */
 }
-.pool-card-info {
+.pool-card-primary {
   display: flex;
   height: 90%;
   margin-top: 5%;
 }
-.card-info {
+.card-primary {
   width: 70%;
   /* display: inline-block; */
 }
@@ -347,28 +398,90 @@ export default {
   height: 40px;
   text-align: center;
   line-height: 37px;
-  margin-left: 8px;
+  margin-right: 8px;
 }
 .buy-btn {
-  width: 60%;
+  color: rgb(38, 38, 38);
+  font-weight: bold;
+  width: 80%;
+  margin-left: 10%;
   height: 40px;
   text-align: center;
   margin-top: 2em;
-  margin-left: 20%;
-  background-color: #2b2fb5;
-  border: rgb(122, 128, 213);
+  background-color: rgb(107, 232, 170);
+  border: none;
+
   /* line-height: 40px; */
 }
+.buy-btn:hover {
+  background: #383;
+  animation: rotate 0.7s ease-in-out both;
+}
+.buy-btn:active,
+.buy-btn:visited,
+.buy-btn:focus,
+.buy-btn:active.buy-btn,
+.buy-btn:active:hover {
+  background: #383;
+}
+
 .card.pool-card {
-  border: none;
-  border-radius: 10px;
+  /* border: none;
+  border-radius: 10px; */
 }
 #sidebar-card .collapse .card {
-  border: none;
-  background-color: #96cace;
+  /* border: none; */
 }
 #sidebar-card {
-  border-radius: 25px;
+  /* border-radius: 25px; */
   height: 100%;
+}
+.card-img-left {
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+
+.b-form-spinbutton {
+  display: inline;
+  width: 30%;
+  margin-left: 1em;
+}
+.ticketInfo-form {
+  display: flex;
+  height: 50px;
+}
+.ticketInfo-label {
+  /* vertical-align: middle; */
+  text-align: center;
+  line-height: 35px;
+  font-weight: bold;
+}
+.modal-header {
+  background: rgb(107, 232, 170) !important;
+}
+#modal-buy {
+  width: 60%;
+  margin-left: 20%;
+}
+.ticket-modal {
+  margin: auto;
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg) translate3d(0, 0, 0);
+  }
+  25% {
+    transform: rotate(3deg) translate3d(0, 0, 0);
+  }
+  50% {
+    transform: rotate(-3deg) translate3d(0, 0, 0);
+  }
+  75% {
+    transform: rotate(1deg) translate3d(0, 0, 0);
+  }
+  100% {
+    transform: rotate(0deg) translate3d(0, 0, 0);
+  }
 }
 </style>
