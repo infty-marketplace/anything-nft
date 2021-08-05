@@ -67,9 +67,14 @@ router.post("/create-nft", multipartMiddleware, (req, res, next)=>{
 
 router.post("/list-nft", (req, res, next)=>{
     const nftId = req.body.nftId;
-    Nft.findOneAndUpdate({"nft_id" : nftId}, {'status': constants.STATUS_SALE}, function(err){
-        if (err){
-            return res.send(err);
+    Nft.findOneAndUpdate({"nft_id" : nftId},
+        {
+            status: constants.STATUS_SALE,
+            price: req.body.price,
+            currency: req.body.currency
+        }, (err) => {
+        if (err) {
+            return res.status(400).send(err);
         }
         return res.send("Status changed to sale");
     });
@@ -81,7 +86,7 @@ router.post("/list-nft-draw", (req, res, next)=>{
     // create draw document
     const drawParams = {
         title: req.body.title,
-        draw_id: req.body.drawId,
+        draw_id: makeid(5),
         description: req.body.description,
 
         unit_price: req.body.unitPrice,
@@ -97,11 +102,11 @@ router.post("/list-nft-draw", (req, res, next)=>{
     const newDraw = new Draw(drawParams);
     newDraw.save(function (err){
         if (err) {
-            return res.send(err);
+            return res.status(400).send(err);
         }
         Nft.findOneAndUpdate({"nft_id" : nftId}, {'status': constants.STATUS_DRAW}, function(err1){
             if (err1){
-                return res.send(err1);
+                return res.status(500).send(err1);
             }
             return res.send("Draw document created and status changed to draw");
         });

@@ -7,10 +7,10 @@ const nftSchema = new Schema({
     description: { type: String, default: '' },
     file: { type: { data: Buffer, contentType: String }, required: true },
 
-    status: { type: String, required: true },
+    status: { type: String, required: true, enum: ['private', 'sale', 'draw'] },
 
     price: { type: Number },
-    currency: { type: String },
+    currency: { type: String, enum: ['cfx'] },
 
     album_id: { type: String },
     owner: { type: [{ address: String, percentage: Number }], required: true },
