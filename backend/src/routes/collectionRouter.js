@@ -16,10 +16,10 @@ router.post("/list-nft-draw", collectionController.listNftDraw);
 router.post("/create-album", collectionController.createAlbum);
 router.post("/list-album", collectionController.listAlbum);
 
-router.post("/purchase-nft", () => {});
-router.post("/draw-nft", () => {});
-router.post("/fund-nft", () => {});
+router.post("/purchase-nft", collectionController.purchaseNtf);
+router.post("/draw-nft", collectionController.drawNft);
+router.post("/fund-nft", collectionController.fundNtf);
 
-router.post("/purchase-album", () => {});
+router.post("/purchase-album", collectionController.purchaseAlbum);
 
 module.exports = router;
