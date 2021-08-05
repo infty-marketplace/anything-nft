@@ -286,22 +286,38 @@ async function drawNft(req, res) {
     if (!draw) {
         return res.status(404).json({ error: "draw not found" });
     }
+    const nft = await Nft.findOne({ nft_id: draw.nft_id });
+    if (!nft) {
+        return res.status(404).json({ error: "nft not found" });
+    }
+    if (nft.status != constants.STATUS_DRAW) {
+        return res.status(400).json({ error: "nft is not for draw" });
+    }
+    if (isNftFunded(nft)) {
+        return res.status(400).json({ error: "nft is completely funded" });
+    }
+    if (getNftOwners(nft).includes(body.buyer)) {
+        return res.status(400).json({ error: "participant is the owner" });
+    }
 
     let transactionDetails = {
         buyer: body.buyer,
-        seller: draw.owner,
+        seller: getNftOwners(nft)[0],
         transaction_type: "draw-nft",
-        price: draw.unit_prie,
+        price: draw.unit_price,
         quantity: body.quantity,
         currency: draw.currency,
         commission: body.commission,
         commission_currency: body.commission_currency,
         collection_id: draw.draw_id,
     };
-    draw.participant.push({
-        address: transactionDetails.buyer,
-        quantity: transactionDetails.quantity,
-    });
+
+    const index = draw.participants.map((e) => e.address).indexOf(transactionDetails.buyer);
+    if (index >= 0) {
+        draw.participants[index].quantity += transactionDetails.quantity;
+    } else {
+        draw.participants.push({ address: transactionDetails.buyer, quantity: transactionDetails.quantity });
+    }
 
     // TODO: transfer upon deadline/all drawed
     await saveAll([draw, new Transaction(transactionDetails)])

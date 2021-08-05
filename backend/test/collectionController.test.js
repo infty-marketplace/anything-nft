@@ -5,6 +5,7 @@ const User = require("../src/models/user");
 const Nft = require("../src/models/nft");
 const Transaction = require("../src/models/transaction");
 const Album = require("../src/models/album");
+const Draw = require("../src/models/draw");
 const constants = require("../src/constants");
 const expect = chai.expect;
 chai.use(chaiHttp);
@@ -13,10 +14,10 @@ function getMockData() {
     const seller1 = {
         first_name: "seller1",
         address: "seller_address1",
-        nft_ids: ["nft_id1", "nft_id2", "nft_id3", "nft_id4", "nft_id5", "nft_id6", "nft_id7"],
+        nft_ids: ["nft_id1", "nft_id2", "nft_id3", "nft_id4", "nft_id5", "nft_id6", "nft_id7", "nft_id8", "nft_id9"],
         album_ids: ["album_id1", "album_id2", "album3", "album_id4", "album_id5"],
     };
-    const buyer1 = { first_name: "buyer1", address: "buyer_address1", nft_ids: ["nft_id5", "nft_id6"] };
+    const buyer1 = { first_name: "buyer1", address: "buyer_address1", nft_ids: ["nft_id5", "nft_id6", "nft_id9"] };
     const buyer2 = { first_name: "buyer2", address: "buyer_address2" };
     const album1 = {
         title: "album1",
@@ -149,10 +150,68 @@ function getMockData() {
         currency: "cfx",
         owner: [{ address: seller1.address, percentage: 1 }],
     };
+    const nft8 = {
+        title: "nft8",
+        nft_id: "nft_id8",
+        status: constants.STATUS_DRAW,
+        file: "file8",
+        price: 100,
+        currency: "cfx",
+        owner: [{ address: seller1.address, percentage: 1 }],
+    };
+    const nft9 = {
+        title: "nft9",
+        nft_id: "nft_id9",
+        status: constants.STATUS_DRAW,
+        file: "file9",
+        price: 100,
+        currency: "cfx",
+        owner: [
+            { address: seller1.address, percentage: 0.3 },
+            { address: buyer1.address, percentage: 0.7 },
+        ],
+    };
+    const draw1 = {
+        title: "draw1",
+        draw_id: "draw_id1",
+        unit_price: 1,
+        quantity: 100,
+        currency: "cfx",
+        nft_id: nft8.nft_id,
+        owner: seller1.address,
+    };
+    const draw2 = {
+        title: "draw2",
+        draw_id: "draw_id2",
+        unit_price: 1,
+        quantity: 100,
+        currency: "cfx",
+        nft_id: "",
+        owner: seller1.address,
+    };
+    const draw3 = {
+        title: "draw3",
+        draw_id: "draw_id3",
+        unit_price: 1,
+        quantity: 100,
+        currency: "cfx",
+        nft_id: nft1.nft_id,
+        owner: seller1.address,
+    };
+    const draw4 = {
+        title: "draw4",
+        draw_id: "draw_id4",
+        unit_price: 1,
+        quantity: 100,
+        currency: "cfx",
+        nft_id: nft9.nft_id,
+        owner: seller1.address,
+    };
     return {
         users: { seller1, buyer1, buyer2 },
-        nfts: { nft1, nft2, nft3, nft4, nft5, nft6, nft7 },
+        nfts: { nft1, nft2, nft3, nft4, nft5, nft6, nft7, nft7, nft8, nft9 },
         albums: { album1, album2, album3, album4, album5 },
+        draws: { draw1, draw2, draw3, draw4 },
     };
 }
 
@@ -177,6 +236,10 @@ async function mock(mockData) {
             for (const data of Object.values(entry[1])) {
                 await new Album(data).save();
             }
+        } else if (entry[0] === "draws") {
+            for (const data of Object.values(entry[1])) {
+                await new Draw(data).save();
+            }
         }
     }
 }
@@ -195,6 +258,10 @@ async function unmock(mockData) {
         } else if (entry[0] === "albums") {
             for (const data of Object.values(entry[1])) {
                 await Album.deleteMany({ album_id: data.album_id });
+            }
+        } else if (entry[0] === "draws") {
+            for (const data of Object.values(entry[1])) {
+                await Draw.deleteMany({ draw_id: data.draw_id });
             }
         }
     }
@@ -613,7 +680,7 @@ describe("POST /api/purchase-album", function () {
 });
 
 describe("POST /api/draw-nft", function () {
-    const { seller1, buyer1, buyer2, nft1, nft2, nft3, nft4, album1, album2, album3 } = getMockDataObject();
+    const { seller1, buyer1, buyer2, draw1, draw2, draw3, draw4 } = getMockDataObject();
 
     before(async () => {
         await mock(getMockData());
@@ -623,15 +690,101 @@ describe("POST /api/draw-nft", function () {
         await unmock(getMockData());
     });
 
-    it("should result in an error if the buyer is the owner", async () => {
+    it("should result in an error if draw not found", async () => {
         const payload = {
-            album_id: album1.album_id,
+            draw_id: "",
             buyer: seller1.address,
+            quantity: 1,
             commission: 1,
             commission_currency: "cfx",
         };
-        const res = await chai.request(server).post("/api/purchase-album").send(payload);
+        const res = await chai.request(server).post("/api/draw-nft").send(payload);
+        expect(res.status).to.equal(404);
+        expect(res.body.error).to.equal("draw not found");
+    });
+
+    it("should result in an error if nft not found", async () => {
+        const payload = {
+            draw_id: draw2.draw_id,
+            buyer: buyer1.address,
+            quantity: 1,
+            commission: 1,
+            commission_currency: "cfx",
+        };
+        const res = await chai.request(server).post("/api/draw-nft").send(payload);
+        expect(res.status).to.equal(404);
+        expect(res.body.error).to.equal("nft not found");
+    });
+
+    it("should result in an error if nft is not for draw", async () => {
+        const payload = {
+            draw_id: draw3.draw_id,
+            buyer: buyer1.address,
+            quantity: 1,
+            commission: 1,
+            commission_currency: "cfx",
+        };
+        const res = await chai.request(server).post("/api/draw-nft").send(payload);
         expect(res.status).to.equal(400);
-        expect(res.body.error).to.equal("buyer is the owner");
+        expect(res.body.error).to.equal("nft is not for draw");
+    });
+
+    it("should result in an error if nft is funded", async () => {
+        const payload = {
+            draw_id: draw4.draw_id,
+            buyer: buyer1.address,
+            quantity: 1,
+            commission: 1,
+            commission_currency: "cfx",
+        };
+        const res = await chai.request(server).post("/api/draw-nft").send(payload);
+        expect(res.status).to.equal(400);
+        expect(res.body.error).to.equal("nft is completely funded");
+    });
+
+    it("should result in an error if participant is the owner", async () => {
+        const payload = {
+            draw_id: draw1.draw_id,
+            buyer: seller1.address,
+            quantity: 1,
+            commission: 1,
+            commission_currency: "cfx",
+        };
+        const res = await chai.request(server).post("/api/draw-nft").send(payload);
+        expect(res.status).to.equal(400);
+        expect(res.body.error).to.equal("participant is the owner");
+    });
+
+    it("should add the participant to the participants list", async () => {
+        const payload = {
+            draw_id: draw1.draw_id,
+            buyer: buyer1.address,
+            quantity: 1,
+            commission: 1,
+            commission_currency: "cfx",
+        };
+        const res = await chai.request(server).post("/api/draw-nft").send(payload);
+        expect(res.status).to.equal(200);
+
+        const draw = await Draw.findOne({ draw_id: draw1.draw_id });
+        expect(draw.participants[0].address).to.equals(buyer1.address);
+        expect(draw.participants[0].quantity).to.equals(payload.quantity);
+    });
+
+    it("should increase the quantity for the participant in the participants list", async () => {
+        const payload = {
+            draw_id: draw1.draw_id,
+            buyer: buyer1.address,
+            quantity: 9,
+            commission: 1,
+            commission_currency: "cfx",
+        };
+        const res = await chai.request(server).post("/api/draw-nft").send(payload);
+        expect(res.status).to.equal(200);
+
+        const draw = await Draw.findOne({ draw_id: draw1.draw_id });
+        expect(draw.participants.length).to.equals(1);
+        expect(draw.participants[0].address).to.equals(buyer1.address);
+        expect(draw.participants[0].quantity).to.equals(1 + payload.quantity);
     });
 });
