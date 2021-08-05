@@ -16,9 +16,11 @@ mongoose.set('useFindAndModify', false);
 const router = express.Router();
 const AWS = require('aws-sdk');
 AWS.config.update({
+    region: 'us-east-1',
     accessKeyId: process.env.AWS_ACCESS_KEY,
     secretAccessKey: process.env.AWS_SECRET_KEY
 });
+
 const s3 = new AWS.S3();
 
 router.get("/nft/:nft_id", ()=>{});
@@ -28,6 +30,7 @@ router.post("/market", ()=>{});
 
 router.post("/create-nft", multipartMiddleware, (req, res, next)=>{
     const nftId = req.body.nftId;
+    console.log(1)
     const params = {
         title: req.body.title,
         nft_id: nftId,

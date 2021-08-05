@@ -15,7 +15,7 @@
             ></b-form-textarea>
             <div class='mt-5'>
                 <b-form-checkbox style="display:inline">Image On-chain Storage<b-badge pill variant='info' class='ml-2'>Free for limited time</b-badge></b-form-checkbox>
-                <b-button variant="primary" class='create-btn'>Create</b-button>
+                <b-button variant="primary" class='create-btn' @click='createNft'>Create</b-button>
             </div>
             
         </div>
@@ -24,6 +24,9 @@
 </template>
 
 <script>
+import { eventBus } from "../main"
+import axios from "axios"
+
 import Navbar from '../components/Navbar.vue'
 import Footer from '../components/Footer.vue'
 import FileUploader from '../components/FileUploader.vue'
@@ -32,7 +35,31 @@ export default {
   components: {
       Navbar,
       Footer,
-      FileUploader
+      FileUploader,
+  },
+  data: () => ({
+      imageData: undefined,
+  }),
+  methods: {
+      createNft(){
+          console.log(1)
+          const fd = new FormData();
+          fd.append('file', this.imageData);
+          fd.append('address', this.$store.getters.getAccount)
+
+          axios.post("http://localhost:3001/api/create-nft", fd)
+            .then(res => {
+                console.log(res)
+            })
+      },
+  },
+  created() {
+      eventBus.$on("FileUploader.imageUploaded", (imageData) => {
+        this.imageData = imageData;
+      })
+  },
+  beforeDestroy() {
+      eventBus.$off("FileUploader.imageUploaded")
   }
 }
 </script>
