@@ -18,13 +18,26 @@
         </ul>
       </nav>
     </header>
+    <b-modal ref="reg-modal" title='Register' @ok="handleRegister">
+      <div class='mb-4'>We noticed that this is your first time connecting to our platform, so we need some info from you.</div>
+      <label>First Name</label>
+      <b-form-input class='mb-4' v-model='first_name' placeholder="Your creative first name here..."/>
+      <label>Last Name</label>
+      <b-form-input class='mb-4' v-model='last_name' placeholder="Optional"/>
+    </b-modal>
   </div>
 </template>
 
 <script>
+import axios from 'axios'
+
 export default {
   name: "Navbar",
   props: ['activeIndex'],
+  data: () => ({
+    first_name: '',
+    last_name: ''
+  }),
   methods: {
     async connectWallet() {
       let accounts;
@@ -35,9 +48,27 @@ export default {
       }
       if (accounts) {
         this.$store.commit("setAccount", accounts[0])
+        axios.get(`${this.$store.getters.getApiUrl}/profile/${accounts[0]}`)
+          .then(res => {
+            console.log(res)
+          }).catch(err => {
+            if (err.response.status == 404) {
+              this.$refs['reg-modal'].show()
+            }
+          })
         console.log(this.$store.getters.getAccount)
         window.alert('Connected')
       }
+    },
+    handleRegister() {
+      axios.post(`${this.$store.getters.getApiUrl}/profile/update-profile`,
+        {
+          first_name: this.first_name,
+          last_name: this.last_name,
+          address: this.$store.getters.getAccount,
+        }).then(res => {
+          console.log(res)
+        })
     }
   },
 };

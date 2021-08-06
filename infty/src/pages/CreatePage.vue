@@ -51,7 +51,7 @@ export default {
           fd.append('title', this.title)
           fd.append('description', this.description)
 
-          axios.post(this.$store.getters.getApiUrl+"/api/create-nft", fd)
+          axios.post(this.$store.getters.getApiUrl+"/create-nft", fd)
             .then(res => {
                 if (res.status == 200) {
                     this.$bvToast.toast("NFT Created", {

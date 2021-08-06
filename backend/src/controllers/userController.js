@@ -36,19 +36,57 @@ const authUser = async (req, res) => {
 };
 
 const getUser = async (req, res) => {
-    const body = req.body;
-    if (!body) {
+    if (!req.params.address) {
         return res.status(400).json({ error: "invalid request" });
     }
 
-    const user = await User.findOne(body.address);
+    const user = await User.findOne({address:req.params.address});
     if (!user) {
         return res.status(404).json({ error: "user not found" });
     }
     res.send(user);
 };
 
+const updateProfile = async (req, res) => {
+    // if not exist, create one
+    const user = await User.findOne({address: req.body.address});
+    if (!user) {
+        const newUser = new User({
+            first_name: req.body.first_name,
+            last_name: req.body.last_name,
+            address: req.body.address,
+            description: req.body.description,
+            profile_picture: 'https://ipfs.io/ipfs/QmR9aGP1cQ13sapFBfFLiuhRVSGcrMYvZPmKXNNrobwtFZ?filename=undraw_male_avatar_323b.png',
+        })
+        newUser.save((err) => {
+            if (err) {
+                return res.status(500).send(err);
+            }
+            return res.send("User profile created.");
+        });
+    } else {
+        User.findOneAndUpdate(
+            {address: req.body.address},
+            {
+                first_name: req.body.first_name,
+                last_name: req.body.last_name,
+                address: req.body.address,
+                description: req.body.description,
+                profile_picture: req.body.profile_picture
+            },
+            (err) => {
+                if (err) {
+                    res.status(500).send(err)
+                } else {
+                    res.send('User profile updated.')
+                }
+            }
+        )
+    }
+}
+
 module.exports = {
     authUser,
     getUser,
+    updateProfile,
 };
