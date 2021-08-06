@@ -5,7 +5,7 @@ Vue.use(Vuex)
 const store = new Vuex.Store({
     state: {
         account: undefined,
-        apiUrl: "http://localhost:3001"
+        apiUrl: "http://localhost:3001/api"
     },
     mutations: {
         setAccount: (state, acc) => {
