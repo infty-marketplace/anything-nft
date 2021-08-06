@@ -9,7 +9,7 @@ const userSchema = new Schema(
         description: { type: String, default: "" },
         nft_ids: { type: [String], default: [] },
         album_ids: { type: [String], default: [] },
-        profile_picture: { data: Buffer, contentType: String },
+        profile_picture: { type: String },
     },
     {
         timestamps: {
