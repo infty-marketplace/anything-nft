@@ -69,7 +69,9 @@ export default {
             })
       },
   },
-  mounted() {
+  async mounted() {
+      const accounts = await window.conflux.send("cfx_requestAccounts")
+      this.$store.commit("setAccount", accounts[0])
       eventBus.$on("FileUploader.imageUploaded", (imageData) => {
         this.imageData = imageData;
       })

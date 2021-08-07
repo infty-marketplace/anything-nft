@@ -8,7 +8,7 @@
       img-top
     >
       <b-card-text class="card-detail">
-        <p>Card Name</p>
+        <p>{{ card.title }}</p>
         <p>{{ card.collection }}</p>
         <b>{{ card.author }}author</b>
       </b-card-text>
@@ -44,17 +44,17 @@
           >
           <b-modal ref="list-modal" title='List Item' @ok="handleListNft">
             <label>Price</label>
-            <b-form-input class='mb-4' placeholder="How much in cfx..."/>
+            <b-form-input class='mb-4' v-model='listing_price' placeholder="How much in cfx..."/>
             <label>Commision Fee</label>
-            <b-form-input class='mb-4' placeholder="How much in cfx... (Minimum 2.5%)"/>
+            <b-form-input class='mb-4' v-model='listing_commision' placeholder="How much in cfx... (Minimum 2.5%)"/>
           </b-modal>
-          <b-modal ref="raffle-modal" title='Raffle It' @ok="handleListNft">
+          <b-modal ref="raffle-modal" title='Raffle It' @ok="handleRaffleNft">
             <label>Ticket Price</label>
-            <b-form-input class='mb-4' placeholder="How much in cfx..."/>
+            <b-form-input class='mb-4' v-model='raffle_price' placeholder="How much in cfx..."/>
             <label>Number of Tickets</label>
-            <b-form-input class='mb-4' placeholder="How many tickets..."/>
+            <b-form-input class='mb-4' v-model='raffle_tickets' placeholder="How many tickets..."/>
             <label>Commision</label>
-            <b-form-input class='mb-4' placeholder="How much in cfx... (Minimum 5%)"/>
+            <b-form-input class='mb-4' v-model='raffle_commision' placeholder="How much in cfx... (Minimum 5%)"/>
             <b-form-checkbox
               id="checkbox-1"
               v-model="status"
@@ -73,11 +73,21 @@
 </template>
 
 <script>
+import axios from 'axios'
+import { eventBus } from '../main'
 export default {
   name: "Card",
   props: {
     card: Object,
   },
+  data:() => ({
+    status: undefined,
+    listing_price: undefined,
+    listing_commision: undefined,
+    raffle_price: undefined,
+    raffle_tickets: undefined,
+    raffle_commision: undefined
+  }),
   methods: {
     listNftClicked(e) {
       e.preventDefault();
@@ -88,12 +98,32 @@ export default {
       this.$refs['raffle-modal'].show()
     },
     handleListNft() {
-      this.$bvToast.toast("Listed Successfully", {
-        title: 'Congrats',
-        autoHideDelay: 3000,
-        appendToast: false,
+      axios.post(`${this.$store.getters.getApiUrl}/list-nft`, {
+        price: this.listing_price,
+        comission: this.listing_commision,
+        currency: 'cfx',
+        nftId: this.card.nft_id
+      }).then(res => {
+        this.$bvToast.toast("Listed Successfully", {
+          title: 'Congrats',
+          autoHideDelay: 3000,
+          appendToast: false,
+        })
+        console.log(res.data)
+        eventBus.$emit("Card.statusChanged", res.data.status)
+      }).catch(err => {
+        console.log(err)
+        this.$bvToast.toast("Listing Failed", {
+          title: 'Error',
+          autoHideDelay: 3000,
+          appendToast: false,
+        })
       })
+      
     },
+    handleRaffleNft() {
+      
+    }
   },
 };
 </script>
