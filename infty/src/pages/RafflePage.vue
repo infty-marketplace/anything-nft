@@ -136,10 +136,10 @@
       </div>
 
       <b-modal
-        v-if="nftTicketToBuy"
         ref="my-modal"
         hide-footer
-        :title="nftTicketToBuy.title"
+        centered
+        :title="modalTitle"
         class="ticket-modal"
       >
         <div>
@@ -232,6 +232,14 @@ export default {
     Navbar,
     Footer,
   },
+  computed: {
+    modalTitle: function () {
+      if (!this.nftToBuy) {
+        return "nftCardTitle";
+      }
+      return this.nftToBuy.title;
+    },
+  },
   data() {
     return {
       statusSelected: [],
@@ -301,7 +309,7 @@ export default {
         },
       ],
       ticketNum: 1,
-      nftTicketToBuy: null,
+      nftToBuy: null,
     };
   },
   methods: {
@@ -313,10 +321,11 @@ export default {
       this.$refs["my-modal"].hide();
     },
     buyNft(card) {
-      this.nftTicketToBuy = card;
-      if (this.nftTicketToBuy) {
-        this.showModal();
-      }
+      this.showModal();
+      this.nftToBuy = card;
+      // if (this.nftTicketToBuy) {
+      //   this.showModal();
+      // }
     },
   },
 };
