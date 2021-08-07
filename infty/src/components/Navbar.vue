@@ -42,6 +42,10 @@ export default {
     async connectWallet() {
       let accounts;
       try {
+        if (! window.conflux) {
+          window.alert("Conflux Wallet Undetected")
+          return
+        }
         accounts = await window.conflux.send("cfx_requestAccounts")
       } catch (e) {
         console.log(e)

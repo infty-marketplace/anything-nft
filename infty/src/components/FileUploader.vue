@@ -1,6 +1,9 @@
 <template>
   <div>
     <div class="drag-area">
+      <input ref='input' type="file" @change="onUpload" hidden />
+      <img ref='image' v-if="fileLoaded"/>
+      <div class='drag-area-inner mt-5' v-else>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="150"
@@ -21,7 +24,7 @@
       <header>Drag & Drop to Upload File</header>
       <span>OR</span>
       <button v-if="!fileLoaded" @click="btnClicked">Browse File</button>
-      <input type="file" @change="onUpload" hidden />
+      </div>
     </div>
     <button v-if="fileLoaded" @click="btnClicked" style="float: right">
       Change File
@@ -42,10 +45,14 @@ export default {
     fileLoaded: false,
     validExtensions: ["image/jpeg", "image/jpg", "image/png"],
   }),
+  created() {
+    eventBus.$on("CreatePage.nftCreated", () => {
+      this.fileLoaded = false;
+    })
+  },
   mounted() {
     const dropArea = document.querySelector(".drag-area");
     const dragText = dropArea.querySelector("header");
-    this.input = dropArea.querySelector("input");
     this.dropArea = dropArea;
     this.dragText = dragText;
 
@@ -67,15 +74,16 @@ export default {
   },
   methods: {
     btnClicked() {
-      this.input.click();
+      this.$refs.input.click();
     },
     onUpload() {
-      this.file = this.input.files[0];
+      this.file = this.$refs.input.files[0];
       this.dropArea.classList.add("active");
       this.showFileOrAlert(this.file.type);
     },
     showFileOrAlert(fileType) {
       if (this.validExtensions.includes(fileType)) {
+        this.fileLoaded = true;
         this.showFile();
         eventBus.$emit("FileUploader.imageUploaded", this.file)
       } else {
@@ -89,11 +97,10 @@ export default {
       let fileReader = new FileReader(); //creating new FileReader object
       fileReader.onload = () => {
         let fileURL = fileReader.result; //passing user file source in fileURL variable
-        let imgTag = `<img src="${fileURL}" alt="image">`; //creating an img tag and passing user selected file source inside src attribute
-        this.dropArea.innerHTML = imgTag; //adding that created img tag inside dropArea container
+        // this.dropArea.innerHTML = imgTag; //adding that created img tag inside dropArea container
+        this.$refs.image.src = fileURL
       };
       fileReader.readAsDataURL(this.file);
-      this.fileLoaded = true;
     },
   },
 };
@@ -108,6 +115,8 @@ export default {
   height: 500px;
   width: 700px;
   border-radius: 5px;
+}
+.drag-area-inner {
   display: flex;
   align-items: center;
   justify-content: center;
