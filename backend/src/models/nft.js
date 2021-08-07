@@ -4,10 +4,10 @@ const constants = require("../constants");
 
 const nftSchema = new Schema(
     {
-        title: { type: String, required: true },
+        title: { type: String, required: true, unique: true },
         nft_id: { type: String, required: true },
         description: { type: String, default: "" },
-        file: { type: { data: Buffer, contentType: String }, required: true },
+        file: { type: String, required: true },
 
         status: {
             type: String,
@@ -19,6 +19,7 @@ const nftSchema = new Schema(
         currency: { type: String, enum: ["cfx"] },
 
         album_id: { type: String },
+        author: { type: String, required: true },
         owner: { type: [{ address: String, percentage: Number }], required: true },
 
         draw_smart_contract_address: { type: String },
