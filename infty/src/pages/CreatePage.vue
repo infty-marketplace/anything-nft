@@ -59,6 +59,7 @@ export default {
                         autoHideDelay: 3000
                     })
                 }
+                eventBus.$emit("CreatePage.nftCreated");
             }).catch(err => {
                 console.log(err)
                 this.$bvToast.toast("NFT Creation Failed", {
