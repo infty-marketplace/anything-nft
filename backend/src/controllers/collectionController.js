@@ -143,6 +143,20 @@ function listNft(req, res) {
     );
 }
 
+function delistNft(req, res) {
+    const nftId = req.body.nftId;
+    Nft.findOneAndUpdate(
+        { nft_id: nftId },
+        { status: constants.STATUS_PRIVATE },
+        (err) => {
+            if (err) {
+                return res.status(400).send(err);
+            }
+            return res.send("Status changed to pivate");
+        }
+    );
+}
+
 function listNftDraw(req, res) {
     const nftId = req.body.nftId;
 
@@ -587,6 +601,7 @@ module.exports = {
     getMarket,
     createNft,
     listNft,
+    delistNft,
     listNftDraw,
     createAlbum,
     listAlbum,

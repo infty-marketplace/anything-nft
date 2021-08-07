@@ -13,7 +13,7 @@
         <b>{{ card.author }}author</b>
       </b-card-text>
       <template #footer>
-        <div v-if="card.price">
+        <div v-if="card.status == 'sale'">
           <span class="text-muted-left"
             ><small class="text-muted"
               ><b-icon icon="clock"></b-icon>&nbsp;{{
@@ -26,8 +26,8 @@
             ><small class="text-muted"
               ><b-icon icon="suit-diamond-fill"></b-icon>&nbsp;Price:
               {{ card.price }}</small
-            ></span
-          >
+            ></span>
+            
         </div>
         <div v-else>
           <small class="text-muted">Currently Unlisted</small>
@@ -67,6 +67,7 @@
             
           </b-modal>
         </div>
+        <b-btn v-if='card.status == "sale"' variant='info' class='text-muted-right' @click='delistNft'>Delist</b-btn>
       </template>
     </b-card>
   </router-link>
@@ -75,6 +76,7 @@
 <script>
 import axios from 'axios'
 import { eventBus } from '../main'
+
 export default {
   name: "Card",
   props: {
@@ -110,7 +112,7 @@ export default {
           appendToast: false,
         })
         console.log(res.data)
-        eventBus.$emit("Card.statusChanged", res.data.status)
+        eventBus.$emit("Card.statusChanged", this.card.nft_id)
       }).catch(err => {
         console.log(err)
         this.$bvToast.toast("Listing Failed", {
@@ -123,6 +125,19 @@ export default {
     },
     handleRaffleNft() {
       
+    },
+    delistNft(e) {
+      e.preventDefault()
+      axios.post(`${this.$store.getters.getApiUrl}/delist-nft`, {nftId: this.card.nft_id})
+        .then(res => {
+          this.$bvToast.toast("Delisted Successfully", {
+            title: 'Info',
+            autoHideDelay: 3000,
+            appendToast: false,
+          })
+          eventBus.$emit("Card.statusChanged", this.card.nft_id)
+          console.log(res)
+        })
     }
   },
 };

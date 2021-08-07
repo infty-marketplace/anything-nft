@@ -46,8 +46,18 @@ export default {
     }),
     async mounted() {
       if (this.$store.getters.getAddress) this.loadNfts();
-      eventBus.$on("Collections.loadNfts", ()=>this.loadNfts())
       this.$store.dispatch('connectWallet')
+
+      eventBus.$on("Collections.loadNfts", ()=>this.loadNfts())
+      eventBus.$on("Card.statusChanged", (nid) => {
+        axios.get(`${this.$store.getters.getApiUrl}/nft/${nid}`)
+          .then(res => {
+            const newNft = res.data
+            newNft.url = newNft.file
+            newNft.author = newNft.owner[0].address
+            this.$set(this.nfts, this.nfts.findIndex(n => n.nft_id == nid), newNft)
+          })
+      })
     },
     beforeDestroy() {
       eventBus.$off("Collections.loadNfts")
