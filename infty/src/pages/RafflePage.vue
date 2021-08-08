@@ -232,6 +232,24 @@ export default {
     Navbar,
     Footer,
   },
+  async mounted() {
+    if (this.$store.getters.getAddress) this.loadNfts();
+    this.$store.dispatch("connectWallet");
+
+    eventBus.$on("Collections.loadNfts", () => this.loadNfts());
+    eventBus.$on("Card.statusChanged", (nid) => {
+      axios.get(`${this.$store.getters.getApiUrl}/nft/${nid}`).then((res) => {
+        const newNft = res.data;
+        newNft.url = newNft.file;
+        newNft.author = newNft.owner[0].address;
+        this.$set(
+          this.nfts,
+          this.nfts.findIndex((n) => n.nft_id == nid),
+          newNft
+        );
+      });
+    });
+  },
   computed: {
     modalTitle: function () {
       if (!this.nftToBuy) {
@@ -313,6 +331,27 @@ export default {
     };
   },
   methods: {
+    async loadNfts() {
+      const getters = this.$store.getters;
+      const res = await axios.get(
+        `${getters.getApiUrl}/profile/${getters.getAddress}`
+      );
+      const nft_promises = res.data.nft_ids.map((nid) =>
+        axios.get(`${getters.getApiUrl}/nft/${nid}`)
+      );
+      const nft_promises_result = await Promise.allSettled(nft_promises);
+      let nfts = nft_promises_result.map((p) => {
+        if (p.status == "fulfilled") {
+          return p.value.data;
+        }
+      });
+      nfts = nfts.map((n) => {
+        n.url = n.file;
+        n.author = n.owner[0].address;
+        return n;
+      });
+      this.nfts = nfts;
+    },
     showModal() {
       this.$refs["my-modal"].show();
     },
