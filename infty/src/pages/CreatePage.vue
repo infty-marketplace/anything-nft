@@ -1,7 +1,7 @@
 <template>
     <div class='flex-wrapper main'>
         <Navbar />
-        <div class='content mt-5 mb-5'>
+        <div class='content mt-5 mb-5' v-if='$store.getters.getAddress'>
             <h2>Create your own NFT</h2>
             <label class='mt-4'>Title*</label>
             <b-form-input v-model="title" placeholder="Enter name of the art..."/>
@@ -18,8 +18,8 @@
                 <b-form-checkbox style="display:inline">Image On-chain Storage<b-badge pill variant='info' class='ml-2'>Free for limited time</b-badge></b-form-checkbox>
                 <b-button variant="primary" class='create-btn' @click='createNft'>Create</b-button>
             </div>
-            
         </div>
+        <ConnectWallet v-else />
         <Footer />
     </div>
 </template>
@@ -31,12 +31,14 @@ import axios from "axios"
 import Navbar from '../components/Navbar.vue'
 import Footer from '../components/Footer.vue'
 import FileUploader from '../components/FileUploader.vue'
+import ConnectWallet from '../components/ConnectWallet.vue'
 export default {
   name: 'CreatePage',
   components: {
       Navbar,
       Footer,
       FileUploader,
+      ConnectWallet
   },
   data: () => ({
       title: "",
@@ -47,7 +49,7 @@ export default {
       createNft(){
           const fd = new FormData();
           fd.append('file', this.imageData);
-          fd.append('address', this.$store.getters.getAccount)
+          fd.append('address', this.$store.getters.getAddress)
           fd.append('title', this.title)
           fd.append('description', this.description)
 
@@ -69,7 +71,8 @@ export default {
             })
       },
   },
-  mounted() {
+  async mounted() {
+      this.$store.dispatch("connectWallet")
       eventBus.$on("FileUploader.imageUploaded", (imageData) => {
         this.imageData = imageData;
       })

@@ -103,6 +103,9 @@ export default {
       fileReader.readAsDataURL(this.file);
     },
   },
+  beforeDestroy() {
+    eventBus.$off("CreatePage.nftCreated")
+  }
 };
 </script>
 

@@ -9,12 +9,8 @@ const { makeid } = require("../utils/helpers");
 const s3 = require("../database/s3");
 
 const getNft = async (req, res) => {
-    const body = req.body;
-    if (!body) {
-        return res.status(400).json({ error: "invalid request" });
-    }
-
-    const nft = await Nft.findOne(body.nft_id);
+    const body = req.params;
+    const nft = await Nft.findOne({nft_id:body.nft_id});
     if (!nft) {
         return res.status(404).json({ error: "nft not found" });
     }
@@ -88,7 +84,7 @@ const getMarket = async (req, res) => {
     res.send({ nft_ids: nftIds, album_ids: albumIds });
 };
 
-function createNft(req, res, next) {
+function createNft(req, res) {
     console.log("Create NFT");
     const nftId = makeid(5);
     const params = {
@@ -113,16 +109,27 @@ function createNft(req, res, next) {
         const uploadedUrl = data.Location;
         params.file = uploadedUrl;
         const newNFT = new Nft(params);
-        newNFT.save(function (err) {
+        newNFT.save(async function (err) {
             if (err) {
                 return res.status(400).send(err);
             }
+            const u = await User.findOne({address: req.body.address})
+            User.findOneAndUpdate(
+                { address: req.body.address },
+                { nft_ids: [nftId, ...u.nft_ids]},
+                (err) => {
+                    if (err) {
+                        return res.status(500).send(err);
+                    }
+                }
+            );
+            
             return res.send("File uploaded successfully");
         });
     });
 }
 
-function listNft(req, res, next) {
+function listNft(req, res) {
     const nftId = req.body.nftId;
     Nft.findOneAndUpdate(
         { nft_id: nftId },
@@ -136,7 +143,21 @@ function listNft(req, res, next) {
     );
 }
 
-function listNftDraw(req, res, next) {
+function delistNft(req, res) {
+    const nftId = req.body.nftId;
+    Nft.findOneAndUpdate(
+        { nft_id: nftId },
+        { status: constants.STATUS_PRIVATE },
+        (err) => {
+            if (err) {
+                return res.status(400).send(err);
+            }
+            return res.send("Status changed to pivate");
+        }
+    );
+}
+
+function listNftDraw(req, res) {
     const nftId = req.body.nftId;
 
     // create draw document
@@ -580,6 +601,7 @@ module.exports = {
     getMarket,
     createNft,
     listNft,
+    delistNft,
     listNftDraw,
     createAlbum,
     listAlbum,

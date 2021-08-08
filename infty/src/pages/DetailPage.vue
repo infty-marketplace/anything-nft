@@ -14,8 +14,7 @@
         <b-card-text>
           <p>Created by {{ card.author }}</p>
           <p>
-            10,000 unique on-chain avatar NFTs generated using a cellular
-            automaton.
+            {{ card.description || "No description." }}
           </p>
         </b-card-text>
         <b-list-group flush>
