@@ -6,7 +6,9 @@
             <label class='mt-4'>Title*</label>
             <b-form-input v-model="title" placeholder="Enter name of the art..."/>
             <label class='mt-5'>Image*</label>
-            <div style="display:flex;min-width:100%;justify-content:space-around;"><FileUploader/></div>
+            <div style="display:flex;min-width:100%;justify-content:space-around;">
+                <FileUploader class='file-uploader' pass-file-to-event="CreatePage.receiveFile"/>
+            </div>
             <label class='mt-5'>Description</label>
             <b-form-textarea
                 id="description"
@@ -73,12 +75,12 @@ export default {
   },
   async mounted() {
       this.$store.dispatch("connectWallet")
-      eventBus.$on("FileUploader.imageUploaded", (imageData) => {
+      eventBus.$on("CreatePage.receiveFile", (imageData) => {
         this.imageData = imageData;
       })
   },
   beforeDestroy() {
-      eventBus.$off("FileUploader.imageUploaded")
+      eventBus.$off("CreatePage.receiveFile")
   }
 }
 </script>
@@ -93,5 +95,8 @@ export default {
 }
 .create-btn {
     float: right;
+}
+.file-uploader {
+    width: 80%;
 }
 </style>

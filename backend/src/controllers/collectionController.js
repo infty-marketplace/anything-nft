@@ -9,8 +9,7 @@ const { makeid } = require("../utils/helpers");
 const s3 = require("../database/s3");
 
 const getNft = async (req, res) => {
-    const body = req.params;
-    const nft = await Nft.findOne({nft_id:body.nft_id});
+    const nft = await Nft.findOne({nft_id: req.params.nft_id});
     if (!nft) {
         return res.status(404).json({ error: "nft not found" });
     }
@@ -18,12 +17,7 @@ const getNft = async (req, res) => {
 };
 
 const getAlbum = async (req, res) => {
-    const body = req.body;
-    if (!body) {
-        return res.status(400).json({ error: "invalid request" });
-    }
-
-    const album = await Album.findOne(body.album_id);
+    const album = await Album.findOne({album_id: req.params.album_id});
     if (!album) {
         return res.status(404).json({ error: "album not found" });
     }
@@ -92,7 +86,7 @@ function createNft(req, res) {
         nft_id: nftId,
         description: req.body.description,
         file: null,
-
+        author: req.body.address,
         status: constants.STATUS_PRIVATE,
 
         owner: [{ address: req.body.address, percentage: 100 }],
@@ -190,27 +184,43 @@ function listNftDraw(req, res) {
     });
 }
 
-function createAlbum(req, res, next) {
+async function createAlbum(req, res) {
+    const album_id = makeid(5)
+    const tmp_path = req.files.file.path;
+    const fileToUpload = fs.createReadStream(tmp_path);
+    const s3UploadParams = { Bucket: process.env.S3_BUCKET_NAME, Key: album_id, Body: fileToUpload };
+
+    const data = await s3.upload(s3UploadParams).promise()
+    const uploadedUrl = data.Location;
+
     const params = {
         title: req.body.title,
-        album_id: req.body.albumId,
+        album_id: album_id,
         description: req.body.description,
-        file: req.body.file,
-        status: req.body.status,
+        file: uploadedUrl,
+        status: constants.STATUS_PRIVATE,
 
-        price: req.body.price,
-        currency: req.body.currency,
-
-        nft_ids: req.body.nftIds,
-        owner: req.body.userId,
+        nft_ids: req.body.nft_ids,
+        owner: req.body.address,
+        author: req.body.address
     };
-    const newAlbum = new Album(params);
-    newAlbum.save(function (err) {
-        if (err) {
-            return res.send(err);
+
+    try {
+        const newAlbum = await (new Album(params)).save();
+        for (const nid of req.body.nft_ids) {
+            await Nft.findOneAndUpdate({nft_id: nid}, {album_id})
         }
-        return res.send("Album created");
-    });
+        const u = await User.findOne({address: req.body.address})
+        await User.findOneAndUpdate(
+            { address: req.body.address },
+            { album_ids: [album_id, ...u.album_ids]},
+        );
+        // TODO: If fail, revert changes
+        res.send(newAlbum)
+    } catch (err) {
+        console.log(err)
+        res.status(500).send(err)
+    }
 }
 
 function listAlbum(req, res, next) {
