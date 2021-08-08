@@ -8,12 +8,12 @@
       img-top
     >
       <b-card-text class="card-detail">
-        <p>Card Name</p>
+        <p>{{ card.title }}</p>
         <p>{{ card.collection }}</p>
         <b>{{ card.author }}author</b>
       </b-card-text>
       <template #footer>
-        <div v-if="card.price">
+        <div v-if="card.status == 'sale'">
           <span class="text-muted-left"
             ><small class="text-muted"
               ><b-icon icon="clock"></b-icon>&nbsp;{{
@@ -26,8 +26,8 @@
             ><small class="text-muted"
               ><b-icon icon="suit-diamond-fill"></b-icon>&nbsp;Price:
               {{ card.price }}</small
-            ></span
-          >
+            ></span>
+            
         </div>
         <div v-else>
           <small class="text-muted">Currently Unlisted</small>
@@ -44,17 +44,17 @@
           >
           <b-modal ref="list-modal" title='List Item' @ok="handleListNft">
             <label>Price</label>
-            <b-form-input class='mb-4' placeholder="How much in cfx..."/>
+            <b-form-input class='mb-4' v-model='listing_price' placeholder="How much in cfx..."/>
             <label>Commision Fee</label>
-            <b-form-input class='mb-4' placeholder="How much in cfx... (Minimum 2.5%)"/>
+            <b-form-input class='mb-4' v-model='listing_commision' placeholder="How much in cfx... (Minimum 2.5%)"/>
           </b-modal>
-          <b-modal ref="raffle-modal" title='Raffle It' @ok="handleListNft">
+          <b-modal ref="raffle-modal" title='Raffle It' @ok="handleRaffleNft">
             <label>Ticket Price</label>
-            <b-form-input class='mb-4' placeholder="How much in cfx..."/>
+            <b-form-input class='mb-4' v-model='raffle_price' placeholder="How much in cfx..."/>
             <label>Number of Tickets</label>
-            <b-form-input class='mb-4' placeholder="How many tickets..."/>
+            <b-form-input class='mb-4' v-model='raffle_tickets' placeholder="How many tickets..."/>
             <label>Commision</label>
-            <b-form-input class='mb-4' placeholder="How much in cfx... (Minimum 5%)"/>
+            <b-form-input class='mb-4' v-model='raffle_commision' placeholder="How much in cfx... (Minimum 5%)"/>
             <b-form-checkbox
               id="checkbox-1"
               v-model="status"
@@ -67,17 +67,29 @@
             
           </b-modal>
         </div>
+        <b-btn v-if='card.status == "sale"' variant='info' class='text-muted-right' @click='delistNft'>Delist</b-btn>
       </template>
     </b-card>
   </router-link>
 </template>
 
 <script>
+import axios from 'axios'
+import { eventBus } from '../main'
+
 export default {
   name: "Card",
   props: {
     card: Object,
   },
+  data:() => ({
+    status: undefined,
+    listing_price: undefined,
+    listing_commision: undefined,
+    raffle_price: undefined,
+    raffle_tickets: undefined,
+    raffle_commision: undefined
+  }),
   methods: {
     listNftClicked(e) {
       e.preventDefault();
@@ -88,12 +100,45 @@ export default {
       this.$refs['raffle-modal'].show()
     },
     handleListNft() {
-      this.$bvToast.toast("Listed Successfully", {
-        title: 'Congrats',
-        autoHideDelay: 3000,
-        appendToast: false,
+      axios.post(`${this.$store.getters.getApiUrl}/list-nft`, {
+        price: this.listing_price,
+        comission: this.listing_commision,
+        currency: 'cfx',
+        nftId: this.card.nft_id
+      }).then(res => {
+        this.$bvToast.toast("Listed Successfully", {
+          title: 'Congrats',
+          autoHideDelay: 3000,
+          appendToast: false,
+        })
+        console.log(res.data)
+        eventBus.$emit("Card.statusChanged", this.card.nft_id)
+      }).catch(err => {
+        console.log(err)
+        this.$bvToast.toast("Listing Failed", {
+          title: 'Error',
+          autoHideDelay: 3000,
+          appendToast: false,
+        })
       })
+      
     },
+    handleRaffleNft() {
+      
+    },
+    delistNft(e) {
+      e.preventDefault()
+      axios.post(`${this.$store.getters.getApiUrl}/delist-nft`, {nftId: this.card.nft_id})
+        .then(res => {
+          this.$bvToast.toast("Delisted Successfully", {
+            title: 'Info',
+            autoHideDelay: 3000,
+            appendToast: false,
+          })
+          eventBus.$emit("Card.statusChanged", this.card.nft_id)
+          console.log(res)
+        })
+    }
   },
 };
 </script>

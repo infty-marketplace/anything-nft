@@ -58,7 +58,7 @@ Int: deadline, any timestamp related
 
 -   method: post
 -   parameters:
-    -   cursor
+    -   offset
     -   limit
     -   filter(optional)
     -   type: nft/album/draw, default both

@@ -6,10 +6,10 @@
       </router-link></div>
       <nav>
         <ul class="nav__links">
-          <li v-bind:class="{active: activeIndex==0}"><a href="/marketplace">Marketplace</a></li>
-          <li v-bind:class="{active: activeIndex==1}"><a href="/raffles">Raffles</a></li>
-          <li v-bind:class="{active: activeIndex==2}"><a href="/mine/collections">Collections</a></li>
-          <li v-bind:class="{active: activeIndex==3}"><a href="#">About</a></li>
+          <li v-bind:class="{active: activeIndex==0}"><router-link to="/marketplace">Marketplace</router-link></li>
+          <li v-bind:class="{active: activeIndex==1}"><router-link to="/raffles">Raffles</router-link></li>
+          <li v-bind:class="{active: activeIndex==2}"><router-link to="/mine/collections">Collections</router-link></li>
+          <li v-bind:class="{active: activeIndex==3}"><router-link to="#">About</router-link></li>
           <li>
             <b-button pill variant='primary' class='wallet-btn' @click="connectWallet">
               <b-icon class='ml-2 mr-2' icon="wallet2" aria-hidden="true"></b-icon>
@@ -18,28 +18,71 @@
         </ul>
       </nav>
     </header>
+    <b-modal ref="reg-modal" title='Register' @ok="handleRegister">
+      <div class='mb-4'>We noticed that this is your first time connecting to our platform, so we need some info from you.</div>
+      <label>First Name</label>
+      <b-form-input class='mb-4' v-model='first_name' placeholder="Your creative first name here..."/>
+      <label>Last Name</label>
+      <b-form-input class='mb-4' v-model='last_name' placeholder="Optional"/>
+    </b-modal>
+    <b-toast id="no-wallet-toast" title="No Wallet Detected">
+      <a href="https://portal.confluxnetwork.org/" target="_blank">Please install it here.</a>
+    </b-toast>
+    <b-toast id="wallet-failure-toast" title="Failed to connect wallet">
+      Failed to connect, try again later.
+    </b-toast>
   </div>
 </template>
 
 <script>
+import axios from 'axios'
+import { eventBus } from '../main'
+
 export default {
   name: "Navbar",
   props: ['activeIndex'],
+  data: () => ({
+    first_name: '',
+    last_name: ''
+  }),
   methods: {
-    async connectWallet() {
-      let accounts;
-      try {
-        accounts = await window.conflux.send("cfx_requestAccounts")
-      } catch (e) {
-        console.log(e)
-      }
-      if (accounts) {
-        this.$store.commit("setAccount", accounts[0])
-        console.log(this.$store.getters.getAccount)
-        window.alert('Connected')
-      }
+    connectWallet() {
+      this.$store.dispatch("connectWallet") 
+    },
+    handleRegister() {
+      axios.post(`${this.$store.getters.getApiUrl}/profile/update-profile`,
+        {
+          first_name: this.first_name,
+          last_name: this.last_name,
+          address: this.$store.getters.getAddress,
+        }).then(res => {
+          console.log(res)
+        })
     }
   },
+  created() {
+    eventBus.$on("Navbar.noWallet", () => {
+      this.$bvToast.show('no-wallet-toast')
+    })
+    eventBus.$on("Navbar.connectWalletSuccess", () => {
+      axios.get(`${this.$store.getters.getApiUrl}/profile/${this.$store.getters.getAddress}`)
+      .then(res => {
+        console.log(res)
+      }).catch(err => {
+        if (err.response.status == 404) {
+          this.$refs['reg-modal'].show()
+        }
+      })
+    })
+    eventBus.$on("Navbar.connectWalletFailure", () => {
+      this.$bvToast.show('wallet-failure-toast')
+    })
+  },
+  beforeDestroy() {
+    eventBus.$off("Navbar.noWallet")
+    eventBus.$off("Navbar.connectWalletSuccess")
+    eventBus.$off("Navbar.connectWalletFailure")
+  }
 };
 </script>
 <style scoped>
