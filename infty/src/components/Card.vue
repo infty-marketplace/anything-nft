@@ -1,12 +1,22 @@
 <template>
-  <router-link :to="{ path:'/card/:id', name: 'card-detail', params: { id: card.nft_id || 'default_id', card: card } }">
+  <div>
     <b-card
       class="user-card"
       :img-src="card.url"
       :key="card.url"
       img-alt="Image"
       img-top
+      @click="cardClicked"
     >
+    <b-form-checkbox
+      v-bind:class="{'checkbox': !checkState, 'checkbox-active': checkState}"
+      v-model='checkState'
+      :value="true"
+      :unchecked-value="false"
+      v-if="card.status == 'private'"
+      @change="checkBox"
+    />
+    <!-- <router-link :to="{ path:'/card/:id', name: 'card-detail', params: { id: card.nft_id || 'default_id', card: card } }"> -->
       <b-card-text class="card-detail">
         <p>{{ card.title }}</p>
         <p>{{ card.collection }}</p>
@@ -69,8 +79,10 @@
         </div>
         <b-btn v-if='card.status == "sale"' variant='info' class='text-muted-right' @click='delistNft'>Delist</b-btn>
       </template>
+      <!-- </router-link> -->
     </b-card>
-  </router-link>
+    
+  </div>
 </template>
 
 <script>
@@ -81,6 +93,7 @@ export default {
   name: "Card",
   props: {
     card: Object,
+
   },
   data:() => ({
     status: undefined,
@@ -88,7 +101,8 @@ export default {
     listing_commision: undefined,
     raffle_price: undefined,
     raffle_tickets: undefined,
-    raffle_commision: undefined
+    raffle_commision: undefined,
+    checkState: false
   }),
   methods: {
     listNftClicked(e) {
@@ -138,6 +152,17 @@ export default {
           eventBus.$emit("Card.statusChanged", this.card.nft_id)
           console.log(res)
         })
+    },
+    checkBox() {
+      if (this.checkState) {
+        eventBus.$emit("Card.addAlbumCandidate", this.card.nft_id)
+      } else {
+        eventBus.$emit("Card.delAlbumCandidate", this.card.nft_id)
+      }
+    },
+    cardClicked(e) {
+      if (!['BUTTON', 'LABEL', 'INPUT'].includes(e.srcElement.nodeName)) this.$router.push({ path:'/card/:id', name: 'card-detail', params: { id: this.card.nft_id || 'default_id', card: this.card } })
+
     }
   },
 };
@@ -157,5 +182,27 @@ export default {
 }
 .card-detail {
   font-size: 0.875em;
+}
+.checkbox {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 0;
+}
+
+.checkbox-active {
+  display: block;
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 0;
+}
+.checkbox:hover {
+  display: block;
+}
+
+.user-card:hover .checkbox {
+  display: block;
 }
 </style>
