@@ -47,11 +47,10 @@ const getMarket = async (req, res) => {
     const limit = body.limit || 10;
     const offset = body.offset || 0;
 
-    const nftQuery = Nft.find({ status: constants.STATUS_SALE }, {nft_id: 1}).sort({ updatedAt: "desc" }).skip(offset).limit(limit+1);
-    const albumQuery = Album.find({ status: constants.STATUS_SALE }, {album_id: 1}).sort({ updatedAt: "desc" }).skip(offset).limit(limit+1);
-    const drawQuery = Draw.find({}, {draw_id: 1}).sort({ updatedAt: "desc" }).skip(offset).limit(limit+1);
+    const nftQuery = Nft.find({ status: constants.STATUS_SALE }, {nft_id: 1}).sort({ updatedAt: "desc" }).skip(offset).limit(limit);
+    const albumQuery = Album.find({ status: constants.STATUS_SALE }, {album_id: 1}).sort({ updatedAt: "desc" }).skip(offset).limit(limit);
+    const drawQuery = Draw.find({}, {draw_id: 1}).sort({ updatedAt: "desc" }).skip(offset).limit(limit);
 
-    // res.send({ nft_ids: nftIds, album_ids: albumIds });
     res.send({
         nft_ids: (await nftQuery.exec()).map(n => n.nft_id),
         album_ids: (await albumQuery.exec()).map(n => n.album_id),
