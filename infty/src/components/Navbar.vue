@@ -14,6 +14,9 @@
               <b-icon class='ml-2 mr-2' icon="wallet2" aria-hidden="true"></b-icon>
             </b-button>
           </li>
+		<div class="profile-header">
+			<img class="profile-image" src="@/assets/imgs/infty-logo.png" alt="logo" @click="navToProfile">
+		</div>
         </ul>
       </nav>
     </header>
@@ -37,7 +40,10 @@ export default {
         console.log(this.$store.getters.getAccount)
         window.alert('Connected')
       }
-    }
+    },
+	navToProfile(){
+		this.$router.push('Profile') 
+	}
   },
 };
 </script>
@@ -66,6 +72,16 @@ header {
   width: 70px;
 }
 
+.profile-header {
+  margin-right: auto;
+  
+}
+
+.profile-img {
+  cursor: pointer;
+  width: 70px;
+
+}
 .nav__links a,
 .overlay__content a {
   font-family: "Montserrat", sans-serif;
@@ -80,6 +96,7 @@ header {
   list-style: none;
   display: flex;
   align-items: center;
+  justify-content: flex-end;
 }
 
 .nav__links li {
