@@ -78,6 +78,8 @@ function getMockData() {
         price: 100,
         currency: "cfx",
         owner: [{ address: seller1.address, percentage: 1 }],
+        author: seller1.address,
+        file_hash: "0101",
     };
     const nft2 = {
         title: "nft2",
@@ -91,6 +93,8 @@ function getMockData() {
             { address: seller1.address, percentage: 1 },
             { address: buyer1.address, percentage: 0.5 },
         ],
+        author: seller1.address,
+        file_hash: "0101",
     };
     const nft3 = {
         title: "nft3",
@@ -101,6 +105,8 @@ function getMockData() {
         price: 100,
         currency: "cfx",
         owner: [{ address: seller1.address, percentage: 1 }],
+        author: seller1.address,
+        file_hash: "0101",
     };
     const nft4 = {
         title: "nft4",
@@ -111,6 +117,8 @@ function getMockData() {
         price: 100,
         currency: "cfx",
         owner: [{ address: seller1.address, percentage: 1 }],
+        author: seller1.address,
+        file_hash: "0101",
     };
 
     const nft5 = {
@@ -125,6 +133,8 @@ function getMockData() {
             { address: seller1.address, percentage: 0.3 },
             { address: buyer1.address, percentage: 0.7 },
         ],
+        author: seller1.address,
+        file_hash: "0101",
     };
 
     const nft6 = {
@@ -139,6 +149,8 @@ function getMockData() {
             { address: seller1.address, percentage: 0.3 },
             { address: buyer1.address, percentage: 0.7 },
         ],
+        author: seller1.address,
+        file_hash: "0101",
     };
     const nft7 = {
         title: "nft7",
@@ -149,6 +161,8 @@ function getMockData() {
         price: 100,
         currency: "cfx",
         owner: [{ address: seller1.address, percentage: 1 }],
+        author: seller1.address,
+        file_hash: "0101",
     };
     const nft8 = {
         title: "nft8",
@@ -158,6 +172,8 @@ function getMockData() {
         price: 100,
         currency: "cfx",
         owner: [{ address: seller1.address, percentage: 1 }],
+        author: seller1.address,
+        file_hash: "0101",
     };
     const nft9 = {
         title: "nft9",
@@ -170,6 +186,8 @@ function getMockData() {
             { address: seller1.address, percentage: 0.3 },
             { address: buyer1.address, percentage: 0.7 },
         ],
+        author: seller1.address,
+        file_hash: "0101",
     };
     const draw1 = {
         title: "draw1",

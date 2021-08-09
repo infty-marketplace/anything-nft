@@ -6,10 +6,13 @@ const User = require("../models/user");
 const constants = require("../constants");
 const fs = require("fs");
 const { makeid } = require("../utils/helpers");
+const imageUtils = require("../utils/imageUtils");
+const mongodbUtils = require("../utils/mongodbUtils");
+
 const s3 = require("../database/s3");
 
 const getNft = async (req, res) => {
-    const nft = await Nft.findOne({nft_id: req.params.nft_id});
+    const nft = await Nft.findOne({ nft_id: req.params.nft_id });
     if (!nft) {
         return res.status(404).json({ error: "nft not found" });
     }
@@ -17,7 +20,7 @@ const getNft = async (req, res) => {
 };
 
 const getAlbum = async (req, res) => {
-    const album = await Album.findOne({album_id: req.params.album_id});
+    const album = await Album.findOne({ album_id: req.params.album_id });
     if (!album) {
         return res.status(404).json({ error: "album not found" });
     }
@@ -47,18 +50,24 @@ const getMarket = async (req, res) => {
     const limit = body.limit || 10;
     const offset = body.offset || 0;
 
-    const nftQuery = Nft.find({ status: constants.STATUS_SALE }, {nft_id: 1}).sort({ updatedAt: "desc" }).skip(offset).limit(limit);
-    const albumQuery = Album.find({ status: constants.STATUS_SALE }, {album_id: 1}).sort({ updatedAt: "desc" }).skip(offset).limit(limit);
-    const drawQuery = Draw.find({}, {draw_id: 1}).sort({ updatedAt: "desc" }).skip(offset).limit(limit);
+    const nftQuery = Nft.find({ status: constants.STATUS_SALE }, { nft_id: 1 })
+        .sort({ updatedAt: "desc" })
+        .skip(offset)
+        .limit(limit);
+    const albumQuery = Album.find({ status: constants.STATUS_SALE }, { album_id: 1 })
+        .sort({ updatedAt: "desc" })
+        .skip(offset)
+        .limit(limit);
+    const drawQuery = Draw.find({}, { draw_id: 1 }).sort({ updatedAt: "desc" }).skip(offset).limit(limit);
 
     res.send({
-        nft_ids: (await nftQuery.exec()).map(n => n.nft_id),
-        album_ids: (await albumQuery.exec()).map(n => n.album_id),
-        draw_ids: (await drawQuery.exec()).map(n => n.draw_id),
-    })
+        nft_ids: (await nftQuery.exec()).map((n) => n.nft_id),
+        album_ids: (await albumQuery.exec()).map((n) => n.album_id),
+        draw_ids: (await drawQuery.exec()).map((n) => n.draw_id),
+    });
 };
 
-function createNft(req, res) {
+async function createNft(req, res) {
     console.log("Create NFT");
     const nftId = makeid(5);
     const params = {
@@ -66,41 +75,39 @@ function createNft(req, res) {
         nft_id: nftId,
         description: req.body.description,
         file: null,
-        author: req.body.address,
+        file_hash: null,
         status: constants.STATUS_PRIVATE,
-
-        owner: [{ address: req.body.address, percentage: 100 }],
+        author: req.body.address,
+        owner: [{ address: req.body.address, percentage: 1 }],
     };
 
-    const tmp_path = req.files.file.path;
-    const fileToUpload = fs.createReadStream(tmp_path);
-    const s3UploadParams = { Bucket: process.env.S3_BUCKET_NAME, Key: nftId, Body: fileToUpload };
+    const tmpPath = req.files.file.path;
+    const fileHash = await imageUtils.hash(tmpPath);
 
-    s3.upload(s3UploadParams, function (err, data) {
-        if (err) {
-            throw err;
+    for await (const nft of Nft.find({})) {
+        if (imageUtils.calculateSimilarity(nft.file_hash, fileHash) >= process.env.IMAGE_SIMILARITY_THRESHOLD) {
+            return res.status(400).json({ error: "file already exists" });
         }
-        const uploadedUrl = data.Location;
-        params.file = uploadedUrl;
-        const newNFT = new Nft(params);
-        newNFT.save(async function (err) {
-            if (err) {
-                return res.status(400).send(err);
-            }
-            const u = await User.findOne({address: req.body.address})
-            User.findOneAndUpdate(
-                { address: req.body.address },
-                { nft_ids: [nftId, ...u.nft_ids]},
-                (err) => {
-                    if (err) {
-                        return res.status(500).send(err);
-                    }
-                }
-            );
-            
+    }
+
+    const fileToUpload = fs.createReadStream(tmpPath);
+    const s3UploadParams = { Bucket: process.env.S3_BUCKET_NAME, Key: nftId, Body: fileToUpload };
+    const stored = await s3.upload(s3UploadParams).promise();
+    params.file = stored.Location;
+    params.file_hash = fileHash;
+
+    const newNft = new Nft(params);
+    const user = await User.findOne({ address: req.body.address });
+    user.nft_ids.push(nftId);
+
+    await mongodbUtils
+        .saveAll([newNft, user])
+        .then(() => {
             return res.send("File uploaded successfully");
+        })
+        .catch((error) => {
+            return res.status(422).json({ error: error.message });
         });
-    });
 }
 
 function listNft(req, res) {
@@ -119,16 +126,12 @@ function listNft(req, res) {
 
 function delistNft(req, res) {
     const nftId = req.body.nftId;
-    Nft.findOneAndUpdate(
-        { nft_id: nftId },
-        { status: constants.STATUS_PRIVATE },
-        (err) => {
-            if (err) {
-                return res.status(400).send(err);
-            }
-            return res.send("Status changed to pivate");
+    Nft.findOneAndUpdate({ nft_id: nftId }, { status: constants.STATUS_PRIVATE }, (err) => {
+        if (err) {
+            return res.status(400).send(err);
         }
-    );
+        return res.send("Status changed to pivate");
+    });
 }
 
 function listNftDraw(req, res) {
@@ -165,13 +168,13 @@ function listNftDraw(req, res) {
 }
 
 async function createAlbum(req, res) {
-    const nft_ids = JSON.parse(req.body.nft_ids)
-    const album_id = makeid(5)
+    const nft_ids = JSON.parse(req.body.nft_ids);
+    const album_id = makeid(5);
     const tmp_path = req.files.file.path;
     const fileToUpload = fs.createReadStream(tmp_path);
     const s3UploadParams = { Bucket: process.env.S3_BUCKET_NAME, Key: album_id, Body: fileToUpload };
 
-    const data = await s3.upload(s3UploadParams).promise()
+    const data = await s3.upload(s3UploadParams).promise();
     const uploadedUrl = data.Location;
 
     const params = {
@@ -183,79 +186,50 @@ async function createAlbum(req, res) {
 
         nft_ids: nft_ids,
         owner: req.body.address,
-        author: req.body.address
+        author: req.body.address,
     };
 
     try {
-        const newAlbum = await (new Album(params)).save();
+        const newAlbum = await new Album(params).save();
         for (const nid of nft_ids) {
-            const n = await Nft.findOne({nft_id: nid})
+            const n = await Nft.findOne({ nft_id: nid });
             n.album_id = album_id;
-            await n.save()
+            await n.save();
         }
-        const u = await User.findOne({address: req.body.address})
-        await User.findOneAndUpdate(
-            { address: req.body.address },
-            { album_ids: [album_id, ...u.album_ids]},
-        );
+        const u = await User.findOne({ address: req.body.address });
+        await User.findOneAndUpdate({ address: req.body.address }, { album_ids: [album_id, ...u.album_ids] });
         // TODO: If fail, revert changes
-        res.send(newAlbum)
+        res.send(newAlbum);
     } catch (err) {
-        console.log(err)
-        res.status(500).send(err)
+        console.log(err);
+        res.status(500).send(err);
     }
 }
 
 async function listAlbum(req, res) {
     const album_id = req.body.album_id;
-    let album = await Album.findOne({album_id})
+    let album = await Album.findOne({ album_id });
     // TODO each nft price
     for (const nft_id of album.nft_ids) {
-        await Nft.findOneAndUpdate({ nft_id }, { status: constants.STATUS_SALE, currency: 'cfx', price:'0.1' })
+        await Nft.findOneAndUpdate({ nft_id }, { status: constants.STATUS_SALE, currency: "cfx", price: "0.1" });
     }
     album.status = constants.STATUS_SALE;
     album.price = req.body.price;
-    album.currency = 'cfx';
-    album = await album.save()
+    album.currency = "cfx";
+    album = await album.save();
 
-    return res.send(album)
+    return res.send(album);
 }
-
 
 async function delistAlbum(req, res) {
     const album_id = req.body.album_id;
-    let album = await Album.findOne({album_id})
+    let album = await Album.findOne({ album_id });
     for (const nft_id of album.nft_ids) {
-        await Nft.findOneAndUpdate(
-            { nft_id },
-            { status: constants.STATUS_PRIVATE })
+        await Nft.findOneAndUpdate({ nft_id }, { status: constants.STATUS_PRIVATE });
     }
-    album.status = constants.STATUS_PRIVATE
-    album = await album.save()
-    return res.send(album)
-    
-}
-
-function save(doc) {
-    return new Promise((resolve, reject) => {
-        doc.save((err, saved) => {
-            if (err) {
-                reject(err);
-            }
-            resolve(saved);
-        });
-    });
-}
-
-async function saveAll(schedules) {
-    const promises = schedules.map((schedule) => save(schedule));
-    return Promise.all(promises)
-        .then((responses) => {
-            return;
-        })
-        .catch((error) => {
-            throw error;
-        });
+    album.status = constants.STATUS_PRIVATE;
+    album = await album.save();
+    return res.send(album);
 }
 
 async function getAlbumNfts(album) {
@@ -383,7 +357,8 @@ async function transferOwnership(transactionDetails, recordTransaction = true) {
         const transaction = new Transaction(transactionDetails);
         documents.push(transaction);
     }
-    await saveAll(documents)
+    await mongodbUtils
+        .saveAll(documents)
         .then(() => {
             return;
         })
@@ -487,7 +462,7 @@ async function fundNtf(req, res) {
     };
 
     nft.owner = fundedPercentages === 1 ? [] : [...sellers, ...funders];
-    await saveAll([nft]);
+    await mongodbUtils.saveAll([nft]);
 
     // if nft is fully funded, remove seller, trsander ownership to funders
     if (fundedPercentages === 1) {
@@ -502,7 +477,8 @@ async function fundNtf(req, res) {
             await transferOwnership(nftTransactionDetails, false);
         }
     }
-    await saveAll([new Transaction(transactionDetails)])
+    await mongodbUtils
+        .saveAll([new Transaction(transactionDetails)])
         .then(() => {
             return res.status(200).send();
         })
@@ -551,7 +527,8 @@ async function drawNft(req, res) {
     }
 
     // TODO: transfer upon deadline/all drawed
-    await saveAll([draw, new Transaction(transactionDetails)])
+    await mongodbUtils
+        .saveAll([draw, new Transaction(transactionDetails)])
         .then(() => {
             return res.status(200).send();
         })
