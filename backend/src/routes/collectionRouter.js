@@ -16,6 +16,7 @@ router.post("/delist-nft", collectionController.delistNft);
 router.post("/list-nft-draw", collectionController.listNftDraw);
 router.post("/create-album", multipartMiddleware, collectionController.createAlbum);
 router.post("/list-album", collectionController.listAlbum);
+router.post("/delist-album", collectionController.delistAlbum);
 
 router.post("/purchase-nft", collectionController.purchaseNtf);
 router.post("/draw-nft", collectionController.drawNft);

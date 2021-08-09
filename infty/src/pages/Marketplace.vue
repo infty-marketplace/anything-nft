@@ -157,7 +157,7 @@
 <script>
 import Navbar from "../components/Navbar.vue";
 import Footer from "../components/Footer.vue";
-import Card from "../components/Card.vue";
+import Card from "../components/NftCard.vue";
 export default {
   name: "Marketplace",
   components: {

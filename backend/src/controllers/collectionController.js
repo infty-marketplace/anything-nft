@@ -185,6 +185,7 @@ function listNftDraw(req, res) {
 }
 
 async function createAlbum(req, res) {
+    const nft_ids = JSON.parse(req.body.nft_ids)
     const album_id = makeid(5)
     const tmp_path = req.files.file.path;
     const fileToUpload = fs.createReadStream(tmp_path);
@@ -200,15 +201,17 @@ async function createAlbum(req, res) {
         file: uploadedUrl,
         status: constants.STATUS_PRIVATE,
 
-        nft_ids: req.body.nft_ids,
+        nft_ids: nft_ids,
         owner: req.body.address,
         author: req.body.address
     };
 
     try {
         const newAlbum = await (new Album(params)).save();
-        for (const nid of req.body.nft_ids) {
-            await Nft.findOneAndUpdate({nft_id: nid}, {album_id})
+        for (const nid of nft_ids) {
+            const n = await Nft.findOne({nft_id: nid})
+            n.album_id = album_id;
+            await n.save()
         }
         const u = await User.findOne({address: req.body.address})
         await User.findOneAndUpdate(
@@ -223,14 +226,34 @@ async function createAlbum(req, res) {
     }
 }
 
-function listAlbum(req, res, next) {
-    const albumId = req.body.albumId;
-    Album.findOneAndUpdate({ album_id: albumId }, { status: constants.STATUS_SALE }, function (err) {
-        if (err) {
-            return res.send(err);
-        }
-        return res.send("Album status changed to sale");
-    });
+async function listAlbum(req, res) {
+    const album_id = req.body.album_id;
+    let album = await Album.findOne({album_id})
+    // TODO each nft price
+    for (const nft_id of album.nft_ids) {
+        await Nft.findOneAndUpdate({ nft_id }, { status: constants.STATUS_SALE, currency: 'cfx', price:'0.1' })
+    }
+    album.status = constants.STATUS_SALE;
+    album.price = req.body.price;
+    album.currency = 'cfx';
+    album = await album.save()
+
+    return res.send(album)
+}
+
+
+async function delistAlbum(req, res) {
+    const album_id = req.body.album_id;
+    let album = await Album.findOne({album_id})
+    for (const nft_id of album.nft_ids) {
+        await Nft.findOneAndUpdate(
+            { nft_id },
+            { status: constants.STATUS_PRIVATE })
+    }
+    album.status = constants.STATUS_PRIVATE
+    album = await album.save()
+    return res.send(album)
+    
 }
 
 function save(doc) {
@@ -615,6 +638,7 @@ module.exports = {
     listNftDraw,
     createAlbum,
     listAlbum,
+    delistAlbum,
     purchaseNtf,
     purchaseAlbum,
     drawNft,

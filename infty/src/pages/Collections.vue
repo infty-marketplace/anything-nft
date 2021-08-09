@@ -6,7 +6,7 @@
 				<b-tab title="NFT" active>
 					<p>Unlisted</p>
 					<div class="cards-container">
-						<Card
+						<NftCard
 							class="mt-4 card"
 							v-for="nft in private_nfts"
 							:card="nft"
@@ -16,7 +16,7 @@
 					</div>
 					<p>On Sale</p>
 					<div class="cards-container">
-						<Card
+						<NftCard
 							class="mt-4 card"
 							v-for="nft in sale_nfts"
 							:card="nft"
@@ -27,7 +27,7 @@
 				</b-tab>
 				<b-tab title="Album"><p>Unlisted</p>
 					<div class="cards-container">
-						<Card
+						<AlbumCard
 							class="mt-4 card"
 							v-for="album in private_albums"
 							:card="album"
@@ -37,13 +37,13 @@
 					</div>
 					<p>On Sale</p>
 					<div class="cards-container">
-						<Card
+						<AlbumCard
 							class="mt-4 card"
 							v-for="album in sale_albums"
 							:card="album"
 							:key="album.url"
 						/>
-						<p class="mt-4" v-if="sale_nfts.length == 0">Nothing</p>
+						<p class="mt-4" v-if="sale_albums.length == 0">Nothing</p>
 					</div></b-tab>
 			</b-tabs>
 		</div>
@@ -74,7 +74,8 @@ import { eventBus } from "../main";
 
 import Navbar from "../components/Navbar.vue";
 import Footer from "../components/Footer.vue";
-import Card from "../components/Card.vue";
+import NftCard from "../components/NftCard.vue";
+import AlbumCard from "../components/AlbumCard.vue"
 import ConnectWallet from "../components/ConnectWallet.vue";
 import FileUploader from "../components/FileUploader.vue"
 
@@ -83,7 +84,8 @@ export default {
 	components: {
 		Navbar,
 		Footer,
-		Card,
+		NftCard,
+		AlbumCard,
 		ConnectWallet,
 		FileUploader
 	},
@@ -98,7 +100,7 @@ export default {
 	}),
 	computed: {
 		private_nfts: function () {
-			return this.nfts.filter((n) => n.status == "private");
+			return this.nfts.filter((n) =>  n.status == "private");
 		},
 		sale_nfts: function () {
 			return this.nfts.filter((n) => n.status == "sale");
@@ -127,6 +129,18 @@ export default {
 				);
 			});
 		});
+		eventBus.$on("AlbumCard.statusChanged", (aid) => {
+			axios.get(`${this.$store.getters.getApiUrl}/album/${aid}`).then((res) => {
+				const newAlbum = res.data;
+				newAlbum.url = newAlbum.file;
+				newAlbum.author = newAlbum.owner;
+				this.$set(
+					this.albums,
+					this.albums.findIndex(a => a.album_id == aid),
+					newAlbum
+				);
+			});
+		});
 		eventBus.$on("Card.addAlbumCandidate", (candId) => {
 			this.album_candidates.push(candId);
 		});
@@ -144,6 +158,8 @@ export default {
 		eventBus.$off("Card.addAlbumCandidate");
 		eventBus.$off("Card.delAlbumCandidate");
 		eventBus.$off("Collections.receiveImage")
+		eventBus.$off("Card.statusChanged")
+		eventBus.$off("AlbumCard.statusChanged")
 	},
 	methods: {
 		async loadNfts(nft_ids) {
@@ -191,9 +207,12 @@ export default {
 			fd.append('address', this.$store.getters.getAddress)
 			fd.append('title', this.album_title)
 			fd.append('description', this.album_description)
-			fd.append('nft_ids', this.album_candidates)
+			fd.append('nft_ids', JSON.stringify(this.album_candidates))
 			axios.post(`${this.$store.getters.getApiUrl}/create-album`, fd)
-				.then(res => console.log(res))
+				.then(res => {
+					console.log(res)
+					this.loadCollections()
+				})
 		}
 	},
 };
