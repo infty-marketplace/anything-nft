@@ -1,0 +1,26 @@
+{
+    "name": "anything-nft",
+    "version": "1.0.0",
+    "description": "Conflux Project - BeiDou",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "postinstall": "npm --prefix infty install && npm --prefix backend install",
+        "dev": "concurrently 'npm run --prefix infty serve' 'npm run --prefix backend dev'",
+        "depcheck": "echo '---FrontEnd Dependencies Check---' && (depcheck infty || exit 0) && echo '\n---BackEnd Dependencies Check---' && (depcheck backend || exit 0)"
+    },
+    "devDependencies": {
+        "concurrently": "^5.1.0",
+        "depcheck": "^0.9.2"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/InfTkm/anything-nft.git"
+    },
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/InfTkm/anything-nft/issues"
+    },
+    "homepage": "https://github.com/InfTkm/anything-nft#readme"
+}
