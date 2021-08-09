@@ -158,8 +158,7 @@ export default {
     //   }
     // },
     cardClicked(e) {
-      if (!['BUTTON', 'LABEL', 'INPUT'].includes(e.srcElement.nodeName)) this.$router.push({ path:'/card/:id', name: 'card-detail', params: { id: this.card.nft_id || 'default_id', card: this.card } })
-
+      if (!['BUTTON', 'LABEL', 'INPUT'].includes(e.srcElement.nodeName)) this.$router.push({ path:'/album/:id', name: 'album-detail', params: { id: this.card.album_id || 'default_id', card: this.card } })
     }
   },
 };

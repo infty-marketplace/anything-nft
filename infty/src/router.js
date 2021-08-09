@@ -5,7 +5,8 @@ import CreatePage from "./pages/CreatePage.vue";
 import MainPage from "./pages/MainPage.vue";
 import Marketplace from "./pages/Marketplace";
 import Collections from "./pages/Collections.vue";
-import DetailPage from "./pages/DetailPage.vue";
+import NftPage from "./pages/NftPage.vue";
+import AlbumPage from "./pages/AlbumPage"
 import RafflePage from "./pages/RafflePage"
 Vue.use(Router);
 export default new Router({
@@ -32,9 +33,15 @@ export default new Router({
         component: RafflePage
     },
     {
-      path: "/card/:id",
-      name: "card-detail",
-      component: DetailPage,
+      path: "/nft/:id",
+      name: "nft-detail",
+      component: NftPage,
+      props: true,
+    },
+    {
+      path: "/album/:id",
+      name: "album-detail",
+      component: AlbumPage,
       props: true,
     },
   ],

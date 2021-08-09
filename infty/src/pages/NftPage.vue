@@ -99,6 +99,8 @@
 </template>
 
 <script>
+import axios from "axios"
+
 import Navbar from "../components/Navbar.vue";
 import Footer from "../components/Footer.vue";
 export default {
@@ -107,11 +109,18 @@ export default {
     Navbar,
     Footer,
   },
-  props: ["card"],
-  data() {
-    return {
-      isAuthor: false,
-    };
+  props: ['card'],
+  data: () => ({
+      isAuthor: false
+  }),
+  created() {
+    if (this.card) return;
+    axios.get(`${this.$store.getters.getApiUrl}/nft/${this.$route.params.id}`)
+      .then(res => {
+        const card = res.data
+        card.url = card.file
+        this.card = card;
+      })
   },
   methods: {
     rand(min, max) {
