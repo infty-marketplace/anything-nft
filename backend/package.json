@@ -5,12 +5,15 @@
     "main": "index.js",
     "scripts": {
         "test": "mocha --exit",
-        "start": "node src/index.js"
+        "start": "node src/index.js",
+        "dev": "nodemon src/index.js"
     },
     "author": "",
     "license": "ISC",
     "dependencies": {
+        "@canvas/image": "^1.0.1",
         "aws-sdk": "^2.958.0",
+        "blockhash-core": "^0.1.0",
         "connect-multiparty": "^2.2.0",
         "cors": "^2.8.5",
         "dotenv": "^10.0.0",
