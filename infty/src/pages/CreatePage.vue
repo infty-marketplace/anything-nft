@@ -4,18 +4,21 @@
         <div class='content mt-5 mb-5' v-if='$store.getters.getAddress'>
             <h2>Create your own NFT</h2>
             <label class='mt-4'>Title*</label>
-            <b-form-input v-model="title" placeholder="Enter name of the art..."/>
+            <b-form-input v-model="title" type="search" placeholder="Enter name of the art..."/>
             <label class='mt-5'>Image*</label>
             <div style="display:flex;min-width:100%;justify-content:space-around;">
                 <FileUploader class='file-uploader' pass-file-to-event="CreatePage.receiveFile"/>
             </div>
             <label class='mt-5'>Description</label>
+            <div class="form-group">
             <b-form-textarea
                 id="description"
                 placeholder="Enter a detailed description..."
                 v-model='description'
                 rows="3"
             ></b-form-textarea>
+            <b-icon font-scale="1.5" class="icon" icon="x" @click="clearTextArea"></b-icon>
+            </div>
             <div class='mt-5'>
                 <b-form-checkbox style="display:inline">Image On-chain Storage<b-badge pill variant='info' class='ml-2'>Free for limited time</b-badge></b-form-checkbox>
                 <b-button variant="primary" class='create-btn' @click='createNft'>Create</b-button>
@@ -64,6 +67,8 @@ export default {
                     })
                 }
                 eventBus.$emit("CreatePage.nftCreated");
+                this.title = "";
+                this.description = "";
             }).catch(err => {
                 console.log(err)
                 this.$bvToast.toast("NFT Creation Failed", {
@@ -72,6 +77,10 @@ export default {
                 })
             })
       },
+
+      clearTextArea(){
+          this.description = "";
+      }
   },
   async mounted() {
       this.$store.dispatch("connectWallet")
@@ -98,5 +107,13 @@ export default {
 }
 .file-uploader {
     width: 80%;
+}
+.from-group {
+    position: absolute;
+}
+.icon {
+    position:relative;
+    top: -30px;
+    left: 97%;
 }
 </style>
