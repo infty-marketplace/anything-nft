@@ -179,18 +179,19 @@
           </div> -->
           <h2 id="banner-content">Currently 175 people participated!</h2>
         </div>
-        <div class="mt-4" v-for="card in usersCards" :key="card.url">
+        <div class="mt-4" v-for="raffle in raffles" :key="raffle.nft_id">
           <b-card
-            :img-src="card.url"
+            :img-src="raffle.url"
             img-alt="Card image"
             img-left
             class="mb-3 pool-card"
           >
             <div class="pool-card-primary">
               <div class="card-primary">
-                <p>{{ card.title }}</p>
-                <p>Owner: {{ card.owner }}</p>
-                <p>Discription: {{ card.description }}</p>
+                <p>{{ raffle.url }}</p>
+                <p>{{ raffle.title }}</p>
+                <p>Owner: {{ raffle.owner }}</p>
+                <p>Discription: {{ raffle.description }}</p>
               </div>
               <div class="transaction-primary">
                 <div class="price">
@@ -223,6 +224,8 @@
 </template>
 
 <script>
+import axios from "axios";
+
 import Navbar from "../components/Navbar.vue";
 import Footer from "../components/Footer.vue";
 
@@ -232,7 +235,11 @@ export default {
     Navbar,
     Footer,
   },
-  async mounted() {
+  created() {
+    // if (this.$store.getters.getAddress) {
+    //   this.loadRaffles();
+    // }
+    this.loadRaffles();
     // if (this.$store.getters.getAddress) this.loadNfts();
     // this.$store.dispatch("connectWallet");
     // eventBus.$on("Collections.loadNfts", () => this.loadNfts());
@@ -271,6 +278,7 @@ export default {
         { value: "usd", text: "United States Dollar(USD)" },
         { value: "eth", text: "Ether(ETH)" },
       ],
+      raffles: [],
       usersCards: [
         {
           id: 1,
@@ -330,26 +338,45 @@ export default {
     };
   },
   methods: {
-    async loadNfts() {
-      // const getters = this.$store.getters;
-      // const res = await axios.get(
-      //   `${getters.getApiUrl}/profile/${getters.getAddress}`
-      // );
-      // const nft_promises = res.data.nft_ids.map((nid) =>
-      //   axios.get(`${getters.getApiUrl}/nft/${nid}`)
-      // );
-      // const nft_promises_result = await Promise.allSettled(nft_promises);
-      // let nfts = nft_promises_result.map((p) => {
-      //   if (p.status == "fulfilled") {
-      //     return p.value.data;
-      //   }
-      // });
-      // nfts = nfts.map((n) => {
-      //   n.url = n.file;
-      //   n.author = n.owner[0].address;
-      //   return n;
-      // });
-      // this.nfts = nfts;
+    async loadRaffles() {
+      console.log("enter");
+      const getters = this.$store.getters;
+      const res = await axios.post(`${getters.getApiUrl}/market/`);
+      const draw_ids = res.data.draw_ids;
+      console.log("draw_ids", draw_ids);
+      const draw_promises = draw_ids.map((draw_id) =>
+        axios.get(`${getters.getApiUrl}/draw/${draw_id}`)
+      );
+
+      const draw_promises_result = await Promise.allSettled(draw_promises);
+      let draws = draw_promises_result.map((p) => {
+        if (p.status == "fulfilled") {
+          console.log("p.value.data", p.value.data);
+          return p.value.data;
+        }
+      });
+
+      console.log("draws", draws);
+
+      const raffles_promises = draws.map((draw) => {
+        const nft_promise = axios.get(
+          `${getters.getApiUrl}/nft/${draw.nft_id}`
+        );
+        return nft_promise.then((res) => {
+          draw.url = res.data.file;
+          return draw;
+        });
+
+        // return draw;
+      });
+
+      Promise.all(raffles_promises).then((results) => {
+        console.log("results", results);
+        this.raffles = results;
+      });
+
+      // this.raffles = draws;
+      console.log("raffles", this.raffles);
     },
     showModal() {
       this.$refs["my-modal"].show();
