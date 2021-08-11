@@ -140,7 +140,6 @@ export default {
     raffle_tickets: undefined,
     raffle_commision: undefined,
     checkState: false,
-    deadline: "",
   }),
   methods: {
     listNftClicked(e) {
@@ -229,8 +228,8 @@ export default {
     cardClicked(e) {
       if (!["BUTTON", "LABEL", "INPUT"].includes(e.srcElement.nodeName))
         this.$router.push({
-          path: "/card/:id",
-          name: "card-detail",
+          path: "/nft/:id",
+          name: "nft-detail",
           params: { id: this.card.nft_id || "default_id", card: this.card },
         });
     },

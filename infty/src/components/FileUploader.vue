@@ -37,6 +37,7 @@ import { eventBus } from "../main"
 
 export default {
   name: "FileUploader",
+  props: ["passFileToEvent"],
   data: () => ({
     dropArea: undefined,
     dragText: undefined,
@@ -85,7 +86,7 @@ export default {
       if (this.validExtensions.includes(fileType)) {
         this.fileLoaded = true;
         this.showFile();
-        eventBus.$emit("FileUploader.imageUploaded", this.file)
+        eventBus.$emit(this.passFileToEvent, this.file)
       } else {
         alert("This is not an Image File!");
         this.dropArea.classList.remove("active");
@@ -116,7 +117,6 @@ export default {
   position: relative;
   border: 2px dashed rgb(100, 100, 100);
   height: 500px;
-  width: 700px;
   border-radius: 5px;
 }
 .drag-area-inner {
