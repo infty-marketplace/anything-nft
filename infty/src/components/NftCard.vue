@@ -118,7 +118,7 @@ export default {
         price: this.listing_price,
         comission: this.listing_commision,
         currency: 'cfx',
-        nftId: this.card.nft_id
+        nft_id: this.card.nft_id
       }).then(res => {
         this.$bvToast.toast("Listed Successfully", {
           title: 'Congrats',
@@ -142,7 +142,7 @@ export default {
     },
     delistNft(e) {
       e.preventDefault()
-      axios.post(`${this.$store.getters.getApiUrl}/delist-nft`, {nftId: this.card.nft_id})
+      axios.post(`${this.$store.getters.getApiUrl}/delist-nft`, {nft_id: this.card.nft_id})
         .then(res => {
           this.$bvToast.toast("Delisted Successfully", {
             title: 'Info',
