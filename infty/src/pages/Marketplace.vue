@@ -147,6 +147,7 @@
         <b-card-group columns>
           <Card v-for="card in usersCards" :card="card" :key="card.url" />
         </b-card-group>
+        <b-button variant="primary" class='load-more' @click='loadMarket'>Load More</b-button>
       </div>
     </div>
 
@@ -158,6 +159,8 @@
 import Navbar from "../components/Navbar.vue";
 import Footer from "../components/Footer.vue";
 import Card from "../components/NftCard.vue";
+import axios from 'axios';
+// import { eventBus } from "../main";
 export default {
   name: "Marketplace",
   components: {
@@ -165,9 +168,13 @@ export default {
     Footer,
     Card,
   },
-  mounted() {},
+  async mounted() {
+    this.loadMarket();
+  },
   data() {
     return {
+      offset: 0,
+      limit: 10,
       statusSelected: [],
       statusOptions: [
         { text: "Buy Now", value: "buyNow" },
@@ -180,101 +187,37 @@ export default {
         { value: "usd", text: "United States Dollar(USD)" },
         { value: "eth", text: "Ether(ETH)" },
       ],
-      usersCards: [
-        {
-          id: 1,
-          collection: "SupDucks",
-          author: "Ada Lovelace",
-          price: Math.random().toFixed(2),
-          url: `https://source.unsplash.com/random/200x200?sig=1${Math.round(
-            Math.random() * 100
-          )}`,
-          expirationDate: `${Math.round(Math.random() * 10)}`,
-        },
-        {
-          id: 2,
-          collection: "Art Blocks Curated",
-          author: "Ada Lovelace",
-          price: Math.random().toFixed(2),
-          url: `https://source.unsplash.com/random/200x200?sig=1${Math.round(
-            Math.random() * 100
-          )}`,
-          expirationDate: `${Math.round(Math.random() * 10)}`,
-        },
-        {
-          id: 3,
-          collection: "Bored Ape Kennel Club",
-          author: "Ada Lovelace",
-          price: Math.random().toFixed(2),
-          url: `https://source.unsplash.com/random/200x200?sig=1${Math.round(
-            Math.random() * 100
-          )}`,
-          expirationDate: `${Math.round(Math.random() * 10)}`,
-        },
-        {
-          id: 4,
-          collection: "Cool Cats",
-          author: "Ada Lovelace",
-          price: Math.random().toFixed(2),
-          url: `https://source.unsplash.com/random/200x200?sig=1${Math.round(
-            Math.random() * 100
-          )}`,
-          expirationDate: `${Math.round(Math.random() * 10)}`,
-        },
-        {
-          id: 5,
-          collection: "ZED RUN",
-          author: "Ada Lovelace",
-          price: Math.random().toFixed(2),
-          url: `https://source.unsplash.com/random/200x200?sig=1${Math.round(
-            Math.random() * 100
-          )}`,
-          expirationDate: `${Math.round(Math.random() * 10)}`,
-        },
-        {
-          id: 6,
-          collection: "FameLadySquad",
-          author: "Ada Lovelace",
-          price: Math.random().toFixed(2),
-          url: `https://source.unsplash.com/random/200x200?sig=1${Math.round(
-            Math.random() * 100
-          )}`,
-          expirationDate: `${Math.round(Math.random() * 10)}`,
-        },
-        {
-          id: 7,
-          collection: "Sorare",
-          author: "Ada Lovelace",
-          price: Math.random().toFixed(2),
-          url: `https://source.unsplash.com/random/200x200?sig=1${Math.round(
-            Math.random() * 100
-          )}`,
-          expirationDate: `${Math.round(Math.random() * 10)}`,
-        },
-        {
-          id: 8,
-          collection: "Meebits",
-          author: "Ada Lovelace",
-          price: Math.random().toFixed(2),
-          url: `https://source.unsplash.com/random/200x200?sig=1${Math.round(
-            Math.random() * 100
-          )}`,
-          expirationDate: `${Math.round(Math.random() * 10)}`,
-        },
-        {
-          id: 9,
-          collection: "Ape Gang",
-          author: "Ada Lovelace",
-          price: Math.random().toFixed(2),
-          url: `https://source.unsplash.com/random/200x200?sig=1${Math.round(
-            Math.random() * 100
-          )}`,
-          expirationDate: `${Math.round(Math.random() * 10)}`,
-        },
-      ],
+      usersCards: [],
     };
   },
-  methods() {
+  methods: {
+      loadMarket(){
+        const getters = this.$store.getters;
+        const body = {
+          offset: this.offset,
+          limit: this.limit,
+        };
+        axios.post(getters.getApiUrl+"/market", body)
+        .then(async (res) => {
+            const nft_ids = res.data.nft_ids;
+            const nft_promises = nft_ids.map((nid) =>
+                axios.get(`${getters.getApiUrl}/nft/${nid}`)
+            );
+            const nft_promises_result = await Promise.allSettled(nft_promises);
+            const nfts = nft_promises_result.map((p) => {
+                if (p.status == "fulfilled") return p.value;
+            });
+            nfts.map(async (n) => {
+                axios.get(`${getters.getApiUrl}/profile/${n.data.owner[0].address}`).then((res) => {
+                  n.data.author = res.data.first_name + " " + res.data.last_name
+                  n.data.url = n.data.file;
+                  this.usersCards.push(n.data);
+                })
+            });
+            this.offset += nft_ids.length;
+        });
+    }
+
     // sidebarHeight(){
     // }
   },
