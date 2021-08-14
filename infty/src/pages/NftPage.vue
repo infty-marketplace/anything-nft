@@ -55,7 +55,7 @@
         >
           <template #header>
             <span class="mb-0">
-              <b-icon icon="card-image"></b-icon>&nbsp;Card Name
+              <b-icon icon="card-image"></b-icon>&nbsp;{{card.title}}
             </span>
             <span class="mb-0 heart"
               ><button><b-icon icon="heart"></b-icon></button>&nbsp;2</span
@@ -118,8 +118,11 @@ export default {
     axios.get(`${this.$store.getters.getApiUrl}/nft/${this.$route.params.id}`)
       .then(res => {
         const card = res.data
-        card.url = card.file
-        this.card = card;
+        axios.get(`${this.$store.getters.getApiUrl}/profile/${card.owner[0].address}`).then((resp) => {
+          card.author = resp.data.first_name + " " + resp.data.last_name
+          card.url = card.file;
+          this.card = card;
+        })
       })
   },
   methods: {
