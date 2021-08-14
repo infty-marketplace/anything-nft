@@ -555,7 +555,7 @@ async function purchaseAlbum(req, res) {
     if (await isAlbumFunded(album)) {
         return res.status(400).json({ error: "album contains funded nft" });
     }
-    console.log(body.buyer)
+
     // create a transaction record
     const transactionDetails = {
         buyer: body.buyer,
