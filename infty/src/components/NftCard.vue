@@ -152,7 +152,12 @@ export default {
     },
     handleListNft() {
       axios
-        .post(`${this.$store.getters.getApiUrl}/list-nft`)
+        .post(`${this.$store.getters.getApiUrl}/list-nft`, {
+          price: this.listing_price,
+          comission: this.listing_commision,
+          currency: "cfx",
+          nft_id: this.card.nft_id,
+        })
         .then((res) => {
           this.$bvToast.toast("Listed Successfully", {
             title: "Congrats",
@@ -164,11 +169,20 @@ export default {
         })
         .catch((err) => {
           console.log(err);
-          this.$bvToast.toast("Listing Failed", {
-            title: "Error",
-            autoHideDelay: 3000,
-            appendToast: false,
-          });
+          this.$bvToast
+            .toast("Listing Failed", {
+              title: "Error",
+              autoHideDelay: 3000,
+              appendToast: false,
+            })
+            .catch((err) => {
+              console.log(err);
+              this.$bvToast.toast("Listing Failed", {
+                title: "Error",
+                autoHideDelay: 3000,
+                appendToast: false,
+              });
+            });
         });
     },
     handleRaffleNft() {
@@ -206,7 +220,7 @@ export default {
       e.preventDefault();
       axios
         .post(`${this.$store.getters.getApiUrl}/delist-nft`, {
-          nftId: this.card.nft_id,
+          nft_id: this.card.nft_id,
         })
         .then((res) => {
           this.$bvToast.toast("Delisted Successfully", {

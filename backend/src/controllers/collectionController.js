@@ -124,7 +124,7 @@ async function createNft(req, res) {
 }
 
 function listNft(req, res) {
-  const nftId = req.body.nftId;
+  const nftId = req.body.nft_id;
   Nft.findOneAndUpdate(
     { nft_id: nftId },
     {
@@ -142,7 +142,7 @@ function listNft(req, res) {
 }
 
 function delistNft(req, res) {
-  const nftId = req.body.nftId;
+  const nftId = req.body.nft_id;
   Nft.findOneAndUpdate(
     { nft_id: nftId },
     { status: constants.STATUS_PRIVATE },
@@ -156,7 +156,7 @@ function delistNft(req, res) {
 }
 
 function listNftDraw(req, res) {
-  const nftId = req.body.nftId;
+  const nftId = req.body.nft_id;
 
   // create draw document
   const drawParams = {
@@ -164,12 +164,12 @@ function listNftDraw(req, res) {
     draw_id: makeid(5),
     description: req.body.description,
 
-    unit_price: req.body.unitPrice,
+    unit_price: req.body.unit_price,
     quantity: req.body.quantity,
     currency: req.body.currency,
     deadline: req.body.deadline,
 
-    nft_id: req.body.nftId,
+    nft_id: req.body.nft_id,
     owner: req.body.owner,
     participants: [],
   };
