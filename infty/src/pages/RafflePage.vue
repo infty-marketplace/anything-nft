@@ -139,18 +139,23 @@
         ref="my-modal"
         hide-footer
         centered
-        :title="modalTitle"
+        :title="raffleToBuy.title"
         class="ticket-modal"
       >
         <div>
           <div class="ticketInfo-form">
             <p class="ticketInfo-label">Ticket Number:</p>
-            <b-form-spinbutton v-model="ticketNum" min="1" max="100">
+            <b-form-spinbutton
+              v-model="ticketNum"
+              min="1"
+              :max="raffleToBuy.quantity"
+            >
             </b-form-spinbutton>
           </div>
           <p>
             <span class="ticketInfo-label">Total Price:</span>
-            {{ ticketNum * 10 }} USD
+            {{ ticketNum * raffleToBuy.unit_price }}
+            {{ raffleToBuy.currency }}
           </p>
         </div>
         <b-button
@@ -188,10 +193,9 @@
           >
             <div class="pool-card-primary">
               <div class="card-primary">
-                <p>{{ raffle.url }}</p>
-                <p>{{ raffle.title }}</p>
-                <p>Owner: {{ raffle.owner }}</p>
-                <p>Discription: {{ raffle.description }}</p>
+                <p><b>Title:</b> {{ raffle.title }}</p>
+                <p><b>Owner:</b> {{ raffle.owner }}</p>
+                <p><b>Discription:</b> {{ raffle.description }}</p>
               </div>
               <div class="transaction-primary">
                 <div class="price">
@@ -203,13 +207,13 @@
                   <b-badge
                     class="price-item"
                     style="background-color: rgb(236, 105, 166)"
-                    >10USD</b-badge
+                    >{{ raffle.unit_price }} {{ raffle.currency }}</b-badge
                   >
                 </div>
                 <b-button
                   class="buy-btn"
                   variant="primary"
-                  @click="buyNft(card)"
+                  @click="OpenBuyRaffleModal(raffle)"
                   >Buy</b-button
                 >
               </div>
@@ -257,11 +261,11 @@ export default {
     // });
   },
   computed: {
-    modalTitle: function () {
-      if (!this.nftToBuy) {
+    raffleToBuy: function () {
+      if (!this.nftRaffleToBuy) {
         return "nftCardTitle";
       }
-      return this.nftToBuy.title;
+      return this.nftRaffleToBuy;
     },
   },
   data() {
@@ -279,62 +283,8 @@ export default {
         { value: "eth", text: "Ether(ETH)" },
       ],
       raffles: [],
-      usersCards: [
-        {
-          id: 1,
-          title: "my NFT",
-          description: "good",
-          owner: "cfx:dsfawe",
-          collection: "SupDucks",
-          author: "Ada Lovelace",
-          price: Math.random().toFixed(2),
-          url: `https://source.unsplash.com/random/200x200?sig=1${Math.round(
-            Math.random() * 100
-          )}`,
-          expirationDate: `${Math.round(Math.random() * 10)}`,
-        },
-        {
-          id: 2,
-          title: "my NFT",
-          description: "good",
-          owner: "cfx:dsfawe",
-          collection: "Art Blocks Curated",
-          author: "Ada Lovelace",
-          price: Math.random().toFixed(2),
-          url: `https://source.unsplash.com/random/200x200?sig=1${Math.round(
-            Math.random() * 100
-          )}`,
-          expirationDate: `${Math.round(Math.random() * 10)}`,
-        },
-        {
-          id: 3,
-          title: "my NFT",
-          description: "good",
-          owner: "cfx:dsfawe",
-          collection: "Bored Ape Kennel Club",
-          author: "Ada Lovelace",
-          price: Math.random().toFixed(2),
-          url: `https://source.unsplash.com/random/200x200?sig=1${Math.round(
-            Math.random() * 100
-          )}`,
-          expirationDate: `${Math.round(Math.random() * 10)}`,
-        },
-        {
-          id: 4,
-          title: "my NFT",
-          description: "good",
-          owner: "cfx:dsfawe",
-          collection: "Cool Cats",
-          author: "Ada Lovelace",
-          price: Math.random().toFixed(2),
-          url: `https://source.unsplash.com/random/200x200?sig=1${Math.round(
-            Math.random() * 100
-          )}`,
-          expirationDate: `${Math.round(Math.random() * 10)}`,
-        },
-      ],
       ticketNum: 1,
-      nftToBuy: null,
+      nftRaffleToBuy: null,
     };
   },
   methods: {
@@ -366,17 +316,11 @@ export default {
           draw.url = res.data.file;
           return draw;
         });
-
-        // return draw;
       });
 
       Promise.all(raffles_promises).then((results) => {
-        console.log("results", results);
         this.raffles = results;
       });
-
-      // this.raffles = draws;
-      console.log("raffles", this.raffles);
     },
     showModal() {
       this.$refs["my-modal"].show();
@@ -385,9 +329,10 @@ export default {
       this.nftTicketToBuy = null;
       this.$refs["my-modal"].hide();
     },
-    buyNft(card) {
+    OpenBuyRaffleModal(card) {
+      this.nftRaffleToBuy = card;
       this.showModal();
-      this.nftToBuy = card;
+
       // if (this.nftTicketToBuy) {
       //   this.showModal();
       // }
@@ -462,9 +407,10 @@ export default {
   /* display: inline-block; */
 }
 .price {
-  padding: 10px;
-  /* display: flex; */
-  /* justify-content: space-evenly; */
+  width: 180px;
+  /* padding: 10px; */
+  display: flex;
+  justify-content: space-between;
   text-align: center;
 }
 .price-item {
@@ -472,13 +418,13 @@ export default {
   height: 40px;
   text-align: center;
   line-height: 37px;
-  margin-right: 8px;
+  /* margin-right: 8px; */
 }
 .buy-btn {
   color: rgb(38, 38, 38);
   font-weight: bold;
-  width: 80%;
-  margin-left: 10%;
+  width: 100%;
+  /* margin-left: 10%; */
   height: 40px;
   text-align: center;
   margin-top: 2em;
@@ -539,6 +485,9 @@ export default {
 }
 .ticket-modal {
   margin: auto;
+}
+.card-img-left {
+  width: 300px;
 }
 
 @keyframes rotate {
