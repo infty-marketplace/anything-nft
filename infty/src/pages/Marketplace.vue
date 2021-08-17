@@ -208,7 +208,7 @@ export default {
                 if (p.status == "fulfilled") return p.value;
             });
             nfts.map(async (n) => {
-                axios.get(`${getters.getApiUrl}/profile/${n.data.owner[0].address}`).then((res) => {
+                axios.get(`${getters.getApiUrl}/profile/${n.data.author}`).then((res) => {
                   n.data.author = res.data.first_name + " " + res.data.last_name
                   n.data.url = n.data.file;
                   this.usersCards.push(n.data);
