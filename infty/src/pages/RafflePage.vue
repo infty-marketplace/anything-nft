@@ -396,6 +396,7 @@ export default {
   /* background-color: rgb(38, 38, 38); */
   /* color: white; */
   /* padding: 4px; */
+  height: 300px;
 }
 .pool-card-primary {
   display: flex;

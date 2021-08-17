@@ -177,6 +177,7 @@ function listNftDraw(req, res) {
   const newDraw = new Draw(drawParams);
   newDraw.save(function (err) {
     if (err) {
+      console.log("err in save draw", err);
       return res.status(400).send(err);
     }
     Nft.findOneAndUpdate(

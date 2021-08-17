@@ -140,6 +140,7 @@ export default {
     raffle_tickets: undefined,
     raffle_commision: undefined,
     checkState: false,
+    deadline: null,
   }),
   methods: {
     listNftClicked(e) {
@@ -191,10 +192,10 @@ export default {
           nftId: this.card.nft_id,
           title: this.card.title,
           description: this.card.description,
-          unitPrice: this.raffle_price,
+          unit_price: this.raffle_price,
           quantity: this.raffle_tickets,
           currency: "cfx",
-          deadline: new Date(this.deadline),
+          deadline: new Date(this.deadline).getTime() / 1000,
           nft_id: this.card.nft_id,
           owner: this.card.owner[0]._id,
         })
