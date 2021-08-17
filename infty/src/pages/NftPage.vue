@@ -12,7 +12,7 @@
           ><b-icon icon="card-text"></b-icon>&nbsp;Description</b-card-title
         >
         <b-card-text>
-          <p>Created by {{ card.author }}</p>
+          <p>Created by {{ card.author_name }}</p>
           <p>
             {{ card.description || "No description." }}
           </p>
@@ -55,13 +55,13 @@
         >
           <template #header>
             <span class="mb-0">
-              <b-icon icon="card-image"></b-icon>&nbsp;Card Name
+              <b-icon icon="card-image"></b-icon>&nbsp;{{card.title}}
             </span>
             <span class="mb-0 heart"
               ><button><b-icon icon="heart"></b-icon></button>&nbsp;2</span
             >
           </template>
-          <b-card-text>Owned by {{ card.author }}</b-card-text>
+          <b-card-text>Owned by {{ card.owner_name }}</b-card-text>
           <!-- <template #footer>
             <em>Footer Slot</em>
           </template> -->
@@ -73,7 +73,7 @@
           footer-tag="footer"
         >
           <template #header>
-            <h6 class="mb-0">
+            <h6 class="mb-0" v-if="card.expirationDate">
               <b-icon icon="clock"></b-icon>&nbsp;Sale ends in
               {{ card.expirationDate }} days
             </h6>
@@ -84,9 +84,18 @@
             {{ card.price }}
           </p>
 
-          <b-button href="#" variant="primary"
+          <b-button href="#" variant="primary" @click="buyNowClicked" v-if="!isOwner&&card.status=='sale'"
             ><b-icon icon="wallet2"></b-icon>&nbsp;&nbsp;Buy Now</b-button
           >
+          <b-modal ref="buy-modal" title='List Item' @ok="purchaseNft">
+            <label>Price</label>
+            <p>
+              <b-icon icon="suit-diamond-fill"></b-icon>&nbsp;
+              {{ card.price }}
+            </p>
+            <label>Commision Fee</label>
+            <b-form-input class='mb-4' v-model='listing_commision' placeholder="How much in cfx... (Minimum 2.5%)"/>
+          </b-modal>
           <!-- <template #footer>
             <em>Footer Slot</em>
           </template> -->
@@ -100,7 +109,7 @@
 
 <script>
 import axios from "axios"
-
+// import { eventBus } from "../main";
 import Navbar from "../components/Navbar.vue";
 import Footer from "../components/Footer.vue";
 export default {
@@ -111,21 +120,73 @@ export default {
   },
   props: ['card'],
   data: () => ({
-      isAuthor: false
+      isOwner: false
   }),
   created() {
     if (this.card) return;
-    axios.get(`${this.$store.getters.getApiUrl}/nft/${this.$route.params.id}`)
-      .then(res => {
-        const card = res.data
-        card.url = card.file
-        this.card = card;
-      })
+    if (this.$store.getters.getAddress == undefined) this.$store.dispatch("connectWallet");
+  },
+
+  async mounted() {
+    const res = await axios.get(`${this.$store.getters.getApiUrl}/nft/${this.$route.params.id}`)
+    const card = res.data;
+    await axios.get(`${this.$store.getters.getApiUrl}/profile/${card.author}`).then(resp => {
+      card.author_name = resp.data.first_name + " " + resp.data.last_name;
+      if (this.$store.getters.getAddress == card.owner[0].address) this.isOwner = true;
+    })
+    await axios.get(`${this.$store.getters.getApiUrl}/profile/${card.owner[0].address}`).then(resp => {
+      card.owner_name = resp.data.first_name + " " + resp.data.last_name;
+      card.url = card.file;
+      this.card = card;
+    })
+    
   },
   methods: {
     rand(min, max) {
       return Math.floor(Math.random() * (max - min)) + min;
     },
+    
+
+    buyNowClicked(e) {
+      e.preventDefault();
+      this.$refs['buy-modal'].show()
+    },
+
+    purchaseNft() {
+      const getters = this.$store.getters;
+      const data = {
+        nft_id: this.card.nft_id,
+        buyer: getters.getAddress,
+        commission: this.listing_commision,
+        commission_currency: 'cfx'
+      };
+      axios.post(`${getters.getApiUrl}/purchase-nft`, data).then(
+        res => {
+          if (res.status == 200) {
+              this.$bvToast.toast("NFT Purchased Successfully", {
+                  title: "Notification",
+                  autoHideDelay: 3000
+              })
+              const ownerAddress = getters.getAddress;
+              axios.get(`${this.$store.getters.getApiUrl}/profile/${ownerAddress}`).then((resp) => {
+                this.card.owner_name = resp.data.first_name + " " + resp.data.last_name;
+                this.isOwner = (ownerAddress == this.card.author);
+                this.card.status = 'private';
+                this.$forceUpdate();
+                console.log(this.isOwner)
+                console.log(this.card.status)
+              })
+          }
+        }
+      ).catch(err => {
+        console.log(err)
+        this.$bvToast.toast("Purchase Failed", {
+          title: 'Error',
+          autoHideDelay: 3000,
+          appendToast: false,
+        })
+      })
+    }
   },
 };
 </script>
