@@ -301,7 +301,7 @@ async function isAlbumFunded(album) {
     return false;
 }
 
-async function transferOwnership(transactionDetails, recordTransaction = true) {
+async function transferOwnership(transactionDetails, res, recordTransaction = true) {
     // get buyer/seller
     let buyer = await User.findOne({ address: transactionDetails.buyer });
     let seller = await User.findOne({ address: transactionDetails.seller });
@@ -396,7 +396,7 @@ async function purchaseNtf(req, res) {
         commission_currency: body.commission_currency,
         collection_id: nft.nft_id,
     };
-    await transferOwnership(transactionDetails);
+    await transferOwnership(transactionDetails, res);
 
     //check if this nft fullfills a album
     if (nft.album_id && nft.album_id !== "") {
@@ -410,7 +410,7 @@ async function purchaseNtf(req, res) {
                 transaction_type: "purchase-album",
                 collection_id: album.album_id,
             };
-            await transferOwnership(albumTransactionDetails, false);
+            await transferOwnership(albumTransactionDetails, res, false);
         }
     }
     return res.status(200).send();
@@ -474,7 +474,7 @@ async function fundNtf(req, res) {
                 collection_id: transactionDetails.collection_id,
                 percentage: funder.percentage,
             };
-            await transferOwnership(nftTransactionDetails, false);
+            await transferOwnership(nftTransactionDetails, res, false);
         }
     }
     await mongodbUtils
@@ -564,10 +564,10 @@ async function purchaseAlbum(req, res) {
         price: album.price,
         currency: album.currency,
         commission: body.commission,
-        commission_currency: body.commission_currency,
+        commission_currency: body.commission_currency || 'cfx',
         collection_id: album.album_id,
     };
-    await transferOwnership(transactionDetails);
+    await transferOwnership(transactionDetails, res);
 
     //update associated nft's information
     const nfts = await getAlbumNfts(album);
@@ -578,7 +578,7 @@ async function purchaseAlbum(req, res) {
             transaction_type: "purchase-nft",
             collection_id: nft.nft_id,
         };
-        await transferOwnership(nftTransactionDetails, false);
+        await transferOwnership(nftTransactionDetails, res, false);
     }
 
     return res.status(200).send();
