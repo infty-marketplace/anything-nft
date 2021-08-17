@@ -1,6 +1,15 @@
 <template>
   <div class="flex-wrapper">
     <Navbar />
+    <b-carousel controls indicators background="#dadada" class='carousel mt-4'>
+      <b-carousel-slide v-for="nft in nfts" :key="nft.nft_id" >
+        <template #img>
+          <div @click="redirectToNft(nft.nft_id)">
+            <img :src='nft.file' class='nft-img'/>
+          </div>
+        </template>
+      </b-carousel-slide>
+    </b-carousel>
     <div class="detail-content">
       <b-card
         class="detailed-card"
@@ -67,7 +76,7 @@
           </template> -->
         </b-card>
 
-        <b-card
+        <b-card v-if='card.status == "sale"'
           class="transaction-info"
           header-tag="header"
           footer-tag="footer"
@@ -84,7 +93,7 @@
             {{ card.price }}
           </p>
 
-          <b-button href="#" variant="primary"
+          <b-button href="#" variant="primary" @click="purchaseAlbum"
             ><b-icon icon="wallet2"></b-icon>&nbsp;&nbsp;Buy Now</b-button
           >
           <!-- <template #footer>
@@ -113,21 +122,44 @@ export default {
   data() {
     return {
       isAuthor: false,
+      nfts: []
     };
   },
   created() {
-		if (this.card) return;
-    axios.get(`${this.$store.getters.getApiUrl}/album/${this.$route.params.id}`)
-      .then(res => {
+    const api = this.$store.getters.getApiUrl
+    axios.get(`${api}/album/${this.$route.params.id}`)
+      .then(async res => {
         const card = res.data
         card.url = card.file
         this.card = card;
+        for (const nid of card.nft_ids) {
+          const res = await axios.get(`${api}/nft/${nid}`)
+          this.nfts.push(res.data)
+        }
+        console.log(this.nfts)
       })
   },
   methods: {
     rand(min, max) {
       return Math.floor(Math.random() * (max - min)) + min;
     },
+    redirectToNft(nid) {
+      this.$router.push(`/nft/${nid}`)
+    },
+    purchaseAlbum() {
+      const buyer = this.$store.getters.getAddress
+      if (!buyer) {
+        this.$store.dispatch('connectWallet')
+      }
+      axios.post(`${this.$store.getters.getApiUrl}/purchase-album`, {
+        album_id: this.card.album_id,
+        buyer,
+        commission: 10,
+        commission_currency:'cfx'
+      }).then(res =>{
+        console.log(res)
+      })
+    }
   },
 };
 </script>
@@ -162,4 +194,16 @@ export default {
 /* .transaction-info {
   margin-bottom: 20px;
 } */
+.carousel {
+  width: 80vw;
+  margin-left:auto;
+  margin-right:auto;
+  color:#dadada
+}
+.nft-img {
+  max-height: 500px;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+}
 </style>
