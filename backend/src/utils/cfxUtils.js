@@ -48,7 +48,7 @@ async function generateUri(req, imageUri, sha) {
 }
 
 // TODO
-async function actualTokenId(addr, uri, guess) {
+function actualTokenId(addr, uri, guess) {
     return makeid(5)
 }
 module.exports = {
