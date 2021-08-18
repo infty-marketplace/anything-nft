@@ -104,7 +104,7 @@ async function createNft(req, res) {
   // create nft on chain
   const guessedTokenId = await cfxUtils.nextTokenId()
   const uri = await cfxUtils.generateUri(req, stored.Location, sha)
-  await cfxUtils.mint(process.env.TEST_ADDRESS, uri)
+  await cfxUtils.mint(req.body.address, uri)
   const actualTokenId = cfxUtils.actualTokenId(req.body.address, uri, guessedTokenId)
   const nftId = process.env.MINTER_ADDRESS + '-' + guessedTokenId
   const params = {

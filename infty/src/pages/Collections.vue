@@ -213,9 +213,10 @@ export default {
         axios.get(`${this.$store.getters.getApiUrl}/album/${aid}`)
       );
       const album_promises_result = await Promise.allSettled(album_promises);
-      const albums = album_promises_result.map((p) => {
+      let albums = album_promises_result.map((p) => {
         if (p.status == "fulfilled") return p.value.data;
       });
+      albums = albums.filter(a => !!a && !!a.file)
       this.albums = albums.map((n) => {
         n.url = n.file;
         n.author = n.owner;
