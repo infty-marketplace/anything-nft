@@ -197,9 +197,11 @@ export default {
         axios.get(`${this.$store.getters.getApiUrl}/nft/${nid}`)
       );
       const nft_promises_result = await Promise.allSettled(nft_promises);
-      const nfts = nft_promises_result.map((p) => {
+      let nfts = nft_promises_result.map((p) => {
+        console.log(p)
         if (p.status == "fulfilled") return p.value.data;
       });
+      nfts = nfts.filter(n => !!n && !!n.file)
       this.nfts = nfts.map((n) => {
         n.url = n.file;
         n.author = n.owner[0].address;
@@ -211,9 +213,10 @@ export default {
         axios.get(`${this.$store.getters.getApiUrl}/album/${aid}`)
       );
       const album_promises_result = await Promise.allSettled(album_promises);
-      const albums = album_promises_result.map((p) => {
+      let albums = album_promises_result.map((p) => {
         if (p.status == "fulfilled") return p.value.data;
       });
+      albums = albums.filter(a => !!a && !!a.file)
       this.albums = albums.map((n) => {
         n.url = n.file;
         n.author = n.owner;

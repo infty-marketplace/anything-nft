@@ -5,10 +5,11 @@ const Transaction = require("../models/transaction");
 const User = require("../models/user");
 const constants = require("../constants");
 const fs = require("fs");
+const sha256 = require('sha256-file')
 const { makeid } = require("../utils/helpers");
 const imageUtils = require("../utils/imageUtils");
 const mongodbUtils = require("../utils/mongodbUtils");
-
+const cfxUtils = require("../utils/cfxUtils")
 const s3 = require("../database/s3");
 
 const getNft = async (req, res) => {
@@ -75,18 +76,8 @@ const getMarket = async (req, res) => {
 
 async function createNft(req, res) {
   console.log("Create NFT");
-  const nftId = makeid(5);
-  const params = {
-    title: req.body.title,
-    nft_id: nftId,
-    description: req.body.description,
-    file: null,
-    file_hash: null,
-    status: constants.STATUS_PRIVATE,
-    author: req.body.address,
-    owner: [{ address: req.body.address, percentage: 1 }],
-  };
 
+  // compare image similarity
   const tmpPath = req.files.file.path;
   const fileHash = await imageUtils.hash(tmpPath);
 
@@ -99,16 +90,34 @@ async function createNft(req, res) {
     }
   }
 
+  // upload image to s3
+  console.log(sha256(tmpPath))
+  const sha = sha256(tmpPath)
   const fileToUpload = fs.createReadStream(tmpPath);
   const s3UploadParams = {
     Bucket: process.env.S3_BUCKET_NAME,
-    Key: nftId,
+    Key: makeid(16),
     Body: fileToUpload,
   };
   const stored = await s3.upload(s3UploadParams).promise();
-  params.file = stored.Location;
-  params.file_hash = fileHash;
 
+  // create nft on chain
+  const guessedTokenId = await cfxUtils.nextTokenId()
+  const uri = await cfxUtils.generateUri(req, stored.Location, sha)
+  await cfxUtils.mint(req.body.address, uri)
+  const actualTokenId = cfxUtils.actualTokenId(req.body.address, uri, guessedTokenId)
+  const nftId = process.env.MINTER_ADDRESS + '-' + guessedTokenId
+  const params = {
+    title: req.body.title,
+    nft_id: nftId,
+    description: req.body.description,
+    file: stored.Location,
+    file_hash: fileHash,
+    status: constants.STATUS_PRIVATE,
+    author: req.body.address,
+    owner: [{ address: req.body.address, percentage: 1 }],
+  };
+  
   const newNft = new Nft(params);
   const user = await User.findOne({ address: req.body.address });
   user.nft_ids.push(nftId);

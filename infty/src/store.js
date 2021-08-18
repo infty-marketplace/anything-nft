@@ -6,7 +6,10 @@ Vue.use(Vuex)
 const store = new Vuex.Store({
     state: {
         address: undefined,
-        apiUrl: "http://localhost:3001/api"
+        apiUrl: "http://localhost:3001/api",
+        managerAddr: 'cfxtest:aar3amuxs8fg2u7h1tsngukey8vm2h6vgujhf413e6',
+        minterContract: undefined,
+        minterAddress: 'cfxtest:ace5gcmv1x118ts2tta4k83asp7sxrz566w4defuhr'
     },
     actions: {
         async connectWallet(context) {
@@ -28,11 +31,17 @@ const store = new Vuex.Store({
     mutations: {
         setAddress: (state, addr) => {
             state.address = addr;
+        },
+        setMinterContract: (state, mc) =>{
+            state.minterContract = mc
         }
     },
     getters: {
         getAddress: (state) => state.address,
-        getApiUrl: (state) => state.apiUrl
+        getApiUrl: (state) => state.apiUrl,
+        getManagerAddr:(state) =>state.managerAddr,
+        getMinterContract: (state) =>state.minterContract,
+        getMinterAddress:(state) => state.minterAddress
     }
 })
 
