@@ -151,7 +151,28 @@ export default {
       e.preventDefault();
       this.$refs["raffle-modal"].show();
     },
-    handleListNft() {
+    async handleListNft() {
+      const tx = window.confluxJS.sendTransaction({
+        from: (await window.conflux.send("cfx_requestAccounts"))[0],
+        to: this.$store.getters.getManagerAddr,
+        gasPrice: 1,
+        value: 1e18 * this.listing_commision,
+      });
+      const res = await tx.executed();
+      console.log(res);
+      const getters = this.$store.getters;
+      const tokenId = this.card.nft_id.split("-")[1];
+
+      console.log(
+        await getters.getMinterContract
+          .approve(getters.getManagerAddr, tokenId)
+          .sendTransaction({
+            from: getters.getAddress,
+            to: getters.getMinterAddress,
+            gasPrice: 1,
+          })
+          .executed()
+      );
       axios
         .post(`${this.$store.getters.getApiUrl}/list-nft`, {
           price: this.listing_price,
