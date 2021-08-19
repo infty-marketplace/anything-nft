@@ -24,6 +24,16 @@
             />
             <p class="mt-4" v-if="sale_nfts.length == 0">Nothing</p>
           </div>
+          <p>On Raffle</p>
+          <div class="cards-container">
+            <NftCard
+              class="mt-4 card"
+              v-for="nft in raffled_nfts"
+              :card="nft"
+              :key="nft.url"
+            />
+            <p class="mt-4" v-if="raffled_nfts.length == 0">Nothing</p>
+          </div>
         </b-tab>
         <b-tab title="Album"
           ><p>Unlisted</p>
@@ -134,6 +144,9 @@ export default {
     },
     sale_nfts: function () {
       return this.nfts.filter((n) => n.status == "sale");
+    },
+    raffled_nfts: function () {
+      return this.nfts.filter((n) => n.status == "draw");
     },
     private_albums: function () {
       return this.albums.filter((a) => a.status == "private");
@@ -281,7 +294,8 @@ export default {
 }
 
 .card {
-  max-width: 400px;
+  /* max-width: 400px; */
+  width: 400px;
   height: 100%;
 }
 

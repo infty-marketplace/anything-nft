@@ -39,6 +39,9 @@
             ></span
           >
         </div>
+        <div v-if="card.status == 'draw'">
+          <small class="text-muted">Currently Raffled</small>
+        </div>
         <div v-else>
           <small class="text-muted">Currently Unlisted</small>
 
@@ -309,5 +312,9 @@ export default {
 
 .user-card:hover .checkbox {
   display: block;
+}
+.card-img-top {
+  width: 398px;
+  height: 398px;
 }
 </style>
