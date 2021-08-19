@@ -6,7 +6,7 @@
 
 <script>
 const { abi } = require('./assets/InftyNft.json')
-const { Conflux } = require('js-conflux-sdk')
+// const { Conflux } = require('js-conflux-sdk')
 
 
 export default {

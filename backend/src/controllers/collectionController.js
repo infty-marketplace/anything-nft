@@ -453,6 +453,9 @@ async function purchaseNtf(req, res) {
     return res.status(400).json({ error: "buyer is the owner" });
   }
 
+  const tokenID = body.nft_id.split('-')[1];
+  await cfxUtils.transferOwnershipOnChain(nft.owner[0].address, body.buyer, tokenID);
+
   // create a transaction record
   let transactionDetails = {
     buyer: body.buyer,
@@ -481,7 +484,8 @@ async function purchaseNtf(req, res) {
       await transferOwnership(albumTransactionDetails, res, false);
     }
   }
-  return res.status(200).send();
+  res.status(200).send();
+  await cfxUtils.transferCfxTo(nft.owner[0].address, parseFloat(nft.price));
 }
 
 async function fundNtf(req, res) {
