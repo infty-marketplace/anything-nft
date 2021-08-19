@@ -4,7 +4,7 @@
     <div class="detail-content">
       <b-card
         class="detailed-card"
-        :img-src="card.url"
+        :img-src="card&&card.url"
         img-alt="Card image"
         img-top
       >
@@ -12,9 +12,9 @@
           ><b-icon icon="card-text"></b-icon>&nbsp;Description</b-card-title
         >
         <b-card-text>
-          <p>Created by {{ card.author_name }}</p>
+          <p>Created by {{ card && card.author_name }}</p>
           <p>
-            {{ card.description || "No description." }}
+            {{ card && card.description || "No description." }}
           </p>
         </b-card-text>
         <b-list-group flush>
@@ -55,13 +55,13 @@
         >
           <template #header>
             <span class="mb-0">
-              <b-icon icon="card-image"></b-icon>&nbsp;{{card.title}}
+              <b-icon icon="card-image"></b-icon>&nbsp;{{card && card.title}}
             </span>
             <span class="mb-0 heart"
               ><button><b-icon icon="heart"></b-icon></button>&nbsp;2</span
             >
           </template>
-          <b-card-text>Owned by {{ card.owner_name }}</b-card-text>
+          <b-card-text>Owned by {{ card && card.owner_name }}</b-card-text>
           <!-- <template #footer>
             <em>Footer Slot</em>
           </template> -->
@@ -109,7 +109,6 @@
 
 <script>
 import axios from "axios"
-// import { eventBus } from "../main";
 import Navbar from "../components/Navbar.vue";
 import Footer from "../components/Footer.vue";
 export default {
@@ -120,7 +119,7 @@ export default {
   },
   props: ['card'],
   data: () => ({
-      isOwner: false
+      isOwner: true
   }),
   created() {
     if (this.card) return;
@@ -132,7 +131,7 @@ export default {
     const card = res.data;
     await axios.get(`${this.$store.getters.getApiUrl}/profile/${card.author}`).then(resp => {
       card.author_name = resp.data.first_name + " " + resp.data.last_name;
-      if (this.$store.getters.getAddress == card.owner[0].address) this.isOwner = true;
+      if (this.$store.getters.getAddress != card.owner[0].address) this.isOwner = false;
     })
     await axios.get(`${this.$store.getters.getApiUrl}/profile/${card.owner[0].address}`).then(resp => {
       card.owner_name = resp.data.first_name + " " + resp.data.last_name;
@@ -152,8 +151,20 @@ export default {
       this.$refs['buy-modal'].show()
     },
 
-    purchaseNft() {
+    async purchaseNft() {
       const getters = this.$store.getters;
+
+      const tx = window.confluxJS.sendTransaction({
+        from: (await window.conflux.send("cfx_requestAccounts"))[0],
+        to: getters.getManagerAddr,
+        gasPrice: 1,
+        value: 1e18*(parseFloat(this.listing_commision) + parseFloat(this.card.price))
+      })
+
+      const res = await tx.executed()
+      console.log(res)
+      
+      console.log(getters.getAddress)
       const data = {
         nft_id: this.card.nft_id,
         buyer: getters.getAddress,
@@ -173,8 +184,6 @@ export default {
                 this.isOwner = (ownerAddress == this.card.author);
                 this.card.status = 'private';
                 this.$forceUpdate();
-                console.log(this.isOwner)
-                console.log(this.card.status)
               })
           }
         }

@@ -69,7 +69,7 @@ export default {
       .then(res => {
         console.log(res)
       }).catch(err => {
-        if (err.response.status == 404) {
+        if (!err.response || err.response.status == 404) {
           this.$refs['reg-modal'].show()
         }
       })

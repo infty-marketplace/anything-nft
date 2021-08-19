@@ -20,6 +20,21 @@ async function mint(addr, uri) {
     return await minterContract.mint(addr, uri).sendTransaction({from: process.env.MANAGER_ADDRESS}).executed()
 }
 
+async function transferOwnershipOnChain(fromAddr, toAddr, tokenID){
+    return await minterContract.transferFrom(fromAddr, toAddr, tokenID).sendTransaction({from: process.env.MANAGER_ADDRESS}).executed()
+}
+
+async function transferCfxTo(toAddr, price) {
+    const tx = {
+        from: process.env.MANAGER_ADDRESS,
+        to: toAddr,
+        value: 1e18*price,
+        chainId: 1
+    }
+    const hash = await cfx.sendTransaction(tx).executed();
+    console.log(hash)
+}
+
 async function generateUri(req, imageUri, sha) {
     const metaData = {
         title: "Asset Metadata",
@@ -55,5 +70,7 @@ module.exports = {
     nextTokenId,
     mint,
     actualTokenId,
-    generateUri
+    generateUri,
+    transferOwnershipOnChain,
+    transferCfxTo
 }

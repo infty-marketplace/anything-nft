@@ -159,6 +159,7 @@ export default {
         value: 1e18*this.listing_commision
       })
       const res = await tx.executed()
+      console.log(res)
       const getters = this.$store.getters
       const tokenId = this.card.nft_id.split('-')[1]
 
