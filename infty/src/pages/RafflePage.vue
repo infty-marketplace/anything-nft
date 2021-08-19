@@ -1,6 +1,7 @@
 <template>
   <div class="raffle-page">
     <Navbar active-index="1" />
+
     <div>
       <div id="sidebar" style="width: 20%">
         <b-card nobody id="sidebar-card">
@@ -200,16 +201,32 @@
               <div class="transaction-primary">
                 <div class="price">
                   <b-badge
-                    class="price-item"
+                    v-if="raffle.deadline"
+                    class="price-item date"
                     style="background-color: rgb(236, 105, 166)"
-                    >20%</b-badge
+                    >{{
+                      new Date(raffle.deadline * 1000).toLocaleDateString()
+                    }}</b-badge
                   >
                   <b-badge
-                    class="price-item"
+                    v-else
+                    class="price-item until-soldout"
+                    style="background-color: rgb(236, 105, 166)"
+                    >Until Tickets Soldout</b-badge
+                  >
+
+                  <b-badge
+                    class="price-item price-badge"
                     style="background-color: rgb(236, 105, 166)"
                     >{{ raffle.unit_price }} {{ raffle.currency }}</b-badge
                   >
                 </div>
+                <b-progress
+                  :value="20"
+                  variant="info"
+                  :animated="animate"
+                  class="mt-3"
+                ></b-progress>
                 <b-button
                   class="buy-btn"
                   variant="primary"
@@ -285,6 +302,7 @@ export default {
       raffles: [],
       ticketNum: 1,
       nftRaffleToBuy: null,
+      animate: true,
     };
   },
   methods: {
@@ -306,8 +324,6 @@ export default {
         }
       });
 
-      console.log("draws", draws);
-
       const raffles_promises = draws.map((draw) => {
         const nft_promise = axios.get(
           `${getters.getApiUrl}/nft/${draw.nft_id}`
@@ -320,6 +336,7 @@ export default {
 
       Promise.all(raffles_promises).then((results) => {
         this.raffles = results;
+        console.log("this.raffles", this.raffles);
       });
     },
     showModal() {
@@ -407,20 +424,30 @@ export default {
   width: 70%;
   /* display: inline-block; */
 }
+.transaction-primary {
+  width: 40%;
+}
 .price {
-  width: 180px;
+  /* width: 180px; */
   /* padding: 10px; */
   display: flex;
   justify-content: space-between;
   text-align: center;
 }
 .price-item {
-  width: 80px;
+  /* width: 120px; */
   height: 40px;
   text-align: center;
   line-height: 37px;
   /* margin-right: 8px; */
 }
+.date {
+  width: 100px;
+}
+.price-badge {
+  width: 80px;
+}
+
 .buy-btn {
   color: rgb(38, 38, 38);
   font-weight: bold;
