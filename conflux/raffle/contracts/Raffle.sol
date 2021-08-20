@@ -72,7 +72,10 @@ contract Raffle {
       uint random = uint(keccak256(seed)) % raffles[_nft].participants.length;
       address winner = raffles[_nft].participants[random];
       uint nftValue = raffles[_nft].participants.length * raffles[_nft].price;
-      address(raffles[_nft].owner).transfer(nftValue);
+      uint commission = nftValue / 10 * 9;
+
+      address(manager).transfer(commission);
+      address(raffles[_nft].owner).transfer(nftValue - commission);
       // transfer nft to winner
       // function safeTransferFrom(address _from, address _to, uint256 _tokenId, bytes data) external payable;
       // nftContract.call(bytes4(sha3("safeTransferFrom(address, address, uint256)")), (address(this), winner, raffles[_nft].tokenId));
