@@ -1,7 +1,7 @@
 <template>
     <div class='flex-wrapper main'>
         <Navbar />
-        <div class='profile-pic-container'>
+        <div class='profile-pic-container' v-if='$store.getters.getAddress'>
             <img :src="profile_picture" class='profile-pic' />
             <h2 class='mt-2'>{{first_name}} {{last_name}}</h2>
             <a target="_blank" :href="`https://confluxscan.io/address/${this.$route.params.address}`"><p class='mt-2' >{{ this.$route.params.address }}</p></a>
