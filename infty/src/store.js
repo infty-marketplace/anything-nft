@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import { eventBus } from './main'
+import axios from 'axios'
 Vue.use(Vuex)
 
 const store = new Vuex.Store({
@@ -41,7 +42,15 @@ const store = new Vuex.Store({
         getApiUrl: (state) => state.apiUrl,
         getManagerAddr:(state) =>state.managerAddr,
         getMinterContract: (state) =>state.minterContract,
-        getMinterAddress:(state) => state.minterAddress
+        getMinterAddress:(state) => state.minterAddress,
+        getProfile: (state) => async (addr) => {
+            const res = await axios.get(`${state.apiUrl}/profile/${addr}`)
+            return res.data
+        },
+        getProfilePic: (state) => async (addr) => {
+            const res = await axios.get(`${state.apiUrl}/profile/${addr}`)
+            return res.data.profile_picture
+        }
     }
 })
 
