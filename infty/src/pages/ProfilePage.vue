@@ -101,9 +101,6 @@
 </template>
 
 <script>
-import { eventBus } from "../main"
-import axios from "axios"
-
 import Navbar from '../components/Navbar.vue'
 import Footer from '../components/Footer.vue'
 // import FileUploader from '../components/FileUploader.vue'
