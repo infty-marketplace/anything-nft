@@ -126,49 +126,16 @@ export default {
       handleSelect(i){
           this.selectedIndex = i;
       },
-      createNft(){
-          const fd = new FormData();
-          fd.append('file', this.imageData);
-          fd.append('address', this.$store.getters.getAddress)
-          fd.append('title', this.title)
-          fd.append('description', this.description)
-
-          axios.post(this.$store.getters.getApiUrl+"/create-nft", fd)
-            .then(res => {
-                if (res.status == 200) {
-                    this.$bvToast.toast("NFT Created", {
-                        title: "Notification",
-                        autoHideDelay: 3000
-                    })
-                }
-                eventBus.$emit("CreatePage.nftCreated");
-                this.title = "";
-                this.description = "";
-            }).catch(err => {
-                console.log(err)
-                this.$bvToast.toast("NFT Creation Failed", {
-                    title: "Error",
-                    autoHideDelay: 3000
-                })
-            })
-      },
-
-      clearTextArea(){
-          this.description = "";
-      }
+     
   },
   async mounted() {
       this.$store.dispatch("connectWallet")
-      eventBus.$on("CreatePage.receiveFile", (imageData) => {
-        this.imageData = imageData;
-      })
       const profile = await this.$store.getters.getProfile(this.$route.params.address)
       this.profile_picture = profile.profile_picture
       this.first_name = profile.first_name
       this.last_name = profile.last_name
   },
   beforeDestroy() {
-      eventBus.$off("CreatePage.receiveFile")
   }
 }
 </script>
