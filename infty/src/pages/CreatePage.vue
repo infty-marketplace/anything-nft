@@ -16,8 +16,11 @@
                 placeholder="Enter a detailed description..."
                 v-model='description'
                 rows="3"
-            ></b-form-textarea>
-            <b-icon font-scale="1.5" class="icon" icon="x" @click="clearTextArea"></b-icon>
+            >
+            
+            </b-form-textarea>
+            <b-icon v-if='description' font-scale="1.5" class="icon" icon="x" @click="clearTextArea"></b-icon>
+            
             </div>
             <div class='mt-5'>
                 <b-form-checkbox style="display:inline">Image On-chain Storage<b-badge pill variant='info' class='ml-2'>Free for limited time</b-badge></b-form-checkbox>
@@ -32,6 +35,7 @@
 <script>
 import { eventBus } from "../main"
 import axios from "axios"
+import { Notification } from 'element-ui';
 
 import Navbar from '../components/Navbar.vue'
 import Footer from '../components/Footer.vue'
@@ -52,6 +56,11 @@ export default {
   }),
   methods: {
       createNft(){
+          this.$notify({
+              title: 'Notification',
+              message: 'NFT Minting In Progress',
+              duration: 0
+          })
           const fd = new FormData();
           fd.append('file', this.imageData);
           fd.append('address', this.$store.getters.getAddress)
@@ -61,9 +70,12 @@ export default {
           axios.post(this.$store.getters.getApiUrl+"/create-nft", fd)
             .then(res => {
                 if (res.status == 200) {
-                    this.$bvToast.toast("NFT Created", {
-                        title: "Notification",
-                        autoHideDelay: 3000
+                    Notification.closeAll()
+                    this.$notify({
+                        title: "Success",
+                        message: "NFT Created Successfully",
+                        duration: 3000,
+                        type: 'success'
                     })
                 }
                 eventBus.$emit("CreatePage.nftCreated");
@@ -71,10 +83,22 @@ export default {
                 this.description = "";
             }).catch(err => {
                 console.log(err)
-                this.$bvToast.toast("NFT Creation Failed", {
-                    title: "Error",
-                    autoHideDelay: 3000
-                })
+                Notification.closeAll()
+                console.log(err)
+                if (err.response.status == 409) {
+                   this.$notify.error({
+                        title: "Error",
+                        message: "Conflicting Title: Please try another title for your NFT.",
+                        duration: 3000
+                    }) 
+                } else {
+                    this.$notify.error({
+                        title: "Error",
+                        message: "NFT Creation Failed",
+                        duration: 3000
+                    })
+                }
+                
             })
       },
 
@@ -96,7 +120,7 @@ export default {
 
 <style scoped>
 .content {
-    min-width: 60vw;
+    width: 60vw;
     margin: 0px auto;
 }
 .main {
@@ -108,12 +132,13 @@ export default {
 .file-uploader {
     width: 80%;
 }
-.from-group {
-    position: absolute;
+.form-group {
+    position: relative;
 }
 .icon {
-    position:relative;
-    top: -30px;
+    position:absolute;
+    bottom: 0;
     left: 97%;
+    cursor: pointer;
 }
 </style>

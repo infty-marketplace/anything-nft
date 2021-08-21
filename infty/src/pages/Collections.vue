@@ -12,7 +12,7 @@
               :card="nft"
               :key="nft.url"
             />
-            <p class="mt-4" v-if="private_nfts.length == 0">Nothing</p>
+            <p class="mt-4" v-if="private_nfts.length == 0"><el-empty description="Nothing"></el-empty></p>
           </div>
           <p>On Sale</p>
           <div class="cards-container">
@@ -22,7 +22,7 @@
               :card="nft"
               :key="nft.url"
             />
-            <p class="mt-4" v-if="sale_nfts.length == 0">Nothing</p>
+            <p class="mt-4" v-if="sale_nfts.length == 0"><el-empty description="Nothing"></el-empty></p>
           </div>
         </b-tab>
         <b-tab title="Album"
@@ -34,7 +34,7 @@
               :card="album"
               :key="album.url"
             />
-            <p class="mt-4" v-if="private_albums.length == 0">Nothing</p>
+            <p class="mt-4" v-if="private_albums.length == 0"><el-empty description="Nothing"></el-empty></p>
           </div>
           <p>On Sale</p>
           <div class="cards-container">
@@ -44,7 +44,7 @@
               :card="album"
               :key="album.url"
             />
-            <p class="mt-4" v-if="sale_albums.length == 0">Nothing</p>
+            <p class="mt-4" v-if="sale_albums.length == 0"><el-empty description="Nothing"></el-empty></p>
           </div></b-tab
         >
       </b-tabs>

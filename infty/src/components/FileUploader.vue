@@ -2,7 +2,7 @@
   <div>
     <div class="drag-area">
       <input ref='input' type="file" @change="onUpload" hidden />
-      <img ref='image' v-if="fileLoaded"/>
+      <img style="object-fit: contain" ref='image' v-if="fileLoaded"/>
       <div class='drag-area-inner mt-5' v-else>
       <svg
         xmlns="http://www.w3.org/2000/svg"
