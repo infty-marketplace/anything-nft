@@ -163,7 +163,7 @@
           class="buy-btn"
           id="modal-buy"
           variant="primary"
-          @click="hideModal"
+          @click="buyNowClicked"
           >Buy Now</b-button
         >
       </b-modal>
@@ -353,6 +353,13 @@ export default {
       // if (this.nftTicketToBuy) {
       //   this.showModal();
       // }
+    },
+    buyNowClicked() {
+      console.log(this.nftRaffleToBuy);
+    },
+    buyRaffle(nftRaffleToBuy) {
+      console.log(nftRaffleToBuy);
+      console.log(this.ticketNum);
     },
   },
 };

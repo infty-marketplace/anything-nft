@@ -221,7 +221,7 @@ export default {
           currency: "cfx",
           deadline: new Date(this.deadline).getTime() / 1000,
           nft_id: this.card.nft_id,
-          owner: this.card.owner[0]._id,
+          owner: this.card.owner[0].address,
         })
         .then((res) => {
           this.$bvToast.toast("Raffling Successfully", {
