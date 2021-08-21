@@ -76,7 +76,10 @@ const getMarket = async (req, res) => {
 
 async function createNft(req, res) {
   console.log("Create NFT");
-
+  const titleExists = await Nft.exists({ title:req.body.title })
+  if (titleExists) {
+    return res.status(409).send()
+  }
   // compare image similarity
   const tmpPath = req.files.file.path;
   const fileHash = await imageUtils.hash(tmpPath);

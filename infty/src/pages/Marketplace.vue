@@ -144,9 +144,9 @@
             <b-form-input type="search" placeholder="Search..."></b-form-input>
           </b-input-group>
         </div>
-        <b-card-group columns>
+        <div class='cards-container'>
           <Card v-for="card in usersCards" :card="card" :key="card.url" />
-        </b-card-group>
+        </div>
         <b-button variant="primary" class='load-more' @click='loadMarket'>Load More</b-button>
       </div>
     </div>
@@ -271,5 +271,11 @@ export default {
   width: 800px;
   display: inline-block;
   margin-top: 2em;
+}
+.cards-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+  align-items: flex-start;
 }
 </style>

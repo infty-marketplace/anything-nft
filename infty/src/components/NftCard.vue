@@ -2,12 +2,23 @@
   <div>
     <b-card
       class="user-card"
-      :img-src="card.url"
-      :key="card.url"
-      img-alt="Image"
-      img-top
-      @click="cardClicked"
     >
+      <template #header>
+        <el-dropdown  v-if='!onMarket' class='dropdown'>
+        <span class="el-dropdown-link">
+          <i class="el-icon-arrow-down el-icon--right"></i>
+        </span>
+        <el-dropdown-menu slot="dropdown">
+          <a @click="listNftClicked"><el-dropdown-item v-if="card.status == 'private'">List Item</el-dropdown-item></a>
+          <a @click="raffleNftClicked"><el-dropdown-item v-if="card.status == 'private'">Raffle It</el-dropdown-item></a>
+          <a @click="delistNft"><el-dropdown-item v-if="card.status == 'sale'">Delist</el-dropdown-item></a>
+        </el-dropdown-menu>
+      </el-dropdown>
+      <div v-else class='like-container'>
+        <heart-btn />
+      </div>
+      
+      </template>
       <b-form-checkbox
         v-bind:class="{ checkbox: !checkState, 'checkbox-active': checkState }"
         v-model="checkState"
@@ -16,6 +27,7 @@
         v-if="card.status == 'private'"
         @change="checkBox"
       />
+      <img @click="cardClicked" :src='card.url' class='nft-img'/>
       <!-- <router-link :to="{ path:'/card/:id', name: 'card-detail', params: { id: card.nft_id || 'default_id', card: card } }"> -->
       <b-card-text class="card-detail">
         <p>{{ card.title }}</p>
@@ -29,7 +41,7 @@
               ><b-icon icon="clock"></b-icon>&nbsp;{{
                 card.expirationDate
               }}
-              days left</small
+              X days left</small
             ></span
           >
           <span class="text-muted-right"
@@ -42,7 +54,7 @@
         <div v-else>
           <small class="text-muted">Currently Unlisted</small>
 
-          <small class="text-muted-right"
+          <!-- <small class="text-muted-right"
             ><b-button
               size="sm"
               style="margin-top: -3px"
@@ -59,7 +71,7 @@
               @click="raffleNftClicked"
               >Raffle it</b-button
             ></small
-          >
+          > -->
           <b-modal ref="list-modal" title="List Item" @ok="handleListNft">
             <label>Price</label>
             <b-form-input
@@ -110,13 +122,13 @@
             </b-form-checkbox>
           </b-modal>
         </div>
-        <b-btn
+        <!-- <b-btn
           v-if="card.status == 'sale'"
           variant="info"
           class="text-muted-right"
           @click="delistNft"
           >Delist</b-btn
-        >
+        > -->
       </template>
       <!-- </router-link> -->
     </b-card>
@@ -126,11 +138,15 @@
 <script>
 import axios from "axios";
 import { eventBus } from "../main";
+import HeartBtn from './HeartBtn.vue'
 
 export default {
   name: "Card",
   props: {
     card: Object,
+  },
+  components:{
+    HeartBtn
   },
   data: () => ({
     status: undefined,
@@ -142,6 +158,11 @@ export default {
     checkState: false,
     deadline: null,
   }),
+  computed: {
+    onMarket: function() {
+      return this.$route.path.includes('marketplace')
+    }
+  },
   methods: {
     listNftClicked(e) {
       e.preventDefault();
@@ -152,6 +173,8 @@ export default {
       this.$refs["raffle-modal"].show();
     },
     async handleListNft() {
+      console.log(this.$store.getters.getManagerAddr)
+      console.log((await window.conflux.send("cfx_requestAccounts"))[0])
       const tx = window.confluxJS.sendTransaction({
         from: (await window.conflux.send("cfx_requestAccounts"))[0],
         to: this.$store.getters.getManagerAddr,
@@ -266,13 +289,13 @@ export default {
 
 <style scoped>
 .user-card {
+  width: 350px;
   transition: all 0.15s ease-in-out;
 }
-.user-card:hover {
+/* .user-card:hover {
   transform: scale(1.02);
   box-shadow: 0 0 5px rgba(33, 33, 33, 0.2);
-  cursor: pointer;
-}
+} */
 .text-muted-right {
   float: right;
 }
@@ -280,18 +303,17 @@ export default {
   font-size: 0.875em;
 }
 .checkbox {
-  display: none;
   position: absolute;
-  right: 0;
-  top: 0;
+  left: 10px;
+  top: 5px;
   z-index: 0;
 }
 
 .checkbox-active {
   display: block;
   position: absolute;
-  right: 0;
-  top: 0;
+  left: 10px;
+  top: 5px;
   z-index: 0;
 }
 .checkbox:hover {
@@ -300,5 +322,23 @@ export default {
 
 .user-card:hover .checkbox {
   display: block;
+}
+
+.nft-img {
+  width:100%;
+  height: 350px;
+  object-fit: contain;
+  cursor: pointer;
+  border-radius: 15px;
+}
+.dropdown {
+  float: right;
+}
+.like-container {
+  float: right;
+  margin-top: -60px;
+  margin-right: -80px;
+  margin-bottom: -60px;
+  transform: scale(0.15);
 }
 </style>
