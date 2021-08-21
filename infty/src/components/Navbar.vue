@@ -10,10 +10,15 @@
           <li v-bind:class="{active: activeIndex==1}"><router-link to="/raffles">Raffles</router-link></li>
           <li v-bind:class="{active: activeIndex==2}"><router-link to="/mine/collections">Collections</router-link></li>
           <li v-bind:class="{active: activeIndex==3}"><router-link to="#">About</router-link></li>
-          <li>
+          <li v-if='!loggedIn'>
             <b-button pill variant='primary' class='wallet-btn' @click="connectWallet">
               <b-icon class='ml-2 mr-2' icon="wallet2" aria-hidden="true"></b-icon>
             </b-button>
+          </li>
+          <li v-else>
+            <router-link :to="`/profile/${this.addr}`">
+            <img :src="profile_picture" class='profile-pic'/>
+            </router-link>
           </li>
         </ul>
       </nav>
@@ -43,7 +48,9 @@ export default {
   props: ['activeIndex'],
   data: () => ({
     first_name: '',
-    last_name: ''
+    last_name: '',
+    profile_picture: 'https://ipfs.io/ipfs/QmR9aGP1cQ13sapFBfFLiuhRVSGcrMYvZPmKXNNrobwtFZ?filename=undraw_male_avatar_323b.png',
+    addr: ''
   }),
   methods: {
     connectWallet() {
@@ -60,7 +67,16 @@ export default {
         })
     }
   },
-  created() {
+  computed: {
+    loggedIn: function() {
+      return !!this.$store.getters.getAddress;
+    }
+  },
+  async created() {
+    this.addr = window.conflux.selectedAddress
+    if (this.addr) {
+      this.profile_picture = await this.$store.getters.getProfilePic(this.addr)
+    }
     eventBus.$on("Navbar.noWallet", () => {
       this.$bvToast.show('no-wallet-toast')
     })
@@ -145,5 +161,16 @@ header {
 
 .active {
   border-bottom: 2px solid #0088a9;
+}
+
+.profile-pic {
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  transition: all 0.4s ease;
+}
+.profile-pic:hover {
+  transform: scale(1.1)
 }
 </style>

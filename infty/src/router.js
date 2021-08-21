@@ -8,6 +8,8 @@ import Collections from "./pages/Collections.vue";
 import NftPage from "./pages/NftPage.vue";
 import AlbumPage from "./pages/AlbumPage"
 import RafflePage from "./pages/RafflePage"
+import ProfilePage from "./pages/ProfilePage"
+
 Vue.use(Router);
 export default new Router({
   mode: "history",
@@ -44,5 +46,9 @@ export default new Router({
       component: AlbumPage,
       props: true,
     },
+    {
+      path: "/profile/:address",
+      component: ProfilePage
+    }
   ],
 });

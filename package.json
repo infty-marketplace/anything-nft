@@ -22,5 +22,8 @@
     "bugs": {
         "url": "https://github.com/InfTkm/anything-nft/issues"
     },
-    "homepage": "https://github.com/InfTkm/anything-nft#readme"
+    "homepage": "https://github.com/InfTkm/anything-nft#readme",
+    "dependencies": {
+        "element-ui": "^2.15.5"
+    }
 }
