@@ -5,9 +5,10 @@
 </template>
 
 <script>
-const { abi } = require('./assets/InftyNft.json')
-// const { Conflux } = require('js-conflux-sdk')
+const { abi } = require("./assets/InftyNft.json");
+const { raffleAbi } = require("./assets/Raffle.json");
 
+// const { Conflux } = require('js-conflux-sdk')
 
 export default {
   name: "App",
@@ -18,8 +19,17 @@ export default {
     //   networkId: 1
     // })
     document.title = "Infty Marketplace";
-    const minterContract = window.confluxJS.Contract({abi, address:this.$store.getters.getMinterAddress})
-    this.$store.commit('setMinterContract', minterContract)
+    const minterContract = window.confluxJS.Contract({
+      abi,
+      address: this.$store.getters.getMinterAddress,
+    });
+    this.$store.commit("setMinterContract", minterContract);
+
+    const raffleContract = window.confluxJS.Contract({
+      abi: raffleAbi,
+      address: this.$store.getters.getRaffleContractAddress,
+    });
+    this.$store.commit("setRaffleContract", raffleContract);
   },
 };
 </script>

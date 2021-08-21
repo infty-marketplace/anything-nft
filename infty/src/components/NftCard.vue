@@ -90,12 +90,12 @@
               v-model="raffle_tickets"
               placeholder="How many tickets..."
             />
-            <label>Commision</label>
+            <!-- <label>Commision</label>
             <b-form-input
               class="mb-4"
               v-model="raffle_commision"
               placeholder="How much in cfx... (Minimum 5%)"
-            />
+            /> -->
             <label for="example-datepicker">Deadline</label>
             <b-form-datepicker
               id="example-datepicker"
@@ -211,35 +211,54 @@ export default {
         });
     },
     handleRaffleNft() {
-      axios
-        .post(`${this.$store.getters.getApiUrl}/list-nft-draw`, {
-          nftId: this.card.nft_id,
-          title: this.card.title,
-          description: this.card.description,
-          unit_price: this.raffle_price,
-          quantity: this.raffle_tickets,
-          currency: "cfx",
-          deadline: new Date(this.deadline).getTime() / 1000,
-          nft_id: this.card.nft_id,
-          owner: this.card.owner[0].address,
+      const getters = this.$store.getters;
+      const minterContract = getters.getMinterContract;
+      const raffleContract = getters.getRaffleContract;
+      console.log("minterContract", minterContract);
+      console.log("raffleContract", raffleContract);
+      const tokenId = this.card.nft_id.split("-")[1];
+      raffleContract
+        .createRaffle(
+          this.raffle_tickets,
+          1e18 * this.raffle_price,
+          this.card.owner[0].address,
+          tokenId
+        )
+        .sendTransaction({
+          from: getters.getAddress,
+          to: getters.getRaffleContractAddress,
+          gasPrice: 1,
         })
-        .then((res) => {
-          this.$bvToast.toast("Raffling Successfully", {
-            title: "Congrats",
-            autoHideDelay: 3000,
-            appendToast: false,
-          });
-          console.log(res.data);
-          eventBus.$emit("Card.statusChanged", this.card.nft_id);
-        })
-        .catch((err) => {
-          console.log(err);
-          this.$bvToast.toast("Raffling Failed", {
-            title: "Error",
-            autoHideDelay: 3000,
-            appendToast: false,
-          });
-        });
+        .executed();
+      // axios
+      //   .post(`${this.$store.getters.getApiUrl}/list-nft-draw`, {
+      //     nftId: this.card.nft_id,
+      //     title: this.card.title,
+      //     description: this.card.description,
+      //     unit_price: this.raffle_price,
+      //     quantity: this.raffle_tickets,
+      //     currency: "cfx",
+      //     deadline: new Date(this.deadline).getTime() / 1000,
+      //     nft_id: this.card.nft_id,
+      //     owner: this.card.owner[0].address,
+      //   })
+      //   .then((res) => {
+      //     this.$bvToast.toast("Raffling Successfully", {
+      //       title: "Congrats",
+      //       autoHideDelay: 3000,
+      //       appendToast: false,
+      //     });
+      //     console.log(res.data);
+      //     eventBus.$emit("Card.statusChanged", this.card.nft_id);
+      //   })
+      //   .catch((err) => {
+      //     console.log(err);
+      //     this.$bvToast.toast("Raffling Failed", {
+      //       title: "Error",
+      //       autoHideDelay: 3000,
+      //       appendToast: false,
+      //     });
+      //   });
     },
     delistNft(e) {
       e.preventDefault();
