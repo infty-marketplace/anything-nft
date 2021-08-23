@@ -116,7 +116,7 @@ export default {
 .drag-area {
   position: relative;
   border: 2px dashed rgb(100, 100, 100);
-  height: 500px;
+  height: 100%;
   border-radius: 5px;
 }
 .drag-area-inner {

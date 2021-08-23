@@ -74,6 +74,7 @@
           class="transaction-info"
           header-tag="header"
           footer-tag="footer"
+          v-if='!isOwner'
         >
           <template #header>
             <h6 class="mb-0" v-if="card.expirationDate">
@@ -90,7 +91,7 @@
           <b-button href="#" variant="primary" @click="buyNowClicked" v-if="!isOwner&&card.status=='sale'"
             ><b-icon icon="wallet2"></b-icon>&nbsp;&nbsp;Buy now</b-button
           >
-          <b-button variant="outline-primary" class='ml-2' @click='notifyWIP'><b-icon icon='tag-fill'/>&nbsp;Make offer</b-button>
+          <b-button variant="outline-primary" class='ml-2' @click='$store.dispatch("notifyWIP")'><b-icon icon='tag-fill'/>&nbsp;Make offer</b-button>
           <b-modal ref="buy-modal" title='List Item' @ok="purchaseNft">
             <label>Price</label>
             <p>
@@ -207,10 +208,6 @@ export default {
   methods: {
     rand(min, max) {
       return Math.floor(Math.random() * (max - min)) + min;
-    },
-
-    notifyWIP() {
-      eventBus.$emit('App.notifyWIP');
     },
 
     buyNowClicked(e) {

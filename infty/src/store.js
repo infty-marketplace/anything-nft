@@ -27,6 +27,9 @@ const store = new Vuex.Store({
                 console.log(err)
                 eventBus.$emit("Navbar.connectWalletFailure")
             }
+        },
+        notifyWIP() {
+            eventBus.$emit("App.notifyWIP");
         }
     },
     mutations: {

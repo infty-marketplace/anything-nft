@@ -16,16 +16,39 @@
                 placeholder="Enter a detailed description..."
                 v-model='description'
                 rows="3"
-            >
-            
-            </b-form-textarea>
+            />
             <b-icon v-if='description' font-scale="1.5" class="icon" icon="x" @click="clearTextArea"></b-icon>
-            
             </div>
             <div class='mt-5'>
                 <b-form-checkbox style="display:inline">Image On-chain Storage<b-badge pill variant='info' class='ml-2'>Free for limited time</b-badge></b-form-checkbox>
                 <b-button variant="primary" class='create-btn' @click='createNft'>Create</b-button>
+                <b-button variant="outline-primary" class='create-btn mr-2' @click='ucVisible=true'>Add unlockable content</b-button>
             </div>
+            <el-dialog
+            title="Unlockable Content"
+            :visible.sync="ucVisible"
+            width="60%"
+            :before-close="(d)=>d()">
+            <label>Image</label>
+            <div style="display:flex;min-width:100%;justify-content:space-around;">
+                <FileUploader class='uc-file-uploader' id='uc-file-uploader' pass-file-to-event="CreatePage.receiveUCFile"/>
+            </div>
+            <label class='mt-4'>Text</label>
+            <div class="form-group">
+            <b-form-textarea
+                id="description"
+                placeholder="Enter a detailed description..."
+                v-model='ucDescription'
+                rows="3"
+            />
+            <b-icon v-if='ucDescription' font-scale="1.5" class="icon" icon="x" @click="ucDescription=''"></b-icon>
+            
+            </div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="ucVisible = false">Cancel</el-button>
+                <el-button type="primary" @click="$store.dispatch('notifyWIP');ucVisible = false">Confirm</el-button>
+            </span>
+            </el-dialog>
         </div>
         <ConnectWallet v-else />
         <Footer />
@@ -52,7 +75,10 @@ export default {
   data: () => ({
       title: "",
       description: "",
+      ucDescription: "",
       imageData: undefined,
+      ucVisible: false,
+      ucImageData: undefined,
   }),
   methods: {
       createNft(){
@@ -111,6 +137,9 @@ export default {
       eventBus.$on("CreatePage.receiveFile", (imageData) => {
         this.imageData = imageData;
       })
+      eventBus.$on("CreatePage.receiveUCFile", (imageData) => {
+        this.ucImageData = imageData;
+      })
   },
   beforeDestroy() {
       eventBus.$off("CreatePage.receiveFile")
@@ -131,7 +160,13 @@ export default {
 }
 .file-uploader {
     width: 80%;
+    height: 500px;
 }
+#uc-file-uploader {
+    width: 80%;
+    height: 250px;
+}
+
 .form-group {
     position: relative;
 }
@@ -140,5 +175,11 @@ export default {
     bottom: 0;
     left: 97%;
     cursor: pointer;
+}
+
+</style>
+<style>
+#uc-file-uploader svg {
+    display: none;
 }
 </style>
