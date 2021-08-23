@@ -152,7 +152,6 @@ import Navbar from "../components/Navbar.vue";
 import Footer from "../components/Footer.vue";
 import HeartBtn from "../components/HeartBtn.vue";
 
-import { eventBus } from '../main'
 export default {
   name: "DetailPage",
   components: {

@@ -1,7 +1,7 @@
 <template>
   <div class="flex-wrapper" id="collections-page">
     <Navbar active-index="2" />
-    <div class="flex-wrapper-row m-3" v-if="$store.getters.getAddress">
+    <div class="flex-wrapper-row m-3 mb-5" v-if="$store.getters.getAddress">
       <b-tabs class="main-content" content-class="ml-5 mr-5">
         <b-tab title="NFT" active>
           <p>Unlisted</p>

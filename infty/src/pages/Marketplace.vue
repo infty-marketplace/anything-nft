@@ -2,8 +2,8 @@
   <div class="marketplace">
     <Navbar active-index="0"/>
     <div>
-      <div id="sidebar" style="width: 25%">
-        <b-card no-body style="max-width: 20rem">
+      <div id="sidebar" style="width: 25%" class='mr-2 mb-4'>
+        <b-card no-body class='filter-card'>
           <template #header>
             <h4 class="mb-0">
               <b-icon icon="filter-circle"></b-icon>&nbsp;Filter
@@ -92,7 +92,7 @@
                 </b-card>
               </b-collapse>
             </b-list-group-item>
-            <b-list-group-item>
+            <!-- <b-list-group-item>
               <b-button
                 pill
                 v-b-toggle.collapse-4
@@ -109,7 +109,7 @@
                   </b-list-group>
                 </b-card>
               </b-collapse>
-            </b-list-group-item>
+            </b-list-group-item> -->
             <b-list-group-item>
               <b-button
                 pill
@@ -136,6 +136,7 @@
       </div>
 
       <div class="content">
+        <div class='search-bar-container mb-4'>
         <div id="search-bar">
           <b-input-group size="lg" class="mb-2">
             <b-input-group-prepend is-text>
@@ -144,8 +145,9 @@
             <b-form-input type="search" placeholder="Search..."></b-form-input>
           </b-input-group>
         </div>
+        </div>
         <div class='cards-container'>
-          <Card v-for="card in usersCards" :card="card" :key="card.url" />
+          <Card v-for="card in usersCards" :card="card" :key="card.url" class='mr-4 mb-4'/>
         </div>
         <b-button variant="primary" class='load-more' @click='loadMarket'>Load More</b-button>
       </div>
@@ -257,8 +259,8 @@ export default {
   margin-top: 1em;
 }
 .content {
-  width: 60%;
-  margin-left: 5%;
+  width: 70%;
+  margin-left: 10px;
   /* float: left; */
   /* margin-top: 0; */
   display: inline-block;
@@ -268,14 +270,25 @@ export default {
 }
 
 #search-bar {
-  width: 800px;
+  width: 50%;
   display: inline-block;
   margin-top: 2em;
 }
 .cards-container {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-evenly;
   align-items: flex-start;
 }
+.search-bar-container {
+  width: 100%;
+  display: flex;
+  justify-content:center;
+}
+.filter-card {
+  width: 20rem;
+  float:right;
+}
+</style>
+
+<style>
 </style>
