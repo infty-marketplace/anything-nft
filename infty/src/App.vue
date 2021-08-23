@@ -6,6 +6,7 @@
 
 <script>
 const { abi } = require('./assets/InftyNft.json')
+import { eventBus } from './main'
 // const { Conflux } = require('js-conflux-sdk')
 
 
@@ -20,7 +21,18 @@ export default {
     document.title = "Infty Marketplace";
     const minterContract = window.confluxJS.Contract({abi, address:this.$store.getters.getMinterAddress})
     this.$store.commit('setMinterContract', minterContract)
+
+    eventBus.$on("App.notifyWIP", () => {
+      this.$notify.info({
+        title: 'Info',
+        message: 'This functionality is work in progress.',
+        duration: 3000
+      })
+    })
   },
+  beforeDestroy() {
+    eventBus.$off("App.notifyWIP")
+  }
 };
 </script>
 
