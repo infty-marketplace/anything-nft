@@ -289,7 +289,7 @@ export default {
 
 <style scoped>
 .user-card {
-  width: 350px;
+  width: 250px;
   transition: all 0.15s ease-in-out;
 }
 /* .user-card:hover {
@@ -326,7 +326,7 @@ export default {
 
 .nft-img {
   width:100%;
-  height: 350px;
+  height: 250px;
   object-fit: contain;
   cursor: pointer;
   border-radius: 15px;
