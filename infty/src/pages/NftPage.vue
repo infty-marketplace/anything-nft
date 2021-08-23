@@ -57,9 +57,12 @@
             <span class="mb-0">
               <b-icon icon="card-image"></b-icon>&nbsp;{{card && card.title}}
             </span>
-            <span class="mb-0 heart"
+            <!-- <span class="mb-0 heart"
               ><button><b-icon icon="heart"></b-icon></button>&nbsp;2</span
-            >
+            >  -->
+            <div class='like-container'>
+              <HeartBtn/>
+            </div>
           </template>
           <b-card-text>Owned by {{ card && card.owner_name }}</b-card-text>
           <!-- <template #footer>
@@ -146,12 +149,15 @@
 import axios from "axios"
 import Navbar from "../components/Navbar.vue";
 import Footer from "../components/Footer.vue";
+import HeartBtn from "../components/HeartBtn.vue";
+
 import { eventBus } from '../main'
 export default {
   name: "DetailPage",
   components: {
     Navbar,
     Footer,
+    HeartBtn
   },
   props: ['card'],
   data: () => ({
@@ -290,4 +296,11 @@ export default {
 /* .transaction-info {
   margin-bottom: 20px;
 } */
+.like-container {
+  float: right;
+  margin-top: -55px;
+  margin-right: -80px;
+  margin-bottom: -60px;
+  transform: scale(0.15);
+}
 </style>
