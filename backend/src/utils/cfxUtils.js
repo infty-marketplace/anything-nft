@@ -37,22 +37,24 @@ async function transferCfxTo(toAddr, price) {
 
 async function generateUri(req, imageUri, sha) {
     const metaData = {
-        title: "Asset Metadata",
-        type: "object",
-        properties: {
-            name: {
-                type: 'string',
-                description: req.body.title
-            },
-            description:{
-                type: 'string',
-                description: req.body.description
-            },
-            image: {
-                type: 'string',
-                description: imageUri
-            }
-        }
+        name: req.body.title,
+        description: req.body.description,
+        image: imageUri
+    }
+    const data = await s3.putObject({
+        Bucket: process.env.S3_BUCKET_NAME,
+        Key: sha,
+        Body: JSON.stringify(metaData),
+        ContentType: "application/json"}).promise()
+    return `https://conflux-infty.s3.amazonaws.com/${sha}`
+}
+
+async function generateAlbumUri(req, imageUri, sha) {
+    const metaData = {
+        name: req.body.title,
+        description: req.body.description,
+        image: imageUri,
+        nft_ids: JSON.parse(req.body.nft_ids)
     }
     const data = await s3.putObject({
         Bucket: process.env.S3_BUCKET_NAME,
