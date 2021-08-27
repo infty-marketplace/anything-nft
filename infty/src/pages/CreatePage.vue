@@ -98,7 +98,7 @@ export default {
                 if (res.status == 200) {
                     Notification.closeAll()
                     this.$notify({
-                        title: "Success",
+                        title: "Congrats",
                         message: "NFT Created Successfully",
                         duration: 3000,
                         type: 'success'

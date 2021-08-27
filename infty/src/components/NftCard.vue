@@ -138,6 +138,7 @@
 <script>
 import axios from "axios";
 import { eventBus } from "../main";
+import { Notification } from "element-ui"
 import HeartBtn from './HeartBtn.vue'
 
 export default {
@@ -181,7 +182,18 @@ export default {
         gasPrice: 1,
         value: 1e18*this.listing_commision
       })
+      this.$notify({
+        title: 'Notification',
+        message: 'Paying commission now.',
+        duration: 0
+      })
       const res = await tx.executed()
+      Notification.closeAll()
+      this.$notify({
+        title: 'Notification',
+        message: 'Approving platform to operate the NFT on your behalf.',
+        duration: 0
+      })
       console.log(res)
       const getters = this.$store.getters
       const tokenId = this.card.nft_id.split('-')[1]
@@ -195,11 +207,13 @@ export default {
           nft_id: this.card.nft_id,
         })
         .then((res) => {
-          this.$bvToast.toast("Listed Successfully", {
+          Notification.closeAll()
+          this.$notify({
             title: "Congrats",
-            autoHideDelay: 3000,
-            appendToast: false,
-          });
+            message: "NFT listed successfully",
+            duration: 3000,
+            type: 'success'
+          })
           console.log(res.data);
           eventBus.$emit("Card.statusChanged", this.card.nft_id);
         })
@@ -211,14 +225,6 @@ export default {
               autoHideDelay: 3000,
               appendToast: false,
             })
-            .catch((err) => {
-              console.log(err);
-              this.$bvToast.toast("Listing Failed", {
-                title: "Error",
-                autoHideDelay: 3000,
-                appendToast: false,
-              });
-            });
         });
     },
     handleRaffleNft() {
