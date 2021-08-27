@@ -109,6 +109,7 @@
 <script>
 import axios from "axios";
 import { eventBus } from "../main";
+import { Notification } from 'element-ui'
 
 import Navbar from "../components/Navbar.vue";
 import Footer from "../components/Footer.vue";
@@ -243,6 +244,11 @@ export default {
       this.$refs["album-modal"].show();
     },
     createAlbum() {
+      this.$notify({
+        title: 'Notification',
+        message: 'Album Minting In Progress',
+        duration: 0
+      })
       const fd = new FormData();
       fd.append("file", this.album_cover);
       fd.append("address", this.$store.getters.getAddress);
@@ -254,6 +260,13 @@ export default {
         .then((res) => {
           console.log(res);
           this.loadCollections();
+          Notification.closeAll();
+          this.$notify({
+              title: "Congrats",
+              message: "Album Created Successfully",
+              duration: 3000,
+              type: 'success'
+          })
         });
     },
   },

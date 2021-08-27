@@ -73,6 +73,7 @@ module.exports = {
     mint,
     actualTokenId,
     generateUri,
+    generateAlbumUri,
     transferOwnershipOnChain,
     transferCfxTo
 }

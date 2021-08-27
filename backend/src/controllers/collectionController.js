@@ -11,6 +11,7 @@ const imageUtils = require("../utils/imageUtils");
 const mongodbUtils = require("../utils/mongodbUtils");
 const cfxUtils = require("../utils/cfxUtils")
 const s3 = require("../database/s3");
+const { upload } = require("../database/s3");
 
 const getNft = async (req, res) => {
   const nft = await Nft.findOne({ nft_id: req.params.nft_id });
@@ -210,7 +211,7 @@ async function createAlbum(req, res) {
   let album_id = makeid(16);
   const tmp_path = req.files.file.path;
   const fileToUpload = fs.createReadStream(tmp_path);
-  const sha = sha256(tmpPath)
+  const sha = sha256(tmp_path)
 
   const s3UploadParams = {
     Bucket: process.env.S3_BUCKET_NAME,
@@ -221,7 +222,7 @@ async function createAlbum(req, res) {
   const data = await s3.upload(s3UploadParams).promise();
   const uploadedUrl = data.Location;
   const guessedTokenId = await cfxUtils.nextTokenId()
-  const uri = await cfxUtils.generateAlbumUri(req, stored.Location, sha)
+  const uri = await cfxUtils.generateAlbumUri(req, uploadedUrl, sha)
   await cfxUtils.mint(process.env.MANAGER_ADDRESS, uri)
   const actualTokenId = cfxUtils.actualTokenId(req.body.address, uri, guessedTokenId)
   album_id = process.env.MINTER_ADDRESS + '-' + guessedTokenId
