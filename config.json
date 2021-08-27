@@ -1,0 +1,10 @@
+{
+  "main": "./contracts/Contract.sol",
+  "deploy": "./build/contracts/Contract.json",
+  "compilers": {
+    "cfxtruffle": "1.0.1",
+    "solc": "0.8.0",
+    "evmVersion": "istanbul"
+  },
+  "linter": "solhint"
+}

@@ -5,10 +5,21 @@
 </template>
 
 <script>
+const { abi } = require('./assets/InftyNft.json')
+// const { Conflux } = require('js-conflux-sdk')
+
+
 export default {
   name: "App",
   created() {
+    // TODO based on wallet network
+    // const cfx = new Conflux({
+    //   url:'https://test.confluxrpc.com',
+    //   networkId: 1
+    // })
     document.title = "Infty Marketplace";
+    const minterContract = window.confluxJS.Contract({abi, address:this.$store.getters.getMinterAddress})
+    this.$store.commit('setMinterContract', minterContract)
   },
 };
 </script>
