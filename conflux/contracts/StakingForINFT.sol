@@ -82,7 +82,7 @@ contract StakingForINFT is Ownable, IStakingRewards, ReentrancyGuard {
         require(amount > 0, "Cannot withdraw 0");
         _totalSupply = _totalSupply.sub(amount);
         _balances[msg.sender] = _balances[msg.sender].sub(amount);
-        tokenToStake.safeTransfer(msg.sender, amount);
+        payable(msg.sender).transfer(amount);
         emit Withdrawn(msg.sender, amount);
     }
 
@@ -90,7 +90,7 @@ contract StakingForINFT is Ownable, IStakingRewards, ReentrancyGuard {
         uint256 reward = rewards[msg.sender];
         if (reward > 0) {
             rewards[msg.sender] = 0;
-            tokenToStake.safeTransfer(msg.sender, reward);
+            tokenToReward.transfer(msg.sender, reward);
             emit RewardPaid(msg.sender, reward);
         }
     }
@@ -105,17 +105,19 @@ contract StakingForINFT is Ownable, IStakingRewards, ReentrancyGuard {
     function notifyRewardAmount(uint256 reward) external updateReward(address(0)){
         if (block.timestamp >= periodFinish) {
             rewardRate = reward.div(rewardsDuration);
+            emit LastReward(rewardRate);
         } else {
             uint256 remaining = periodFinish.sub(block.timestamp);
             uint256 leftover = remaining.mul(rewardRate);
             rewardRate = reward.add(leftover).div(rewardsDuration);
+            emit LastReward(rewardRate);
         }
 
         // Ensure the provided reward amount is not more than the balance in the contract.
         // This keeps the reward rate in the right range, preventing overflows due to
         // very high values of rewardRate in the earned and rewardsPerToken functions;
         // Reward + leftover must be less than 2^256 / 10^18 to avoid overflow.
-        uint balance = tokenToStake.balanceOf(address(this));
+        uint256 balance = tokenToReward.balanceOf(address(this));
         require(rewardRate <= balance.div(rewardsDuration), "Provided reward too high");
 
         lastUpdateTime = block.timestamp;
@@ -126,13 +128,6 @@ contract StakingForINFT is Ownable, IStakingRewards, ReentrancyGuard {
     // End rewards emission earlier
     function updatePeriodFinish(uint timestamp) external onlyOwner updateReward(address(0)) {
         periodFinish = timestamp;
-    }
-
-    // Added to support recovering LP Rewards from other systems such as BAL to be distributed to holders
-    function recoverERC20(address tokenAddress, uint256 tokenAmount) external onlyOwner {
-        require(tokenAddress != address(tokenToStake), "Cannot withdraw the staking token");
-        IERC20(tokenAddress).safeTransfer(msg.sender, tokenAmount);
-        emit Recovered(tokenAddress, tokenAmount);
     }
 
     function setRewardsDuration(uint256 _rewardsDuration) external onlyOwner {
@@ -164,4 +159,5 @@ contract StakingForINFT is Ownable, IStakingRewards, ReentrancyGuard {
     event RewardPaid(address indexed user, uint256 reward);
     event RewardsDurationUpdated(uint256 newDuration);
     event Recovered(address token, uint256 amount);
+    event LastReward(uint256 reward);
 }
