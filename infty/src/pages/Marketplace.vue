@@ -178,7 +178,7 @@ export default {
   },
   async mounted() {
     const listElm = document.querySelector('.cards-container');
-    listElm.addEventListener('scroll', e => {
+    listElm.addEventListener('scroll', () => {
       if(listElm.scrollTop + listElm.clientHeight >= listElm.scrollHeight) {
         this.loadMore();
       }
@@ -211,7 +211,7 @@ export default {
   methods: {
       loadMarket(){
         this.loading = true;
-        setTimeout(e => {
+        setTimeout(() => {
           const getters = this.$store.getters;
           const body = {
             offset: this.offset,
