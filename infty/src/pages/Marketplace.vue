@@ -189,7 +189,7 @@ export default {
   data() {
     return {
       offset: 0,
-      limit: 2,
+      limit: 5,
       statusSelected: [],
       statusOptions: [
         { text: "Buy Now", value: "buyNow" },
