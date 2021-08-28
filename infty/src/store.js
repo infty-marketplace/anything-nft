@@ -31,33 +31,18 @@ const store = new Vuex.Store({
         eventBus.$emit("Navbar.connectWalletFailure");
       }
     },
-    actions: {
-      async connectWallet(context) {
-        if (!window.conflux) {
-          eventBus.$emit("Navbar.noWallet");
-          return;
-        }
-        try {
-          const accounts = await window.conflux.send("cfx_requestAccounts");
-          context.commit("setAddress", accounts[0]);
-          eventBus.$emit("Navbar.connectWalletSuccess");
-          if (window.location.href.includes("/mine/collections"))
-            eventBus.$emit("Collections.loadCollections");
-        } catch (err) {
-          console.log(err);
-          eventBus.$emit("Navbar.connectWalletFailure");
-        }
-      },
-      notifyWIP() {
-        eventBus.$emit("App.notifyWIP");
-      },
+    notifyWIP() {
+      eventBus.$emit("App.notifyWIP");
+    },
+  },
+  mutations: {
+    setAddress: (state, addr) => {
+      state.address = addr;
     },
     setMinterContract: (state, mc) => {
-      console.log("mc", mc);
       state.minterContract = mc;
     },
     setRaffleContract: (state, rc) => {
-      console.log("rc", rc);
       state.raffleContract = rc;
     },
   },

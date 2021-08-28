@@ -366,6 +366,7 @@ export default {
     buyNowClicked() {
       console.log(this.nftRaffleToBuy);
       this.buyRaffle(this.nftRaffleToBuy);
+      this.hideModal();
     },
     async buyRaffle(nftRaffleToBuy) {
       const getters = this.$store.getters;
@@ -422,8 +423,6 @@ export default {
             appendToast: false,
           });
         });
-
-      this.hideModal();
     },
   },
 };
