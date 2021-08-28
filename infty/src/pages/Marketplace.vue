@@ -235,7 +235,7 @@ export default {
                   })
               });
               this.offset += nft_ids.length;
-              this.noMore = (nft_ids.length == 0 || nft_ids.length < this.offset);
+              this.noMore = (nft_ids.length == 0 || nft_ids.length < this.limit);
               this.loading = false;
           });
         }, 200)
