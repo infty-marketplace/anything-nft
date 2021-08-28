@@ -147,9 +147,15 @@
         </div>
         </div>
         <div class='cards-container'>
+          <transition name="fade">
+            <div class="loading" v-show="loading">
+              <span class="fa fa-spinner fa-spin"></span> Loading
+            </div>
+          </transition>
           <Card v-for="card in usersCards" :card="card" :key="card.url" class='mr-4 mb-4'/>
         </div>
-        <b-button variant="primary" class='load-more' @click='loadMarket'>Load More</b-button>
+        <p v-if="noMore">No More</p>
+        <!-- <b-button variant="primary" class='load-more' @click='loadMarket'>Load More</b-button> -->
       </div>
     </div>
 
@@ -162,7 +168,7 @@ import Navbar from "../components/Navbar.vue";
 import Footer from "../components/Footer.vue";
 import Card from "../components/NftCard.vue";
 import axios from 'axios';
-// import { eventBus } from "../main";
+
 export default {
   name: "Marketplace",
   components: {
@@ -171,12 +177,19 @@ export default {
     Card,
   },
   async mounted() {
+    const listElm = document.querySelector('.cards-container');
+    listElm.addEventListener('scroll', () => {
+      if(listElm.scrollTop + listElm.clientHeight >= listElm.scrollHeight) {
+        this.loadMore();
+      }
+    });
+
     this.loadMarket();
   },
   data() {
     return {
       offset: 0,
-      limit: 10,
+      limit: 5,
       statusSelected: [],
       statusOptions: [
         { text: "Buy Now", value: "buyNow" },
@@ -190,36 +203,48 @@ export default {
         { value: "eth", text: "Ether(ETH)" },
       ],
       usersCards: [],
+      loading: false,
+      noMore: false
     };
   },
+
   methods: {
       loadMarket(){
-        const getters = this.$store.getters;
-        const body = {
-          offset: this.offset,
-          limit: this.limit,
-        };
-        axios.post(getters.getApiUrl+"/market", body)
-        .then(async (res) => {
-            const nft_ids = res.data.nft_ids;
-            const nft_promises = nft_ids.map((nid) =>
-                axios.get(`${getters.getApiUrl}/nft/${nid}`)
-            );
-            const nft_promises_result = await Promise.allSettled(nft_promises);
-            const nfts = nft_promises_result.map((p) => {
-                if (p.status == "fulfilled") return p.value;
-            });
-            nfts.map(async (n) => {
-                axios.get(`${getters.getApiUrl}/profile/${n.data.author}`).then((res) => {
-                  n.data.author = res.data.first_name + " " + res.data.last_name
-                  n.data.url = n.data.file;
-                  this.usersCards.push(n.data);
-                })
-            });
-            this.offset += nft_ids.length;
-        });
-    }
+        this.loading = true;
+        setTimeout(() => {
+          const getters = this.$store.getters;
+          const body = {
+            offset: this.offset,
+            limit: this.limit,
+          };
+          axios.post(getters.getApiUrl+"/market", body)
+          .then(async (res) => {
+              const nft_ids = res.data.nft_ids;
+              const nft_promises = nft_ids.map((nid) =>
+                  axios.get(`${getters.getApiUrl}/nft/${nid}`)
+              );
+              const nft_promises_result = await Promise.allSettled(nft_promises);
+              const nfts = nft_promises_result.map((p) => {
+                  if (p.status == "fulfilled") return p.value;
+              });
+              nfts.map(async (n) => {
+                  axios.get(`${getters.getApiUrl}/profile/${n.data.author}`).then((res) => {
+                    n.data.author = res.data.first_name + " " + res.data.last_name
+                    n.data.url = n.data.file;
+                    this.usersCards.push(n.data);
+                  })
+              });
+              this.offset += nft_ids.length;
+              this.noMore = (nft_ids.length == 0 || nft_ids.length < this.limit);
+              this.loading = false;
+          });
+        }, 200)
 
+    },
+    
+    loadMore() {
+      if (!this.noMore) this.loadMarket();
+    }
     // sidebarHeight(){
     // }
   },
@@ -267,6 +292,7 @@ export default {
   /* top: 0%; */
   /* left: 0; */
   vertical-align: top;
+  overflow:auto;
 }
 
 #search-bar {
@@ -278,6 +304,8 @@ export default {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
+  overflow-y: scroll;
+  height: 400px;
 }
 .search-bar-container {
   width: 100%;
@@ -287,6 +315,24 @@ export default {
 .filter-card {
   width: 20rem;
   float:right;
+}
+.loading {
+  text-align: center;
+  position: absolute;
+  color: #fff;
+  z-index: 9;
+  background: rgb(0, 0, 0);
+  padding: 8px 18px;
+  border-radius: 5px;
+  left: calc(50% - 45px);
+  top: calc(50% - 18px);
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .5s
+}
+.fade-enter, .fade-leave-to {
+  opacity: 0
 }
 </style>
 
