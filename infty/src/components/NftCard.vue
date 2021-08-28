@@ -212,10 +212,7 @@ export default {
     },
     handleRaffleNft() {
       const getters = this.$store.getters;
-      const minterContract = getters.getMinterContract;
       const raffleContract = getters.getRaffleContract;
-      console.log("minterContract", minterContract);
-      console.log("raffleContract", raffleContract);
       const tokenId = this.card.nft_id.split("-")[1];
       raffleContract
         .createRaffle(
@@ -230,35 +227,35 @@ export default {
           gasPrice: 1,
         })
         .executed();
-      // axios
-      //   .post(`${this.$store.getters.getApiUrl}/list-nft-draw`, {
-      //     nftId: this.card.nft_id,
-      //     title: this.card.title,
-      //     description: this.card.description,
-      //     unit_price: this.raffle_price,
-      //     quantity: this.raffle_tickets,
-      //     currency: "cfx",
-      //     deadline: new Date(this.deadline).getTime() / 1000,
-      //     nft_id: this.card.nft_id,
-      //     owner: this.card.owner[0].address,
-      //   })
-      //   .then((res) => {
-      //     this.$bvToast.toast("Raffling Successfully", {
-      //       title: "Congrats",
-      //       autoHideDelay: 3000,
-      //       appendToast: false,
-      //     });
-      //     console.log(res.data);
-      //     eventBus.$emit("Card.statusChanged", this.card.nft_id);
-      //   })
-      //   .catch((err) => {
-      //     console.log(err);
-      //     this.$bvToast.toast("Raffling Failed", {
-      //       title: "Error",
-      //       autoHideDelay: 3000,
-      //       appendToast: false,
-      //     });
-      //   });
+      axios
+        .post(`${this.$store.getters.getApiUrl}/list-nft-draw`, {
+          nftId: this.card.nft_id,
+          title: this.card.title,
+          description: this.card.description,
+          unit_price: this.raffle_price,
+          quantity: this.raffle_tickets,
+          currency: "cfx",
+          deadline: new Date(this.deadline).getTime() / 1000,
+          nft_id: this.card.nft_id,
+          owner: this.card.owner[0].address,
+        })
+        .then((res) => {
+          this.$bvToast.toast("Raffling Successfully", {
+            title: "Congrats",
+            autoHideDelay: 3000,
+            appendToast: false,
+          });
+          console.log(res.data);
+          eventBus.$emit("Card.statusChanged", this.card.nft_id);
+        })
+        .catch((err) => {
+          console.log(err);
+          this.$bvToast.toast("Raffling Failed", {
+            title: "Error",
+            autoHideDelay: 3000,
+            appendToast: false,
+          });
+        });
     },
     delistNft(e) {
       e.preventDefault();

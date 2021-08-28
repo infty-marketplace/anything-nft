@@ -4,7 +4,7 @@
 
     <div>
       <div id="sidebar" style="width: 20%">
-        <b-card nobody id="sidebar-card">
+        <b-card id="sidebar-card">
           <template #header>
             <h4 class="mb-0 filter-header">
               <b-icon icon="filter-circle"></b-icon>&nbsp;Filter
@@ -48,13 +48,11 @@
                     :options="priceTypeOptions"
                   ></b-form-select>
                   <b-form-input
-                    v-model="text"
                     placeholder="Min"
                     class="price-range"
                   ></b-form-input>
                   <span>to</span>
                   <b-form-input
-                    v-model="text"
                     placeholder="Max"
                     class="price-range"
                   ></b-form-input>
@@ -140,8 +138,10 @@
         ref="my-modal"
         hide-footer
         centered
+        no-close-on-backdrop
         :title="raffleToBuy.title"
         class="ticket-modal"
+        @close="hideModal"
       >
         <div>
           <div class="ticketInfo-form">
@@ -160,6 +160,13 @@
           </p>
         </div>
         <b-button
+          v-if="raffleToBuy.owner == $store.getters.getAddress"
+          disabled
+          class="btn-disabled"
+          >You own this raffle</b-button
+        >
+        <b-button
+          v-else
           class="buy-btn"
           id="modal-buy"
           variant="primary"
@@ -168,7 +175,7 @@
         >
       </b-modal>
 
-      <div class="pool">
+      <div class="pool" v-if="$store.getters.getAddress">
         <div id="banner">
           <img
             src="@/assets/imgs/currency.png"
@@ -255,6 +262,11 @@ export default {
   components: {
     Navbar,
     Footer,
+  },
+  mounted() {
+    if (!this.$store.getters.getAddress) {
+      this.$store.dispatch("connectWallet");
+    }
   },
   created() {
     // if (this.$store.getters.getAddress) {
@@ -344,22 +356,74 @@ export default {
     },
     hideModal() {
       this.nftTicketToBuy = null;
+      this.ticketNum = 1;
       this.$refs["my-modal"].hide();
     },
     OpenBuyRaffleModal(card) {
       this.nftRaffleToBuy = card;
       this.showModal();
-
-      // if (this.nftTicketToBuy) {
-      //   this.showModal();
-      // }
     },
     buyNowClicked() {
       console.log(this.nftRaffleToBuy);
+      this.buyRaffle(this.nftRaffleToBuy);
     },
-    buyRaffle(nftRaffleToBuy) {
-      console.log(nftRaffleToBuy);
-      console.log(this.ticketNum);
+    async buyRaffle(nftRaffleToBuy) {
+      const getters = this.$store.getters;
+      const address = getters.getAddress;
+      console.log("nftRaffleToBuy", nftRaffleToBuy);
+      console.log("address", address);
+      console.log("ticket quantity", this.ticketNum);
+      const raffleContract = getters.getRaffleContract;
+      const tokenId = nftRaffleToBuy.nft_id.split("-")[1];
+      console.log("pricetype", typeof nftRaffleToBuy.unit_price);
+
+      try {
+        await raffleContract
+          .joinRaffle(tokenId, this.ticketNum)
+          .sendTransaction({
+            from: getters.getAddress,
+            to: getters.getRaffleContractAddress,
+            value: 1e18 * nftRaffleToBuy.unit_price * this.ticketNum,
+          })
+          .executed();
+      } catch (e) {
+        console.log(e);
+        if (e.code == 4001) {
+          this.$bvToast.toast("User cancelled transaction", {
+            title: "Transaction Cancellation",
+            autoHideDelay: 3000,
+            appendToast: false,
+          });
+        }
+        return;
+      }
+
+      axios
+        .post(`${getters.getApiUrl}/draw-nft/`, {
+          draw_id: nftRaffleToBuy.draw_id,
+          buyer: address,
+          quantity: this.ticketNum,
+          commission: 0,
+          commission_currency: "cfx",
+        })
+        .then((res) => {
+          this.$bvToast.toast("Purchase Tickets Successfully", {
+            title: "Congrats",
+            autoHideDelay: 3000,
+            appendToast: false,
+          });
+          console.log(res.data);
+        })
+        .catch((err) => {
+          console.log(err);
+          this.$bvToast.toast("Purchase Failed", {
+            title: "Error",
+            autoHideDelay: 3000,
+            appendToast: false,
+          });
+        });
+
+      this.hideModal();
     },
   },
 };
@@ -411,7 +475,7 @@ export default {
   font-family: "Palette Mosaic", cursive;
 }
 .pool {
-  width: 60%;
+  width: 65%;
   margin-left: 5%;
   display: inline-block;
   vertical-align: top;
@@ -428,11 +492,11 @@ export default {
   margin-top: 5%;
 }
 .card-primary {
-  width: 70%;
+  width: 80%;
   /* display: inline-block; */
 }
 .transaction-primary {
-  width: 40%;
+  width: 30%;
 }
 .price {
   /* width: 180px; */
@@ -452,7 +516,7 @@ export default {
   width: 100px;
 }
 .price-badge {
-  width: 80px;
+  width: 60px;
 }
 
 .buy-btn {
@@ -515,6 +579,10 @@ export default {
   background: rgb(107, 232, 170) !important;
 }
 #modal-buy {
+  width: 60%;
+  margin-left: 20%;
+}
+.btn-disabled {
   width: 60%;
   margin-left: 20%;
 }
