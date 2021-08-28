@@ -8,6 +8,9 @@
 const { abi } = require("./assets/InftyNft.json");
 const { raffleAbi } = require("./assets/Raffle.json");
 
+import { eventBus } from "./main";
+// const { Conflux } = require('js-conflux-sdk')
+
 // const { Conflux } = require('js-conflux-sdk')
 
 export default {
@@ -30,6 +33,17 @@ export default {
       address: this.$store.getters.getRaffleContractAddress,
     });
     this.$store.commit("setRaffleContract", raffleContract);
+
+    eventBus.$on("App.notifyWIP", () => {
+      this.$notify.info({
+        title: "Info",
+        message: "This functionality is work in progress.",
+        duration: 3000,
+      });
+    });
+  },
+  beforeDestroy() {
+    eventBus.$off("App.notifyWIP");
   },
 };
 </script>

@@ -1,7 +1,7 @@
 <template>
   <div class="flex-wrapper" id="collections-page">
     <Navbar active-index="2" />
-    <div class="flex-wrapper-row m-3" v-if="$store.getters.getAddress">
+    <div class="flex-wrapper-row m-3 mb-5" v-if="$store.getters.getAddress">
       <b-tabs class="main-content" content-class="ml-5 mr-5">
         <b-tab title="NFT" active>
           <p>Unlisted</p>
@@ -12,7 +12,7 @@
               :card="nft"
               :key="nft.url"
             />
-            <p class="mt-4" v-if="private_nfts.length == 0">Nothing</p>
+            <p class="mt-4" v-if="private_nfts.length == 0"><el-empty description="Nothing"></el-empty></p>
           </div>
           <p>On Sale</p>
           <div class="cards-container">
@@ -22,7 +22,7 @@
               :card="nft"
               :key="nft.url"
             />
-            <p class="mt-4" v-if="sale_nfts.length == 0">Nothing</p>
+            <p class="mt-4" v-if="sale_nfts.length == 0"><el-empty description="Nothing"></el-empty></p>
           </div>
           <p>On Raffle</p>
           <div class="cards-container">
@@ -44,7 +44,7 @@
               :card="album"
               :key="album.url"
             />
-            <p class="mt-4" v-if="private_albums.length == 0">Nothing</p>
+            <p class="mt-4" v-if="private_albums.length == 0"><el-empty description="Nothing"></el-empty></p>
           </div>
           <p>On Sale</p>
           <div class="cards-container">
@@ -54,7 +54,7 @@
               :card="album"
               :key="album.url"
             />
-            <p class="mt-4" v-if="sale_albums.length == 0">Nothing</p>
+            <p class="mt-4" v-if="sale_albums.length == 0"><el-empty description="Nothing"></el-empty></p>
           </div></b-tab
         >
       </b-tabs>

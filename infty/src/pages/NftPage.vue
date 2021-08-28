@@ -57,9 +57,12 @@
             <span class="mb-0">
               <b-icon icon="card-image"></b-icon>&nbsp;{{card && card.title}}
             </span>
-            <span class="mb-0 heart"
+            <!-- <span class="mb-0 heart"
               ><button><b-icon icon="heart"></b-icon></button>&nbsp;2</span
-            >
+            >  -->
+            <div class='like-container'>
+              <HeartBtn/>
+            </div>
           </template>
           <b-card-text>Owned by {{ card && card.owner_name }}</b-card-text>
           <!-- <template #footer>
@@ -71,6 +74,7 @@
           class="transaction-info"
           header-tag="header"
           footer-tag="footer"
+          v-if='!isOwner'
         >
           <template #header>
             <h6 class="mb-0" v-if="card.expirationDate">
@@ -85,8 +89,9 @@
           </p>
 
           <b-button href="#" variant="primary" @click="buyNowClicked" v-if="!isOwner&&card.status=='sale'"
-            ><b-icon icon="wallet2"></b-icon>&nbsp;&nbsp;Buy Now</b-button
+            ><b-icon icon="wallet2"></b-icon>&nbsp;&nbsp;Buy now</b-button
           >
+          <b-button variant="outline-primary" class='ml-2' @click='$store.dispatch("notifyWIP")'><b-icon icon='tag-fill'/>&nbsp;Make offer</b-button>
           <b-modal ref="buy-modal" title='List Item' @ok="purchaseNft">
             <label>Price</label>
             <p>
@@ -100,6 +105,40 @@
             <em>Footer Slot</em>
           </template> -->
         </b-card>
+        <b-card
+          class="transaction-info"
+          header-tag="header"
+          footer-tag="footer"
+        >
+       
+        <template #header>
+          Offers
+        </template>
+        <el-table
+          :data="offersData"
+          style="width: 100%"
+          height='200'
+          empty-text="Nothing">
+          <el-table-column
+            prop="unit_price"
+            label="Unit Price"
+            width="180">
+          </el-table-column>
+          <el-table-column
+            prop="usd"
+            label="USD"
+            width="180">
+          </el-table-column>
+          <el-table-column
+            prop="exp"
+            label="Expiration">
+          </el-table-column>
+          <el-table-column
+            prop="from"
+            label="From">
+          </el-table-column>
+        </el-table>
+        </b-card>
       </b-card-group>
     </div>
 
@@ -111,15 +150,40 @@
 import axios from "axios"
 import Navbar from "../components/Navbar.vue";
 import Footer from "../components/Footer.vue";
+import HeartBtn from "../components/HeartBtn.vue";
+
 export default {
   name: "DetailPage",
   components: {
     Navbar,
     Footer,
+    HeartBtn
   },
   props: ['card'],
   data: () => ({
-      isOwner: true
+      isOwner: true,
+      offersData: [{
+        unit_price: 30,
+        usd: 9,
+        exp: '2 days',
+        from: 'William M'
+      },{
+        unit_price: 1,
+        usd: 0.3,
+        exp: '1 days',
+        from: 'User M'
+      },{
+        unit_price: 1,
+        usd: 0.3,
+        exp: '1 days',
+        from: 'User A'
+      },{
+        unit_price: 1,
+        usd: 0.3,
+        exp: '1 days',
+        from: 'User B'
+      },
+      ]
   }),
   created() {
     if (this.card) return;
@@ -144,7 +208,6 @@ export default {
     rand(min, max) {
       return Math.floor(Math.random() * (max - min)) + min;
     },
-    
 
     buyNowClicked(e) {
       e.preventDefault();
@@ -222,7 +285,6 @@ export default {
   margin-top: 2em;
   margin-left: 10vw;
   width: 40vw;
-  height: 50vh;
   display: flex;
   flex-direction: column;
   gap: 40px;
@@ -230,4 +292,11 @@ export default {
 /* .transaction-info {
   margin-bottom: 20px;
 } */
+.like-container {
+  float: right;
+  margin-top: -55px;
+  margin-right: -80px;
+  margin-bottom: -60px;
+  transform: scale(0.15);
+}
 </style>
