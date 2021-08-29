@@ -11,16 +11,12 @@
           </template>
           <b-list-group flush>
             <b-list-group-item>
-              <b-button
-                pill
-                v-b-toggle.collapse-1
-                variant="outline-secondary"
-                class="category-button"
-                >Status</b-button
-              >
+              <b-button pill v-b-toggle.collapse-1 variant="outline-secondary" class="category-button" >Status</b-button>
               <b-collapse id="collapse-1" class="mt-2">
                 <b-card>
-                  <b-form-group v-slot="{ ariaDescribedby }">
+                  <b-form-checkbox @change="filterOthers">Not Mine</b-form-checkbox>
+                  <!-- <b-form-group v-slot="{ ariaDescribedby }">
+                    
                     <b-form-checkbox-group
                       id="checkbox-group-1"
                       v-model="statusSelected"
@@ -28,7 +24,7 @@
                       :aria-describedby="ariaDescribedby"
                       name="flavour-1"
                     ></b-form-checkbox-group>
-                  </b-form-group>
+                  </b-form-group> -->
                 </b-card>
               </b-collapse>
             </b-list-group-item>
@@ -216,7 +212,7 @@ export default {
       }
     });
 
-
+    this.user = this.$store.getters.getAddress;
     this.loadNftMarket();
     this.loadAlbumMarket();
   },
@@ -225,12 +221,12 @@ export default {
       offsetNft: 0,
       limit: 5,
       statusSelected: [],
-      statusOptions: [
-        { text: "Buy Now", value: "buyNow" },
-        { text: "On Auction", value: "onAuction" },
-        { text: "New", value: "new" },
-        { text: "Has Offers", value: "hasOffers" },
-      ],
+      // statusOptions: [
+      //   { text: "Buy Now", value: "buyNow" },
+      //   { text: "On Auction", value: "onAuction" },
+      //   { text: "New", value: "new" },
+      //   { text: "Has Offers", value: "hasOffers" },
+      // ],
       priceTypeSelected: "usd",
       priceTypeOptions: [
         { value: "usd", text: "United States Dollar(USD)" },
@@ -242,7 +238,9 @@ export default {
       usersAlbum: [],
       loadingAlbum: false,
       noMoreAlbum: false,
-      offsetAlbum: 0
+      offsetAlbum: 0,
+      user: undefined,
+      notMine: false
     };
   },
 
@@ -256,11 +254,14 @@ export default {
             if (p.status == "fulfilled") return p.value;
         });
         nfts.map(async (n) => {
-            axios.get(`${this.$store.getters.getApiUrl}/profile/${n.data.author}`).then((res) => {
+          if ((this.notMine && this.user != n.data.owner[0].address) || !this.notMine) {
+              console.log(n)
+              axios.get(`${this.$store.getters.getApiUrl}/profile/${n.data.author}`).then((res) => {
               n.data.author = res.data.first_name + " " + res.data.last_name
               n.data.url = n.data.file;
               this.usersCards.push(n.data);
             })
+          }
         });
       },
 
@@ -271,11 +272,13 @@ export default {
           if (p.status == "fulfilled") return p.value;
         });
         albums.map(async (a) => {
+          if ((this.notMine && this.user != a.data.owner) || !this.notMine) {
             axios.get(`${this.$store.getters.getApiUrl}/profile/${a.data.author}`).then((res) => {
               a.data.author = res.data.first_name + " " + res.data.last_name
               a.data.url = a.data.file;
               this.usersAlbum.push(a.data);
             })
+          }
         })
       },
 
@@ -290,7 +293,6 @@ export default {
           .then(async (res) => {
               const nft_ids = res.data.nft_ids;
               this.proccessNft(nft_ids);
-              // this.proccessAlbum(res.data.album_id);
               this.offsetNft += nft_ids.length;
               this.noMoreNft = nft_ids.length < this.limit;
               this.loadingNft = false;
@@ -316,6 +318,51 @@ export default {
       }, 200)
     },
     
+    filterOthers(checked) {
+      this.user = this.$store.getters.getAddress;
+      this.notMine = checked;
+      console.log(checked)
+      if (checked) {
+        const nft_list = this.usersCards;
+        const album_list = this.usersAlbum;
+        let target_nfts = []
+        let target_albums = []
+        nft_list.map((n) => { if (n.owner[0].address != this.user) target_nfts.push(n) })
+        album_list.map((a) => { if (a.owner != this.user) target_albums.push(a) })
+        this.usersCards = target_nfts;
+        this.usersAlbum = target_albums;
+      } else {
+        this.loadingNft = true;
+        setTimeout(() => {
+          const nft_body = {
+            offset: 0,
+            limit: this.offsetNft,
+          };
+          axios.post(this.$store.getters.getApiUrl+"/market", nft_body)
+          .then(async (res) => {
+              const nft_ids = res.data.nft_ids;
+              this.usersCards = [];
+              this.proccessNft(nft_ids);
+              this.loadingNft = false;
+          });
+        }, 200)
+
+        this.loadingAlbum = true;
+        setTimeout(() => {
+          const album_body = {
+            offset: 0,
+            limit: this.offsetAlbum,
+          };
+          axios.post(this.$store.getters.getApiUrl+"/market", album_body)
+          .then(async (res) => {
+              const album_ids = res.data.album_ids;
+              this.usersAlbum = [];
+              this.proccessAlbum(album_ids);
+              this.loadingAlbum = false;
+          });
+        }, 200)
+      }
+    }
   },
 };
 </script>
