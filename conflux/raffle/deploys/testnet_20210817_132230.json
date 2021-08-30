@@ -1,0 +1,287 @@
+{
+  "network": "testnet",
+  "codeHash": "0x63b3c49a9b492e162de07916c7ca3c9fcce2694842cbdabf3702ba40fbd661f2",
+  "array": [],
+  "json": {},
+  "obj": {},
+  "empty": true,
+  "tx": {
+    "blockHash": "0xace6a6a75f8ec2054947b80973977190c789c043ec81a618ccebc15069055778",
+    "chainId": 1,
+    "contractCreated": "CFXTEST:TYPE.CONTRACT:ACC0497C9K91CTKADK3GDZM9RMS751M8GPKJ8M9KE3",
+    "data": "0x6080604052336000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550610fae806100536000396000f300608060405260043610610078576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff16806343a1ca77146100e557806347a59b741461013d578063481c6a751461019857806367c748f5146101ef578063b7c5e10114610280578063dd23a46c14610318575b7f737c69225d647e5994eab1a6c301bf6d9232beb2759ae1e27a8966b4732bc4893334604051808373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018281526020019250505060405180910390a1005b610123600480360381019080803573ffffffffffffffffffffffffffffffffffffffff16906020019092919080359060200190929190505050610382565b604051808215151515815260200191505060405180910390f35b34801561014957600080fd5b5061017e600480360381019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190505050610797565b604051808215151515815260200191505060405180910390f35b3480156101a457600080fd5b506101ad610c75565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b3480156101fb57600080fd5b50610230600480360381019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190505050610c9a565b604051808481526020018381526020018273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001935050505060405180910390f35b34801561028c57600080fd5b506102c1600480360381019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190505050610ce4565b6040518080602001828103825283818151815260200191508051906020019060200280838360005b838110156103045780820151818401526020810190506102e9565b505050509050019250505060405180910390f35b6103806004803603810190808035906020019092919080359060200190929190803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803573ffffffffffffffffffffffffffffffffffffffff169060200190929190505050610db4565b005b60008082600160008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600101540234141515610466576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004018080602001828103825260328152602001807f6d6573736167652076616c7565206973206e6f7420657175616c20746f20746981526020017f636b6574732720746f74616c207072696365000000000000000000000000000081525060400191505060405180910390fd5b82600160008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206000015403600160008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600201805490501315151561058d576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004018080602001828103825260288152602001807f726166666c6520646f6573206e6f74206861766520656e6f756768207469636b81526020017f657473206c65667400000000000000000000000000000000000000000000000081525060400191505060405180910390fd5b600090505b8281101561064d57600160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206002013390806001815401808255809150509060018203906000526020600020016000909192909190916101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550508080600101915050610592565b7f8c29290feaae69a0da21d5859796f1a3911d3a93538ddb057de1f76e10a38779843385604051808473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001828152602001935050505060405180910390a1600160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060000154600160008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060020180549050141561078b5761078484610797565b9150610790565b600191505b5092915050565b60008060008060008060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff16141515610863576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040180806020018281038252601e8152602001807f6d6573736167652073656e64657220697320756e617574686f72697a6564000081525060200191505060405180910390fd5b60018060008873ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206002018054905010151515610920576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040180806020018281038252601e8152602001807f726166666c6520686173206e6f207061727469636970616e747320796574000081525060200191505060405180910390fd5b439350600160008773ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060020180549050846040518082815260200191505060405180910390206001900481151561098c57fe5b069250600160008773ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600201838154811015156109de57fe5b9060005260206000200160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff169150600160008773ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060010154600160008873ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060020180549050029050600160008773ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060030160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff166108fc829081150290604051600060405180830381858888f19350505050158015610b3f573d6000803e3d6000fd5b50600160008773ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206000808201600090556001820160009055600282016000610ba09190610f3c565b6003820160006101000a81549073ffffffffffffffffffffffffffffffffffffffff021916905550507fd318bbdf1f6796519180cadf9a6e5d34ee61316689fa125196ad39e95805b71c868383604051808473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001828152602001935050505060405180910390a16001945050505050919050565b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b60016020528060005260406000206000915090508060000154908060010154908060030160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff16905083565b6060600160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600201805480602002602001604051908101604052809291908181526020018280548015610da857602002820191906000526020600020905b8160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019060010190808311610d5e575b50505050509050919050565b83600160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206000018190555082600160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206001018190555081600160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060030160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055507fd69f4f9e78b1fb3a60cd5a66ebec672c6da97633f524687c4bfea0302d895d4b818585604051808473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001838152602001828152602001935050505060405180910390a150505050565b5080546000825590600052602060002090810190610f5a9190610f5d565b50565b610f7f91905b80821115610f7b576000816000905550600101610f63565b5090565b905600a165627a7a72305820de272e2b15aa08367bae0cfb65263a521a07866f7e7a06801b5cd45a4479c8ff0029",
+    "epochHeight": 39563740,
+    "from": "CFXTEST:TYPE.USER:AAR3AMUXS8FG2U7H1TSNGUKEY8VM2H6VGUJHF413E6",
+    "gas": "1496570",
+    "gasPrice": "1",
+    "hash": "0xef364d07698c2a32ffa769941f1304685ffdd5efdf4bf719056c8f579060be54",
+    "nonce": "39",
+    "r": "0x9c6ee2da4a9206d6e60db70eda75423bc3506a5780730fb2ae7073e429db2f7d",
+    "s": "0x447a3229d91b0e50f6976e3d913b1112c65d305e74fa96f7378a18ba801f2c0b",
+    "status": 0,
+    "storageLimit": "2112",
+    "to": null,
+    "transactionIndex": 0,
+    "v": 1,
+    "value": "0"
+  },
+  "receipt": {
+    "blockHash": "0xace6a6a75f8ec2054947b80973977190c789c043ec81a618ccebc15069055778",
+    "contractCreated": "cfxtest:acc0497c9k91ctkadk3gdzm9rms751m8gpkj8m9ke3",
+    "epochNumber": 39563745,
+    "from": "CFXTEST:TYPE.USER:AAR3AMUXS8FG2U7H1TSNGUKEY8VM2H6VGUJHF413E6",
+    "gasCoveredBySponsor": false,
+    "gasFee": "1122428",
+    "gasUsed": "1122428",
+    "index": 0,
+    "logs": [],
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "outcomeStatus": 0,
+    "stateRoot": "0xc193360995652dc6a00cb021641f2f6ca5a5a484c11f76f91bc6fa3eee31b0f7",
+    "storageCollateralized": "2112",
+    "storageCoveredBySponsor": false,
+    "storageReleased": [],
+    "to": null,
+    "transactionHash": "0xef364d07698c2a32ffa769941f1304685ffdd5efdf4bf719056c8f579060be54",
+    "txExecErrorMsg": null
+  },
+  "abi": [
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "manager",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "networkId": 1
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": "address",
+          "networkId": 1
+        }
+      ],
+      "name": "raffles",
+      "outputs": [
+        {
+          "name": "maxTickets",
+          "type": "uint256"
+        },
+        {
+          "name": "price",
+          "type": "uint256"
+        },
+        {
+          "name": "owner",
+          "type": "address",
+          "networkId": 1
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "constructor",
+      "name": "constructor"
+    },
+    {
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "fallback"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "_nft",
+          "type": "address",
+          "networkId": 1
+        },
+        {
+          "indexed": false,
+          "name": "_maxTickets",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "_price",
+          "type": "uint256"
+        }
+      ],
+      "name": "CreateEvent",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "_nft",
+          "type": "address",
+          "networkId": 1
+        },
+        {
+          "indexed": false,
+          "name": "_participant",
+          "type": "address",
+          "networkId": 1
+        },
+        {
+          "indexed": false,
+          "name": "_qty",
+          "type": "uint256"
+        }
+      ],
+      "name": "JoinEvent",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "_nft",
+          "type": "address",
+          "networkId": 1
+        },
+        {
+          "indexed": false,
+          "name": "_winner",
+          "type": "address",
+          "networkId": 1
+        },
+        {
+          "indexed": false,
+          "name": "_nftValue",
+          "type": "uint256"
+        }
+      ],
+      "name": "DrawEvent",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "_from",
+          "type": "address",
+          "networkId": 1
+        },
+        {
+          "indexed": false,
+          "name": "_value",
+          "type": "uint256"
+        }
+      ],
+      "name": "Paid",
+      "type": "event"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_maxTickets",
+          "type": "uint256"
+        },
+        {
+          "name": "_price",
+          "type": "uint256"
+        },
+        {
+          "name": "_owner",
+          "type": "address",
+          "networkId": 1
+        },
+        {
+          "name": "_nft",
+          "type": "address",
+          "networkId": 1
+        }
+      ],
+      "name": "createRaffle",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_nft",
+          "type": "address",
+          "networkId": 1
+        },
+        {
+          "name": "_qty",
+          "type": "uint256"
+        }
+      ],
+      "name": "joinRaffle",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_nft",
+          "type": "address",
+          "networkId": 1
+        }
+      ],
+      "name": "draw",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "_nft",
+          "type": "address",
+          "networkId": 1
+        }
+      ],
+      "name": "getParticipants",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address[]"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ]
+}
