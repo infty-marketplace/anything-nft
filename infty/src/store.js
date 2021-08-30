@@ -30,6 +30,9 @@ const store = new Vuex.Store({
         },
         notifyWIP() {
             eventBus.$emit("App.notifyWIP");
+        },
+        notifyCommission() {
+            eventBus.$emit("App.notifyCommission");
         }
     },
     mutations: {
@@ -53,6 +56,9 @@ const store = new Vuex.Store({
         getProfilePic: (state) => async (addr) => {
             const res = await axios.get(`${state.apiUrl}/profile/${addr}`)
             return res.data.profile_picture
+        },
+        getNftsInAlbum: (state) => async (aid) => {
+            return (await axios.get(`${state.apiUrl}/album/${aid}`)).data.nft_ids
         }
     }
 })

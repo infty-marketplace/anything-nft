@@ -287,6 +287,7 @@ export default {
 
 .file-uploader {
   width: 80%;
+  height: 450px;
 }
 </style>
 

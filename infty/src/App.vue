@@ -29,9 +29,18 @@ export default {
         duration: 3000
       })
     })
+    eventBus.$on("App.notifyCommission", () => {
+      this.$notify({
+        title: 'Notification',
+        message: 'Paying commission now.',
+        duration: 0
+      })
+    })
+    
   },
   beforeDestroy() {
     eventBus.$off("App.notifyWIP")
+    eventBus.$off("App.notifyCommission")
   }
 };
 </script>

@@ -254,11 +254,11 @@ async function createAlbum(req, res) {
 async function listAlbum(req, res) {
   const album_id = req.body.album_id;
   let album = await Album.findOne({ album_id });
-  // TODO each nft price
+
   for (const nft_id of album.nft_ids) {
     await Nft.findOneAndUpdate(
       { nft_id },
-      { status: constants.STATUS_SALE, currency: "cfx", price: "0.1" }
+      { status: constants.STATUS_SALE, currency: "cfx", price: req.body.nft_prices[nft_id] }
     );
   }
   album.status = constants.STATUS_SALE;
