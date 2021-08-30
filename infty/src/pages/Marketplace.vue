@@ -132,18 +132,20 @@
       </div>
 
       <div class="content">
-        <div class='search-bar-container mb-4'>
+        <div class='search-bar-container'>
         <div id="search-bar">
-          <b-input-group size="lg" class="mb-2">
+          <b-input-group size="md" class="mb-2">
+            
+            <b-form-input type="search" placeholder="Search..."></b-form-input>
             <b-input-group-prepend is-text>
               <b-icon icon="search"></b-icon>
             </b-input-group-prepend>
-            <b-form-input type="search" placeholder="Search..."></b-form-input>
           </b-input-group>
 
         </div>
+         </div>
         <div id="tab">
-          <b-tabs class="main-content" content-class="ml-5 mr-5">
+          <b-tabs class="main-content" content-class="ml-5 mt-3">
             <b-tab title="NFT" active>
               <div class='nft-container'>
                 <transition name="fade">
@@ -151,7 +153,7 @@
                     <span class="fa fa-spinner fa-spin"></span> Loading
                   </div>
                 </transition>
-                <NftCard v-for="card in usersCards" :card="card" :key="card.url" class='mr-4 mb-4'/>
+                <NftCard v-for="card in usersCards" :card="card" :key="card.url" class='mr-5 mb-4'/>
               </div>
               <p v-if="noMoreNft">No More</p>
             </b-tab>
@@ -172,7 +174,7 @@
           </b-tabs>
         </div>
 
-        </div>
+       
 
         <!-- <b-button variant="primary" class='load-more' @click='loadMarket'>Load More</b-button> -->
       </div>
@@ -219,7 +221,7 @@ export default {
   data() {
     return {
       offsetNft: 0,
-      limit: 5,
+      limit: 2,
       statusSelected: [],
       // statusOptions: [
       //   { text: "Buy Now", value: "buyNow" },
@@ -408,16 +410,19 @@ export default {
   /* top: 0%; */
   /* left: 0; */
   vertical-align: top;
-  overflow:auto;
+  position: relative;
 }
 
 #search-bar {
   width: 50%;
   display: inline-block;
   margin-top: 2em;
+  position: absolute;
+  width: 50%;
+  right: 0;
 }
 #tab {
-  width: 50%;
+
   display: inline-block;
   margin-top: 2em;
 }
@@ -425,8 +430,6 @@ export default {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
-  overflow-y: scroll;
-  height: 400px;
 }
 
 .album-container {
