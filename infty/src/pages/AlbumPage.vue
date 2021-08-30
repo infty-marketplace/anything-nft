@@ -64,7 +64,7 @@
         >
           <template #header>
             <span class="mb-0">
-              <b-icon icon="card-image"></b-icon>&nbsp;Card Name
+              <b-icon icon="card-image"></b-icon>&nbsp;Album Name
             </span>
             <span class="mb-0 heart"
               ><button><b-icon icon="heart"></b-icon></button>&nbsp;2</span
