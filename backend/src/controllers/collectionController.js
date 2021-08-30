@@ -69,11 +69,15 @@ const getMarket = async (req, res) => {
 };
 
 async function createNft(req, res) {
-    console.log("Create NFT");
 
-    // compare image similarity
-    const tmpPath = req.files.file.path;
-    const fileHash = await imageUtils.hash(tmpPath);
+  console.log("Create NFT");
+  const titleExists = await Nft.exists({ title:req.body.title })
+  if (titleExists) {
+    return res.status(409).send()
+  }
+  // compare image similarity
+  const tmpPath = req.files.file.path;
+  const fileHash = await imageUtils.hash(tmpPath);
 
     for await (const nft of Nft.find({})) {
         if (imageUtils.calculateSimilarity(nft.file_hash, fileHash) >= process.env.IMAGE_SIMILARITY_THRESHOLD) {
@@ -401,25 +405,47 @@ async function transferOwnership(transactionDetails, res, recordTransaction = tr
 }
 
 async function purchaseNtf(req, res) {
-    const body = req.body;
-    let nft = await Nft.findOne({ nft_id: body.nft_id });
 
-    if (!nft) {
-        return res.status(404).json({ error: "nft not found" });
-    }
-    if (nft.status !== constants.STATUS_SALE) {
-        return res.status(400).json({ error: "ntf is not for sale" });
-    }
+  const body = req.body;
+  let nft = await Nft.findOne({ nft_id: body.nft_id });
 
-    if (isNftFunded(nft)) {
-        return res.status(400).json({ error: "nft is completely funded" });
-    }
-    if (getNftOwners(nft).includes(body.buyer)) {
-        return res.status(400).json({ error: "buyer is the owner" });
-    }
+  if (!nft) {
+    return res.status(404).json({ error: "nft not found" });
+  }
+  if (nft.status !== constants.STATUS_SALE) {
+    return res.status(400).json({ error: "ntf is not for sale" });
+  }
 
-    // create a transaction record
-    let transactionDetails = {
+  if (isNftFunded(nft)) {
+    return res.status(400).json({ error: "nft is completely funded" });
+  }
+  if (getNftOwners(nft).includes(body.buyer)) {
+    return res.status(400).json({ error: "buyer is the owner" });
+  }
+
+  const tokenID = body.nft_id.split('-')[1];
+  await cfxUtils.transferOwnershipOnChain(nft.owner[0].address, body.buyer, tokenID);
+
+  // create a transaction record
+  let transactionDetails = {
+    buyer: body.buyer,
+    seller: nft.owner[0].address,
+    transaction_type: "purchase-nft",
+    price: nft.price,
+    currency: nft.currency,
+    commission: body.commission,
+    commission_currency: body.commission_currency,
+    collection_id: nft.nft_id,
+  };
+  await transferOwnership(transactionDetails, res);
+
+  //check if this nft fullfills a album
+  if (nft.album_id && nft.album_id !== "") {
+    let album = await Album.findOne({ album_id: nft.album_id });
+    // if every nft is not completely funded and every nft's owner is the same
+    const nfts = await getAlbumNfts(album);
+    if (!(await isAlbumFunded(album)) && getNftListOwners(nfts).length === 1) {
+      const albumTransactionDetails = {
         buyer: body.buyer,
         seller: nft.owner[0].address,
         transaction_type: "purchase-nft",
@@ -446,7 +472,10 @@ async function purchaseNtf(req, res) {
             await transferOwnership(albumTransactionDetails, res, false);
         }
     }
-    return res.status(200).send();
+
+  }
+  res.status(200).send();
+  await cfxUtils.transferCfxTo(nft.owner[0].address, parseFloat(nft.price));
 }
 
 async function fundNtf(req, res) {
