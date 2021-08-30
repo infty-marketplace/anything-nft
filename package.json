@@ -26,5 +26,6 @@
     "dependencies": {
         "dotenv": "^10.0.0",
         "solc": "^0.8.7-fixed"
+        "element-ui": "^2.15.5"
     }
 }
