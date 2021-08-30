@@ -4,7 +4,6 @@ pragma solidity ^0.4.22;
 /*
   Requirements:
     The creator sets the number of tickets and ticket price
-    The creator must purchase the first ticket on creation
     Participants can buy as many tickets as are available
     The nftValue is awarded to a random participant once all tickets are sold
 */
