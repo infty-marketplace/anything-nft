@@ -13,7 +13,7 @@ const { minterAbi } = require("../assets/InftyNft.json");
 const { raffleAbi } = require("../assets/Raffle.json");
 
 const minterContract = cfx.Contract({ minterAbi, address: process.env.MINTER_ADDRESS });
-const raffleCintract = cfx.Contract({ raffleAbi, address: process.env.MINTER_ADDRESS });
+const raffleContract = cfx.Contract({ raffleAbi, address: process.env.MINTER_ADDRESS });
 
 async function nextTokenId() {
     return (await minterContract.totalSupply()) + 1n;
@@ -24,25 +24,28 @@ async function mint(addr, uri) {
 }
 
 async function createRaffle(details) {
-    return await minterContract
+    return await raffleContract
         .createRaffle(details.quantity, details.unit_price, details.owner, details.nft_id)
         .sendTransaction({ from: process.env.MANAGER_ADDRESS })
         .executed();
 }
 
-async function transferOwnershipOnChain(fromAddr, toAddr, tokenID){
-    return await minterContract.transferFrom(fromAddr, toAddr, tokenID).sendTransaction({from: process.env.MANAGER_ADDRESS}).executed()
+async function transferOwnershipOnChain(fromAddr, toAddr, tokenID) {
+    return await minterContract
+        .transferFrom(fromAddr, toAddr, tokenID)
+        .sendTransaction({ from: process.env.MANAGER_ADDRESS })
+        .executed();
 }
 
 async function transferCfxTo(toAddr, price) {
     const tx = {
         from: process.env.MANAGER_ADDRESS,
         to: toAddr,
-        value: 1e18*price,
-        chainId: 1
-    }
+        value: 1e18 * price,
+        chainId: 1,
+    };
     const hash = await cfx.sendTransaction(tx).executed();
-    console.log(hash)
+    console.log(hash);
 }
 
 async function generateUri(req, imageUri, sha) {
@@ -85,5 +88,5 @@ module.exports = {
     actualTokenId,
     generateUri,
     transferOwnershipOnChain,
-    transferCfxTo
-}
+    transferCfxTo,
+};
