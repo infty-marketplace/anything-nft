@@ -244,16 +244,19 @@ async function createAlbum(req, res) {
 }
 
 async function listAlbum(req, res) {
-    const album_id = req.body.album_id;
-    let album = await Album.findOne({ album_id });
-    // TODO each nft price
-    for (const nft_id of album.nft_ids) {
-        await Nft.findOneAndUpdate({ nft_id }, { status: constants.STATUS_SALE, currency: "cfx", price: "0.1" });
-    }
-    album.status = constants.STATUS_SALE;
-    album.price = req.body.price;
-    album.currency = "cfx";
-    album = await album.save();
+  const album_id = req.body.album_id;
+  let album = await Album.findOne({ album_id });
+
+  for (const nft_id of album.nft_ids) {
+    await Nft.findOneAndUpdate(
+      { nft_id },
+      { status: constants.STATUS_SALE, currency: "cfx", price: req.body.nft_prices[nft_id] }
+    );
+  }
+  album.status = constants.STATUS_SALE;
+  album.price = req.body.price;
+  album.currency = "cfx";
+  album = await album.save();
 
     return res.send(album);
 }

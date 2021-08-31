@@ -9,7 +9,7 @@
           <li v-bind:class="{active: activeIndex==0}"><router-link to="/marketplace">Marketplace</router-link></li>
           <li v-bind:class="{active: activeIndex==1}"><router-link to="/raffles">Raffles</router-link></li>
           <li v-bind:class="{active: activeIndex==2}"><router-link to="/mine/collections">Collections</router-link></li>
-          <li v-bind:class="{active: activeIndex==3}"><router-link to="#">About</router-link></li>
+          <li v-bind:class="{active: activeIndex==3}"><router-link to="#">Staking</router-link></li>
           <li v-if='!loggedIn'>
             <b-button pill variant='primary' class='wallet-btn' @click="connectWallet">
               <b-icon class='ml-2 mr-2' icon="wallet2" aria-hidden="true"></b-icon>
