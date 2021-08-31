@@ -33,6 +33,12 @@ const store = new Vuex.Store({
         notifyWIP() {
             eventBus.$emit("App.notifyWIP");
         },
+<<<<<<< HEAD
+=======
+        notifyCommission() {
+            eventBus.$emit("App.notifyCommission");
+        }
+>>>>>>> 38ec43b13068ff76936188286ab91597a0263b25
     },
     mutations: {
         setAddress: (state, addr) => {
@@ -58,10 +64,21 @@ const store = new Vuex.Store({
             return res.data;
         },
         getProfilePic: (state) => async (addr) => {
+<<<<<<< HEAD
             const res = await axios.get(`${state.apiUrl}/profile/${addr}`);
             return res.data.profile_picture;
         },
     },
 });
+=======
+            const res = await axios.get(`${state.apiUrl}/profile/${addr}`)
+            return res.data.profile_picture
+        },
+        getNftsInAlbum: (state) => async (aid) => {
+            return (await axios.get(`${state.apiUrl}/album/${aid}`)).data.nft_ids
+        }
+    }
+})
+>>>>>>> 38ec43b13068ff76936188286ab91597a0263b25
 
 export default store;

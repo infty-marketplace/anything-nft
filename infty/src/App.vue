@@ -12,6 +12,7 @@ import { eventBus } from "./main";
 // const { Conflux } = require('js-conflux-sdk')
 
 export default {
+<<<<<<< HEAD
     name: "App",
     created() {
         // TODO based on wallet network
@@ -43,6 +44,39 @@ export default {
     beforeDestroy() {
         eventBus.$off("App.notifyWIP");
     },
+=======
+  name: "App",
+  created() {
+    // TODO based on wallet network
+    // const cfx = new Conflux({
+    //   url:'https://test.confluxrpc.com',
+    //   networkId: 1
+    // })
+    document.title = "Infty Marketplace";
+    const minterContract = window.confluxJS.Contract({abi, address:this.$store.getters.getMinterAddress})
+    this.$store.commit('setMinterContract', minterContract)
+
+    eventBus.$on("App.notifyWIP", () => {
+      this.$notify.info({
+        title: 'Info',
+        message: 'This functionality is work in progress.',
+        duration: 3000
+      })
+    })
+    eventBus.$on("App.notifyCommission", () => {
+      this.$notify({
+        title: 'Notification',
+        message: 'Paying commission now.',
+        duration: 0
+      })
+    })
+    
+  },
+  beforeDestroy() {
+    eventBus.$off("App.notifyWIP")
+    eventBus.$off("App.notifyCommission")
+  }
+>>>>>>> 38ec43b13068ff76936188286ab91597a0263b25
 };
 </script>
 
@@ -62,8 +96,15 @@ export default {
 }
 
 .flex-wrapper-row {
+<<<<<<< HEAD
     display: flex;
     flex-direction: row;
     justify-content: space-around;
+=======
+  display: flex;
+  width: 100%;
+  flex-direction: row;
+  justify-content: space-around;
+>>>>>>> 38ec43b13068ff76936188286ab91597a0263b25
 }
 </style>

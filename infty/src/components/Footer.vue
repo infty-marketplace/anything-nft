@@ -54,7 +54,7 @@
         <ul class="box input-box">
           <li class="link_name">Subscribe</li>
           <li><input type="text" placeholder="Enter your email" /></li>
-          <li><input type="button" value="Subscribe" /></li>
+          <li @click='subscribe'><input type="button" value="Subscribe" /></li>
         </ul>
       </div>
     </div>
@@ -77,6 +77,16 @@
 <script>
 export default {
   name: "Navbar",
+  methods: {
+    subscribe() {
+      this.$notify({
+        title: "Congrats",
+        message: "You are now subscribed to receive the latest and greatest news!",
+        duration: 5000,
+        type: 'success'
+      })
+    }
+  }
 };
 </script>
 

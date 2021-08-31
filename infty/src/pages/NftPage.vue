@@ -47,6 +47,13 @@
           </b-list-group-item>
         </b-list-group>
       </b-card>
+      <div class='album-title-container'>
+        <h1 class='album-title'>&nbsp;{{ card.title }}</h1>
+        <h5 class='owner'>&nbsp;&nbsp;&nbsp;&nbsp;Owned by {{card.owner_name}}&nbsp;&nbsp;&nbsp;
+          <b-icon icon='eye'/>&nbsp;{{view}} views
+          <div class='like' @click='likes+=likeswitch;likeswitch*=-1;'><heart-btn/></div> {{likes}} likes
+          </h5>
+      </div>
       <b-card-group deck class="transaction">
         <b-card
           class="transaction-info"
@@ -57,17 +64,11 @@
             <span class="mb-0">
               <b-icon icon="card-image"></b-icon>&nbsp;{{card && card.title}}
             </span>
-            <!-- <span class="mb-0 heart"
-              ><button><b-icon icon="heart"></b-icon></button>&nbsp;2</span
-            >  -->
-            <div class='like-container'>
-              <HeartBtn/>
-            </div>
+            
+            
           </template>
           <b-card-text>Owned by {{ card && card.owner_name }}</b-card-text>
-          <!-- <template #footer>
-            <em>Footer Slot</em>
-          </template> -->
+
         </b-card>
 
         <b-card
@@ -160,8 +161,12 @@ export default {
     HeartBtn
   },
   props: ['card'],
-  data: () => ({
+  data() {
+    return {
       isOwner: true,
+      likes: this.rand(0,100),
+      view: this.rand(100,2000),
+      likeswitch: 1,
       offersData: [{
         unit_price: 30,
         usd: 9,
@@ -183,8 +188,8 @@ export default {
         exp: '1 days',
         from: 'User B'
       },
-      ]
-  }),
+      ]}
+  },
   created() {
     if (this.card) return;
     if (this.$store.getters.getAddress == undefined) this.$store.dispatch("connectWallet");
@@ -266,10 +271,10 @@ export default {
 <style scoped>
 .detailed-card {
   float: left;
-  width: 35vw;
-  margin-top: 2em;
-  margin-left: 5%;
-  margin-bottom: 2em;
+  width: 500px;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  margin-right: 1rem;
 }
 .category-button {
   width: 100%;
@@ -278,25 +283,38 @@ export default {
   float: right;
 }
 .detail-content {
-  /* display: flex; */
+  width: 80%;
+  margin-left: auto;
+  margin-right: auto;
 }
 .transaction {
   float: left;
-  margin-top: 2em;
-  margin-left: 10vw;
-  width: 40vw;
+  margin-top: 2rem;
+  margin-left: 0.5rem;
+  width: calc(80vw - 600px);
   display: flex;
   flex-direction: column;
   gap: 40px;
 }
-/* .transaction-info {
-  margin-bottom: 20px;
-} */
-.like-container {
-  float: right;
-  margin-top: -55px;
-  margin-right: -80px;
-  margin-bottom: -60px;
-  transform: scale(0.15);
+.transaction-info {
+  max-width: 100%;
+}
+
+
+.album-title-container {
+  margin-top: 2rem;
+}
+.album-title {
+  font-weight: bold;
+  font-size: 4rem;
+}
+
+.like {
+  display: inline-block;
+  transform: scale(0.2);
+  margin-top: -100px;
+  margin-bottom: -58px;
+  margin-left: -30px;
+  margin-right: -60px;
 }
 </style>
