@@ -289,6 +289,8 @@ export default {
   width: 80%;
   height: 450px;
 }
+
+
 </style>
 
 <style>

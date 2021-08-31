@@ -62,6 +62,7 @@ export default {
 
 .flex-wrapper-row {
   display: flex;
+  width: 100%;
   flex-direction: row;
   justify-content: space-around;
 }

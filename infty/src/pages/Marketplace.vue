@@ -1,5 +1,5 @@
 <template>
-  <div class="marketplace">
+  <div class="marketplace flex-wrapper">
     <Navbar active-index="0"/>
     <div>
       <div id="sidebar" style="width: 25%" class='mr-2 mb-4'>
@@ -145,7 +145,7 @@
         </div>
          </div>
         <div id="tab">
-          <b-tabs class="main-content" content-class="ml-5 mt-3">
+          <b-tabs class="main-content" content-class="ml-5 mt-3 flex-wrapper-row">
             <b-tab title="NFT" active>
               <div class='nft-container'>
                 <transition name="fade">
@@ -153,9 +153,10 @@
                     <span class="fa fa-spinner fa-spin"></span> Loading
                   </div>
                 </transition>
+                <el-empty v-if='usersCards.length==0' description="Nothing"/>
                 <NftCard v-for="card in usersCards" :card="card" :key="card.url" class='mr-5 mb-4'/>
               </div>
-              <p v-if="noMoreNft">No More</p>
+              <p v-if="noMoreNft && usersCards.length!=0">No More</p>
             </b-tab>
 
 
@@ -166,9 +167,10 @@
                     <span class="fa fa-spinner fa-spin"></span> Loading
                   </div>
                 </transition>
-                <AlbumCard class='mr-4 mb-4' v-for="album in usersAlbum" :card="album" :key="album.url" />
+                <el-empty  class='flex-wrapper-row' v-if='usersAlbum.length==0' description="Nothing"/>
+                <AlbumCard  class='mr-4 mb-4' v-for="album in usersAlbum" :card="album" :key="album.url" />
               </div>
-              <p v-if="noMoreAlbum">No More</p>
+              <p v-if="noMoreAlbum && usersAlbum.length != 0">No More</p>
               
             </b-tab>
           </b-tabs>
@@ -422,7 +424,7 @@ export default {
   right: 0;
 }
 #tab {
-
+  width: 100%;
   display: inline-block;
   margin-top: 2em;
 }
@@ -436,8 +438,8 @@ export default {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
-  overflow-y: scroll;
   height: 350px;
+  width: 100%;
 }
 .search-bar-container {
   width: 100%;
@@ -465,6 +467,9 @@ export default {
 }
 .fade-enter, .fade-leave-to {
   opacity: 0
+}
+.main-content {
+  width: 100%;
 }
 </style>
 

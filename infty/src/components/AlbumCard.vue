@@ -151,7 +151,7 @@ export default {
         comission: this.listing_commision,
         currency: 'cfx',
         album_id: this.card.album_id
-      }).then(res => {
+      }).then(() => {
         Notification.closeAll()
         this.$notify({
           title: "Congrats",
