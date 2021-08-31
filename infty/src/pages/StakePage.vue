@@ -67,7 +67,7 @@ export default {
         this.rewardPerToken = await stakeContract.rewardPerToken();
         this.earnedBalance = await stakeContract.earned(sender);
         this.stakedBalance = await stakeContract.balanceOf(sender);
-        console.log(this.rewardPerToken);
+        console.log(String(this.rewardPerToken));
     },
     data: () => ({
         stakeForm: {},
