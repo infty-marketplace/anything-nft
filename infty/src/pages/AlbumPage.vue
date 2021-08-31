@@ -128,7 +128,7 @@
             <em>Footer Slot</em>
           </template> -->
         </b-card>
-        <b-card>
+        <b-card class="transaction-info">
           <template #header>
             <h6 class="mb-0">
               <b-icon icon="card-list"/> Offers
@@ -278,7 +278,11 @@ export default {
   width: 550px;
   margin-right: 1em;
 }
-
+@media screen and (max-width: 2000px) {
+  .detailed-card {
+    width: 350px;
+  }
+}
 .category-button {
   width: 100%;
 }
@@ -293,6 +297,11 @@ export default {
   flex-direction: column;
   gap: 40px;
   position: inline;
+}
+@media screen and (max-width: 2000px) {
+  .transaction {
+    width: calc(80vw - 350px);
+  }
 }
 .transaction-info {
   max-width: 100%;
@@ -337,7 +346,17 @@ export default {
   margin-right: auto;
   width: 80vw;
 }
-
+@media screen and (max-width: 2000px) {
+  #album-page {
+    margin-left: auto;
+    margin-right: auto;
+    width: 90vw;
+  }
+  .carousel {
+  width: 300px;
+  height: 300px;
+}
+}
 .album-title-container {
   margin-top: 2rem;
 }

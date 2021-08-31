@@ -488,6 +488,7 @@ async function purchaseNtf(req, res) {
   }
   res.status(200).send();
   await cfxUtils.transferCfxTo(nft.owner[0].address, parseFloat(nft.price));
+    }
 }
 
 async function fundNtf(req, res) {

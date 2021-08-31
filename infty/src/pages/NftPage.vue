@@ -276,6 +276,11 @@ export default {
   margin-bottom: 2rem;
   margin-right: 1rem;
 }
+@media screen and (max-width: 2000px) {
+  .detailed-card {
+    width: 300px;
+  }
+}
 .category-button {
   width: 100%;
 }
@@ -287,6 +292,13 @@ export default {
   margin-left: auto;
   margin-right: auto;
 }
+@media screen and (max-width: 2000px) {
+  .detailed-content {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
 .transaction {
   float: left;
   margin-top: 2rem;
@@ -295,6 +307,11 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 40px;
+}
+@media screen and (max-width: 2000px) {
+  .transaction {
+    width: calc(80vw - 350px);
+  }
 }
 .transaction-info {
   max-width: 100%;

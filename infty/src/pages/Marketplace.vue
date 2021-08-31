@@ -153,7 +153,7 @@
                     <span class="fa fa-spinner fa-spin"></span> Loading
                   </div>
                 </transition>
-                <el-empty v-if='usersCards.length==0' description="Nothing"/>
+                <el-empty class='flex-wrapper-row' v-if='usersCards.length==0' description="Nothing"/>
                 <NftCard v-for="card in usersCards" :card="card" :key="card.url" class='mr-5 mb-4'/>
               </div>
               <p v-if="noMoreNft && usersCards.length!=0">No More</p>
@@ -223,7 +223,7 @@ export default {
   data() {
     return {
       offsetNft: 0,
-      limit: 2,
+      limit: 10,
       statusSelected: [],
       // statusOptions: [
       //   { text: "Buy Now", value: "buyNow" },
@@ -438,7 +438,6 @@ export default {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
-  height: 350px;
   width: 100%;
 }
 .search-bar-container {
