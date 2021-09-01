@@ -1,32 +1,57 @@
 <template>
     <div class="flex-wrapper">
         <Navbar />
+
+        <el-dialog title="" :visible.sync="dialogVisible" width="30%">
+            <span>{{ dialogMessage }}</span>
+            <span slot="footer" class="dialog-footer">
+                <el-button type="primary" @click="dialogVisible = false">Close</el-button>
+            </span>
+        </el-dialog>
+
+        <el-menu
+            default-active="CFX"
+            class="currency-menu"
+            mode="horizontal"
+            @select="handleSelectCurrency"
+            menu-trigger="click"
+        >
+            <el-menu-item index="INFT">INFT</el-menu-item>
+            <el-menu-item index="CFX">CFX</el-menu-item>
+        </el-menu>
+
         <div class="main">
             <div class="banner">
                 <div class="info-left">
-                    <div>wallet balance</div>
-                    <div>{{ this.walletBalance }}</div>
+                    <div>Wallet Balance</div>
+                    <div>{{ `${this.walletBalance.toFixed(4)} ${this.selectedCurrency}` }}</div>
                 </div>
                 <div
                     class="circle"
-                    @mouseover="onMouseOverCircle(true)"
-                    @mouseleave="onMouseOverCircle(false)"
-                    @click="onClickCircle"
+                    @mouseover="onMouseOverClaim(true)"
+                    @mouseleave="onMouseOverClaim(false)"
+                    @click="onClickClaim"
                 >
                     <div class="circle-text">{{ this.circleMessage }}</div>
                 </div>
                 <div class="info-right">
-                    <div>staked balance</div>
-                    <div>{{ this.stakedBalance }}</div>
+                    <div>Staked Balance</div>
+                    <div>{{ `${this.stakedBalance.toFixed(4)} ${this.selectedCurrency}` }}</div>
                 </div>
             </div>
 
             <div class="stake-form">
                 <el-card class="box-card">
-                    <el-form :model="stakeForm">
+                    <el-form>
                         <div>Amount Available to Stake</div>
                         <el-form-item>
-                            <el-input v-model="stakeForm.stakeAmount" placeholder="0"></el-input>
+                            <el-input v-model="stakeAmount">
+                                <el-button
+                                    slot="append"
+                                    icon="el-icon-sort-up"
+                                    @click="onClickMaxStakeAmount"
+                                ></el-button>
+                            </el-input>
                         </el-form-item>
                         <el-form-item>
                             <el-button type="primary" @click="onClickStake">Stake</el-button>
@@ -35,10 +60,16 @@
                 </el-card>
 
                 <el-card class="box-card">
-                    <el-form :model="stakeForm">
+                    <el-form>
                         <div>Amount Available to Unstake</div>
                         <el-form-item>
-                            <el-input v-model="stakeForm.unstakeAmount" placeholder="0"></el-input>
+                            <el-input v-model="unstakeAmount">
+                                <el-button
+                                    slot="append"
+                                    icon="el-icon-sort-up"
+                                    @click="onClickMaxUnstakeAmount"
+                                ></el-button
+                            ></el-input>
                         </el-form-item>
                         <el-form-item>
                             <el-button type="primary" @click="onClickUnstake">Unstake</el-button>
@@ -54,6 +85,7 @@
 <script>
 import Navbar from "../components/Navbar.vue";
 import Footer from "../components/Footer.vue";
+
 export default {
     name: "App",
     components: {
@@ -61,38 +93,132 @@ export default {
         Footer,
     },
     async mounted() {
-        const stakeContract = this.$store.getters.getStakeContract;
-        const sender = (await window.conflux.send("cfx_requestAccounts"))[0];
-        console.log(sender);
-        this.rewardPerToken = await stakeContract.rewardPerToken();
-        this.earnedBalance = await stakeContract.earned(sender);
-        this.stakedBalance = await stakeContract.balanceOf(sender);
-        console.log(String(this.rewardPerToken));
+        this.stakeContract = this.$store.getters.getStakeContract;
+        this.stakeAddress = this.$store.getters.getStakeAddress;
+        this.sender = (await window.conflux.send("cfx_requestAccounts"))[0];
+        await this.updateInformation();
     },
     data: () => ({
-        stakeForm: {},
-        claim: false,
-        walletBalance: undefined,
-        stakedBalance: undefined,
-        rewardPerToken: undefined,
+        selectedCurrency: "CFX",
+        stakeContract: undefined,
+        stakeAddress: undefined,
+        sender: undefined,
+        hoverClaimStatus: false,
+        clickClaimStatus: false,
+
+        walletBalance: 0,
+        stakedBalance: 0,
+        apyRate: 0,
+        earnedBalance: 0,
+        stakeAmount: 0,
+        unstakeAmount: 0,
+        dialogVisible: false,
+        dialogMessage: "",
     }),
     computed: {
         circleMessage() {
-            return this.claim ? "Claim" : `Net APY: ${this.earnedBalance}`;
+            if (this.clickClaimStatus) {
+                return "Claiming...";
+            } else if (this.hoverClaimStatus) {
+                return "Claim";
+            } else {
+                return `Unclaimed\n ${this.earnedBalance.toFixed(4)} ${this.selectedCurrency}`;
+            }
         },
     },
     methods: {
-        onMouseOverCircle: function(status) {
-            this.claim = status;
+        updateInformation: async function() {
+            this.apyRate = Number(await this.stakeContract.rewardPerToken()) / 1e18;
+            this.earnedBalance = Number(await this.stakeContract.earned(this.sender)) / 1e18;
+            this.stakedBalance = Number(await this.stakeContract.balanceOf(this.sender)) / 1e18;
+            this.walletBalance = Number(await await window.confluxJS.getBalance(this.sender)) / 1e18;
         },
-        onClickCircle: function() {
-            console.log("a");
+        handleSelectCurrency: function(event) {
+            if (event !== "CFX") {
+                this.dialogMessage = "Mantaining";
+                this.dialogVisible = true;
+                return;
+            }
+            this.selectedCurrency = event;
         },
-        onClickStake: function() {
-            console.log("stake");
+        onMouseOverClaim: function(status) {
+            this.hoverClaimStatus = status;
         },
-        onClickUnstake: function() {
-            console.log("unstake");
+        onClickClaim: async function() {
+            if (this.clickClaimStatus) {
+                return;
+            }
+            this.clickClaimStatus = true;
+            if (this.selectedCurrency === "INFT") {
+                return;
+            } else if (this.selectedCurrency === "CFX") {
+                await this.stakeContract
+                    .getReward()
+                    .sendTransaction({
+                        from: this.sender,
+                        to: this.stakeAddress,
+                    })
+                    .executed();
+            }
+            await this.updateInformation();
+            this.clickClaimStatus = false;
+        },
+        onClickStake: async function(event) {
+            if (this.stakeAmount <= 0 || this.stakeAmount > this.walletBalance) {
+                this.dialogMessage = "Please enter an valid amount";
+                this.dialogVisible = true;
+                return;
+            }
+
+            event.target.disabled = true;
+            event.target.innerText = "Staking...";
+            if (this.selectedCurrency === "INFT") {
+                return;
+            } else if (this.selectedCurrency === "CFX") {
+                await this.stakeContract
+                    .stake()
+                    .sendTransaction({
+                        from: this.sender,
+                        to: this.stakeAddress,
+                        value: this.stakeAmount * 1e18,
+                    })
+                    .executed();
+            }
+            await this.updateInformation();
+            this.stakeAmount = 0;
+            event.target.disabled = false;
+            event.target.innerText = "Stake";
+        },
+        onClickUnstake: async function(event) {
+            if (this.unstakeAmount <= 0 || this.unstakeAmount > this.unstakeAmount) {
+                this.dialogMessage = "Please enter an valid amount";
+                this.dialogVisible = true;
+                return;
+            }
+
+            event.target.disabled = true;
+            event.target.innerText = "Unstaking...";
+            if (this.selectedCurrency === "INFT") {
+                return;
+            } else if (this.selectedCurrency === "CFX") {
+                await this.stakeContract
+                    .withdraw(this.unstakeAmount * 1e18)
+                    .sendTransaction({
+                        from: this.sender,
+                        to: this.stakeAddress,
+                    })
+                    .executed();
+            }
+            await this.updateInformation();
+            this.unstakeAmount = 0;
+            event.target.disabled = false;
+            event.target.innerText = "Unstake";
+        },
+        onClickMaxStakeAmount: function() {
+            this.stakeAmount = this.walletBalance;
+        },
+        onClickMaxUnstakeAmount: function() {
+            this.unstakeAmount = this.stakedBalance;
         },
     },
 };
@@ -101,6 +227,7 @@ export default {
 <style scoped>
 .main {
     text-align: center;
+    margin-top: 0%;
     margin-bottom: 0%;
     background-color: black;
     color: white;
@@ -146,8 +273,13 @@ export default {
     cursor: pointer;
 }
 
+.circle:hover {
+    background-color: #121212;
+}
+
 .circle-text {
-    margin-top: 45%;
+    margin-top: 35%;
+    white-space: pre-line;
 }
 
 .stake-form {
@@ -164,5 +296,70 @@ export default {
     border-color: #121212;
     background-color: #121212;
     color: white;
+}
+
+.currency-menu {
+    background-color: black;
+    color: white;
+    active-text-color: white;
+    default-active: 1;
+    border-bottom: 0px;
+}
+
+.el-menu.el-menu--horizontal {
+    border-bottom: 0px;
+}
+
+.el-menu--horizontal > .el-menu-item {
+    color: white;
+    width: 20%;
+    text-align: center;
+}
+
+.el-menu--horizontal > .el-menu-item:not(.is-disabled):focus,
+.el-menu--horizontal > .el-menu-item:not(.is-disabled):hover,
+.el-menu--horizontal > .el-submenu .el-submenu__title:hover {
+    background-color: black;
+}
+
+.el-menu--horizontal .el-menu-item:not(.is-disabled):focus,
+.el-menu--horizontal .el-menu-item:not(.is-disabled):hover {
+    color: white;
+}
+
+.el-menu--horizontal > .el-menu-item.is-active {
+    border-bottom: 2px solid #2f7df6;
+    color: white;
+}
+
+.el-button--primary {
+    color: white;
+    background-color: #2f7df6;
+    border-color: #2f7df6;
+}
+
+.el-button--primary:disabled {
+    background-color: #66b1ff;
+    border-color: #66b1ff;
+}
+
+/deep/ .el-dialog {
+    background: #121212;
+}
+
+/deep/ .el-dialog__body {
+    color: white;
+}
+
+/deep/ .el-input__inner {
+    border-color: black;
+    background-color: black;
+}
+
+/deep/ .el-input-group__append,
+.el-input-group__prepend {
+    background-color: black;
+    color: white;
+    border: 0px solid #121212;
 }
 </style>
