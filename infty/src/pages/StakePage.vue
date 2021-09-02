@@ -137,6 +137,8 @@ export default {
             if (event !== "CFX") {
                 this.dialogMessage = "Mantaining";
                 this.dialogVisible = true;
+                // prevent users from clicking other currency tabs, but do not do this in the future
+                document.querySelector("[role='menuitem']:nth-child(2)").click();
                 return;
             }
             this.selectedCurrency = event;
