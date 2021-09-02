@@ -85,28 +85,29 @@ export default {
         },
     },
     async created() {
-        this.addr = window.conflux.selectedAddress;
-        if (this.addr) {
-            this.profile_picture = await this.$store.getters.getProfilePic(this.addr);
-        }
-        eventBus.$on("Navbar.noWallet", () => {
-            this.$bvToast.show("no-wallet-toast");
-        });
-        eventBus.$on("Navbar.connectWalletSuccess", () => {
-            axios
-                .get(`${this.$store.getters.getApiUrl}/profile/${this.$store.getters.getAddress}`)
-                .then((res) => {
-                    console.log(res);
-                })
-                .catch((err) => {
-                    if (!err.response || err.response.status == 404) {
-                        this.$refs["reg-modal"].show();
-                    }
-                });
-        });
-        eventBus.$on("Navbar.connectWalletFailure", () => {
-            this.$bvToast.show("wallet-failure-toast");
-        });
+      this.connectWallet()
+      this.addr = window.conflux.selectedAddress;
+      if (this.addr) {
+          this.profile_picture = await this.$store.getters.getProfilePic(this.addr);
+      }
+      eventBus.$on("Navbar.noWallet", () => {
+          this.$bvToast.show("no-wallet-toast");
+      });
+      eventBus.$on("Navbar.connectWalletSuccess", () => {
+        axios
+            .get(`${this.$store.getters.getApiUrl}/profile/${this.$store.getters.getAddress}`)
+            .then((res) => {
+                console.log(res);
+            })
+            .catch((err) => {
+                if (!err.response || err.response.status == 404) {
+                    this.$refs["reg-modal"].show();
+                }
+            });
+      });
+      eventBus.$on("Navbar.connectWalletFailure", () => {
+          this.$bvToast.show("wallet-failure-toast");
+      });
     },
     beforeDestroy() {
         eventBus.$off("Navbar.noWallet");

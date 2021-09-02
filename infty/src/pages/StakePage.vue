@@ -20,7 +20,7 @@
             <el-menu-item index="CFX">CFX</el-menu-item>
         </el-menu>
 
-        <div class="main">
+        <div class="main pb-4">
             <div class="banner">
                 <div class="info-left">
                     <div>Wallet Balance</div>
@@ -135,7 +135,7 @@ export default {
         },
         handleSelectCurrency: function(event) {
             if (event !== "CFX") {
-                this.dialogMessage = "Mantaining";
+                this.dialogMessage = "Maintaining";
                 this.dialogVisible = true;
                 return;
             }
@@ -184,6 +184,12 @@ export default {
                     })
                     .executed();
             }
+            this.$notify({
+                title: "Congrats",
+                message: `${parseInt(this.stakeAmount)} is successfully staked. You are now earning INFT.`,
+                duration: 3000,
+                type: 'success'
+            })
             await this.updateInformation();
             this.stakeAmount = 0;
             event.target.disabled = false;
@@ -209,6 +215,12 @@ export default {
                     })
                     .executed();
             }
+            this.$notify({
+                title: "Congrats",
+                message: `${parseInt(this.unstakeAmount)} is successfully unstaked.`,
+                duration: 3000,
+                type: 'success'
+            })
             await this.updateInformation();
             this.unstakeAmount = 0;
             event.target.disabled = false;
