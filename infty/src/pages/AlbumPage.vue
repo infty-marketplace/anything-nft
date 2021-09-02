@@ -283,6 +283,7 @@ export default {
     width: 350px;
   }
 }
+
 .category-button {
   width: 100%;
 }
@@ -353,9 +354,9 @@ export default {
     width: 90vw;
   }
   .carousel {
-  width: 300px;
-  height: 300px;
-}
+    width: 300px;
+    height: 300px;
+  }
 }
 .album-title-container {
   margin-top: 2rem;

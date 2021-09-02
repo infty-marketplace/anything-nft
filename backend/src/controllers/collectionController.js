@@ -446,7 +446,11 @@ async function purchaseNtf(req, res) {
         commission_currency: body.commission_currency,
         collection_id: nft.nft_id,
     };
-    await transferOwnership(transactionDetails, res);
+    try {
+        transferOwnership(transactionDetails);
+    } catch (error) {
+        return res.status(404).send(error);
+    }
 
     //check if this nft fullfills a album
     if (nft.album_id && nft.album_id !== "") {
@@ -464,7 +468,11 @@ async function purchaseNtf(req, res) {
                 commission_currency: body.commission_currency,
                 collection_id: nft.nft_id,
             };
-            await transferOwnership(transactionDetails, res);
+            try {
+                transferOwnership(transactionDetails);
+            } catch (error) {
+                return res.status(404).send(error);
+            }
 
             //check if this nft fullfills a album
             if (nft.album_id && nft.album_id !== "") {
@@ -478,7 +486,11 @@ async function purchaseNtf(req, res) {
                         transaction_type: "purchase-album",
                         collection_id: album.album_id,
                     };
-                    await transferOwnership(albumTransactionDetails, res, false);
+                    try {
+                        transferOwnership(albumTransactionDetails, false);
+                    } catch (error) {
+                        return res.status(404).send(error);
+                    }
                 }
             }
         }
@@ -545,7 +557,11 @@ async function fundNtf(req, res) {
                 collection_id: transactionDetails.collection_id,
                 percentage: funder.percentage,
             };
-            await transferOwnership(nftTransactionDetails, res, false);
+            try {
+                transferOwnership(nftTransactionDetails, false);
+            } catch (error) {
+                return res.status(404).send(error);
+            }
         }
     }
     await mongodbUtils
@@ -643,7 +659,12 @@ async function purchaseAlbum(req, res) {
         commission_currency: body.commission_currency || "cfx",
         collection_id: album.album_id,
     };
-    await transferOwnership(transactionDetails, res);
+    try {
+        await transferOwnership(transactionDetails);
+    } catch (error) {
+        console.log(error);
+        return res.status(404).send(error);
+    }
 
     //update associated nft's information
     const nfts = await getAlbumNfts(album);
@@ -654,8 +675,13 @@ async function purchaseAlbum(req, res) {
             transaction_type: "purchase-nft",
             collection_id: nft.nft_id,
         };
-        await cfxUtils.transferOwnershipOnChain(album.owner, body.buyer, nft.nft_id);
-        await transferOwnership(nftTransactionDetails, res, false);
+        
+        try {
+            await cfxUtils.transferOwnershipOnChain(album.owner, body.buyer, nft.nft_id);
+            await transferOwnership(nftTransactionDetails, false);
+        } catch (error) {
+            return res.status(404).send(error);
+        }
     }
 
     return res.status(200).send();
