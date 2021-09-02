@@ -147,6 +147,7 @@ import axios from "axios"
 import Navbar from "../components/Navbar.vue";
 import Footer from "../components/Footer.vue";
 import HeartBtn from "../components/HeartBtn.vue";
+import { Notification } from 'element-ui' 
 
 export default {
   name: "DetailPage",
@@ -216,12 +217,12 @@ export default {
 
     async purchaseNft() {
       const getters = this.$store.getters;
-
+      this.$store.dispatch('notifyCommission')
       const tx = window.confluxJS.sendTransaction({
         from: (await window.conflux.send("cfx_requestAccounts"))[0],
         to: getters.getManagerAddr,
         gasPrice: 1,
-        value: 1e18*(parseFloat(this.listing_commision) + parseFloat(this.card.price))
+        value: 1e18*((parseFloat(this.listing_commision) + parseFloat(this.card.price)))
       })
 
       const res = await tx.executed()
@@ -236,6 +237,7 @@ export default {
       };
       axios.post(`${getters.getApiUrl}/purchase-nft`, data).then(
         res => {
+          Notification.closeAll()
           if (res.status == 200) {
               this.$bvToast.toast("NFT Purchased Successfully", {
                   title: "Notification",

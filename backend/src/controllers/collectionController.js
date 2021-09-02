@@ -645,8 +645,7 @@ async function purchaseAlbum(req, res) {
     if (await isAlbumFunded(album)) {
         return res.status(400).json({ error: "album contains funded nft" });
     }
-
-    await cfxUtils.transferOwnershipOnChain(album.owner, body.buyer, album.album_id);
+    await cfxUtils.transferOwnershipOnChain(process.env.MANAGER_ADDRESS, body.buyer, album.album_id.split("-")[1]);
 
     // create a transaction record
     const transactionDetails = {
@@ -677,7 +676,7 @@ async function purchaseAlbum(req, res) {
         };
         
         try {
-            await cfxUtils.transferOwnershipOnChain(album.owner, body.buyer, nft.nft_id);
+            await cfxUtils.transferOwnershipOnChain(album.owner, body.buyer, nft.nft_id.split("-")[1]);
             await transferOwnership(nftTransactionDetails, false);
         } catch (error) {
             return res.status(404).send(error);

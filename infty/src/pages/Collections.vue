@@ -245,7 +245,8 @@ export default {
     createAlbum() {
       this.$notify({
         title: 'Notification',
-        message: 'Album Minting In Progress',
+        dangerouslyUseHTMLString: true,
+        message: '<div style="display:flex; align-items: center;"> <div class="loader"></div><div style="display:inline">Album Minting In Progress</div></div>', 
         duration: 0
       })
       const fd = new FormData();

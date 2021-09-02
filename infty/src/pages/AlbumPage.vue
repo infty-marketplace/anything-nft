@@ -137,6 +137,7 @@
           <b-button href="#" variant="primary" @click="purchaseAlbum"
             ><b-icon icon="wallet2"></b-icon>&nbsp;&nbsp;Buy Now</b-button
           >
+          <b-button variant="outline-primary" class='ml-2' @click='$store.dispatch("notifyWIP")'><b-icon icon='tag-fill'/>&nbsp;Make offer</b-button>
           <!-- <template #footer>
             <em>Footer Slot</em>
           </template> -->
@@ -180,6 +181,7 @@
 
 <script>
 import axios from 'axios'
+import { Notification } from 'element-ui' 
 
 import Navbar from "../components/Navbar.vue";
 import Footer from "../components/Footer.vue";
@@ -275,18 +277,41 @@ export default {
     redirectToNft(nid) {
       this.$router.push(`/nft/${nid}`)
     },
-    purchaseAlbum() {
-      const buyer = this.$store.getters.getAddress
+    async purchaseAlbum() {
+      let buyer = this.$store.getters.getAddress
       if (!buyer) {
         this.$store.dispatch('connectWallet')
+        buyer = this.$store.getters.getAddress
       }
+      const getters = this.$store.getters;
+      this.$store.dispatch('notifyCommission')
+      const tx = window.confluxJS.sendTransaction({
+        from: (await window.conflux.send("cfx_requestAccounts"))[0],
+        to: getters.getManagerAddr,
+        gasPrice: 1,
+        value: 1e18* parseFloat(this.card.price)
+      })
+
+      const res = await tx.executed()
+      console.log(res)
+
       axios.post(`${this.$store.getters.getApiUrl}/purchase-album`, {
         album_id: this.card.album_id,
         buyer,
-        commission: 10,
+        commission: 0,
         commission_currency:'cfx'
-      }).then(res =>{
-        console.log(res)
+      }).then(() =>{
+        Notification.closeAll()
+        this.$bvToast.toast("Album Purchased Successfully", {
+          title: "Notification",
+          autoHideDelay: 3000
+        })
+        const ownerAddress = this.$store.getters.getAddress;
+        axios.get(`${this.$store.getters.getApiUrl}/profile/${ownerAddress}`).then((resp) => {
+          this.ownerName = resp.data.first_name + " " + resp.data.last_name;
+          this.card.status = 'private';
+          this.$forceUpdate();
+        })
       })
     }
   },

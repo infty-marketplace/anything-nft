@@ -84,7 +84,8 @@ export default {
       createNft(){
           this.$notify({
               title: 'Notification',
-              message: 'NFT Minting In Progress',
+              dangerouslyUseHTMLString: true,
+              message: '<div style="display:flex; align-items: center;"> <div class="loader"></div><div style="display:inline">NFT Minting In Progress</div></div>',
               duration: 0
           })
           const fd = new FormData();

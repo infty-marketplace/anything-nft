@@ -61,7 +61,6 @@ export default {
         last_name: "",
         profile_picture:
             "https://ipfs.io/ipfs/QmR9aGP1cQ13sapFBfFLiuhRVSGcrMYvZPmKXNNrobwtFZ?filename=undraw_male_avatar_323b.png",
-        addr: "",
     }),
     methods: {
         connectWallet() {
@@ -83,6 +82,9 @@ export default {
         loggedIn: function() {
             return !!this.$store.getters.getAddress;
         },
+        addr: function() {
+          return this.$store.getters.getAddress
+        }
     },
     async created() {
       this.connectWallet()
