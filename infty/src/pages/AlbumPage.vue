@@ -1,22 +1,22 @@
 <template>
   <div class="flex-wrapper">
     <Navbar />
-    <b-carousel controls indicators background="#dadada" class='carousel mt-4'>
-      <b-carousel-slide v-for="nft in nfts" :key="nft.nft_id" >
-        <template #img>
-          <div @click="redirectToNft(nft.nft_id)">
-            <img :src='nft.file' class='nft-img'/>
-          </div>
-        </template>
-      </b-carousel-slide>
-    </b-carousel>
-    <div class="detail-content">
+    <div class="detailed-content" id='album-page'>
       <b-card
         class="detailed-card"
-        :img-src="card.url"
-        img-alt="Card image"
-        img-top
       >
+        <el-carousel trigger="click" class='carousel' :autoplay='false'>
+          <el-carousel-item class='crs-item'>
+            <el-tooltip class="item" effect="dark" content="Whoever collects all of the NFTs in this album will be rewarded with this album cover NFT." placement="top-start">
+              <b-icon icon='sun' class='cover-tag'/>
+            </el-tooltip>
+            <img :src="card.url" class='nft-img'/>
+          </el-carousel-item>
+          <el-carousel-item class='crs-item' v-for="nft in nfts" :key="nft.nft_id">
+            <img :src="nft.file" class='nft-img'/>
+          </el-carousel-item>
+        </el-carousel>
+        
         <b-card-title
           ><b-icon icon="card-text"></b-icon>&nbsp;Description</b-card-title
         >
@@ -56,6 +56,15 @@
           </b-list-group-item>
         </b-list-group>
       </b-card>
+      <div class='album-title-container'>
+        <h1 class='album-title'>&nbsp;{{ card.title }}</h1>
+        <h5 class='owner'>&nbsp;&nbsp;&nbsp;&nbsp;Owned by {{this.ownerName}}&nbsp;&nbsp;&nbsp;
+          <b-icon icon='eye'/>&nbsp;{{view}} views
+          <div class='like' @click='likes+=likeswitch;likeswitch*=-1;'><heart-btn/></div> {{likes}} likes
+          </h5>
+      </div>
+      
+      
       <b-card-group deck class="transaction">
         <b-card
           class="transaction-info"
@@ -64,16 +73,35 @@
         >
           <template #header>
             <span class="mb-0">
-              <b-icon icon="card-image"></b-icon>&nbsp;Card Name
+              <b-icon icon="list"></b-icon>&nbsp;NFTs
             </span>
-            <span class="mb-0 heart"
-              ><button><b-icon icon="heart"></b-icon></button>&nbsp;2</span
-            >
+            
           </template>
-          <b-card-text>Owned by {{ card.author }}</b-card-text>
-          <!-- <template #footer>
-            <em>Footer Slot</em>
-          </template> -->
+           <el-table
+          :data="nftsTable"
+          style="width: 100%"
+          height='200'
+          empty-text="Nothing">
+          <el-table-column
+            prop="title"
+            label="NFT Title"
+            width="180">
+          </el-table-column>
+          <el-table-column
+            prop="price"
+            label="Listing Price"
+            width="180">
+          </el-table-column>
+          <el-table-column
+            prop="usd"
+            label="in USD">
+          </el-table-column>
+          <el-table-column
+            prop="owner"
+            label="Owner">
+          </el-table-column>
+        </el-table>
+        
         </b-card>
 
         <b-card v-if='card.status == "sale"'
@@ -100,9 +128,39 @@
             <em>Footer Slot</em>
           </template> -->
         </b-card>
+        <b-card>
+          <template #header>
+            <h6 class="mb-0">
+              <b-icon icon="card-list"/> Offers
+            </h6>
+          </template>
+          <el-table
+          :data="offersData"
+          style="width: 100%"
+          height='200'
+          empty-text="Nothing">
+          <el-table-column
+            prop="unit_price"
+            label="Unit Price"
+            width="180">
+          </el-table-column>
+          <el-table-column
+            prop="usd"
+            label="USD"
+            width="180">
+          </el-table-column>
+          <el-table-column
+            prop="exp"
+            label="Expiration">
+          </el-table-column>
+          <el-table-column
+            prop="from"
+            label="From">
+          </el-table-column>
+        </el-table>
+        </b-card>
       </b-card-group>
     </div>
-
     <Footer style="z-index: 1" />
   </div>
 </template>
@@ -112,17 +170,59 @@ import axios from 'axios'
 
 import Navbar from "../components/Navbar.vue";
 import Footer from "../components/Footer.vue";
+import HeartBtn from '../components/HeartBtn.vue'
 export default {
   name: "DetailPage",
   components: {
     Navbar,
     Footer,
+    HeartBtn
   },
 	props: ['card'],
   data() {
     return {
       isAuthor: false,
-      nfts: []
+      ownerName: '',
+      nfts: [],
+      likes: this.rand(0,100),
+      view: this.rand(100,2000),
+      likeswitch: 1,
+      nftsTable: [
+        {
+          title: 'Title A',
+          price: '1',
+          usd: '3',
+          owner: '0x0'
+        },
+        {
+          title: 'Title B',
+          price: '1',
+          usd: '3',
+          owner: '0x0'
+        }
+      ],
+      offersData: [{
+        unit_price: 30,
+        usd: 9,
+        exp: '2 days',
+        from: 'William M'
+      },{
+        unit_price: 1,
+        usd: 0.3,
+        exp: '1 days',
+        from: 'User M'
+      },{
+        unit_price: 1,
+        usd: 0.3,
+        exp: '1 days',
+        from: 'User A'
+      },{
+        unit_price: 1,
+        usd: 0.3,
+        exp: '1 days',
+        from: 'User B'
+      },
+      ]
     };
   },
   created() {
@@ -130,6 +230,7 @@ export default {
     axios.get(`${api}/album/${this.$route.params.id}`)
       .then(async res => {
         const card = res.data
+        console.log(res)
         card.url = card.file
         this.card = card;
         for (const nid of card.nft_ids) {
@@ -137,7 +238,11 @@ export default {
           this.nfts.push(res.data)
         }
         console.log(this.nfts)
+        axios.get(`${api}/profile/${this.card.owner}`).then(resp => {
+          this.ownerName = resp.data.first_name + " " + resp.data.last_name;
+        })
       })
+    
   },
   methods: {
     rand(min, max) {
@@ -167,33 +272,31 @@ export default {
 <style scoped>
 .detailed-card {
   float: left;
-  width: 35vw;
   margin-top: 2em;
   margin-left: 5%;
   margin-bottom: 2em;
+  width: 550px;
+  margin-right: 1em;
 }
+
 .category-button {
   width: 100%;
 }
 .heart {
   float: right;
 }
-.detail-content {
-  /* display: flex; */
-}
+
 .transaction {
-  float: left;
   margin-top: 2em;
-  margin-left: 10vw;
-  width: 40vw;
-  height: 50vh;
+  width: calc(80vw - 800px);
   display: flex;
   flex-direction: column;
   gap: 40px;
+  position: inline;
 }
-/* .transaction-info {
-  margin-bottom: 20px;
-} */
+.transaction-info {
+  max-width: 100%;
+}
 .carousel {
   width: 80vw;
   margin-left:auto;
@@ -201,9 +304,60 @@ export default {
   color:#dadada
 }
 .nft-img {
-  max-height: 500px;
   margin-left: auto;
   margin-right: auto;
   display: block;
+  object-fit: contain;
+  height: 500px;
+  width: 500px;
+}
+
+.cover-tag {
+  width: 30px;
+  height:30px;
+  position: absolute;
+  left: 5px;
+  top: 5px;
+  color: rgb(64, 215, 253);
+  cursor: pointer;
+}
+
+.carousel {
+  width: 500px;
+  height: 500px;
+}
+
+.crs-item {
+  width: 500px;
+  height: 500px;
+}
+
+#album-page {
+  margin-left: auto;
+  margin-right: auto;
+  width: 80vw;
+}
+
+.album-title-container {
+  margin-top: 2rem;
+}
+.album-title {
+  font-weight: bold;
+  font-size: 4rem;
+}
+
+.like {
+  display: inline-block;
+  transform: scale(0.2);
+  margin-top: -100px;
+  margin-bottom: -58px;
+  margin-left: -30px;
+  margin-right: -60px;
+}
+</style>
+
+<style>
+#album-page .el-carousel__container {
+  height: 500px;
 }
 </style>

@@ -1,9 +1,9 @@
 <template>
   <div class="flex-wrapper" id="collections-page">
     <Navbar active-index="2" />
-    <div class="flex-wrapper-row m-3 mb-5" v-if="$store.getters.getAddress">
-      <b-tabs class="main-content" content-class="ml-5 mr-5">
-        <b-tab title="NFT" active>
+    <div class="flex-wrapper-row m-3" v-if="$store.getters.getAddress">
+      <el-tabs class='main-content'>
+        <el-tab-pane label='NFT'>
           <p>Unlisted</p>
           <div class="cards-container">
             <NftCard
@@ -24,6 +24,7 @@
             />
             <p class="mt-4" v-if="sale_nfts.length == 0"><el-empty description="Nothing"></el-empty></p>
           </div>
+<<<<<<< HEAD
           <p>On Raffle</p>
           <div class="cards-container">
             <NftCard
@@ -37,6 +38,11 @@
         </b-tab>
         <b-tab title="Album"
           ><p>Unlisted</p>
+=======
+        </el-tab-pane>
+        <el-tab-pane label='Album'>
+          <p>Unlisted</p>
+>>>>>>> a8152d029a673ed5037adeccbadfa4c589cf5e3f
           <div class="cards-container">
             <AlbumCard
               class="mt-4 card"
@@ -55,9 +61,17 @@
               :key="album.url"
             />
             <p class="mt-4" v-if="sale_albums.length == 0"><el-empty description="Nothing"></el-empty></p>
-          </div></b-tab
+          </div>
+        </el-tab-pane>
+      </el-tabs>
+      <!-- <b-tabs class="main-content" content-class="ml-5 mr-5">
+        <b-tab title="NFT" active>
+          
+        </b-tab>
+        <b-tab title="Album"
+          ></b-tab
         >
-      </b-tabs>
+      </b-tabs> -->
     </div>
     <div v-else class="flex-wrapper-row">
       <ConnectWallet />
@@ -111,6 +125,7 @@
 <script>
 import axios from "axios";
 import { eventBus } from "../main";
+import { Notification } from 'element-ui'
 
 import Navbar from "../components/Navbar.vue";
 import Footer from "../components/Footer.vue";
@@ -248,6 +263,11 @@ export default {
       this.$refs["album-modal"].show();
     },
     createAlbum() {
+      this.$notify({
+        title: 'Notification',
+        message: 'Album Minting In Progress',
+        duration: 0
+      })
       const fd = new FormData();
       fd.append("file", this.album_cover);
       fd.append("address", this.$store.getters.getAddress);
@@ -259,6 +279,13 @@ export default {
         .then((res) => {
           console.log(res);
           this.loadCollections();
+          Notification.closeAll();
+          this.$notify({
+              title: "Congrats",
+              message: "Album Created Successfully",
+              duration: 3000,
+              type: 'success'
+          })
         });
     },
   },
@@ -301,7 +328,10 @@ export default {
 
 .file-uploader {
   width: 80%;
+  height: 450px;
 }
+
+
 </style>
 
 <style>
@@ -312,6 +342,9 @@ export default {
 }
 #album-modal .modal-dialog {
   width: 50vw;
+}
+#collections-page .el-tabs__item.is-top {
+  font-size: 28px;
 }
 </style>
 
