@@ -162,6 +162,12 @@ export default {
                     })
                     .executed();
             }
+            this.$notify({
+                title: "Congrats",
+                message: `Successfully claimed.`,
+                duration: 3000,
+                type: "success",
+            });
             await this.updateInformation();
             this.clickClaimStatus = false;
         },
@@ -188,7 +194,7 @@ export default {
             }
             this.$notify({
                 title: "Congrats",
-                message: `${parseInt(this.stakeAmount)} is successfully staked. You are now earning INFT.`,
+                message: `${parseInt(this.stakeAmount)} ${this.selectedCurrency} are successfully staked. You are now earning INFT.`,
                 duration: 3000,
                 type: "success",
             });
@@ -219,7 +225,7 @@ export default {
             }
             this.$notify({
                 title: "Congrats",
-                message: `${parseInt(this.unstakeAmount)} is successfully unstaked.`,
+                message: `${parseInt(this.unstakeAmount)} ${this.selectedCurrency} are successfully unstaked.`,
                 duration: 3000,
                 type: "success",
             });
