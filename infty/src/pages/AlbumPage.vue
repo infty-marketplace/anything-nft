@@ -1,7 +1,8 @@
 <template>
   <div class="flex-wrapper">
     <Navbar />
-    <div class="detailed-content" id='album-page'>
+    <button @click='$router.go(-1)' class='back-btn'><i class='el-icon-back' style='color:white'/></button>
+    <div class="detailed-content mb-4" id='album-page'>
       <b-card
         class="detailed-card"
       >
@@ -21,7 +22,7 @@
           ><b-icon icon="card-text"></b-icon>&nbsp;Description</b-card-title
         >
         <b-card-text>
-          <p>Created by {{ card.author }}</p>
+          <p>Created by {{ this.authorName }}</p>
           <p>
             {{ card.description || "No description." }}
           </p>
@@ -49,9 +50,8 @@
               ><b-icon icon="file-earmark-text"></b-icon>Details</b-button
             >
             <b-collapse id="collapse-2" class="mt-2">
-              <p>Contact Address</p>
+              <p>Contract Address: <a target="_blank" :href='`https://testnet.confluxscan.io/token/${$store.getters.getMinterAddress}`'>{{$store.getters.getMinterAddress}}</a></p>
               <p>Token ID {{ rand(1000, 9999) }}</p>
-              <p>Contact Address:Ethereum</p>
             </b-collapse>
           </b-list-group-item>
         </b-list-group>
@@ -78,14 +78,27 @@
             
           </template>
            <el-table
+           @cell-click='(a,b) => {
+             if (b.label == "NFT Title") {
+               this.redirectToNft(a.nft_id)
+             }
+             if (b.label == "Owner") {
+               window.open(`https://testnet.confluxscan.io/address/${a.owner}`)
+             }
+             
+            }'
           :data="nftsTable"
           style="width: 100%"
           height='200'
-          empty-text="Nothing">
+          empty-text="Nothing"
+          :cell-style='({columnIndex})=> {
+            if (columnIndex==0 || columnIndex == 3) return "cursor:pointer; color: #007bff;"
+          }'>
           <el-table-column
             prop="title"
             label="NFT Title"
-            width="180">
+            width="180"
+            style='cursor:pointer'>
           </el-table-column>
           <el-table-column
             prop="price"
@@ -104,7 +117,7 @@
         
         </b-card>
 
-        <b-card v-if='card.status == "sale"'
+        <b-card v-if='card.status == "sale" && card.owner != $store.getters.getAddress'
           class="transaction-info"
           header-tag="header"
           footer-tag="footer"
@@ -112,7 +125,7 @@
           <template #header>
             <h6 class="mb-0">
               <b-icon icon="clock"></b-icon>&nbsp;Sale ends in
-              {{ card.expirationDate }} days
+              5 days
             </h6>
           </template>
           <b-card-text>Current Price</b-card-text>
@@ -179,6 +192,10 @@ export default {
     HeartBtn
   },
 	props: ['card'],
+  computed: {
+    console: () => console,
+    window: () => window
+  },
   data() {
     return {
       isAuthor: false,
@@ -237,9 +254,16 @@ export default {
           const res = await axios.get(`${api}/nft/${nid}`)
           this.nfts.push(res.data)
         }
+
         console.log(this.nfts)
+        this.nftsTable = this.nfts.map(n => (
+          {title: n.title, price: n.price, usd:0.3*n.price, owner: n.owner[0].address, nft_id: n.nft_id}
+        ))
         axios.get(`${api}/profile/${this.card.owner}`).then(resp => {
           this.ownerName = resp.data.first_name + " " + resp.data.last_name;
+        })
+        axios.get(`${api}/profile/${this.card.author}`).then(resp => {
+          this.authorName = resp.data.first_name + " " + resp.data.last_name;
         })
       })
     
@@ -373,6 +397,16 @@ export default {
   margin-bottom: -58px;
   margin-left: -30px;
   margin-right: -60px;
+}
+.back-btn {
+  position: absolute;
+  top: 150px;
+  left: -10px;
+  width: 60px;
+  border-radius: 20%;
+  background-color: rgb(72, 83, 87);
+  border: unset;
+  box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
 }
 </style>
 

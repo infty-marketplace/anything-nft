@@ -1,7 +1,8 @@
 <template>
   <div class="flex-wrapper">
     <Navbar />
-    <div class="detail-content">
+    <button @click='$router.go(-1)' class='back-btn'><i class='el-icon-back' style='color:white'/></button>
+    <div class="detail-content mb-4">
       <b-card
         class="detailed-card"
         :img-src="card&&card.url"
@@ -12,10 +13,12 @@
           ><b-icon icon="card-text"></b-icon>&nbsp;Description</b-card-title
         >
         <b-card-text>
+          
           <p>Created by {{ card && card.author_name }}</p>
           <p>
             {{ card && card.description || "No description." }}
           </p>
+          
         </b-card-text>
         <b-list-group flush>
           <b-list-group-item>
@@ -40,37 +43,29 @@
               ><b-icon icon="file-earmark-text"></b-icon>Details</b-button
             >
             <b-collapse id="collapse-2" class="mt-2">
-              <p>Contact Address</p>
+              <p>Contract Address: <a target="_blank" :href='`https://testnet.confluxscan.io/token/${$store.getters.getMinterAddress}`'>{{$store.getters.getMinterAddress}}</a></p>
               <p>Token ID {{ rand(1000, 9999) }}</p>
-              <p>Contact Address:Ethereum</p>
             </b-collapse>
           </b-list-group-item>
         </b-list-group>
       </b-card>
       <div class='album-title-container'>
         <h1 class='album-title'>&nbsp;{{ card.title }}</h1>
+        
         <h5 class='owner'>&nbsp;&nbsp;&nbsp;&nbsp;Owned by {{card.owner_name}}&nbsp;&nbsp;&nbsp;
-          <b-icon icon='eye'/>&nbsp;{{view}} views
-          <div class='like' @click='likes+=likeswitch;likeswitch*=-1;'><heart-btn/></div> {{likes}} likes
+          <div style='display: inline-block'><b-icon icon='eye'/>&nbsp;{{view}} views</div>
+          <div style='display: inline-block'>
+            <div class='like' @click='likes+=likeswitch;likeswitch*=-1;'><heart-btn/></div> {{likes}} likes
+          </div>
+          
           </h5>
       </div>
+      
       <b-card-group deck class="transaction">
-        <b-card
-          class="transaction-info"
-          header-tag="header"
-          footer-tag="footer"
-        >
-          <template #header>
-            <span class="mb-0">
-              <b-icon icon="card-image"></b-icon>&nbsp;{{card && card.title}}
-            </span>
-            
-            
-          </template>
-          <b-card-text>Owned by {{ card && card.owner_name }}</b-card-text>
-
-        </b-card>
-
+        
+        <el-tooltip style='cursor:pointer' effect="dark" content="You'll see the content once you purchase the NFT." placement="top">
+          <div class='unlock'><i class='el-icon-lock'></i>&nbsp;&nbsp;Contains Unlockable Content</div>
+          </el-tooltip>
         <b-card
           class="transaction-info"
           header-tag="header"
@@ -78,9 +73,9 @@
           v-if='!isOwner'
         >
           <template #header>
-            <h6 class="mb-0" v-if="card.expirationDate">
+            <h6 class="mb-0">
               <b-icon icon="clock"></b-icon>&nbsp;Sale ends in
-              {{ card.expirationDate }} days
+              5 days
             </h6>
           </template>
           <b-card-text>Current Price</b-card-text>
@@ -333,5 +328,26 @@ export default {
   margin-bottom: -58px;
   margin-left: -30px;
   margin-right: -60px;
+}
+.back-btn {
+  position: absolute;
+  top: 150px;
+  left: -10px;
+  width: 60px;
+  border-radius: 20%;
+  background-color: rgb(72, 83, 87);
+  border: unset;
+  box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
+}
+.unlock {
+  display: inline-block;
+  padding: 0.3rem;
+  font-size: 1rem;
+  font-weight: bold;
+  color:rgb(203, 132, 236);
+  border-style: solid;
+  border-width: 0.2rem;
+  border-image: linear-gradient(170deg, rgb(224, 169, 255), rgb(101, 224, 255)) 1;
+  margin: 0 15px;
 }
 </style>
