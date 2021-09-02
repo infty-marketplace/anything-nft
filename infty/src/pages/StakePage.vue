@@ -122,7 +122,7 @@ export default {
             } else if (this.hoverClaimStatus) {
                 return "Claim";
             } else {
-                return `Unclaimed\n ${this.earnedBalance.toFixed(4)} ${this.selectedCurrency}`;
+                return `Unclaimed\n ${this.earnedBalance.toFixed(4)} INFT`;
             }
         },
     },
