@@ -1,7 +1,7 @@
-const { Conflux } = require('js-conflux-sdk')
-const { abi, bytecode } = require('./build/contracts/InftyNft.json')
-const testadd = 'cfxtest:aaj7rbyy019hajpa61f7x0hda0gthftyayszjpwy8e'
-const priv = '0xef58599635660cc0c6ed148082b0025d291d4c14102a51dae961f0cfc9d08dc5'
+// const { Conflux } = require('js-conflux-sdk')
+// const { abi, bytecode } = require('./build/contracts/InftyNft.json')
+// const testadd = 'cfxtest:aaj7rbyy019hajpa61f7x0hda0gthftyayszjpwy8e'
+// const priv = '0xef58599635660cc0c6ed148082b0025d291d4c14102a51dae961f0cfc9d08dc5'
 
 
 async function main(){
@@ -15,5 +15,3 @@ async function main(){
     console.log(await contract.name())
     console.log(await contract.mint(testadd, 'google.com').sendTransaction({from: testadd}).executed() )
 }
-
-main()

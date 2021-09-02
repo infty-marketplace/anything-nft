@@ -207,7 +207,6 @@ export default {
       );
       const nft_promises_result = await Promise.allSettled(nft_promises);
       let nfts = nft_promises_result.map((p) => {
-        console.log(p)
         if (p.status == "fulfilled") return p.value.data;
       });
       nfts = nfts.filter(n => !!n && !!n.file)
@@ -246,7 +245,8 @@ export default {
     createAlbum() {
       this.$notify({
         title: 'Notification',
-        message: 'Album Minting In Progress',
+        dangerouslyUseHTMLString: true,
+        message: '<div style="display:flex; align-items: center;"> <div class="loader"></div><div style="display:inline">Album Minting In Progress</div></div>', 
         duration: 0
       })
       const fd = new FormData();

@@ -2,10 +2,6 @@
   <div>
     <b-card
       class="user-card"
-      :img-src="card.url"
-      :key="card.url"
-      img-alt="Image"
-      img-top
       @click="cardClicked"
     >
     <!-- <b-form-checkbox
@@ -17,6 +13,7 @@
       @change="checkBox"
     /> -->
     <!-- <router-link :to="{ path:'/card/:id', name: 'card-detail', params: { id: card.nft_id || 'default_id', card: card } }"> -->
+    <img @click="cardClicked" :src='card.url' class='nft-img'/>
       <b-card-text class="card-detail">
         <p>{{ card.title }}</p>
         <p>{{ card.collection }}</p>
@@ -26,9 +23,7 @@
         <div v-if="card.status == 'sale'">
           <span class="text-muted-left"
             ><small class="text-muted"
-              ><b-icon icon="clock"></b-icon>&nbsp;{{
-                card.expirationDate
-              }}
+              ><b-icon icon="clock"></b-icon>&nbsp;X
               days left</small
             ></span
           >
@@ -81,7 +76,7 @@
             
           </b-modal> -->
         </div>
-        <b-btn v-if='card.status == "sale"' variant='info' class='text-muted-right' @click='delistAlbum'>Delist</b-btn>
+        <b-btn v-if='card.status == "sale" && !onMarket' variant='info' class='text-muted-right' @click='delistAlbum'>Delist</b-btn>
       </template>
       <!-- </router-link> -->
     </b-card>
@@ -132,17 +127,18 @@ export default {
     //   this.$refs['raffle-modal'].show()
     // },
     async handleListAlbum() {
+      const getters = this.$store.getters;
       this.$store.dispatch('notifyCommission')
       const tx = window.confluxJS.sendTransaction({
         from: (await window.conflux.send("cfx_requestAccounts"))[0],
-        to: this.$store.getters.getManagerAddr,
+        to: getters.getManagerAddr,
         gasPrice: 1,
         value: 1e18*(parseFloat(this.listing_commision))
       })
 
       const res = await tx.executed()
       console.log(res)
-
+      await getters.getMinterContract.setApprovalForAll(getters.getManagerAddr, true).sendTransaction({from:getters.getAddress, to: getters.getMinterAddress, gasPrice: 1}).executed()
       const nft_prices = {}
       this.nfts.forEach(n => nft_prices[n.nft_id] = n.listing_price)
       axios.post(`${this.$store.getters.getApiUrl}/list-album`, {
@@ -194,11 +190,17 @@ export default {
       if (!['BUTTON', 'LABEL', 'INPUT'].includes(e.srcElement.nodeName)) this.$router.push({ path:'/album/:id', name: 'album-detail', params: { id: this.card.album_id || 'default_id', card: this.card } })
     }
   },
+  computed: {
+    onMarket: function() {
+      return this.$route.path.includes('marketplace')
+    }
+  },
 };
 </script>
 
 <style scoped>
 .user-card {
+  width: 250px;
   transition: all 0.15s ease-in-out;
 }
 .user-card:hover {
@@ -233,5 +235,12 @@ export default {
 
 .user-card:hover .checkbox {
   display: block;
+}
+.nft-img {
+  width:100%;
+  height: 250px;
+  object-fit: contain;
+  cursor: pointer;
+  border-radius: 15px;
 }
 </style>
