@@ -5,48 +5,6 @@
 </template>
 
 <script>
-<<<<<<< HEAD
-const { abi } = require("./assets/InftyNft.json");
-const { raffleAbi } = require("./assets/Raffle.json");
-
-import { eventBus } from "./main";
-// const { Conflux } = require('js-conflux-sdk')
-
-// const { Conflux } = require('js-conflux-sdk')
-
-export default {
-  name: "App",
-  created() {
-    // TODO based on wallet network
-    // const cfx = new Conflux({
-    //   url:'https://test.confluxrpc.com',
-    //   networkId: 1
-    // })
-    document.title = "Infty Marketplace";
-    const minterContract = window.confluxJS.Contract({
-      abi,
-      address: this.$store.getters.getMinterAddress,
-    });
-    this.$store.commit("setMinterContract", minterContract);
-
-    const raffleContract = window.confluxJS.Contract({
-      abi: raffleAbi,
-      address: this.$store.getters.getRaffleContractAddress,
-    });
-    this.$store.commit("setRaffleContract", raffleContract);
-
-    eventBus.$on("App.notifyWIP", () => {
-      this.$notify.info({
-        title: "Info",
-        message: "This functionality is work in progress.",
-        duration: 3000,
-      });
-    });
-  },
-  beforeDestroy() {
-    eventBus.$off("App.notifyWIP");
-  },
-=======
 const { abi: inftyNftAbi } = require("./assets/InftyNft.json");
 const { abi: stakeAbi } = require("./assets/StakingForINFT.json");
 
@@ -94,7 +52,6 @@ export default {
         eventBus.$off("App.notifyWIP");
         eventBus.$off("App.notifyCommission");
     },
->>>>>>> a8152d029a673ed5037adeccbadfa4c589cf5e3f
 };
 </script>
 
