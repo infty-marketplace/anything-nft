@@ -174,7 +174,7 @@ async function listNftDraw(req, res) {
         participants: [],
     };
 
-    // await cfxUtils.createRaffle(drawParams);
+    await cfxUtils.createRaffle(drawParams);
 
     const newDraw = new Draw(drawParams);
     newDraw.save(function (err) {

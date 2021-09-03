@@ -217,7 +217,6 @@ export default {
         handleRaffleNft() {
             axios
                 .post(`${this.$store.getters.getApiUrl}/list-nft-draw`, {
-                    nftId: this.card.nft_id,
                     title: this.card.title,
                     description: this.card.description,
                     unit_price: this.raffle_price,
@@ -225,7 +224,7 @@ export default {
                     currency: "cfx",
                     deadline: new Date(this.deadline).getTime() / 1000,
                     nft_id: this.card.nft_id,
-                    owner: this.card.owner[0]._id,
+                    owner: this.card.owner[0].address,
                 })
                 .then((res) => {
                     this.$bvToast.toast("Raffling Successfully", {
