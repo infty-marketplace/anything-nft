@@ -1,5 +1,5 @@
 <template>
-  <div class="marketplace">
+  <div class="marketplace flex-wrapper">
     <Navbar active-index="0"/>
     <div>
       <div id="sidebar" style="width: 25%" class='mr-2 mb-4'>
@@ -153,9 +153,10 @@
                     <span class="fa fa-spinner fa-spin"></span> Loading
                   </div>
                 </transition>
+                <el-empty class='flex-wrapper-row' v-if='usersCards.length==0' description="Nothing"/>
                 <NftCard v-for="card in usersCards" :card="card" :key="card.url" class='mr-5 mb-4'/>
               </div>
-              <p v-if="noMoreNft">No More</p>
+              <p v-if="noMoreNft && usersCards.length!=0">No More</p>
             </b-tab>
 
 
@@ -166,9 +167,10 @@
                     <span class="fa fa-spinner fa-spin"></span> Loading
                   </div>
                 </transition>
-                <AlbumCard class='mr-4 mb-4' v-for="album in usersAlbum" :card="album" :key="album.url" />
+                <el-empty  class='flex-wrapper-row' v-if='usersAlbum.length==0' description="Nothing"/>
+                <AlbumCard  class='mr-4 mb-4' v-for="album in usersAlbum" :card="album" :key="album.url" />
               </div>
-              <p v-if="noMoreAlbum">No More</p>
+              <p v-if="noMoreAlbum && usersAlbum.length != 0">No More</p>
               
             </b-tab>
           </b-tabs>
@@ -241,7 +243,6 @@ export default {
   methods: {
       getMore() {
         window.onscroll = () => {
-          // const nft = document.querySelector('.nft-container');
           let bottomOfWindow = document.documentElement.scrollTop + window.innerHeight === document.documentElement.offsetHeight;
           if(bottomOfWindow) {
             if (this.tabIndex == 0){
@@ -251,10 +252,6 @@ export default {
             }
           }
         }
-        // this.$nextTick(function () {
-        //   window.addEventListener('scroll', this.onScroll);
-        //   this.onScroll();
-        // })
       },
 
       async proccessNft(nft_ids) {
@@ -295,7 +292,6 @@ export default {
 
       loadNftMarket(){
         this.loadingNft = true;
-        console.log(this.offsetNft)
         setTimeout(() => {
           const body = {
             offset: this.offsetNft,
@@ -432,7 +428,7 @@ export default {
   right: 0;
 }
 #tab {
-
+  width: 100%;
   display: inline-block;
   margin-top: 2em;
 }
@@ -446,8 +442,7 @@ export default {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
-  /* overflow-y: scroll;
-  height: 350px; */
+  width: 100%;
 }
 .search-bar-container {
   width: 100%;
@@ -475,6 +470,9 @@ export default {
 }
 .fade-enter, .fade-leave-to {
   opacity: 0
+}
+.main-content {
+  width: 100%;
 }
 </style>
 

@@ -1,0 +1,254 @@
+{
+  "network": "testnet",
+  "codeHash": "0xe4866b6aff2f9dda75fb987ea30ae095e70e0b1dd9e6bf7b1be56781e4c7aa10",
+  "array": [],
+  "json": {},
+  "obj": {},
+  "empty": true,
+  "tx": {
+    "blockHash": "0xd9334965888824b87b6f3ae7d996eff5246ca8142f53fc099a8b24394c9a0454",
+    "chainId": 1,
+    "contractCreated": "CFXTEST:TYPE.CONTRACT:ACECCK7D0F8EPJ3A3R0JVFYGH0WAZ34YZU1VG40X4T",
+    "data": "0x6080604052336000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550610c30806100536000396000f30060806040526004361061006d576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff16806343a1ca77146100da57806347a59b7414610132578063481c6a751461018d57806367c748f5146101e4578063dd23a46c14610275575b7f737c69225d647e5994eab1a6c301bf6d9232beb2759ae1e27a8966b4732bc4893334604051808373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018281526020019250505060405180910390a1005b610118600480360381019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803590602001909291905050506102df565b604051808215151515815260200191505060405180910390f35b34801561013e57600080fd5b50610173600480360381019080803573ffffffffffffffffffffffffffffffffffffffff1690602001909291905050506105bb565b604051808215151515815260200191505060405180910390f35b34801561019957600080fd5b506101a2610921565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b3480156101f057600080fd5b50610225600480360381019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190505050610946565b604051808481526020018381526020018273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001935050505060405180910390f35b6102dd6004803603810190808035906020019092919080359060200190929190803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803573ffffffffffffffffffffffffffffffffffffffff169060200190929190505050610990565b005b60008082600160008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060010154023414151561033457600080fd5b82600160008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206000015403600160008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060020180549050131515156103cc57600080fd5b600090505b8281101561048c57600160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206002013390806001815401808255809150509060018203906000526020600020016000909192909190916101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055505080806001019150506103d1565b7f560400a84f3c0f9dfe265590021cd657c30acf69041613e1ee9e1d25be89bdf8600160008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206002018054905084604051808381526020018281526020019250505060405180910390a1600160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060000154600160008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206002018054905014156105af576105a8846105bb565b91506105b4565b600191505b5092915050565b60008060008060008060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff1614151561061e57600080fd5b60018060008873ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600201805490501015151561067257600080fd5b439350600160008773ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206002018054905084604051808281526020019150506040518091039020600190048115156106de57fe5b069250600160008773ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206002018381548110151561073057fe5b9060005260206000200160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1691503073ffffffffffffffffffffffffffffffffffffffff16319050600160008773ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060030160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff166108fc829081150290604051600060405180830381858888f1935050505015801561081f573d6000803e3d6000fd5b50600160008773ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060008082016000905560018201600090556002820160006108809190610bbe565b6003820160006101000a81549073ffffffffffffffffffffffffffffffffffffffff021916905550507f8bc9aa758a91996a40c295edcd22bdc4f4e6a30043908c4bae108ece8d9a0ead8282604051808373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018281526020019250505060405180910390a16001945050505050919050565b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b60016020528060005260406000206000915090508060000154908060010154908060030160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff16905083565b83600160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206000018190555082600160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206001018190555081600160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060030160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550600160008273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206002013390806001815401808255809150509060018203906000526020600020016000909192909190916101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550507fd69f4f9e78b1fb3a60cd5a66ebec672c6da97633f524687c4bfea0302d895d4b818585604051808473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001838152602001828152602001935050505060405180910390a150505050565b5080546000825590600052602060002090810190610bdc9190610bdf565b50565b610c0191905b80821115610bfd576000816000905550600101610be5565b5090565b905600a165627a7a72305820ffc1bbd18e3df5acf72ab9dc02b546fc0fa3b5c4b3232da8bce8adb3de7788c40029",
+    "epochHeight": 39560720,
+    "from": "CFXTEST:TYPE.USER:AAR3AMUXS8FG2U7H1TSNGUKEY8VM2H6VGUJHF413E6",
+    "gas": "1189844",
+    "gasPrice": "1",
+    "hash": "0x9b7717b48500eafe11c78976ca7d0c151dec5bce4606daf9fbd060a854da2fc2",
+    "nonce": "34",
+    "r": "0x14ce7baf44012ae896ea9162ec0bf69889c548c60d2da9cc81fec47c69a1c111",
+    "s": "0x484e6d7af49cf397ac7e4e372936b76975316310585fe367657ec96bae8cc31b",
+    "status": 0,
+    "storageLimit": "2112",
+    "to": null,
+    "transactionIndex": 0,
+    "v": 1,
+    "value": "0"
+  },
+  "receipt": {
+    "blockHash": "0xd9334965888824b87b6f3ae7d996eff5246ca8142f53fc099a8b24394c9a0454",
+    "contractCreated": "cfxtest:acecck7d0f8epj3a3r0jvfygh0waz34yzu1vg40x4t",
+    "epochNumber": 39560724,
+    "from": "CFXTEST:TYPE.USER:AAR3AMUXS8FG2U7H1TSNGUKEY8VM2H6VGUJHF413E6",
+    "gasCoveredBySponsor": false,
+    "gasFee": "892383",
+    "gasUsed": "892383",
+    "index": 0,
+    "logs": [],
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "outcomeStatus": 0,
+    "stateRoot": "0x583ce9abaf48456230bc59f6595b3a716623e0f88df6c3c0b834b1371b04491b",
+    "storageCollateralized": "2112",
+    "storageCoveredBySponsor": false,
+    "storageReleased": [],
+    "to": null,
+    "transactionHash": "0x9b7717b48500eafe11c78976ca7d0c151dec5bce4606daf9fbd060a854da2fc2",
+    "txExecErrorMsg": null
+  },
+  "abi": [
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "manager",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "networkId": 1
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": "address",
+          "networkId": 1
+        }
+      ],
+      "name": "raffles",
+      "outputs": [
+        {
+          "name": "maxTickets",
+          "type": "uint256"
+        },
+        {
+          "name": "price",
+          "type": "uint256"
+        },
+        {
+          "name": "owner",
+          "type": "address",
+          "networkId": 1
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "constructor",
+      "name": "constructor"
+    },
+    {
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "fallback"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "_nft",
+          "type": "address",
+          "networkId": 1
+        },
+        {
+          "indexed": false,
+          "name": "_maxTickets",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "_price",
+          "type": "uint256"
+        }
+      ],
+      "name": "CreateEvent",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "_length",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "_qty",
+          "type": "uint256"
+        }
+      ],
+      "name": "JoinEvent",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "_winner",
+          "type": "address",
+          "networkId": 1
+        },
+        {
+          "indexed": false,
+          "name": "_prize",
+          "type": "uint256"
+        }
+      ],
+      "name": "DrawEvent",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "_from",
+          "type": "address",
+          "networkId": 1
+        },
+        {
+          "indexed": false,
+          "name": "_value",
+          "type": "uint256"
+        }
+      ],
+      "name": "Paid",
+      "type": "event"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_maxTickets",
+          "type": "uint256"
+        },
+        {
+          "name": "_price",
+          "type": "uint256"
+        },
+        {
+          "name": "_owner",
+          "type": "address",
+          "networkId": 1
+        },
+        {
+          "name": "_nft",
+          "type": "address",
+          "networkId": 1
+        }
+      ],
+      "name": "createRaffle",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_nft",
+          "type": "address",
+          "networkId": 1
+        },
+        {
+          "name": "_qty",
+          "type": "uint256"
+        }
+      ],
+      "name": "joinRaffle",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_nft",
+          "type": "address",
+          "networkId": 1
+        }
+      ],
+      "name": "draw",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ]
+}
