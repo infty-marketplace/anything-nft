@@ -44,29 +44,37 @@ const getDraw = async (req, res) => {
 
 // return a list of on sale NFT's id from cursor position, limit amount
 const getMarket = async (req, res) => {
-    const body = req.body;
-    if (!body) {
-        return res.status(400).json({ error: "invalid request" });
-    }
+  const body = req.body;
+  if (!body) {
+    return res.status(400).json({ error: "invalid request" });
+  }
 
-    const limit = body.limit || 10;
-    const offset = body.offset || 0;
+  const limit = body.limit || 10;
+  const offset = body.offset || 0;
 
-    const nftQuery = Nft.find({ status: constants.STATUS_SALE }, { nft_id: 1 })
-        .sort({ updatedAt: "desc" })
-        .skip(offset)
-        .limit(limit);
-    const albumQuery = Album.find({ status: constants.STATUS_SALE }, { album_id: 1 })
-        .sort({ updatedAt: "desc" })
-        .skip(offset)
-        .limit(limit);
-    const drawQuery = Draw.find({}, { draw_id: 1 }).sort({ updatedAt: "desc" }).skip(offset).limit(limit);
+  const nftQuery = Nft.find({ status: constants.STATUS_SALE }, { nft_id: 1 })
+  .sort({ nft_id: "desc" })
+  .skip(offset)
+  .limit(limit)
+    
+  const albumQuery = Album.find(
+    { status: constants.STATUS_SALE },
+    { album_id: 1 }
+  )
+    .sort({ album_id: "desc" })
+    .skip(offset)
+    .limit(limit);
 
-    res.send({
-        nft_ids: (await nftQuery.exec()).map((n) => n.nft_id),
-        album_ids: (await albumQuery.exec()).map((n) => n.album_id),
-        draw_ids: (await drawQuery.exec()).map((n) => n.draw_id),
-    });
+  const drawQuery = Draw.find({}, { draw_id: 1 })
+    .sort({ draw_id: "desc" })
+    .skip(offset)
+    .limit(limit);
+
+  res.send({
+    nft_ids: (await nftQuery.exec()).map((n) => n.nft_id),
+    album_ids: (await albumQuery.exec()).map((n) => n.album_id),
+    draw_ids: (await drawQuery.exec()).map((n) => n.draw_id),
+  });
 };
 
 async function createNft(req, res) {
