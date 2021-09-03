@@ -52,18 +52,22 @@ const getMarket = async (req, res) => {
   const offset = body.offset || 0;
 
   const nftQuery = Nft.find({ status: constants.STATUS_SALE }, { nft_id: 1 })
-    .sort({ updatedAt: "desc" })
-    .skip(offset)
-    .limit(limit);
+  .sort({ nft_id: "desc" })
+  .skip(offset)
+  .limit(limit)
+    
+    
+    
   const albumQuery = Album.find(
     { status: constants.STATUS_SALE },
     { album_id: 1 }
   )
-    .sort({ updatedAt: "desc" })
+    .sort({ album_id: "desc" })
     .skip(offset)
     .limit(limit);
+
   const drawQuery = Draw.find({}, { draw_id: 1 })
-    .sort({ updatedAt: "desc" })
+    .sort({ draw_id: "desc" })
     .skip(offset)
     .limit(limit);
 
