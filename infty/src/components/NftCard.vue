@@ -165,11 +165,7 @@ export default {
                 gasPrice: 1,
                 value: 1e18 * this.listing_commision,
             });
-            this.$notify({
-                title: "Notification",
-                message: "Paying commission now.",
-                duration: 0,
-            });
+            this.$store.dispatch('notifyCommission')
             const res = await tx.executed();
             Notification.closeAll();
             this.$notify({

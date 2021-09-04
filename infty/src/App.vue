@@ -42,7 +42,7 @@ export default {
         eventBus.$on("App.notifyWIP", () => {
             this.$notify.info({
                 title: "Info",
-                message: "This functionality is work in progress.",
+                message: 'This functionality is work in progress.</div>',
                 duration: 3000,
             });
         });
@@ -50,7 +50,8 @@ export default {
         eventBus.$on("App.notifyCommission", () => {
             this.$notify({
                 title: "Notification",
-                message: "Paying commission now.",
+                dangerouslyUseHTMLString: true,
+                message: '<div style="display:flex; align-items: center;"> <div class="loader"></div><div style="display:inline">Paying commission now. </div></div>',
                 duration: 0,
             });
         });
@@ -82,5 +83,21 @@ export default {
     width: 100%;
     flex-direction: row;
     justify-content: space-around;
+}
+
+.loader {
+  display: inline-block;
+  border: 2px solid #f3f3f3; /* Light grey */
+  border-top: 2px solid #3498db; /* Blue */
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 </style>

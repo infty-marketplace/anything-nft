@@ -145,15 +145,15 @@
         </div>
          </div>
         <div id="tab">
-          <b-tabs class="main-content" content-class="ml-5 mt-3 flex-wrapper-row">
-            <b-tab title="NFT" active>
+          <b-tabs class="main-content" content-class="ml-5 mt-3" v-model="tabIndex">
+            <b-tab title="NFT">
               <div class='nft-container'>
                 <transition name="fade">
                   <div class="loading" v-show="loadingNft">
                     <span class="fa fa-spinner fa-spin"></span> Loading
                   </div>
                 </transition>
-                <el-empty v-if='usersCards.length==0' description="Nothing"/>
+                <el-empty class='flex-wrapper-row' v-if='usersCards.length==0' description="Nothing"/>
                 <NftCard v-for="card in usersCards" :card="card" :key="card.url" class='mr-5 mb-4'/>
               </div>
               <p v-if="noMoreNft && usersCards.length!=0">No More</p>
@@ -201,25 +201,17 @@ export default {
     NftCard,
     AlbumCard,
   },
-  async mounted() {
-    const nft = document.querySelector('.nft-container');
-    nft.addEventListener('scroll', () => {
-      if(nft.scrollTop + nft.clientHeight >= nft.scrollHeight) {
-        this.loadNftMarket();
-      }
-    });
 
-    const alb = document.querySelector('.album-container');
-    alb.addEventListener('scroll', () => {
-      if(alb.scrollTop + alb.clientHeight >= alb.scrollHeight) {
-        this.loadAlbumMarket();
-      }
-    });
-
+  beforeMount() {
     this.user = this.$store.getters.getAddress;
     this.loadNftMarket();
     this.loadAlbumMarket();
   },
+
+  mounted() {
+    this.getMore();
+  },
+
   data() {
     return {
       offsetNft: 0,
@@ -249,6 +241,22 @@ export default {
   },
 
   methods: {
+      getMore() {
+        window.onscroll = () => {
+          
+          let bottomOfWindow = Math.abs(
+            (document.documentElement.scrollTop + window.innerHeight) - document.documentElement.offsetHeight
+          ) < 1;
+          if(bottomOfWindow) {
+            if (this.tabIndex == 0){
+              this.loadNftMarket();
+            } else {
+              this.loadAlbumMarket();
+            }
+          }
+        }
+      },
+
       async proccessNft(nft_ids) {
         const nft_promises = nft_ids.map((nid) =>
             axios.get(`${this.$store.getters.getApiUrl}/nft/${nid}`)
@@ -257,9 +265,8 @@ export default {
         const nfts = nft_promises_result.map((p) => {
             if (p.status == "fulfilled") return p.value;
         });
-        nfts.map(async (n) => {
+        nfts.map((n) => {
           if ((this.notMine && this.user != n.data.owner[0].address) || !this.notMine) {
-              console.log(n)
               axios.get(`${this.$store.getters.getApiUrl}/profile/${n.data.author}`).then((res) => {
               n.data.author = res.data.first_name + " " + res.data.last_name
               n.data.url = n.data.file;
@@ -275,7 +282,7 @@ export default {
         const albums = album_promises_result.map((p) => {
           if (p.status == "fulfilled") return p.value;
         });
-        albums.map(async (a) => {
+        albums.map((a) => {
           if ((this.notMine && this.user != a.data.owner) || !this.notMine) {
             axios.get(`${this.$store.getters.getApiUrl}/profile/${a.data.author}`).then((res) => {
               a.data.author = res.data.first_name + " " + res.data.last_name
@@ -294,8 +301,9 @@ export default {
             limit: this.limit,
           };
           axios.post(this.$store.getters.getApiUrl+"/market", body)
-          .then(async (res) => {
+          .then((res) => {
               const nft_ids = res.data.nft_ids;
+              console.log(nft_ids)
               this.proccessNft(nft_ids);
               this.offsetNft += nft_ids.length;
               this.noMoreNft = nft_ids.length < this.limit;
@@ -312,7 +320,7 @@ export default {
           limit: this.limit,
         };
         axios.post(this.$store.getters.getApiUrl+"/market", body)
-        .then(async (res) => {
+        .then((res) => {
             const album_ids = res.data.album_ids;
             this.proccessAlbum(album_ids);
             this.offsetAlbum += album_ids.length;
@@ -325,7 +333,6 @@ export default {
     filterOthers(checked) {
       this.user = this.$store.getters.getAddress;
       this.notMine = checked;
-      console.log(checked)
       if (checked) {
         const nft_list = this.usersCards;
         const album_list = this.usersAlbum;
@@ -438,7 +445,6 @@ export default {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
-  height: 350px;
   width: 100%;
 }
 .search-bar-container {

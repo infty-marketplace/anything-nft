@@ -194,7 +194,9 @@ export default {
             }
             this.$notify({
                 title: "Congrats",
-                message: `${parseInt(this.stakeAmount)} ${this.selectedCurrency} are successfully staked. You are now earning INFT.`,
+                message: `${parseFloat(this.stakeAmount).toFixed(4)} ${
+                    this.selectedCurrency
+                } are successfully staked. You are now earning INFT.`,
                 duration: 3000,
                 type: "success",
             });
@@ -225,7 +227,9 @@ export default {
             }
             this.$notify({
                 title: "Congrats",
-                message: `${parseInt(this.unstakeAmount)} ${this.selectedCurrency} are successfully unstaked.`,
+                message: `${parseFloat(this.unstakeAmount).toFixed(4)} ${
+                    this.selectedCurrency
+                } are successfully unstaked.`,
                 duration: 3000,
                 type: "success",
             });
