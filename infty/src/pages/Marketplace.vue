@@ -156,7 +156,10 @@
                 <el-empty class='flex-wrapper-row' v-if='usersCards.length==0' description="Nothing"/>
                 <NftCard v-for="card in usersCards" :card="card" :key="card.url" class='mr-5 mb-4'/>
               </div>
-              <p v-if="noMoreNft && usersCards.length!=0">No More</p>
+              <p v-if="noMoreNft && usersCards.length!=0"
+              style='border-bottom: 1px solid grey; line-height: 0.1rem;text-align:center'>
+              <span style='padding: 0px 20px;background-color:white;color:grey;'>End of Market</span>
+              </p>
             </b-tab>
 
 
@@ -170,8 +173,10 @@
                 <el-empty  class='flex-wrapper-row' v-if='usersAlbum.length==0' description="Nothing"/>
                 <AlbumCard  class='mr-4 mb-4' v-for="album in usersAlbum" :card="album" :key="album.url" />
               </div>
-              <p v-if="noMoreAlbum && usersAlbum.length != 0">No More</p>
-              
+              <p v-if="noMoreAlbum && usersAlbum.length != 0"
+              style='border-bottom: 1px solid grey; line-height: 0.1rem;text-align:center'>
+              <span style='padding: 0px 20px;background-color:white;color:grey;'>End of Market</span>
+              </p>
             </b-tab>
           </b-tabs>
         </div>
@@ -215,7 +220,7 @@ export default {
   data() {
     return {
       offsetNft: 0,
-      limit: 2,
+      limit: 4,
       statusSelected: [],
       // statusOptions: [
       //   { text: "Buy Now", value: "buyNow" },
@@ -247,7 +252,7 @@ export default {
           let bottomOfWindow = Math.abs(
             (document.documentElement.scrollTop + window.innerHeight) - document.documentElement.offsetHeight
           ) < 1;
-          if(bottomOfWindow) {
+          if(bottomOfWindow && !this.noMoreNft) {
             if (this.tabIndex == 0){
               this.loadNftMarket();
             } else {

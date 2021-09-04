@@ -13,7 +13,6 @@ const userSchema = new Schema(
     },
     {
         timestamps: {
-            currentTime: () => Math.floor(Date.now() / 1000),
             createdAt: "created_at",
             updatedAt: "updated_at",
         },

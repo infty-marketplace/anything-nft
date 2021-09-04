@@ -2,6 +2,12 @@
   <div class="flex-wrapper">
     <Navbar />
     <button @click='$router.go(-1)' class='back-btn'><i class='el-icon-back' style='color:white'/></button>
+    <div @click='$router.go(-1)' class='percent' v-if="card.status == sale || card.owner.length>1">
+      <span style='line-height:80%;text-align:center;color:white;font-size: 100%;left:50%;top:50%;position:absolute;transform: translate(-50%, -50%);'>
+        {{sharesOwned}}
+      Shares
+      </span>
+    </div>
     <div class="detail-content mb-4">
       <b-card
         class="detailed-card"
@@ -70,7 +76,7 @@
           class="transaction-info"
           header-tag="header"
           footer-tag="footer"
-          v-if='!isOwner'
+          v-if='!isOwner && card.status=="sale"'
         >
           <template #header>
             <h6 class="mb-0">
@@ -100,6 +106,52 @@
           <!-- <template #footer>
             <em>Footer Slot</em>
           </template> -->
+        </b-card>
+        <b-card
+          class="transaction-info"
+          header-tag="header"
+          footer-tag="footer"
+          v-if="card.status == sale || card.owner.length>1"
+        >
+          <template #header>
+            <h6 class="mb-0">
+              <i class='el-icon-menu'/>&nbsp;Fractional Trading
+            </h6>
+          </template>
+          <div v-if='card.status == "sale"'>
+          
+          <el-progress  :text-inside="true" :stroke-width="26" :percentage="fractionProg"></el-progress>
+          <hr>
+          <el-input v-model='shares' type='number' style='width: calc(100% - 12rem)'/>
+          <b-button variant="primary" @click="purchaseShares" style='float:right'
+              ><i class='el-icon-s-ticket'/>&nbsp;&nbsp;Purchase shares</b-button>
+          </div>
+          <el-table
+           @cell-click='(a,b) => {
+
+             if (b.label == "Owner") {
+               window.open(`https://testnet.confluxscan.io/address/${a.owner}`)
+             }
+            }'
+          :data="sharesTable"
+          style="width: 100%"
+          height='150'
+          empty-text="Unfunded"
+          :cell-style='({columnIndex})=> {
+            if (columnIndex==0 ) return "cursor:pointer; color: #007bff;"
+          }'>
+          
+          
+          <el-table-column
+            prop="owner"
+            label="Owner">
+          </el-table-column>
+          <el-table-column
+            prop="shares"
+            label="Shares"
+            width="180">
+          </el-table-column>
+        </el-table>
         </b-card>
         <b-card
           class="transaction-info"
@@ -163,6 +215,9 @@ export default {
       likes: this.rand(0,100),
       view: this.rand(100,2000),
       likeswitch: 1,
+      shares: 1,
+      fractionProg: 0,
+      sharesTable: [],
       offersData: [{
         unit_price: 30,
         usd: 9,
@@ -186,26 +241,50 @@ export default {
       },
       ]}
   },
+  computed: {
+    sharesOwned: function() {
+      if (!this.card) return;
+      try {
+        const i = this.card.owner.findIndex(o => o.address == this.$store.getters.getAddress)
+        if (i == -1) return '';
+        return this.card.owner[i].percentage * 100
+      } catch (e) {
+        console.log(e)
+      }
+      
+    }
+  },
   created() {
     if (this.card) return;
     if (this.$store.getters.getAddress == undefined) this.$store.dispatch("connectWallet");
   },
 
   async mounted() {
-    const res = await axios.get(`${this.$store.getters.getApiUrl}/nft/${this.$route.params.id}`)
-    const card = res.data;
-    await axios.get(`${this.$store.getters.getApiUrl}/profile/${card.author}`).then(resp => {
-      card.author_name = resp.data.first_name + " " + resp.data.last_name;
-      if (this.$store.getters.getAddress != card.owner[0].address) this.isOwner = false;
-    })
-    await axios.get(`${this.$store.getters.getApiUrl}/profile/${card.owner[0].address}`).then(resp => {
-      card.owner_name = resp.data.first_name + " " + resp.data.last_name;
-      card.url = card.file;
-      this.card = card;
-    })
+    this.reload()
     
   },
   methods: {
+    async reload() {
+      const res = await axios.get(`${this.$store.getters.getApiUrl}/nft/${this.$route.params.id}`)
+      const card = res.data;
+      this.fractionProg = card.owner.slice(1).reduce((pv, cv) => pv + cv.percentage, 0)*100
+      if (card.status == 'sale') {
+        this.sharesTable = card.owner.slice(1).map(o => ({owner: o.address, shares: o.percentage*100}))
+      }
+      if (card.status == 'private') {
+        this.sharesTable = card.owner.map(o => ({owner: o.address, shares: o.percentage*100}))
+      }
+      
+      await axios.get(`${this.$store.getters.getApiUrl}/profile/${card.author}`).then(resp => {
+        card.author_name = resp.data.first_name + " " + resp.data.last_name;
+        if (this.$store.getters.getAddress != card.owner[0].address) this.isOwner = false;
+      })
+      await axios.get(`${this.$store.getters.getApiUrl}/profile/${card.owner[0].address}`).then(resp => {
+        card.owner_name = resp.data.first_name + " " + resp.data.last_name;
+        card.url = card.file;
+        this.card = card;
+      })
+    },
     rand(min, max) {
       return Math.floor(Math.random() * (max - min)) + min;
     },
@@ -259,6 +338,34 @@ export default {
           autoHideDelay: 3000,
           appendToast: false,
         })
+      })
+    },
+
+    async purchaseShares() {
+      const addr = (await window.conflux.send("cfx_requestAccounts"))[0]
+      this.$store.dispatch('notifyCommission')
+      const getters = this.$store.getters
+      const tx = window.confluxJS.sendTransaction({
+        from: addr,
+        to: getters.getManagerAddr,
+        gasPrice: 1,
+        value: 1e18*( parseFloat(this.card.price)/100 * this.shares)
+      })
+
+      await tx.executed()
+
+      axios.post(`${getters.getApiUrl}/fund-nft`, {
+        nft_id: this.$route.params.id,
+        buyer: addr,
+        percentage: parseFloat(this.shares)*0.01
+      }).then((res) => {
+        console.log(res);
+        Notification.closeAll()
+        this.$bvToast.toast("NFT Shares Purchased Successfully", {
+            title: "Notification",
+            autoHideDelay: 3000
+        })
+        this.reload()
       })
     }
   },
@@ -351,5 +458,18 @@ export default {
   border-width: 0.2rem;
   border-image: linear-gradient(170deg, rgb(224, 169, 255), rgb(101, 224, 255)) 1;
   margin: 0 15px;
+}
+
+.percent {
+  position: absolute;
+  top: 150px;
+  right: 50px;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background-color: rgb(92, 192, 228);
+  border: unset;
+  z-index:-1;
+  box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
 }
 </style>

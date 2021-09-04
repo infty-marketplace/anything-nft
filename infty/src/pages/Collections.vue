@@ -130,6 +130,7 @@ export default {
   },
   data: () => ({
     nfts: [],
+    fragments: [],
     albums: [],
     album_candidates: [],
     album_title: "",
@@ -138,11 +139,38 @@ export default {
     album_price: "",
   }),
   computed: {
+    private_frags: function() {
+      return this.fragments.filter(f => f.status=='private')
+    },  
+    sale_frags: function() {
+      return this.fragments.filter(f => f.status=='sale')
+    },
     private_nfts: function () {
-      return this.nfts.filter((n) => n.status == "private");
+      const nfts = this.nfts.filter((n) => {
+        if (n.fragmented) {
+          return this.private_frags.map(f=>f.nft_id).includes(n.nft_id)
+        } else {
+          return n.status == "private" 
+        }
+      });
+      const res = []
+      nfts.forEach(n => {
+        const nclone = JSON.parse(JSON.stringify(n))
+        nclone.status='private'
+        res.push(nclone)
+      })
+
+      return res;
     },
     sale_nfts: function () {
-      return this.nfts.filter((n) => n.status == "sale");
+      return this.nfts.filter((n, i) => {
+        if (n.fragmented) {
+          this.nfts[i].status = 'sale'
+          return this.sale_frags.map(f=>f.nft_id).includes(n.nft_id)
+        } else {
+          return n.status == "sale"
+        }
+      });
     },
     private_albums: function () {
       return this.albums.filter((a) => a.status == "private");
@@ -152,20 +180,29 @@ export default {
     },
   },
   async mounted() {
-    if (this.$store.getters.getAddress) this.loadCollections();
+    const getters = this.$store.getters
+    if (getters.getAddress) this.loadCollections();
     this.$store.dispatch("connectWallet");
 
     eventBus.$on("Collections.loadCollections", () => this.loadCollections());
     eventBus.$on("Card.statusChanged", (nid) => {
-      axios.get(`${this.$store.getters.getApiUrl}/nft/${nid}`).then((res) => {
+      axios.get(`${getters.getApiUrl}/nft/${nid}`).then(async (res) => {
         const newNft = res.data;
         newNft.url = newNft.file;
-        newNft.author = newNft.owner[0].address;
+        if (newNft.fragmented) {
+          const fres = await axios.get(`${getters.getApiUrl}/fragments/${getters.getAddress}`)
+          const f = fres.data.filter(f => (f.nft_id == nid && f.owner == getters.getAddress))[0]
+          newNft.price = f.price
+          newNft.status = f.status
+        }
+
         this.$set(
           this.nfts,
           this.nfts.findIndex((n) => n.nft_id == nid),
           newNft
         );
+        // expensive, but couldn't only change one, needs enhancement
+        this.loadCollections()
       });
     });
     eventBus.$on("AlbumCard.statusChanged", (aid) => {
@@ -202,8 +239,9 @@ export default {
   },
   methods: {
     async loadNfts(nft_ids) {
+      const api = this.$store.getters.getApiUrl
       const nft_promises = nft_ids.map((nid) =>
-        axios.get(`${this.$store.getters.getApiUrl}/nft/${nid}`)
+        axios.get(`${api}/nft/${nid}`)
       );
       const nft_promises_result = await Promise.allSettled(nft_promises);
       let nfts = nft_promises_result.map((p) => {
@@ -212,9 +250,12 @@ export default {
       nfts = nfts.filter(n => !!n && !!n.file)
       this.nfts = nfts.map((n) => {
         n.url = n.file;
-        n.author = n.owner[0].address;
+        n.author = n.author;
         return n;
       });
+
+      axios.get(`${api}/fragments/${this.$store.getters.getAddress}`)
+        .then(res => this.fragments = res.data)
     },
     async loadAlbums(album_ids) {
       const album_promises = album_ids.map((aid) =>
@@ -258,7 +299,6 @@ export default {
       axios
         .post(`${this.$store.getters.getApiUrl}/create-album`, fd)
         .then((res) => {
-          console.log(res);
           this.loadCollections();
           Notification.closeAll();
           this.$notify({
@@ -297,7 +337,8 @@ export default {
 .cards-container {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-evenly;
+  row-gap: 10px;
+  column-gap: 40px;
   align-items: flex-start;
 }
 

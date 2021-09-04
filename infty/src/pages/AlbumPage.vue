@@ -9,7 +9,7 @@
         <el-carousel trigger="click" class='carousel' :autoplay='false'>
           <el-carousel-item class='crs-item'>
             <el-tooltip class="item" effect="dark" content="Whoever collects all of the NFTs in this album will be rewarded with this album cover NFT." placement="top-start">
-              <b-icon icon='sun' class='cover-tag'/>
+              <b-icon icon='disc' class='cover-tag'/>
             </el-tooltip>
             <img :src="card.url" class='nft-img'/>
           </el-carousel-item>

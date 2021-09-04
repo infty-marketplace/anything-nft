@@ -41,6 +41,7 @@
           <li class="link_name">Stats</li>
           <li><a href="#">Rankings</a></li>
           <li><a href="#">Activity</a></li>
+          
           <!-- <li><a href="#">Prefrences</a></li>
           <li><a href="#">Purchase</a></li> -->
         </ul>
@@ -55,6 +56,15 @@
           <li class="link_name">Subscribe</li>
           <li><input type="text" placeholder="Enter your email" /></li>
           <li @click='subscribe'><input type="button" value="Subscribe" /></li>
+          <el-switch
+          class='mt-3'
+          style="display: block;float: right;margin-right:-55px;"
+          v-model="lang"
+          active-color="#13ce66"
+          inactive-color="#3faac1ba"
+          active-text="CN"
+          inactive-text="EN">
+        </el-switch>
         </ul>
       </div>
     </div>
@@ -77,8 +87,10 @@
 <script>
 export default {
   name: "Navbar",
+  data: ()=>({lang:false}),
   methods: {
     subscribe() {
+      console.log(this.lang)
       this.$notify({
         title: "Congrats",
         message: "You are now subscribed to receive the latest and greatest news!",
