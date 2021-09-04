@@ -114,7 +114,6 @@ export default {
         if (this.$store.getters.getAddress) this.loadCollections();
         this.$store.dispatch("connectWallet");
 
-<<<<<<< HEAD
         eventBus.$on("Collections.loadCollections", () => this.loadCollections());
         eventBus.$on("Card.statusChanged", (nid) => {
             axios.get(`${this.$store.getters.getApiUrl}/nft/${nid}`).then((res) => {
@@ -149,91 +148,6 @@ export default {
         eventBus.$on("Collections.receiveFile", (file) => {
             this.album_cover = file;
         });
-=======
-    eventBus.$on("Collections.loadCollections", () => this.loadCollections());
-    eventBus.$on("Card.statusChanged", (nid) => {
-      axios.get(`${this.$store.getters.getApiUrl}/nft/${nid}`).then((res) => {
-        const newNft = res.data;
-        newNft.url = newNft.file;
-        newNft.author = newNft.owner[0].address;
-        this.$set(
-          this.nfts,
-          this.nfts.findIndex((n) => n.nft_id == nid),
-          newNft
-        );
-      });
-    });
-    eventBus.$on("AlbumCard.statusChanged", (aid) => {
-      axios.get(`${this.$store.getters.getApiUrl}/album/${aid}`).then((res) => {
-        const newAlbum = res.data;
-        newAlbum.url = newAlbum.file;
-        newAlbum.author = newAlbum.owner;
-        this.$set(
-          this.albums,
-          this.albums.findIndex((a) => a.album_id == aid),
-          newAlbum
-        );
-      });
-    });
-    eventBus.$on("Card.addAlbumCandidate", (candId) => {
-      this.album_candidates.push(candId);
-    });
-    eventBus.$on("Card.delAlbumCandidate", (candId) => {
-      this.album_candidates = this.album_candidates.filter(
-        (cid) => cid != candId
-      );
-    });
-    eventBus.$on("Collections.receiveFile", (file) => {
-      this.album_cover = file;
-    });
-  },
-  beforeDestroy() {
-    eventBus.$off("Collections.loadCollections");
-    eventBus.$off("Card.addAlbumCandidate");
-    eventBus.$off("Card.delAlbumCandidate");
-    eventBus.$off("Collections.receiveImage");
-    eventBus.$off("Card.statusChanged");
-    eventBus.$off("AlbumCard.statusChanged");
-  },
-  methods: {
-    async loadNfts(nft_ids) {
-      const nft_promises = nft_ids.map((nid) =>
-        axios.get(`${this.$store.getters.getApiUrl}/nft/${nid}`)
-      );
-      const nft_promises_result = await Promise.allSettled(nft_promises);
-      let nfts = nft_promises_result.map((p) => {
-        if (p.status == "fulfilled") return p.value.data;
-      });
-      nfts = nfts.filter(n => !!n && !!n.file)
-      this.nfts = nfts.map((n) => {
-        n.url = n.file;
-        n.author = n.owner[0].address;
-        return n;
-      });
-    },
-    async loadAlbums(album_ids) {
-      const album_promises = album_ids.map((aid) =>
-        axios.get(`${this.$store.getters.getApiUrl}/album/${aid}`)
-      );
-      const album_promises_result = await Promise.allSettled(album_promises);
-      let albums = album_promises_result.map((p) => {
-        if (p.status == "fulfilled") return p.value.data;
-      });
-      albums = albums.filter(a => !!a && !!a.file)
-      this.albums = albums.map((n) => {
-        n.url = n.file;
-        n.author = n.owner;
-        return n;
-      });
-    },
-    async loadCollections() {
-      const getters = this.$store.getters;
-      const res = await axios.get(
-        `${getters.getApiUrl}/profile/${getters.getAddress}`
-      );
-      this.loadNfts(res.data.nft_ids);
-      this.loadAlbums(res.data.album_ids);
->>>>>>> d7491fb670b78413a1338e109f5e4d822c49b8a9
     },
     beforeDestroy() {
         eventBus.$off("Collections.loadCollections");
@@ -243,13 +157,11 @@ export default {
         eventBus.$off("Card.statusChanged");
         eventBus.$off("AlbumCard.statusChanged");
     },
-<<<<<<< HEAD
     methods: {
         async loadNfts(nft_ids) {
             const nft_promises = nft_ids.map((nid) => axios.get(`${this.$store.getters.getApiUrl}/nft/${nid}`));
             const nft_promises_result = await Promise.allSettled(nft_promises);
             let nfts = nft_promises_result.map((p) => {
-                console.log(p);
                 if (p.status == "fulfilled") return p.value.data;
             });
             nfts = nfts.filter((n) => !!n && !!n.file);
@@ -278,13 +190,20 @@ export default {
             this.loadNfts(res.data.nft_ids);
             this.loadAlbums(res.data.album_ids);
         },
-        createAlbumClicked() {
-            this.$refs["album-modal"].show();
+        beforeDestroy() {
+            eventBus.$off("Collections.loadCollections");
+            eventBus.$off("Card.addAlbumCandidate");
+            eventBus.$off("Card.delAlbumCandidate");
+            eventBus.$off("Collections.receiveImage");
+            eventBus.$off("Card.statusChanged");
+            eventBus.$off("AlbumCard.statusChanged");
         },
         createAlbum() {
             this.$notify({
                 title: "Notification",
-                message: "Album Minting In Progress",
+                dangerouslyUseHTMLString: true,
+                message:
+                    '<div style="display:flex; align-items: center;"> <div class="loader"></div><div style="display:inline">Album Minting In Progress</div></div>',
                 duration: 0,
             });
             const fd = new FormData();
@@ -305,34 +224,6 @@ export default {
                 });
             });
         },
-=======
-    createAlbum() {
-      this.$notify({
-        title: 'Notification',
-        dangerouslyUseHTMLString: true,
-        message: '<div style="display:flex; align-items: center;"> <div class="loader"></div><div style="display:inline">Album Minting In Progress</div></div>', 
-        duration: 0
-      })
-      const fd = new FormData();
-      fd.append("file", this.album_cover);
-      fd.append("address", this.$store.getters.getAddress);
-      fd.append("title", this.album_title);
-      fd.append("description", this.album_description);
-      fd.append("nft_ids", JSON.stringify(this.album_candidates));
-      axios
-        .post(`${this.$store.getters.getApiUrl}/create-album`, fd)
-        .then((res) => {
-          console.log(res);
-          this.loadCollections();
-          Notification.closeAll();
-          this.$notify({
-              title: "Congrats",
-              message: "Album Created Successfully",
-              duration: 3000,
-              type: 'success'
-          })
-        });
->>>>>>> d7491fb670b78413a1338e109f5e4d822c49b8a9
     },
 };
 </script>
