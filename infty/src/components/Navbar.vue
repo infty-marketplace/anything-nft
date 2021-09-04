@@ -74,7 +74,7 @@ export default {
                     address: this.$store.getters.getAddress,
                 })
                 .then((res) => {
-                    console.log(res);
+                    console.log('profile saved');
                 });
         },
     },
@@ -82,9 +82,6 @@ export default {
         loggedIn: function() {
             return !!this.$store.getters.getAddress;
         },
-        addr: function() {
-          return this.$store.getters.getAddress
-        }
     },
     async created() {
       this.connectWallet()
@@ -99,7 +96,7 @@ export default {
         axios
             .get(`${this.$store.getters.getApiUrl}/profile/${this.$store.getters.getAddress}`)
             .then((res) => {
-                console.log(res);
+                console.log('wallet connected');
             })
             .catch((err) => {
                 if (!err.response || err.response.status == 404) {

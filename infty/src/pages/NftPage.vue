@@ -2,7 +2,7 @@
   <div class="flex-wrapper">
     <Navbar />
     <button @click='$router.go(-1)' class='back-btn'><i class='el-icon-back' style='color:white'/></button>
-    <div @click='$router.go(-1)' class='percent' v-if="card.status == sale || card.owner.length>1">
+    <div @click='$router.go(-1)' class='percent' v-if="card.status == 'sale' || card.owner.length>1">
       <span style='line-height:80%;text-align:center;color:white;font-size: 100%;left:50%;top:50%;position:absolute;transform: translate(-50%, -50%);'>
         {{sharesOwned}}
       Shares
@@ -111,7 +111,7 @@
           class="transaction-info"
           header-tag="header"
           footer-tag="footer"
-          v-if="card.status == sale || card.owner.length>1"
+          v-if="card.status == 'sale' || card.owner.length>1"
         >
           <template #header>
             <h6 class="mb-0">
