@@ -181,12 +181,11 @@ export default {
             const getters = this.$store.getters;
             const tokenId = this.card.nft_id.split("-")[1];
 
-            console.log(
-                await getters.getMinterContract
-                    .approve(getters.getManagerAddr, tokenId)
-                    .sendTransaction({ from: getters.getAddress, to: getters.getMinterAddress, gasPrice: 1 })
-                    .executed()
-            );
+            await getters.getMinterContract
+                .approve(getters.getManagerAddr, tokenId)
+                .sendTransaction({ from: getters.getAddress, to: getters.getMinterAddress, gasPrice: 1 })
+                .executed();
+
             axios
                 .post(`${this.$store.getters.getApiUrl}/list-nft`, {
                     price: this.listing_price,
@@ -214,9 +213,19 @@ export default {
                     });
                 });
         },
-        handleRaffleNft() {
-            axios
-                .post(`${this.$store.getters.getApiUrl}/list-nft-draw`, {
+        async handleRaffleNft() {
+            const getters = this.$store.getters;
+            const tokenId = this.card.nft_id.split("-")[1];
+            try {
+                await getters.getMinterContract
+                    .approve(getters.getManagerAddr, tokenId)
+                    .sendTransaction({ from: getters.getAddress, to: getters.getMinterAddress, gasPrice: 1 })
+                    .executed();
+            } catch (e) {
+                return;
+            }
+            await axios
+                .post(`${getters.getApiUrl}/list-nft-draw`, {
                     title: this.card.title,
                     description: this.card.description,
                     unit_price: this.raffle_price,
@@ -226,17 +235,15 @@ export default {
                     nft_id: this.card.nft_id,
                     owner: this.card.owner[0].address,
                 })
-                .then((res) => {
+                .then(() => {
                     this.$bvToast.toast("Raffling Successfully", {
                         title: "Congrats",
                         autoHideDelay: 3000,
                         appendToast: false,
                     });
-                    console.log(res.data);
                     eventBus.$emit("Card.statusChanged", this.card.nft_id);
                 })
-                .catch((err) => {
-                    console.log(err);
+                .catch(() => {
                     this.$bvToast.toast("Raffling Failed", {
                         title: "Error",
                         autoHideDelay: 3000,
