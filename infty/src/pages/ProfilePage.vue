@@ -212,8 +212,7 @@ export default {
                         currency: record.currency,
                         from: record.seller,
                         price: record.price,
-                        type: record.transaction_type,
-                        title: ""
+                        type: record.transaction_type
                     }
                     axios.get(`${this.$store.getters.getApiUrl}/profile/${record.seller}`)
                     .then((r) => {
