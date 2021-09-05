@@ -87,7 +87,6 @@ const updateProfile = async (req, res) => {
 }
 
 const getTransactions = async (req, res) => {
-    console.log(req.params.address)
     if (!req.params.address) {
         return res.status(400).json({ error: "Invalid request" });
     }
