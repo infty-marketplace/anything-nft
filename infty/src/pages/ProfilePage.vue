@@ -14,9 +14,9 @@
                 <el-menu
                 @select='handleSelect'
                 default-active="3"
-                class="el-menu-vertical-demo"
-                @open="handleOpen"
-                @close="handleClose">
+                class="el-menu-vertical-demo">
+                <!-- @open="handleOpen" -->
+                <!-- @close="handleClose" -->
                 <el-submenu index="1">
                     <template slot="title">
                     <i class="el-icon-menu"></i>
@@ -51,7 +51,40 @@
             </el-col>
             <el-col :span='20'>
                 <div v-if='selectedIndex == 1-1'>1</div>
-                <div v-if='selectedIndex == 2'>2</div>
+                <div v-if='selectedIndex == 2'>
+                    <el-table
+                    :data="transactionData"
+                    style="width: 100%"
+                    empty-text="Nothing">
+                    <el-table-column
+                        label="Title"
+                        align="center">
+                        <template slot-scope="scope">
+                            <el-link target="_blank" :href='`/nft/${scope.row.nft_id}`'>{{scope.row.title}}</el-link>
+                        </template>
+                    </el-table-column>
+                    <el-table-column
+                        prop="price"
+                        label="Price"
+                        align="center">
+                    </el-table-column>
+                    <el-table-column
+                        prop="currency"
+                        label="Currency"
+                        align="center">
+                    </el-table-column>
+                    <el-table-column
+                        prop="from"
+                        label="From"
+                        align="center">
+                    </el-table-column>
+                    <el-table-column
+                        prop="type"
+                        label="Transaction Type"
+                        align="center">
+                    </el-table-column>
+                    </el-table>
+                </div>
                 <div v-if='selectedIndex == 3'>
                     <el-card class="box-card m-5">
                     <div slot="header" class="clearfix">
@@ -64,23 +97,30 @@
                     </el-input>
                     <p class='mt-3'>Info</p>
                     <el-row>
-                        <el-col class='' :span="12"><el-input placeholder="First Name"/></el-col>
-                        <el-col class='pl-3' :span="10"><el-input placeholder="Last Name"/></el-col>
-                        <el-col class='pr-3' :span='2'><i style='margin-top:10px;float:right' class="el-icon-edit"></i></el-col>
+                        <el-col class='' :span="12"><el-input placeholder="First Name" v-model="new_first"></el-input></el-col>
+                        <el-col class='pl-3' :span="10"><el-input placeholder="Last Name" v-model="new_last"></el-input></el-col>
+                        <el-col class='pr-3' :span='2'><i style='margin-top:10px;float:right' class="el-icon-edit" @click="updateClicked"></i></el-col>
                     </el-row>
                     <p class='mt-3'>Bio</p>
                     <el-row class='mb-3'>
                         <el-col class='' :span="22"><el-input
                             type="textarea"
                             placeholder="请输入内容"
-                            v-model="textarea"
+                            v-model="bio"
                             maxlength="300"
-                            show-word-limit
-                            >
+                            show-word-limit>
                             </el-input></el-col>
-                        <el-col class='pr-3' :span='2'><i style='margin-top:10px;float:right' class="el-icon-edit"></i></el-col>
+                        <el-col class='pr-3' :span='2'><i style='margin-top:10px;float:right' class="el-icon-edit" @click="updateClicked"></i></el-col>
                     </el-row>
                     </el-card>
+                    <b-modal ref="confirm" title='Confirm Update' @ok="update">
+                        <label>First Name</label>
+                        <b-form-input class='mb-4' v-model='new_first' readonly/>
+                        <label>Last Name</label>
+                        <b-form-input class='mb-4' v-model='new_last' readonly/>
+                        <label>Description</label>
+                        <b-form-input class='mb-4' v-model='bio' readonly/>
+                    </b-modal>
                     <el-switch
                     class='ml-5'
                     style="display: block"
@@ -105,6 +145,7 @@ import Navbar from '../components/Navbar.vue'
 import Footer from '../components/Footer.vue'
 // import FileUploader from '../components/FileUploader.vue'
 import ConnectWallet from '../components/ConnectWallet.vue'
+import axios from 'axios'
 export default {
   name: 'ProfilePage',
   components: {
@@ -118,19 +159,89 @@ export default {
       profile_picture: undefined,
       selectedIndex: 3,
       modeSwitch: true, 
+      transactionData: [],
+      bio: '',
+      new_first: '',
+      new_last: '',
+      first_name: '',
+      last_name: '',
   }),
   methods: {
-      handleSelect(i){
+        handleSelect(i){
           this.selectedIndex = i;
-      },
-     
+        },
+
+        updateClicked(e) {
+            e.preventDefault();
+            this.$refs['confirm'].show()
+        },
+
+        update() {
+            const newInfo = {
+                first_name: this.new_first,
+                last_name: this.new_last,
+                address: this.$route.params.address,
+                description: this.bio,
+                profile_picture: this.profile_picture
+            }
+
+            axios.post(this.$store.getters.getApiUrl+"/profile/update-profile", newInfo)
+            .then(() => {
+                this.$notify({
+                    title: "Congrats",
+                    message: "Updated Successfully",
+                    duration: 3000,
+                    type: "success",
+                });
+            }).catch((err) =>{
+                console.log(err);
+                this.$bvToast.toast("Update Failed", {
+                    title: "Error",
+                    autoHideDelay: 3000,
+                    appendToast: false,
+                });
+            })
+        },
+
+        loadTransactions() {
+            axios.get(`${this.$store.getters.getApiUrl}/transaction/${this.$route.params.address}`)
+            .then((res) => {
+                res.data.map((record) => {
+                    let current = {
+                        nft_id: record.collection_id,
+                        currency: record.currency,
+                        from: record.seller,
+                        price: record.price,
+                        type: record.transaction_type,
+                        title: ""
+                    }
+                    axios.get(`${this.$store.getters.getApiUrl}/profile/${record.seller}`)
+                    .then((r) => {
+                        current.from = r.data.first_name + " " + r.data.last_name;
+                    });
+                    axios.get(`${this.$store.getters.getApiUrl}/nft/${current.nft_id}`)
+                    .then((r) => {
+                        current.title = r.data.title;
+                    });
+                    this.transactionData.push(current)
+                })
+            })
+            .catch((err) => {
+                console.log(err);
+            })
+        }
+
   },
   async mounted() {
       this.$store.dispatch("connectWallet")
-      const profile = await this.$store.getters.getProfile(this.$route.params.address)
-      this.profile_picture = profile.profile_picture
-      this.first_name = profile.first_name
-      this.last_name = profile.last_name
+      const profile = await this.$store.getters.getProfile(this.$route.params.address);
+      this.profile_picture = profile.profile_picture;
+      this.first_name = profile.first_name;
+      this.last_name = profile.last_name;
+      this.new_first = profile.first_name;
+      this.new_last = profile.last_name;
+      this.bio = profile.description;
+      this.loadTransactions();
   },
   beforeDestroy() {
   }

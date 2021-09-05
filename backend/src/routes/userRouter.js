@@ -6,5 +6,6 @@ const router = express.Router();
 router.post("/auth", userController.authUser);
 router.get("/profile/:address", userController.getUser);
 router.post("/profile/update-profile", userController.updateProfile);
+router.get("/transaction/:address", userController.getTransactions);
 
 module.exports = router;
