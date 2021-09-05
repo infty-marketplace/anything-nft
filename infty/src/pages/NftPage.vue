@@ -252,7 +252,8 @@ export default {
         console.log(e)
       }
       
-    }
+    },
+    window: () => window
   },
   created() {
     if (this.card) return;

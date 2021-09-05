@@ -71,10 +71,14 @@ const getMarket = async (req, res) => {
     .skip(offset)
     .limit(limit);
 
+  const fragments = Fragment.find({})
+    .skip(offset)
+    .limit(limit);
   res.send({
     nft_ids: (await nftQuery.exec()).map((n) => n.nft_id),
     album_ids: (await albumQuery.exec()).map((n) => n.album_id),
     draw_ids: (await drawQuery.exec()).map((n) => n.draw_id),
+    fragments: (await fragments.exec())
   });
 };
 

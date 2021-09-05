@@ -79,13 +79,9 @@
           </template>
            <el-table
            @cell-click='(a,b) => {
-             if (b.label == "NFT Title") {
-               this.redirectToNft(a.nft_id)
-             }
              if (b.label == "Owner") {
                window.open(`https://testnet.confluxscan.io/address/${a.owner}`)
              }
-             
             }'
           :data="nftsTable"
           style="width: 100%"

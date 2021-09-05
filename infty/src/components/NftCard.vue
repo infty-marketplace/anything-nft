@@ -52,7 +52,7 @@
                 </div>
                 <div v-else style='display:flex; align-items:center;justify-content:space-between;'>
                     <small class="text-muted">Currently Unlisted</small>
-                    <el-tooltip effect="dark" class='ml-2' style='cursor:help' content="You only own a portion of this NFT." placement="bottom">
+                    <el-tooltip effect="dark" class='ml-2' style='cursor:help' content="This is a fragment of the NFT." placement="bottom">
                     <b-icon v-if='isPiece' b-icon icon='layout-wtf'/>
                     </el-tooltip>
                     <b-modal ref="list-modal" title="List Item" @ok="handleListNft">

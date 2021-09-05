@@ -234,6 +234,7 @@ export default {
         { value: "eth", text: "Ether(ETH)" },
       ],
       usersCards: [],
+      fragments: [],
       loadingNft: false,
       noMoreNft: false,
       usersAlbum: [],
@@ -263,19 +264,28 @@ export default {
       },
 
       async proccessNft(nft_ids) {
+        nft_ids = this.fragments.filter(f => f.status=='sale').map(f => f.nft_id).concat(nft_ids)
+        nft_ids = [ ... new Set(nft_ids)]
         const nft_promises = nft_ids.map((nid) =>
             axios.get(`${this.$store.getters.getApiUrl}/nft/${nid}`)
         );
+        
         const nft_promises_result = await Promise.allSettled(nft_promises);
-        const nfts = nft_promises_result.map((p) => {
+        let nfts = nft_promises_result.map((p) => {
             if (p.status == "fulfilled") return p.value;
         });
+        
         nfts.map((n) => {
           if ((this.notMine && this.user != n.data.owner[0].address) || !this.notMine) {
               axios.get(`${this.$store.getters.getApiUrl}/profile/${n.data.author}`).then((res) => {
               n.data.author = res.data.first_name + " " + res.data.last_name
               n.data.url = n.data.file;
-              this.usersCards.push(n.data);
+              if (n.data.fragmented && this.fragments.some(f => f.nft_id == n.data.nft_id && f.status == 'sale')) {
+                this.usersCards.push(n.data);
+              } else {
+                this.usersCards.push(n.data);
+              }
+              
             })
           }
         });
@@ -308,6 +318,7 @@ export default {
           axios.post(this.$store.getters.getApiUrl+"/market", body)
           .then((res) => {
               const nft_ids = res.data.nft_ids;
+              this.fragments = res.data.fragments;
               console.log(nft_ids)
               this.proccessNft(nft_ids);
               this.offsetNft += nft_ids.length;
