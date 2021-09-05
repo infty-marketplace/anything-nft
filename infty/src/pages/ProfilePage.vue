@@ -112,9 +112,12 @@
                     </el-input>
                     <p class='mt-3'>Info</p>
                     <el-row>
-                        <el-col class='' :span="12"><el-input ref="first" placeholder="First Name" v-model="new_first" :disabled="!editMode"></el-input></el-col>
-                        <el-col class='pl-3' :span="10"><el-input ref="last" placeholder="Last Name" v-model="new_last" :disabled="!editMode"></el-input></el-col>
-                        <!-- <el-col class='pr-3' :span='2'><i style='margin-top:10px;float:right' class="el-icon-edit" @click="updateClicked"></i></el-col> -->
+                        <el-col class='' :span="12"><el-input ref="first" placeholder="First Name" v-model="new_first" :disabled="!editModes.name"></el-input></el-col>
+                        <el-col class='pl-3' :span="10"><el-input ref="last" placeholder="Last Name" v-model="new_last" :disabled="!editModes.name"></el-input></el-col>
+                        <el-col class='pr-3' :span='2'>
+                            <i v-if="!editModes.name" style='margin-top:10px;float:right;cursor:pointer;' class="el-icon-edit" @click="()=> enableEdit('name')"></i>
+                            <i v-if="editModes.name" style='margin-top:10px;float:right;cursor:pointer;' @click="update" class='el-icon-finished'/>
+                        </el-col>
                     </el-row>
                     <p class='mt-3'>Bio</p>
                     <el-row class='mb-3'>
@@ -125,11 +128,11 @@
                             maxlength="300"
                             show-word-limit
                             ref="bio"
-                            :disabled="!editMode">
+                            :disabled="!editModes.bio">
                             </el-input></el-col>
                         <el-col class='pr-3' :span='2'>
-                            <i v-if="!editMode" style='margin-top:10px;float:right' class="el-icon-edit" @click="enableEdit"></i>
-                            <b-button v-if="editMode" variant="dark" @click="update">Save</b-button>
+                            <i v-if="!editModes.bio" style='margin-top:10px;float:right;cursor:pointer;' class="el-icon-edit" @click="() => enableEdit('bio')"></i>
+                            <i v-if="editModes.bio" style='margin-top:10px;float:right;cursor:pointer;' @click="update" class='el-icon-finished'/>
                             </el-col>
                     </el-row>
                     </el-card>
@@ -185,16 +188,19 @@ export default {
       new_last: '',
       first_name: '',
       last_name: '',
-      editMode: false
+
+      editModes: {
+          name: false,
+          bio: false
+      }
   }),
   methods: {
         handleSelect(i){
           this.selectedIndex = i;
         },
 
-        enableEdit(e) {
-            e.preventDefault();
-            this.editMode = true;
+        enableEdit(key) {
+            this.editModes[key] = true;
         },
 
         update() {
@@ -224,7 +230,8 @@ export default {
                     appendToast: false,
                 });
             })
-            this.editMode = false;
+            this.editModes.name = false;
+            this.editModes.bio = false;
         },
 
         loadTransactions() {
