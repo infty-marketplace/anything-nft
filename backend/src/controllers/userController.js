@@ -1,4 +1,5 @@
 const User = require("../models/user");
+const Transaction = require("../models/transaction");
 
 function logout(req, res, success, error) {
     try {
@@ -85,8 +86,18 @@ const updateProfile = async (req, res) => {
     }
 }
 
+const getTransactions = async (req, res) => {
+    if (!req.params.address) {
+        return res.status(400).json({ error: "Invalid request" });
+    }
+
+    const transactions = await Transaction.find({buyer: req.params.address});
+    res.send(transactions);
+}
+
 module.exports = {
     authUser,
     getUser,
     updateProfile,
+    getTransactions,
 };

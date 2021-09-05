@@ -16,13 +16,39 @@
                 placeholder="Enter a detailed description..."
                 v-model='description'
                 rows="3"
-            ></b-form-textarea>
-            <b-icon font-scale="1.5" class="icon" icon="x" @click="clearTextArea"></b-icon>
+            />
+            <b-icon v-if='description' font-scale="1.5" class="icon" icon="x" @click="clearTextArea"></b-icon>
             </div>
             <div class='mt-5'>
                 <b-form-checkbox style="display:inline">Image On-chain Storage<b-badge pill variant='info' class='ml-2'>Free for limited time</b-badge></b-form-checkbox>
                 <b-button variant="primary" class='create-btn' @click='createNft'>Create</b-button>
+                <b-button variant="outline-primary" class='create-btn mr-2' @click='ucVisible=true'>Add unlockable content</b-button>
             </div>
+            <el-dialog
+            title="Unlockable Content"
+            :visible.sync="ucVisible"
+            width="60%"
+            :before-close="(d)=>d()">
+            <label>Image</label>
+            <div style="display:flex;min-width:100%;justify-content:space-around;">
+                <FileUploader class='uc-file-uploader' id='uc-file-uploader' pass-file-to-event="CreatePage.receiveUCFile"/>
+            </div>
+            <label class='mt-4'>Text</label>
+            <div class="form-group">
+            <b-form-textarea
+                id="description"
+                placeholder="Enter a detailed description..."
+                v-model='ucDescription'
+                rows="3"
+            />
+            <b-icon v-if='ucDescription' font-scale="1.5" class="icon" icon="x" @click="ucDescription=''"></b-icon>
+            
+            </div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="ucVisible = false">Cancel</el-button>
+                <el-button type="primary" @click="$store.dispatch('notifyWIP');ucVisible = false">Confirm</el-button>
+            </span>
+            </el-dialog>
         </div>
         <ConnectWallet v-else />
         <Footer />
@@ -32,6 +58,7 @@
 <script>
 import { eventBus } from "../main"
 import axios from "axios"
+import { Notification } from 'element-ui';
 
 import Navbar from '../components/Navbar.vue'
 import Footer from '../components/Footer.vue'
@@ -48,10 +75,19 @@ export default {
   data: () => ({
       title: "",
       description: "",
+      ucDescription: "",
       imageData: undefined,
+      ucVisible: false,
+      ucImageData: undefined,
   }),
   methods: {
       createNft(){
+          this.$notify({
+              title: 'Notification',
+              dangerouslyUseHTMLString: true,
+              message: '<div style="display:flex; align-items: center;"> <div class="loader"></div><div style="display:inline">NFT Minting In Progress</div></div>',
+              duration: 0
+          })
           const fd = new FormData();
           fd.append('file', this.imageData);
           fd.append('address', this.$store.getters.getAddress)
@@ -61,9 +97,12 @@ export default {
           axios.post(this.$store.getters.getApiUrl+"/create-nft", fd)
             .then(res => {
                 if (res.status == 200) {
-                    this.$bvToast.toast("NFT Created", {
-                        title: "Notification",
-                        autoHideDelay: 3000
+                    Notification.closeAll()
+                    this.$notify({
+                        title: "Congrats",
+                        message: "NFT Created Successfully",
+                        duration: 3000,
+                        type: 'success'
                     })
                 }
                 eventBus.$emit("CreatePage.nftCreated");
@@ -71,10 +110,22 @@ export default {
                 this.description = "";
             }).catch(err => {
                 console.log(err)
-                this.$bvToast.toast("NFT Creation Failed", {
-                    title: "Error",
-                    autoHideDelay: 3000
-                })
+                Notification.closeAll()
+                console.log(err)
+                if (err.response.status == 409) {
+                   this.$notify.error({
+                        title: "Error",
+                        message: "Conflicting Title: Please try another title for your NFT.",
+                        duration: 3000
+                    }) 
+                } else {
+                    this.$notify.error({
+                        title: "Error",
+                        message: "NFT Creation Failed",
+                        duration: 3000
+                    })
+                }
+                
             })
       },
 
@@ -87,6 +138,9 @@ export default {
       eventBus.$on("CreatePage.receiveFile", (imageData) => {
         this.imageData = imageData;
       })
+      eventBus.$on("CreatePage.receiveUCFile", (imageData) => {
+        this.ucImageData = imageData;
+      })
   },
   beforeDestroy() {
       eventBus.$off("CreatePage.receiveFile")
@@ -96,7 +150,7 @@ export default {
 
 <style scoped>
 .content {
-    min-width: 60vw;
+    width: 60vw;
     margin: 0px auto;
 }
 .main {
@@ -107,13 +161,26 @@ export default {
 }
 .file-uploader {
     width: 80%;
+    height: 500px;
 }
-.from-group {
-    position: absolute;
+#uc-file-uploader {
+    width: 80%;
+    height: 250px;
+}
+
+.form-group {
+    position: relative;
 }
 .icon {
-    position:relative;
-    top: -30px;
+    position:absolute;
+    bottom: 0;
     left: 97%;
+    cursor: pointer;
+}
+
+</style>
+<style>
+#uc-file-uploader svg {
+    display: none;
 }
 </style>

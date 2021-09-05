@@ -14,9 +14,9 @@
                 <el-menu
                 @select='handleSelect'
                 default-active="3"
-                class="el-menu-vertical-demo"
-                @open="handleOpen"
-                @close="handleClose">
+                class="el-menu-vertical-demo">
+                <!-- @open="handleOpen" -->
+                <!-- @close="handleClose" -->
                 <el-submenu index="1">
                     <template slot="title">
                     <i class="el-icon-menu"></i>
@@ -35,10 +35,15 @@
                     <el-menu-item index="1-4-1">选项1</el-menu-item>
                     </el-submenu>
                 </el-submenu>
-                <el-menu-item index="2">
-                    <i class="el-icon-notebook-2"></i>
-                    <span slot="title">Transaction History</span>
-                </el-menu-item>
+                <el-submenu index="2">
+                    <template slot="title">
+                        <i class="el-icon-notebook-2"></i>
+                        <span slot="title">Transaction History</span>
+                    </template>
+                    <el-menu-item index="2-1">NFT</el-menu-item>
+                    <el-menu-item index="2-2">Album</el-menu-item>
+                    <el-menu-item index="2-3">Raffle</el-menu-item>
+                </el-submenu>
                 <!-- <el-menu-item index="3" disabled>
                     <i class="el-icon-document"></i>
                     <span slot="title">导航三</span>
@@ -50,9 +55,52 @@
                 </el-menu>
             </el-col>
             <el-col :span='20'>
-                <div v-if='selectedIndex == 1-1'>1</div>
-                <div v-if='selectedIndex == 2'>2</div>
-                <div v-if='selectedIndex == 3'>
+                <div v-if='selectedIndex == "1-1"'>1</div>
+                <div v-if='selectedIndex == "2-1"'>
+                    <el-table
+                    :data="transactionData"
+                    style="width: 100%"
+                    empty-text="Nothing">
+                    <el-table-column
+                        label="Title"
+                        align="center">
+                        <template slot-scope="scope">
+                            <el-link target="_blank" :href='`/nft/${scope.row.nft_id}`'>{{scope.row.title}}</el-link>
+                        </template>
+                    </el-table-column>
+                    <el-table-column
+                        prop="price"
+                        label="Price"
+                        align="center">
+                    </el-table-column>
+                    <el-table-column
+                        prop="currency"
+                        label="Currency"
+                        align="center">
+                    </el-table-column>
+                    <el-table-column
+                        prop="commission"
+                        label="Commission Fee"
+                        align="center">
+                    </el-table-column>
+                    <el-table-column
+                        prop="commission_currency"
+                        label="Commission Currency"
+                        align="center">
+                    </el-table-column>
+                    <el-table-column
+                        prop="from"
+                        label="From"
+                        align="center">
+                    </el-table-column>
+                    <el-table-column
+                        prop="type"
+                        label="Transaction Type"
+                        align="center">
+                    </el-table-column>
+                    </el-table>
+                </div>
+                <div v-if='selectedIndex == "3"'>
                     <el-card class="box-card m-5">
                     <div slot="header" class="clearfix">
                         <span>Settings</span>
@@ -64,23 +112,35 @@
                     </el-input>
                     <p class='mt-3'>Info</p>
                     <el-row>
-                        <el-col class='' :span="12"><el-input placeholder="First Name"/></el-col>
-                        <el-col class='pl-3' :span="10"><el-input placeholder="Last Name"/></el-col>
-                        <el-col class='pr-3' :span='2'><i style='margin-top:10px;float:right' class="el-icon-edit"></i></el-col>
+                        <el-col class='' :span="12"><el-input ref="first" placeholder="First Name" v-model="new_first" :disabled="!editMode"></el-input></el-col>
+                        <el-col class='pl-3' :span="10"><el-input ref="last" placeholder="Last Name" v-model="new_last" :disabled="!editMode"></el-input></el-col>
+                        <!-- <el-col class='pr-3' :span='2'><i style='margin-top:10px;float:right' class="el-icon-edit" @click="updateClicked"></i></el-col> -->
                     </el-row>
                     <p class='mt-3'>Bio</p>
                     <el-row class='mb-3'>
                         <el-col class='' :span="22"><el-input
                             type="textarea"
                             placeholder="请输入内容"
-                            v-model="textarea"
+                            v-model="bio"
                             maxlength="300"
                             show-word-limit
-                            >
+                            ref="bio"
+                            :disabled="!editMode">
                             </el-input></el-col>
-                        <el-col class='pr-3' :span='2'><i style='margin-top:10px;float:right' class="el-icon-edit"></i></el-col>
+                        <el-col class='pr-3' :span='2'>
+                            <i v-if="!editMode" style='margin-top:10px;float:right' class="el-icon-edit" @click="enableEdit"></i>
+                            <b-button v-if="editMode" variant="dark" @click="update">Save</b-button>
+                            </el-col>
                     </el-row>
                     </el-card>
+                    <!-- <b-modal ref="confirm" title='Confirm Update' @ok="update">
+                        <label>First Name</label>
+                        <b-form-input class='mb-4' v-model='new_first' readonly/>
+                        <label>Last Name</label>
+                        <b-form-input class='mb-4' v-model='new_last' readonly/>
+                        <label>Description</label>
+                        <b-form-input class='mb-4' v-model='bio' readonly/>
+                    </b-modal> -->
                     <el-switch
                     class='ml-5'
                     style="display: block"
@@ -105,6 +165,7 @@ import Navbar from '../components/Navbar.vue'
 import Footer from '../components/Footer.vue'
 // import FileUploader from '../components/FileUploader.vue'
 import ConnectWallet from '../components/ConnectWallet.vue'
+import axios from 'axios'
 export default {
   name: 'ProfilePage',
   components: {
@@ -118,19 +179,94 @@ export default {
       profile_picture: undefined,
       selectedIndex: 3,
       modeSwitch: true, 
+      transactionData: [],
+      bio: '',
+      new_first: '',
+      new_last: '',
+      first_name: '',
+      last_name: '',
+      editMode: false
   }),
   methods: {
-      handleSelect(i){
+        handleSelect(i){
           this.selectedIndex = i;
-      },
-     
+        },
+
+        enableEdit(e) {
+            e.preventDefault();
+            this.editMode = true;
+        },
+
+        update() {
+            const newInfo = {
+                first_name: this.new_first,
+                last_name: this.new_last,
+                address: this.$route.params.address,
+                description: this.bio,
+                profile_picture: this.profile_picture
+            }
+
+            axios.post(this.$store.getters.getApiUrl+"/profile/update-profile", newInfo)
+            .then(() => {
+                this.first_name = this.new_first;
+                this.last_name = this.new_last;
+                this.$notify({
+                    title: "Congrats",
+                    message: "Updated Successfully",
+                    duration: 3000,
+                    type: "success",
+                });
+            }).catch((err) =>{
+                console.log(err);
+                this.$bvToast.toast("Update Failed", {
+                    title: "Error",
+                    autoHideDelay: 3000,
+                    appendToast: false,
+                });
+            })
+            this.editMode = false;
+        },
+
+        loadTransactions() {
+            axios.get(`${this.$store.getters.getApiUrl}/transaction/${this.$route.params.address}`)
+            .then((res) => {
+                res.data.map((record) => {
+                    let current = {
+                        nft_id: record.collection_id,
+                        currency: record.currency,
+                        from: record.seller,
+                        price: record.price,
+                        type: record.transaction_type,
+                        commission: record.commission,
+                        commission_currency: record.commission_currency
+                    }
+                    axios.get(`${this.$store.getters.getApiUrl}/profile/${record.seller}`)
+                    .then((r) => {
+                        current.from = r.data.first_name + " " + r.data.last_name;
+                    });
+                    axios.get(`${this.$store.getters.getApiUrl}/nft/${current.nft_id}`)
+                    .then((r) => {
+                        current.title = r.data.title;
+                    });
+                    this.transactionData.push(current)
+                })
+            })
+            .catch((err) => {
+                console.log(err);
+            })
+        }
+
   },
   async mounted() {
       this.$store.dispatch("connectWallet")
-      const profile = await this.$store.getters.getProfile(this.$route.params.address)
-      this.profile_picture = profile.profile_picture
-      this.first_name = profile.first_name
-      this.last_name = profile.last_name
+      const profile = await this.$store.getters.getProfile(this.$route.params.address);
+      this.profile_picture = profile.profile_picture;
+      this.first_name = profile.first_name;
+      this.last_name = profile.last_name;
+      this.new_first = profile.first_name;
+      this.new_last = profile.last_name;
+      this.bio = profile.description;
+      this.loadTransactions();
   },
   beforeDestroy() {
   }
