@@ -2,7 +2,13 @@
     <div class='flex-wrapper main'>
         <Navbar />
         <div class='profile-pic-container' v-if='$store.getters.getAddress'>
-            <img :src="profile_picture" class='profile-pic' />
+            <img :src="avatar" id='profile-pic'/>
+            <a href="#" @click="uploadAvatar">
+                <b-icon id="upload_pic_icon" icon="camera" font-scale="2"></b-icon>
+            </a>
+            <b-form style="display:None" >
+                <input type='file' ref="avatar_uploader" id="avatar_uploader" @change="onFileSelected"/>
+            </b-form>
             <h2 class='mt-2'>{{first_name}} {{last_name}}</h2>
             <a target="_blank" :href="`https://confluxscan.io/address/${this.$route.params.address}`"><p class='mt-2' >{{ this.$route.params.address }}</p></a>
         </div>
@@ -179,20 +185,19 @@ export default {
 
   },
   data: () => ({
-      profile_picture: undefined,
-      selectedIndex: 3,
-      modeSwitch: true, 
-      transactionData: [],
-      bio: '',
-      new_first: '',
-      new_last: '',
-      first_name: '',
-      last_name: '',
-
-      editModes: {
-          name: false,
-          bio: false
-      }
+        avatar: null,
+        selectedIndex: 3,
+        modeSwitch: true, 
+        transactionData: [],
+        bio: '',
+        new_first: '',
+        new_last: '',
+        first_name: '',
+        last_name: '',
+        editModes: {
+            name: false,
+            bio: false
+        }
   }),
   methods: {
         handleSelect(i){
@@ -209,7 +214,7 @@ export default {
                 last_name: this.new_last,
                 address: this.$route.params.address,
                 description: this.bio,
-                profile_picture: this.profile_picture
+                profile_picture: this.avatar
             }
 
             axios.post(this.$store.getters.getApiUrl+"/profile/update-profile", newInfo)
@@ -261,13 +266,59 @@ export default {
             .catch((err) => {
                 console.log(err);
             })
+        },
+
+        uploadAvatar() {
+            this.$refs['avatar_uploader'].click();
+        },
+
+        onFileSelected(e) {
+            let image = e.target.files[0];
+            if (!image.type.match("image/*")){
+                this.$bvToast.toast("Please Select Image to Upload", {
+                    title: "Error",
+                    autoHideDelay: 3000,
+                    appendToast: false,
+                });
+            }
+            let imageURL = URL.createObjectURL(image)
+            this.updateAvatar(imageURL);
+        },
+
+        updateAvatar(avatarURL) {
+            const newInfo = {
+                first_name: this.first_name,
+                last_name: this.last_name,
+                address: this.$route.params.address,
+                description: this.bio,
+                profile_picture: avatarURL
+            }
+
+            axios.post(this.$store.getters.getApiUrl+"/profile/update-profile", newInfo)
+            .then(() => {
+                this.avatar = avatarURL;
+                this.$notify({
+                    title: "Congrats",
+                    message: "Avatar Updated Successfully",
+                    duration: 3000,
+                    type: "success",
+                });
+            }).catch((err) =>{
+                console.log(err);
+                this.$bvToast.toast("Avatar Update Failed", {
+                    title: "Error",
+                    autoHideDelay: 3000,
+                    appendToast: false,
+                });
+            })
+            
         }
 
   },
   async mounted() {
       this.$store.dispatch("connectWallet")
       const profile = await this.$store.getters.getProfile(this.$route.params.address);
-      this.profile_picture = profile.profile_picture;
+      this.avatar = profile.profile_picture;
       this.first_name = profile.first_name;
       this.last_name = profile.last_name;
       this.new_first = profile.first_name;
@@ -293,7 +344,7 @@ export default {
 .create-btn {
     float: right;
 }
-.profile-pic {
+#profile-pic {
     border-radius: 50%;
     height: 300px;
     width: 300px;
@@ -318,5 +369,16 @@ export default {
 }
 .el-col {
     height: calc(100% - 250px);
+}
+#upload_pic_icon{
+    margin-left: 70%;
+    margin-top: -15%;
+    display: block;
+    position: absolute;
+    opacity: 0.000001;
+}
+
+.profile-pic-container:hover #upload_pic_icon{
+    opacity: 1;
 }
 </style>
