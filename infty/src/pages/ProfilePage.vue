@@ -110,6 +110,8 @@
                     <el-card class="box-card m-5">
                     <div slot="header" class="clearfix">
                         <span>Settings</span>
+                        <i v-if="!editModes" style='float:right;cursor:pointer;' class="el-icon-edit" @click="() => editModes = true"></i>
+                        <i v-if="editModes" style='float:right;cursor:pointer;' @click="update" class='el-icon-finished'/>
                         <!-- <el-button style="float: right; padding: 3px 0" type="text">操作按钮</el-button> -->
                     </div>
                     <p>Your Wallet Address</p>
@@ -118,11 +120,11 @@
                     </el-input>
                     <p class='mt-3'>Info</p>
                     <el-row>
-                        <el-col class='' :span="12"><el-input ref="first" placeholder="First Name" v-model="new_first" :disabled="!editModes.name"></el-input></el-col>
-                        <el-col class='pl-3' :span="10"><el-input ref="last" placeholder="Last Name" v-model="new_last" :disabled="!editModes.name"></el-input></el-col>
+                        <el-col class='' :span="12"><el-input ref="first" placeholder="First Name" v-model="new_first" :disabled="!editModes"></el-input></el-col>
+                        <el-col class='pl-3' :span="10"><el-input ref="last" placeholder="Last Name" v-model="new_last" :disabled="!editModes"></el-input></el-col>
                         <el-col class='pr-3' :span='2'>
-                            <i v-if="!editModes.name" style='margin-top:10px;float:right;cursor:pointer;' class="el-icon-edit" @click="()=> enableEdit('name')"></i>
-                            <i v-if="editModes.name" style='margin-top:10px;float:right;cursor:pointer;' @click="update" class='el-icon-finished'/>
+                            <!-- <i v-if="!editModes.name" style='margin-top:10px;float:right;cursor:pointer;' class="el-icon-edit" @click="()=> enableEdit('name')"></i>
+                            <i v-if="editModes.name" style='margin-top:10px;float:right;cursor:pointer;' @click="update" class='el-icon-finished'/> -->
                         </el-col>
                     </el-row>
                     <p class='mt-3'>Bio</p>
@@ -134,11 +136,11 @@
                             maxlength="300"
                             show-word-limit
                             ref="bio"
-                            :disabled="!editModes.bio">
+                            :disabled="!editModes">
                             </el-input></el-col>
                         <el-col class='pr-3' :span='2'>
-                            <i v-if="!editModes.bio" style='margin-top:10px;float:right;cursor:pointer;' class="el-icon-edit" @click="() => enableEdit('bio')"></i>
-                            <i v-if="editModes.bio" style='margin-top:10px;float:right;cursor:pointer;' @click="update" class='el-icon-finished'/>
+                            <!-- <i v-if="!editModes.bio" style='margin-top:10px;float:right;cursor:pointer;' class="el-icon-edit" @click="() => enableEdit('bio')"></i>
+                            <i v-if="editModes.bio" style='margin-top:10px;float:right;cursor:pointer;' @click="update" class='el-icon-finished'/> -->
                             </el-col>
                     </el-row>
                     </el-card>
@@ -194,10 +196,7 @@ export default {
         new_last: '',
         first_name: '',
         last_name: '',
-        editModes: {
-            name: false,
-            bio: false
-        }
+        editModes: false
   }),
   methods: {
         handleSelect(i){
@@ -235,8 +234,7 @@ export default {
                     appendToast: false,
                 });
             })
-            this.editModes.name = false;
-            this.editModes.bio = false;
+            this.editModes = false;
         },
 
         loadTransactions() {
