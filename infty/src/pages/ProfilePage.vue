@@ -4,7 +4,7 @@
         <div class='profile-pic-container' v-if='$store.getters.getAddress'>
             <img :src="avatar" id='profile-pic'/>
             <a href="#" @click="uploadAvatar">
-                <b-icon id="upload_pic_icon" icon="camera" font-scale="2"></b-icon>
+                <b-icon id="upload_pic_icon" icon="camera" font-scale="2" class='upload-btn p-2'></b-icon>
             </a>
             <b-form style="display:None" >
                 <input type='file' ref="avatar_uploader" id="avatar_uploader" @change="onFileSelected"/>
@@ -378,5 +378,11 @@ export default {
 
 .profile-pic-container:hover #upload_pic_icon{
     opacity: 1;
+}
+
+.upload-btn {
+    color: white;
+    border-radius: 50%;
+    background-color: rgb(95, 167, 167);
 }
 </style>
