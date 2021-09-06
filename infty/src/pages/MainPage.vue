@@ -6,10 +6,6 @@
       <p class="banner-text mt-5">
         Create, collect, and trade any craft as NFT.
       </p>
-      <!-- <b-button variant="primary" href="/marketplace">Explore</b-button>
-      <b-button variant="outline-primary ml-4" href="/mine/create"
-        >Create</b-button
-      > -->
       <div class="btn-bg bg-1">
         <div class="btn btn-1">
           <router-link to="/marketplace"><button>Explore</button></router-link>
@@ -18,7 +14,14 @@
           <router-link to="/mine/create"><button>Create</button></router-link>
         </div>
       </div>
-      <div class="row-outer">
+
+      <span class="shape"></span>
+      <span class="shape"></span>
+      <span class="shape"></span>
+      <span class="shape"></span>
+      <span class="shape"></span>
+
+      <!-- <div class="row-outer">
         <div class="wrapper">
           <span class="shape"></span>
           <span class="shape"></span>
@@ -26,7 +29,7 @@
           <span class="shape"></span>
           <span class="shape"></span>
         </div>
-      </div>
+      </div> -->
     </div>
     <svg class="editorial" viewBox="0 24 150 28" preserveAspectRatio="none">
       <defs>
@@ -64,15 +67,29 @@ export default {
 <style scoped>
 .main {
   text-align: center;
-  margin-bottom: 5%;
+  /* margin-top: 10vh; */
+  /* margin-bottom: 5vh; */
   overflow: hidden;
+  /* position: absolute; */
+  /* margin-left: 10vw;
+  margin-right: 10vw; */
 }
 .banner {
   margin-top: 150px;
+  height: 80%;
+  width: 50%;
 }
+
 .banner-text {
   font-size: 2rem;
   font-weight: 1000;
+}
+.center {
+  /* top: 10%; */
+  /* text-align: center; */
+  /* position: absolute; */
+  /* width: calc(100 - 20v); */
+  /* left: 10vw; */
 }
 .editorial {
   display: block;
@@ -111,21 +128,21 @@ export default {
 } */
 
 .wrapper {
-  display: flex;
+  /* display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
   height: 50vh;
-  position: absolute;
+  position: absolute; */
   /* overflow: hidden; */
 }
 .shape:nth-of-type(1) {
-  width: 800px;
-  height: 800px;
+  width: 70%;
+  height: 80%;
   background: #95d0f9;
   position: absolute;
-  top: -1200px;
-  left: -400px;
+  left: -50%;
+  top: -15%;
   opacity: 0.2;
   z-index: -1;
   animation: wave 6s ease-in-out infinite;
@@ -142,13 +159,12 @@ export default {
   animation: wave 5s ease-in-out infinite;
 } */
 .shape:nth-of-type(3) {
-  width: 750px;
-  height: 700px;
+  width: 50%;
+  height: 80%;
+  left: 28%;
+  top: 35%;
   background: #95d0f9;
   position: absolute;
-  bottom: 400px;
-  left: 30%;
-  right: -10%;
   opacity: 0.3;
   z-index: -1;
   animation: wave 12s ease-in-out infinite;
@@ -165,13 +181,12 @@ export default {
   animation: wave 6s ease-in-out infinite;
 } */
 .shape:nth-of-type(5) {
-  width: 600px;
-  height: 500px;
+  width: 30%;
+  height: 50%;
   background: #e5e5e5;
   position: absolute;
-  top: -1200px;
-  /* left: 80%; */
-  right: 0%;
+  left: 70%;
+  top: -10%;
   opacity: 0.6;
   z-index: -1;
   animation: wave 15s ease-in-out infinite;
