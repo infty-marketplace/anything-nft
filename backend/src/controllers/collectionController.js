@@ -231,7 +231,34 @@ async function listNftDraw(req, res) {
 }
 
 async function getFragments(req, res) {
-    res.send(await Fragment.find({owner: req.params.owner}))
+    const { owner, nft_id } = req.query;
+    if (!owner) {
+        return res.send(await Fragment.find({nft_id}))
+    }
+    if (!nft_id) {
+        return res.send(await Fragment.find({owner}))
+    }
+    res.send(await Fragment.find({nft_id, owner}))
+}
+
+async function purchaseFragment(req, res) {
+    const { owner, nft_id, buyer } = req.body
+    console.log(owner, nft_id)
+    await Fragment.findOneAndUpdate({owner, nft_id}, {
+        status: constants.STATUS_PRIVATE,
+        owner: buyer
+    })
+    await User.updateOne({address: owner}, { $pullAll: {nft_ids: [nft_id]} })
+    await User.updateOne({address: buyer}, { $push: {nft_ids: nft_id}})
+    const nft = await Nft.findOne({nft_id})
+    nft.owner.forEach((o,i,owners) => {
+        if (o.address == owner) {
+            owners[i].address = buyer
+        }
+    })
+    await nft.save();
+    res.status(200).send()
+    
 }
 async function createAlbum(req, res) {
     const nft_ids = JSON.parse(req.body.nft_ids);
@@ -751,5 +778,6 @@ module.exports = {
     purchaseAlbum,
     drawNft,
     fundNft,
-    getFragments
+    getFragments,
+    purchaseFragment
 };

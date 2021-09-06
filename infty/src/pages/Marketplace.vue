@@ -281,6 +281,7 @@ export default {
               n.data.author = res.data.first_name + " " + res.data.last_name
               n.data.url = n.data.file;
               if (n.data.fragmented && this.fragments.some(f => f.nft_id == n.data.nft_id && f.status == 'sale')) {
+                n.data.status = 'sale'
                 this.usersCards.push(n.data);
               } else {
                 this.usersCards.push(n.data);

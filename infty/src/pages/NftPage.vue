@@ -149,7 +149,17 @@
           <el-table-column
             prop="shares"
             label="Shares"
+            width="80">
+          </el-table-column>
+          <el-table-column
+            prop="sale"
+            label="Sale"
             width="180">
+            <template slot-scope='scope'>
+              <b-button variant="primary" size='sm' @click="()=>transferShares(scope.row)" v-if='scope.row.status=="sale"'
+                  ><i class='el-icon-s-ticket'/>&nbsp;&nbsp;<span style='font-size: 0.6rem;'>Purchase shares</span></b-button>
+              <div v-else>Not on sale.</div>
+            </template>
           </el-table-column>
         </el-table>
         </b-card>
@@ -243,17 +253,19 @@ export default {
   },
   computed: {
     sharesOwned: function() {
-      if (!this.card) return;
+      if (!this.card) return '';
       try {
         const i = this.card.owner.findIndex(o => o.address == this.$store.getters.getAddress)
         if (i == -1) return '';
         return this.card.owner[i].percentage * 100
       } catch (e) {
         console.log(e)
+        return '';
       }
       
     },
-    window: () => window
+    window: () => window,
+    console: () => console
   },
   created() {
     if (this.card) return;
@@ -266,14 +278,22 @@ export default {
   },
   methods: {
     async reload() {
-      const res = await axios.get(`${this.$store.getters.getApiUrl}/nft/${this.$route.params.id}`)
+      const getters = this.$store.getters
+      
+      const res = await axios.get(`${getters.getApiUrl}/nft/${this.$route.params.id}`)
       const card = res.data;
+      const frags = (await axios.get(`${getters.getApiUrl}/fragments?nft_id=${card.nft_id}`)).data
       this.fractionProg = card.owner.slice(1).reduce((pv, cv) => pv + cv.percentage, 0)*100
       if (card.status == 'sale') {
-        this.sharesTable = card.owner.slice(1).map(o => ({owner: o.address, shares: o.percentage*100}))
+        this.sharesTable = card.owner.slice(1).map(async o => {
+          return {owner: o.address, shares: o.percentage*100, ... frags[frags.findIndex(f => f.owner == o.address)]}
+        })
       }
+
       if (card.status == 'private') {
-        this.sharesTable = card.owner.map(o => ({owner: o.address, shares: o.percentage*100}))
+        this.sharesTable = card.owner.map(o => {
+          return {owner: o.address, shares: o.percentage*100, ... frags[frags.findIndex(f => f.owner == o.address)]}
+        })
       }
       
       await axios.get(`${this.$store.getters.getApiUrl}/profile/${card.author}`).then(resp => {
@@ -367,6 +387,15 @@ export default {
             autoHideDelay: 3000
         })
         this.reload()
+      })
+    },
+
+    async transferShares(obj) {
+      const getters = this.$store.getters
+      axios.post(`${getters.getApiUrl}/purchase-fragment`, {
+        owner: obj.owner,
+        nft_id: obj.nft_id,
+        buyer: getters.getAddress
       })
     }
   },

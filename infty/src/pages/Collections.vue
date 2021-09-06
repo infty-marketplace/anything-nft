@@ -190,7 +190,7 @@ export default {
         const newNft = res.data;
         newNft.url = newNft.file;
         if (newNft.fragmented) {
-          const fres = await axios.get(`${getters.getApiUrl}/fragments/${getters.getAddress}`)
+          const fres = await axios.get(`${getters.getApiUrl}/fragments?owner=${getters.getAddress}`)
           const f = fres.data.filter(f => (f.nft_id == nid && f.owner == getters.getAddress))[0]
           newNft.price = f.price
           newNft.status = f.status
@@ -250,11 +250,10 @@ export default {
       nfts = nfts.filter(n => !!n && !!n.file)
       this.nfts = nfts.map((n) => {
         n.url = n.file;
-        n.author = n.author;
         return n;
       });
 
-      axios.get(`${api}/fragments/${this.$store.getters.getAddress}`)
+      axios.get(`${api}/fragments?owner=${this.$store.getters.getAddress}`)
         .then(res => this.fragments = res.data)
     },
     async loadAlbums(album_ids) {
@@ -298,7 +297,7 @@ export default {
       fd.append("nft_ids", JSON.stringify(this.album_candidates));
       axios
         .post(`${this.$store.getters.getApiUrl}/create-album`, fd)
-        .then((res) => {
+        .then(() => {
           this.loadCollections();
           Notification.closeAll();
           this.$notify({

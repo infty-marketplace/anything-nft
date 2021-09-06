@@ -74,7 +74,7 @@ export default {
                     address: this.$store.getters.getAddress,
                 })
                 .then((res) => {
-                    console.log('profile saved');
+                    console.log('profile saved', res);
                 });
         },
     },
@@ -92,11 +92,11 @@ export default {
       eventBus.$on("Navbar.noWallet", () => {
           this.$bvToast.show("no-wallet-toast");
       });
-      eventBus.$on("Navbar.connectWalletSuccess", () => {
+      eventBus.$on("Navbar.connectWalletSuccess", async () => {
         axios
-            .get(`${this.$store.getters.getApiUrl}/profile/${this.$store.getters.getAddress}`)
+            .get(`${this.$store.getters.getApiUrl}/profile/${(await window.conflux.send("cfx_requestAccounts"))[0]}`)
             .then((res) => {
-                console.log('wallet connected');
+                console.log('wallet connected', res);
             })
             .catch((err) => {
                 if (!err.response || err.response.status == 404) {
