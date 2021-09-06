@@ -7,7 +7,7 @@
         Create, collect, and trade any craft as NFT.
       </p>
       <div class="btn-bg bg-1">
-        <div class="btn btn-1">
+        <div class="btn btn-2">
           <router-link to="/marketplace"><button>Explore</button></router-link>
         </div>
         <div class="btn btn-1">
@@ -19,17 +19,27 @@
       <span class="shape"></span>
       <span class="shape"></span>
       <span class="shape"></span>
-      <span class="shape"></span>
-
-      <!-- <div class="row-outer">
-        <div class="wrapper">
-          <span class="shape"></span>
-          <span class="shape"></span>
-          <span class="shape"></span>
-          <span class="shape"></span>
-          <span class="shape"></span>
+      <div class="about-us">
+        <div class="sm:w-2/3 sm:mr-10">
+          <div class="text">
+            <!-- <span class="text-gray-500 border-b-2 border-indigo-600 uppercase"
+              >ABOUT US</span
+            > -->
+            <h2 class="font-bold stress">
+              About <span class="font-bold stress">Our Team</span>
+            </h2>
+            <p class="text-gray-700">
+              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquid,
+              commodi doloremque, fugiat illum magni minus nisi nulla numquam
+              obcaecati placeat quia, repellat tempore voluptatum. Lorem ipsum
+              dolor sit amet, consectetur adipisicing elit. Aliquid, commodi
+              doloremque, fugiat illum magni minus nisi nulla numquam obcaecati
+              placeat quia, repellat tempore voluptatum.
+            </p>
+          </div>
         </div>
-      </div> -->
+        <img class="team" :src="team" />
+      </div>
     </div>
     <svg class="editorial" viewBox="0 24 150 28" preserveAspectRatio="none">
       <defs>
@@ -60,6 +70,7 @@ export default {
   },
   data: () => ({
     banner: require("../assets/imgs/banner.svg"),
+    team: require("../assets/imgs/aboutUs.svg"),
   }),
 };
 </script>
@@ -67,12 +78,7 @@ export default {
 <style scoped>
 .main {
   text-align: center;
-  /* margin-top: 10vh; */
-  /* margin-bottom: 5vh; */
   overflow: hidden;
-  /* position: absolute; */
-  /* margin-left: 10vw;
-  margin-right: 10vw; */
 }
 .banner {
   margin-top: 150px;
@@ -83,13 +89,6 @@ export default {
 .banner-text {
   font-size: 2rem;
   font-weight: 1000;
-}
-.center {
-  /* top: 10%; */
-  /* text-align: center; */
-  /* position: absolute; */
-  /* width: calc(100 - 20v); */
-  /* left: 10vw; */
 }
 .editorial {
   display: block;
@@ -127,15 +126,6 @@ export default {
   }
 } */
 
-.wrapper {
-  /* display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 50vh;
-  position: absolute; */
-  /* overflow: hidden; */
-}
 .shape:nth-of-type(1) {
   width: 70%;
   height: 80%;
@@ -147,18 +137,8 @@ export default {
   z-index: -1;
   animation: wave 6s ease-in-out infinite;
 }
-/* .shape:nth-of-type(2) {
-  width: 800px;
-  height: 800px;
-  background: #7998ff;
-  position: absolute;
-  top: -200px;
-  left: -400px;
-  opacity: 0.2;
-  z-index: -1;
-  animation: wave 5s ease-in-out infinite;
-} */
-.shape:nth-of-type(3) {
+
+.shape:nth-of-type(2) {
   width: 50%;
   height: 80%;
   left: 28%;
@@ -169,18 +149,8 @@ export default {
   z-index: -1;
   animation: wave 12s ease-in-out infinite;
 }
-/* .shape:nth-of-type(4) {
-  width: 250px;
-  height: 250px;
-  background: #fbff0d;
-  position: absolute;
-  bottom: -120px;
-  left: 40%;
-  opacity: 0.4;
-  z-index: -1;
-  animation: wave 6s ease-in-out infinite;
-} */
-.shape:nth-of-type(5) {
+
+.shape:nth-of-type(3) {
   width: 30%;
   height: 50%;
   background: #e5e5e5;
@@ -191,17 +161,18 @@ export default {
   z-index: -1;
   animation: wave 15s ease-in-out infinite;
 }
-/* .shape:nth-of-type(6) {
-  width: 100px;
-  height: 100px;
+.shape:nth-of-type(4) {
+  width: 130%;
+  height: 80%;
+  background: #e5e5e5;
   position: absolute;
-  top: 40%;
-  right: 25%;
-  opacity: 0.5;
+  left: -30%;
+  top: 140%;
+  opacity: 0.3;
   z-index: -1;
-  transform: rotate(90deg);
-  animation: wave 15s ease-in-out infinite;
-} */
+  animation: wave 10s ease-in-out infinite;
+}
+
 @keyframes wave {
   0%,
   100% {
@@ -242,6 +213,40 @@ body .btn-bg.bg-1 .btn-1 button:hover {
   transform: translate(5px, 5px);
 }
 
+.btn-bg.bg-1 .btn-2 button {
+  /* color: #95d0f9;
+  background: transparent; */
+  background: #95d0f9;
+  color: #ffffff;
+  border: 3px solid #95d0f9;
+  border-radius: 5px;
+  -webkit-transition: all 0.5s ease;
+  transition: all 0.5s ease;
+  -webkit-transform: translate(0, 0);
+  transform: translate(0, 0);
+}
+body .btn-bg.bg-1 .btn-2 button a {
+  color: #95d0f9;
+}
+body .btn-bg.bg-1 .btn-2 button:hover {
+  /* background: #95d0f9;
+  color: #ffffff; */
+  color: #95d0f9;
+  background: transparent;
+  border: 3px solid #95d0f9;
+  -webkit-transition: all 0.35s ease;
+  transition: all 0.35s ease;
+}
+.btn-bg.bg-1 .btn-1 button:hover > a {
+  color: #6ab1c9;
+  -webkit-transition: all 0.35s ease;
+  transition: all 0.35s ease;
+}
+.btn-bg.bg-1 .btn-2 button:active {
+  -webkit-transform: translate(5px, 5px);
+  transform: translate(5px, 5px);
+}
+
 .btn {
   margin: 0 auto 30px auto;
   /* display: block; */
@@ -262,5 +267,28 @@ button {
 }
 button a {
   text-decoration: none;
+}
+.about-us {
+  text-align: left;
+  display: flex;
+  padding: 5%;
+  margin-top: 10%;
+}
+.team {
+  height: 40%;
+  width: 40%;
+}
+.font-bold {
+  font-weight: 600;
+}
+.font-bold > .stress {
+  font-weight: 900;
+  color: #2f7df6;
+}
+.about-us p {
+  margin-top: 2em;
+  font-size: 1.3em;
+  font-weight: 400;
+  color: #3f3e54;
 }
 </style>
