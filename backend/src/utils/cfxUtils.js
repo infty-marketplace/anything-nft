@@ -36,6 +36,11 @@ async function createRaffle(details) {
         .executed();
 }
 
+async function getOwnerOnChain(tokenId) {
+    const owner = await minterContract.ownerOf(tokenId);
+    return owner;
+}
+
 async function transferOwnershipOnChain(fromAddr, toAddr, tokenID) {
     return await minterContract
         .transferFrom(fromAddr, toAddr, tokenID)
@@ -102,4 +107,5 @@ module.exports = {
     transferOwnershipOnChain,
     transferCfxTo,
     createRaffle,
+    getOwnerOnChain,
 };

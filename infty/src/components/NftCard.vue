@@ -165,7 +165,7 @@ export default {
                 gasPrice: 1,
                 value: 1e18 * this.listing_commision,
             });
-            this.$store.dispatch('notifyCommission')
+            this.$store.dispatch("notifyCommission");
             const res = await tx.executed();
             Notification.closeAll();
             this.$notify({
@@ -214,7 +214,7 @@ export default {
             const tokenId = this.card.nft_id.split("-")[1];
             try {
                 await getters.getMinterContract
-                    .approve(getters.getManagerAddr, tokenId)
+                    .approve(getters.getRaffleAddress, tokenId)
                     .sendTransaction({ from: getters.getAddress, to: getters.getMinterAddress, gasPrice: 1 })
                     .executed();
             } catch (e) {

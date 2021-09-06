@@ -9,9 +9,9 @@
                 </template>
                 <b-list-group id="list-group" flush>
                     <b-list-group-item>
-                        <b-button pill v-b-toggle.collapse-1 variant="outline-secondary" class="category-button"
-                            >Status</b-button
-                        >
+                        <b-button pill v-b-toggle.collapse-1 variant="outline-secondary" class="category-button">
+                            Status
+                        </b-button>
                         <b-collapse id="collapse-1" class="mt-2">
                             <b-card>
                                 <b-form-group v-slot="{ ariaDescribedby }">
@@ -27,9 +27,9 @@
                         </b-collapse>
                     </b-list-group-item>
                     <b-list-group-item>
-                        <b-button pill v-b-toggle.collapse-2 variant="outline-secondary" class="category-button"
-                            >Price</b-button
-                        >
+                        <b-button pill v-b-toggle.collapse-2 variant="outline-secondary" class="category-button">
+                            Price
+                        </b-button>
                         <b-collapse id="collapse-2" class="mt-2">
                             <b-card>
                                 <b-form-select v-model="priceTypeSelected" :options="priceTypeOptions"></b-form-select>
@@ -120,7 +120,7 @@
                     {{ raffleToBuy.currency }}
                 </p>
             </div>
-            <b-button v-if="raffleToBuy.owner == $store.getters.getAddress" disabled class="btn-disabled"
+            <b-button v-if="raffleToBuy.owner == $store.getters.getAddress && false" disabled class="btn-disabled"
                 >You own this raffle</b-button
             >
             <b-button v-else class="buy-btn" id="modal-buy" variant="primary" @click="buyNowClicked">Buy Now</b-button>
@@ -136,9 +136,9 @@
               >www.flaticon.com</a
             >
           </div> -->
-                <h2 id="banner-content">Currently 175 people participated!</h2>
+                <h2 id="banner-content">Currently {{ this.currentParticipantsNumber }} people participated!</h2>
             </div>
-            <div class="mt-4" v-for="raffle in raffles" :key="raffle.nft_id">
+            <div class="mt-4" v-for="raffle in this.displayedRaffles" :key="raffle.nft_id">
                 <b-card class="mb-3 pool-card">
                     <img :src="raffle.url" class="raffle-image" />
                     <div class="pool-card-primary">
@@ -214,15 +214,18 @@ export default {
                 { text: "this month", value: "thisMonth" },
                 // { text: "Has Offers", value: "hasOffers" },
             ],
-            priceTypeSelected: "usd",
+            priceTypeSelected: "cfx",
             priceTypeOptions: [
-                { value: "usd", text: "United States Dollar(USD)" },
-                { value: "eth", text: "Ether(ETH)" },
+                { value: "cfx", text: "CFX" },
+                { value: "usdt", text: "USDT" },
+                { value: "inft", text: "INFT" },
             ],
             raffles: [],
+            displayedRaffles: [],
             ticketNum: 1,
             nftRaffleToBuy: null,
             animate: true,
+            currentParticipantsNumber: 0,
         };
     },
     methods: {
@@ -253,6 +256,7 @@ export default {
                             (total, participant) => total + participant.quantity,
                             0
                         );
+                        this.currentParticipantsNumber += draw.current;
                     }
                     return draw;
                 });
@@ -262,6 +266,7 @@ export default {
                 this.raffles = results.filter((draw) => {
                     return draw.max - draw.current > 0;
                 });
+                this.displayedRaffles = this.raffles;
             });
         },
         showModal() {
@@ -287,14 +292,15 @@ export default {
             const raffleContract = getters.getRaffleContract;
             const minter = nftRaffleToBuy.nft_id.split("-")[0];
             const tokenId = nftRaffleToBuy.nft_id.split("-")[1];
+            const quantity = this.ticketNum;
 
             try {
                 await raffleContract
-                    .joinRaffle(minter, tokenId, this.ticketNum)
+                    .joinRaffle(minter, tokenId, quantity)
                     .sendTransaction({
                         from: getters.getAddress,
                         to: getters.getRaffleAddress,
-                        value: 1e18 * nftRaffleToBuy.unit_price * this.ticketNum,
+                        value: 1e18 * nftRaffleToBuy.unit_price * quantity,
                     })
                     .executed();
             } catch (e) {
@@ -309,11 +315,11 @@ export default {
                 return;
             }
 
-            axios
+            await axios
                 .post(`${getters.getApiUrl}/draw-nft/`, {
                     draw_id: nftRaffleToBuy.draw_id,
                     buyer: address,
-                    quantity: this.ticketNum,
+                    quantity: quantity,
                     commission: 0,
                     commission_currency: "cfx",
                 })

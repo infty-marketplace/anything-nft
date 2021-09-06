@@ -44,37 +44,31 @@ const getDraw = async (req, res) => {
 
 // return a list of on sale NFT's id from cursor position, limit amount
 const getMarket = async (req, res) => {
-  const body = req.body;
-  if (!body) {
-    return res.status(400).json({ error: "invalid request" });
-  }
+    const body = req.body;
+    if (!body) {
+        return res.status(400).json({ error: "invalid request" });
+    }
 
-  const limit = body.limit || 10;
-  const offset = body.offset || 0;
+    const limit = body.limit || 10;
+    const offset = body.offset || 0;
 
-  const nftQuery = Nft.find({ status: constants.STATUS_SALE }, { nft_id: 1 })
-  .sort({ nft_id: "desc" })
-  .skip(offset)
-  .limit(limit)
-    
-  const albumQuery = Album.find(
-    { status: constants.STATUS_SALE },
-    { album_id: 1 }
-  )
-    .sort({ album_id: "desc" })
-    .skip(offset)
-    .limit(limit);
+    const nftQuery = Nft.find({ status: constants.STATUS_SALE }, { nft_id: 1 })
+        .sort({ nft_id: "desc" })
+        .skip(offset)
+        .limit(limit);
 
-  const drawQuery = Draw.find({}, { draw_id: 1 })
-    .sort({ draw_id: "desc" })
-    .skip(offset)
-    .limit(limit);
+    const albumQuery = Album.find({ status: constants.STATUS_SALE }, { album_id: 1 })
+        .sort({ album_id: "desc" })
+        .skip(offset)
+        .limit(limit);
 
-  res.send({
-    nft_ids: (await nftQuery.exec()).map((n) => n.nft_id),
-    album_ids: (await albumQuery.exec()).map((n) => n.album_id),
-    draw_ids: (await drawQuery.exec()).map((n) => n.draw_id),
-  });
+    const drawQuery = Draw.find({}, { draw_id: 1 }).sort({ draw_id: "desc" }).skip(offset).limit(limit);
+
+    res.send({
+        nft_ids: (await nftQuery.exec()).map((n) => n.nft_id),
+        album_ids: (await albumQuery.exec()).map((n) => n.album_id),
+        draw_ids: (await drawQuery.exec()).map((n) => n.draw_id),
+    });
 };
 
 async function createNft(req, res) {
@@ -598,9 +592,11 @@ async function drawNft(req, res) {
     if (isNftFunded(nft)) {
         return res.status(400).json({ error: "nft is completely funded" });
     }
-    if (getNftOwners(nft).includes(body.buyer)) {
-        return res.status(400).json({ error: "participant is the owner" });
-    }
+    // if (getNftOwners(nft).includes(body.buyer)) {
+    //     return res.status(400).json({ error: "participant is the owner" });
+    // }
+
+    console.log(body.quantity);
 
     let transactionDetails = {
         buyer: body.buyer,
@@ -614,6 +610,8 @@ async function drawNft(req, res) {
         collection_id: draw.draw_id,
     };
 
+    console.log(transactionDetails.quantity);
+
     const index = draw.participants.map((e) => e.address).indexOf(transactionDetails.buyer);
     if (index >= 0) {
         draw.participants[index].quantity += transactionDetails.quantity;
@@ -625,8 +623,16 @@ async function drawNft(req, res) {
     }
 
     // TODO: transfer upon deadline/all drawed
+    const totalEntries = draw.participants.reduce((total, participant) => total + participant.quantity, 0);
+    if (totalEntries === draw.quantity) {
+        const tokenId = draw.nft_id.split("-")[1];
+        const newOwner = await cfxUtils.getOwnerOnChain(tokenId);
+        nft.owner = [{ address: newOwner, percentage: 1 }];
+        nft.status = constants.STATUS_PRIVATE;
+    }
+
     await mongodbUtils
-        .saveAll([draw, new Transaction(transactionDetails)])
+        .saveAll([draw, nft, new Transaction(transactionDetails)])
         .then(() => {
             return res.status(200).send();
         })
@@ -682,7 +688,7 @@ async function purchaseAlbum(req, res) {
             transaction_type: "purchase-nft",
             collection_id: nft.nft_id,
         };
-        
+
         try {
             await cfxUtils.transferOwnershipOnChain(album.owner, body.buyer, nft.nft_id.split("-")[1]);
             await transferOwnership(nftTransactionDetails, false);
