@@ -392,10 +392,28 @@ export default {
 
     async transferShares(obj) {
       const getters = this.$store.getters
+      const addr = (await window.conflux.send("cfx_requestAccounts"))[0]
+      this.$store.dispatch('notifyCommission')
+      const tx = window.confluxJS.sendTransaction({
+        from: addr,
+        to: getters.getManagerAddr,
+        gasPrice: 1,
+        value: 1e18*( parseFloat(this.card.price)/100 * obj.shares)
+      })
+
+      await tx.executed()
       axios.post(`${getters.getApiUrl}/purchase-fragment`, {
         owner: obj.owner,
         nft_id: obj.nft_id,
         buyer: getters.getAddress
+      })
+      .then(() => {
+        Notification.closeAll()
+        this.$bvToast.toast("NFT Shares Purchased Successfully", {
+            title: "Notification",
+            autoHideDelay: 3000
+        })
+        this.reload()
       })
     }
   },
