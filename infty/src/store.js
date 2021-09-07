@@ -14,7 +14,7 @@ const store = new Vuex.Store({
         stakeContract: undefined,
         stakeAddress: "cfxtest:aca4k538vsk20xg0s4cphmmjns59kr4yayeccxb602",
         raffleContract: undefined,
-        raffleAddress: "cfxtest:aceee8gv6aer0xxns1we2zzaspefc0ttapkcd56mdh",
+        raffleAddress: "cfxtest:acba17zagxykgrh2hg6uzaukdx5tgrfm5jd5btkxk4",
     },
     actions: {
         async connectWallet(context) {

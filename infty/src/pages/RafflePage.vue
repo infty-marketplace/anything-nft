@@ -9,17 +9,37 @@
                 </template>
                 <b-list-group id="list-group" flush>
                     <b-list-group-item>
+                        <b-button pill v-b-toggle.collapse-0 variant="outline-secondary" class="category-button">
+                            Sort By
+                        </b-button>
+                        <b-collapse id="collapse-0" class="mt-2">
+                            <b-card>
+                                <b-form-group v-slot="{ ariaDescribedby }">
+                                    <b-form-radio-group
+                                        id="radio-group-1"
+                                        v-model="sortBySelected"
+                                        :options="sortByOptions"
+                                        :aria-describedby="ariaDescribedby"
+                                        @change="handleFilter"
+                                        name="flavour-0"
+                                    ></b-form-radio-group>
+                                </b-form-group>
+                            </b-card>
+                        </b-collapse>
+                    </b-list-group-item>
+                    <b-list-group-item>
                         <b-button pill v-b-toggle.collapse-1 variant="outline-secondary" class="category-button">
-                            Status
+                            Raffle Type
                         </b-button>
                         <b-collapse id="collapse-1" class="mt-2">
                             <b-card>
                                 <b-form-group v-slot="{ ariaDescribedby }">
                                     <b-form-checkbox-group
                                         id="checkbox-group-1"
-                                        v-model="statusSelected"
-                                        :options="statusOptions"
+                                        v-model="raffleTypeSelected"
+                                        :options="raffleTypeOptions"
                                         :aria-describedby="ariaDescribedby"
+                                        @change="handleFilter"
                                         name="flavour-1"
                                     ></b-form-checkbox-group>
                                 </b-form-group>
@@ -33,10 +53,12 @@
                         <b-collapse id="collapse-2" class="mt-2">
                             <b-card>
                                 <b-form-select v-model="priceTypeSelected" :options="priceTypeOptions"></b-form-select>
-                                <b-form-input placeholder="Min" class="price-range"></b-form-input>
+                                <b-form-input placeholder="Min" class="price-range" v-model="minPrice"></b-form-input>
                                 <span>to</span>
-                                <b-form-input placeholder="Max" class="price-range"></b-form-input>
-                                <b-button id="price-apply-btn" variant="outline-primary">Apply</b-button>
+                                <b-form-input placeholder="Max" class="price-range" v-model="maxPrice"></b-form-input>
+                                <b-button id="price-apply-btn" variant="outline-primary" @click="handleFilter"
+                                    >Apply</b-button
+                                >
                             </b-card>
                         </b-collapse>
                     </b-list-group-item>
@@ -207,12 +229,16 @@ export default {
     },
     data() {
         return {
-            statusSelected: [],
-            statusOptions: [
-                { text: "today", value: "today" },
-                { text: "this week", value: "thisWeek" },
-                { text: "this month", value: "thisMonth" },
-                // { text: "Has Offers", value: "hasOffers" },
+            sortBySelected: "create time",
+            sortByOptions: [
+                { text: "Create Time", value: "create time" },
+                { text: "End Time", value: "end time" },
+                { text: "Price", value: "price" },
+            ],
+            raffleTypeSelected: ["limited tickets", "limited time"],
+            raffleTypeOptions: [
+                { text: "Limited Tickets", value: "limited tickets" },
+                { text: "Limited Time", value: "limited time" },
             ],
             priceTypeSelected: "cfx",
             priceTypeOptions: [
@@ -220,6 +246,8 @@ export default {
                 { value: "usdt", text: "USDT" },
                 { value: "inft", text: "INFT" },
             ],
+            minPrice: 0,
+            maxPrice: Number.MAX_SAFE_INTEGER,
             raffles: [],
             displayedRaffles: [],
             ticketNum: 1,
@@ -267,6 +295,9 @@ export default {
                     return draw.max - draw.current > 0;
                 });
                 this.displayedRaffles = this.raffles;
+                this.displayedRaffles.sort((a, b) => {
+                    return new Date(b.created_at) - new Date(a.created_at);
+                });
             });
         },
         showModal() {
@@ -282,7 +313,6 @@ export default {
             this.showModal();
         },
         buyNowClicked() {
-            console.log(this.nftRaffleToBuy);
             this.buyRaffle(this.nftRaffleToBuy);
             this.hideModal();
         },
@@ -339,6 +369,29 @@ export default {
                     });
                 });
         },
+        handleFilter() {
+            let result = [];
+            // filter raffle type
+            if (this.raffleTypeSelected.includes("limited tickets")) {
+                result.push(...this.raffles.filter((r) => !r.deadline));
+            }
+            if (this.raffleTypeSelected.includes("limited time")) {
+                result.push(...this.raffles.filter((r) => r.deadline));
+            }
+
+            // filter price
+            result = result.filter((r) => r.currency === this.priceTypeSelected);
+            result = result.filter((r) => r.unit_price >= this.minPrice && r.unit_price <= this.maxPrice);
+
+            this.displayedRaffles = result;
+            if (this.sortBySelected === "create time") {
+                this.displayedRaffles.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            } else if (this.sortBySelected === "end time") {
+                this.displayedRaffles.sort((a, b) => new Date(b.deadline) - new Date(a.deadline));
+            } else if (this.sortBySelected === "price") {
+                this.displayedRaffles.sort((a, b) => b.unit_price - a.unit_price);
+            }
+        },
     },
 };
 </script>
@@ -389,7 +442,7 @@ export default {
     font-family: "Palette Mosaic", cursive;
 }
 .pool {
-    width: 65%;
+    width: 70%;
     margin-left: 5%;
     display: inline-block;
     vertical-align: top;

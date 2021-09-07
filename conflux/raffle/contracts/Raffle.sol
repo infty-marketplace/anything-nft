@@ -54,36 +54,36 @@ contract Raffle {
 
     emit JoinEvent (_minter, _tokenId, msg.sender, _qty);
     
-    if (raffles[_minter][_tokenId].participants.length == raffles[_minter][_tokenId].maxTickets) {
-      return draw(_minter, _tokenId);
-    }
+    // if (raffles[_minter][_tokenId].participants.length == raffles[_minter][_tokenId].maxTickets) {
+    //   return draw(_minter, _tokenId);
+    // }
     return true;
   }
 
   // award nftValue when all tickets are sold
-  function draw(address _minter, uint _tokenId) public restricted returns (bool) {
+  function draw(address _minter, uint _tokenId) public restricted returns (address) {
 
     if (raffles[_minter][_tokenId].participants.length > 0){
       uint seed = block.number;
       uint random = uint(keccak256(seed)) % raffles[_minter][_tokenId].participants.length;
       address winner = raffles[_minter][_tokenId].participants[random];
       uint nftValue = raffles[_minter][_tokenId].participants.length * raffles[_minter][_tokenId].price;
-      uint commission = nftValue / 10 * 9;
+      uint commission = nftValue / 10;
 
       address(manager).transfer(commission);
       address(raffles[_minter][_tokenId].owner).transfer(nftValue - commission);
       // transfer nft to winner
-      transferNft(winner, _minter, _tokenId);
+      // transferNft(winner, _minter, _tokenId);
       delete raffles[_minter][_tokenId];
-      emit DrawEvent (_minter, _tokenId ,winner, nftValue);
+      emit DrawEvent (_minter, _tokenId, winner, nftValue);
+      return winner;
     }else{
       // transfer nft to owner
-      transferNft(raffles[_minter][_tokenId].owner, _minter, _tokenId);
+      // transferNft(raffles[_minter][_tokenId].owner, _minter, _tokenId);
       delete raffles[_minter][_tokenId];
       emit AbortEvent(_minter, _tokenId, raffles[_minter][_tokenId].owner);
+      return raffles[_minter][_tokenId].owner;
     }
-
-    return true;
   }
 
   function transferNft(address _to, address _minter, uint _tokenId) internal{
@@ -97,7 +97,7 @@ contract Raffle {
   }
 
   modifier restricted() {
-        require(msg.sender != manager, "message sender is unauthorized");
+        require(msg.sender == manager, "message sender is unauthorized");
         _;
   }
 }

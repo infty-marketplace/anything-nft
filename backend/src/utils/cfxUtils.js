@@ -36,9 +36,12 @@ async function createRaffle(details) {
         .executed();
 }
 
+async function drawRaffle(minter, tokenId) {
+    return await raffleContract.draw(minter, tokenId).sendTransaction({ from: process.env.MANAGER_ADDRESS }).executed();
+}
+
 async function getOwnerOnChain(tokenId) {
-    const owner = await minterContract.ownerOf(tokenId);
-    return owner;
+    return await minterContract.ownerOf(tokenId);
 }
 
 async function transferOwnershipOnChain(fromAddr, toAddr, tokenID) {
@@ -108,4 +111,5 @@ module.exports = {
     transferCfxTo,
     createRaffle,
     getOwnerOnChain,
+    drawRaffle,
 };

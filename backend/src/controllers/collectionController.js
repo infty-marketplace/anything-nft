@@ -625,10 +625,13 @@ async function drawNft(req, res) {
     // TODO: transfer upon deadline/all drawed
     const totalEntries = draw.participants.reduce((total, participant) => total + participant.quantity, 0);
     if (totalEntries === draw.quantity) {
+        const minter = draw.nft_id.split("-")[0];
         const tokenId = draw.nft_id.split("-")[1];
-        const newOwner = await cfxUtils.getOwnerOnChain(tokenId);
+        const newOwner = await cfxUtils.drawRaffle(minter, tokenId);
         nft.owner = [{ address: newOwner, percentage: 1 }];
         nft.status = constants.STATUS_PRIVATE;
+        console.log(draw.owner, newOwner, tokenId);
+        await cfxUtils.transferOwnershipOnChain(draw.owner, newOwner, tokenId);
     }
 
     await mongodbUtils

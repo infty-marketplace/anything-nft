@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const drawSchema = new Schema(
     {
-        title: { type: String, required: true, unique: true },
+        title: { type: String, required: true },
         draw_id: { type: String, required: true },
         description: { type: String, default: "" },
 

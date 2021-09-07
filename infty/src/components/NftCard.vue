@@ -214,7 +214,7 @@ export default {
             const tokenId = this.card.nft_id.split("-")[1];
             try {
                 await getters.getMinterContract
-                    .approve(getters.getRaffleAddress, tokenId)
+                    .approve(getters.getManagerAddr, tokenId)
                     .sendTransaction({ from: getters.getAddress, to: getters.getMinterAddress, gasPrice: 1 })
                     .executed();
             } catch (e) {
