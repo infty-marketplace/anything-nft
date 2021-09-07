@@ -134,7 +134,7 @@
             <div>
                 <div class="ticketInfo-form">
                     <p class="ticketInfo-label">Ticket Number:</p>
-                    <b-form-spinbutton v-model="ticketNum" min="1" :max="raffleToBuy.quantity"> </b-form-spinbutton>
+                    <b-form-spinbutton v-model="ticketNum" min="1" :max="raffleToBuy.available"> </b-form-spinbutton>
                 </div>
                 <p>
                     <span class="ticketInfo-label">Total Price:</span>
@@ -142,7 +142,7 @@
                     {{ raffleToBuy.currency }}
                 </p>
             </div>
-            <b-button v-if="raffleToBuy.owner == $store.getters.getAddress && false" disabled class="btn-disabled"
+            <b-button v-if="raffleToBuy.owner == $store.getters.getAddress" disabled class="btn-disabled"
                 >You own this raffle</b-button
             >
             <b-button v-else class="buy-btn" id="modal-buy" variant="primary" @click="buyNowClicked">Buy Now</b-button>
@@ -278,14 +278,20 @@ export default {
                     if (draw.deadline) {
                         draw.max = parseFloat(draw.deadline) - Math.floor(Date.now(draw.created_at) / 1000);
                         draw.current = Math.floor(Date.now() / 1000) - Math.floor(Date.now(draw.created_at) / 1000);
+                        draw.available = draw.quantity;
                     } else {
                         draw.max = draw.quantity;
                         draw.current = draw.participants.reduce(
                             (total, participant) => total + participant.quantity,
                             0
                         );
-                        this.currentParticipantsNumber += draw.current;
+                        draw.available = draw.max - draw.current;
                     }
+                    this.currentParticipantsNumber += draw.participants.reduce(
+                        (total, participant) => total + participant.quantity,
+                        0
+                    );
+
                     return draw;
                 });
             });
@@ -334,7 +340,6 @@ export default {
                     })
                     .executed();
             } catch (e) {
-                console.log(e);
                 if (e.code == 4001) {
                     this.$bvToast.toast("User cancelled transaction", {
                         title: "Transaction Cancellation",
@@ -368,6 +373,7 @@ export default {
                         appendToast: false,
                     });
                 });
+            this.loadRaffles();
         },
         handleFilter() {
             let result = [];

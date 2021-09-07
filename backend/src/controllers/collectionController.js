@@ -355,7 +355,8 @@ async function transferOwnership(transactionDetails, recordTransaction = true) {
         collectionType = "album";
     } else if (
         transactionDetails.transaction_type === "purchase-nft" ||
-        transactionDetails.transaction_type === "fund-nft"
+        transactionDetails.transaction_type === "fund-nft" ||
+        transactionDetails.transaction_type === "draw-nft"
     ) {
         collectionType = "nft";
     }
@@ -377,7 +378,10 @@ async function transferOwnership(transactionDetails, recordTransaction = true) {
             album_id: transactionDetails.collection_id,
         });
         collection.owner = transactionDetails.buyer;
-    } else if (transactionDetails.transaction_type === "purchase-nft") {
+    } else if (
+        transactionDetails.transaction_type === "purchase-nft" ||
+        transactionDetails.transaction_type === "draw-nft"
+    ) {
         collection = await Nft.findOne({
             nft_id: transactionDetails.collection_id,
         });
@@ -592,11 +596,9 @@ async function drawNft(req, res) {
     if (isNftFunded(nft)) {
         return res.status(400).json({ error: "nft is completely funded" });
     }
-    // if (getNftOwners(nft).includes(body.buyer)) {
-    //     return res.status(400).json({ error: "participant is the owner" });
-    // }
-
-    console.log(body.quantity);
+    if (getNftOwners(nft).includes(body.buyer)) {
+        return res.status(400).json({ error: "participant is the owner" });
+    }
 
     let transactionDetails = {
         buyer: body.buyer,
@@ -609,8 +611,6 @@ async function drawNft(req, res) {
         commission_currency: body.commission_currency,
         collection_id: draw.draw_id,
     };
-
-    console.log(transactionDetails.quantity);
 
     const index = draw.participants.map((e) => e.address).indexOf(transactionDetails.buyer);
     if (index >= 0) {
@@ -627,15 +627,26 @@ async function drawNft(req, res) {
     if (totalEntries === draw.quantity) {
         const minter = draw.nft_id.split("-")[0];
         const tokenId = draw.nft_id.split("-")[1];
-        const newOwner = await cfxUtils.drawRaffle(minter, tokenId);
-        nft.owner = [{ address: newOwner, percentage: 1 }];
-        nft.status = constants.STATUS_PRIVATE;
-        console.log(draw.owner, newOwner, tokenId);
-        await cfxUtils.transferOwnershipOnChain(draw.owner, newOwner, tokenId);
+        const receipt = await cfxUtils.drawRaffle(minter, tokenId);
+        const eventLog = cfxUtils.decodeRaffleLog(receipt.logs[0]);
+        const winner = eventLog.object._winner;
+
+        const nftTransactionDetails = {
+            buyer: winner,
+            seller: draw.owner,
+            transaction_type: "draw-nft",
+            collection_id: draw.nft_id,
+        };
+        try {
+            await cfxUtils.transferOwnershipOnChain(draw.owner, winner, tokenId);
+            await transferOwnership(nftTransactionDetails, true);
+        } catch (error) {
+            return res.status(404).send(error);
+        }
     }
 
     await mongodbUtils
-        .saveAll([draw, nft, new Transaction(transactionDetails)])
+        .saveAll([draw, new Transaction(transactionDetails)])
         .then(() => {
             return res.status(200).send();
         })

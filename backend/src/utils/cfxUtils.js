@@ -40,6 +40,10 @@ async function drawRaffle(minter, tokenId) {
     return await raffleContract.draw(minter, tokenId).sendTransaction({ from: process.env.MANAGER_ADDRESS }).executed();
 }
 
+function decodeRaffleLog(log) {
+    return raffleContract.abi.decodeLog(log);
+}
+
 async function getOwnerOnChain(tokenId) {
     return await minterContract.ownerOf(tokenId);
 }
@@ -101,6 +105,7 @@ async function generateAlbumUri(req, imageUri, sha) {
 function actualTokenId(addr, uri, guess) {
     return makeid(5);
 }
+
 module.exports = {
     nextTokenId,
     mint,
@@ -112,4 +117,5 @@ module.exports = {
     createRaffle,
     getOwnerOnChain,
     drawRaffle,
+    decodeRaffleLog,
 };
