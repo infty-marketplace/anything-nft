@@ -13,6 +13,7 @@ const store = new Vuex.Store({
         minterAddress: "cfxtest:ace5gcmv1x118ts2tta4k83asp7sxrz566w4defuhr",
         stakeContract: undefined,
         stakeAddress: "cfxtest:aca4k538vsk20xg0s4cphmmjns59kr4yayeccxb602",
+        profilePic: "https://ipfs.io/ipfs/QmR9aGP1cQ13sapFBfFLiuhRVSGcrMYvZPmKXNNrobwtFZ?filename=undraw_male_avatar_323b.png"
     },
     actions: {
         async connectWallet(context) {
@@ -23,6 +24,7 @@ const store = new Vuex.Store({
             try {
                 const accounts = await window.conflux.send("cfx_requestAccounts");
                 context.commit("setAddress", accounts[0]);
+                context.commit("setProfilePic");
                 eventBus.$emit("Navbar.connectWalletSuccess");
                 if (window.location.href.includes("/mine/collections")) eventBus.$emit("Collections.loadCollections");
             } catch (err) {
@@ -48,6 +50,10 @@ const store = new Vuex.Store({
         setStakeContract: (state, sc) => {
             state.stakeContract = sc;
         },
+        setProfilePic: async (state) => {
+            const res = await axios.get(`${state.apiUrl}/profile/${state.address}`);
+            state.profilePic = res.data.profile_picture
+        }
     },
     getters: {
         getAddress: (state) => state.address,
@@ -61,10 +67,7 @@ const store = new Vuex.Store({
             const res = await axios.get(`${state.apiUrl}/profile/${addr}`);
             return res.data;
         },
-        getProfilePic: (state) => async (addr) => {
-            const res = await axios.get(`${state.apiUrl}/profile/${addr}`);
-            return res.data.profile_picture;
-        },
+        getProfilePic: (state) => state.profilePic,
         getNftsInAlbum: (state) => async (aid) => {
             return (await axios.get(`${state.apiUrl}/album/${aid}`)).data.nft_ids;
         },

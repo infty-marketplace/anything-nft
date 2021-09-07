@@ -3,7 +3,7 @@
         <Navbar />
         <div class='profile-pic-container' v-if='$store.getters.getAddress'>
             <img :src="avatar" id='profile-pic'/>
-            <a href="#" @click="uploadAvatar">
+            <a @click="uploadAvatar">
                 <b-icon id="upload_pic_icon" icon="camera" font-scale="2" class='upload-btn p-2'></b-icon>
             </a>
             <b-form style="display:None" >
@@ -16,7 +16,7 @@
         <div class='content' v-if='$store.getters.getAddress'>
             <div class='padding-border'></div>
             <el-row class="tac">
-            <el-col :span="4">
+            <el-col :span="5">
                 <el-menu
                 @select='handleSelect'
                 default-active="3"
@@ -26,7 +26,7 @@
                 <el-submenu index="1">
                     <template slot="title">
                     <i class="el-icon-menu"></i>
-                    <span>More</span>
+                    <span>Mine</span>
                     </template>
                     <el-menu-item-group>
                     <template slot="title">分组一</template>
@@ -60,7 +60,7 @@
                 </el-menu-item>
                 </el-menu>
             </el-col>
-            <el-col :span='20'>
+            <el-col :span='19'>
                 <div v-if='selectedIndex == "1-1"'>1</div>
                 <div v-if='selectedIndex == "2-1"'>
                     <el-table
@@ -279,22 +279,18 @@ export default {
                     appendToast: false,
                 });
             }
-            let imageURL = URL.createObjectURL(image)
-            this.updateAvatar(imageURL);
+            this.updateAvatar(image);
         },
 
-        updateAvatar(avatarURL) {
-            const newInfo = {
-                first_name: this.first_name,
-                last_name: this.last_name,
-                address: this.$route.params.address,
-                description: this.bio,
-                profile_picture: avatarURL
-            }
+        updateAvatar(avatar) {
+            const fd = new FormData();
+            fd.append('file', avatar);
+            fd.append('address', this.$store.getters.getAddress)
 
-            axios.post(this.$store.getters.getApiUrl+"/profile/update-profile", newInfo)
-            .then(() => {
-                this.avatar = avatarURL;
+            axios.post(this.$store.getters.getApiUrl+"/profile/update-avatar", fd)
+            .then((res) => {
+                this.avatar = res.data.url;
+                this.$store.commit('setProfilePic')
                 this.$notify({
                     title: "Congrats",
                     message: "Avatar Updated Successfully",
@@ -349,6 +345,19 @@ export default {
     border: 5px solid rgb(190, 234, 255);
     object-fit: cover;
 }
+#profile-pic ~ a {
+    opacity:0;
+    cursor:pointer;
+}
+#profile-pic ~ a:hover {
+    opacity:1;
+    cursor:pointer;
+}
+#profile-pic:hover ~ a {
+    opacity: 1;
+    cursor:pointer;
+}
+
 .profile-pic-container {
     position: absolute;
     display: block;
@@ -373,11 +382,6 @@ export default {
     margin-top: -15%;
     display: block;
     position: absolute;
-    opacity: 0.000001;
-}
-
-.profile-pic-container:hover #upload_pic_icon{
-    opacity: 1;
 }
 
 .upload-btn {
@@ -385,4 +389,9 @@ export default {
     border-radius: 50%;
     background-color: rgb(95, 167, 167);
 }
+
+</style>
+<style>
+
+
 </style>
