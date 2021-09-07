@@ -629,7 +629,11 @@ async function drawNft(req, res) {
         const tokenId = draw.nft_id.split("-")[1];
         const receipt = await cfxUtils.drawRaffle(minter, tokenId);
         const eventLog = cfxUtils.decodeRaffleLog(receipt.logs[0]);
-        const winner = eventLog.object._winner;
+        const winner = draw.owner;
+        // in case of abortion event, there is no participant, then there is no winner
+        try {
+            winner = eventLog.object._winner;
+        } catch (e) {}
 
         const nftTransactionDetails = {
             buyer: winner,

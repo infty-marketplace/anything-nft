@@ -62,62 +62,6 @@
                             </b-card>
                         </b-collapse>
                     </b-list-group-item>
-                    <b-list-group-item>
-                        <b-button pill v-b-toggle.collapse-3 variant="outline-secondary" class="category-button">
-                            Collections
-                        </b-button>
-                        <b-collapse id="collapse-3" class="mt-2">
-                            <b-card>
-                                <b-input-group size="sm" class="mb-2">
-                                    <b-input-group-prepend is-text>
-                                        <b-icon icon="search"></b-icon> </b-input-group-prepend
-                                    ><b-form-input placeholder="Filter"></b-form-input>
-                                </b-input-group>
-
-                                <b-list-group id="collections-group">
-                                    <b-list-group-item>Bored Ape Yacht Club</b-list-group-item>
-                                    <b-list-group-item>CrptoPunks</b-list-group-item>
-                                    <b-list-group-item>Art Blocks Curated</b-list-group-item>
-                                    <b-list-group-item>Bored Ape Kennel Club</b-list-group-item>
-                                    <b-list-group-item>SupDucks</b-list-group-item>
-                                    <b-list-group-item>Cool Cat</b-list-group-item>
-                                    <b-list-group-item>ZED RUN</b-list-group-item>
-                                    <b-list-group-item>Famelady</b-list-group-item>
-                                </b-list-group>
-                            </b-card>
-                        </b-collapse>
-                    </b-list-group-item>
-                    <b-list-group-item>
-                        <b-button pill v-b-toggle.collapse-4 variant="outline-secondary" class="category-button"
-                            >Chains</b-button
-                        >
-                        <b-collapse id="collapse-4" class="mt-2">
-                            <b-card>
-                                <b-list-group>
-                                    <b-list-group-item>Ethereum</b-list-group-item>
-                                    <b-list-group-item>Polygon</b-list-group-item>
-                                    <b-list-group-item>Klaytn</b-list-group-item>
-                                </b-list-group>
-                            </b-card>
-                        </b-collapse>
-                    </b-list-group-item>
-                    <b-list-group-item>
-                        <b-button pill v-b-toggle.collapse-5 variant="outline-secondary" class="category-button"
-                            >Categories</b-button
-                        >
-                        <b-collapse id="collapse-5" class="mt-2">
-                            <b-card>
-                                <b-list-group>
-                                    <b-list-group-item>Art</b-list-group-item>
-                                    <b-list-group-item>Music</b-list-group-item>
-                                    <b-list-group-item>Domain Names</b-list-group-item>
-                                    <b-list-group-item>Virtual Worlds</b-list-group-item>
-                                    <b-list-group-item>Trading Cards</b-list-group-item>
-                                    <b-list-group-item>Collectibles</b-list-group-item>
-                                </b-list-group>
-                            </b-card>
-                        </b-collapse>
-                    </b-list-group-item>
                 </b-list-group>
             </b-card>
         </div>
@@ -360,7 +304,7 @@ export default {
                 return;
             }
 
-            await axios
+            axios
                 .post(`${getters.getApiUrl}/draw-nft/`, {
                     draw_id: nftRaffleToBuy.draw_id,
                     buyer: address,
