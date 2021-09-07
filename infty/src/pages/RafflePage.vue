@@ -162,7 +162,7 @@
             </div>
             <div class="mt-4" v-for="raffle in this.displayedRaffles" :key="raffle.nft_id">
                 <b-card class="mb-3 pool-card">
-                    <img :src="raffle.url" class="raffle-image" />
+                    <img :src="raffle.url" class="raffle-image" @click="onClickImage(raffle.nft_id)" />
                     <div class="pool-card-primary">
                         <div><b>Title:</b> {{ raffle.title }}</div>
                         <div><b>Owner:</b> {{ raffle.owner }}</div>
@@ -272,8 +272,7 @@ export default {
             });
 
             const raffles_promises = draws.map((draw) => {
-                const nft_promise = axios.get(`${getters.getApiUrl}/nft/${draw.nft_id}`);
-                return nft_promise.then((res) => {
+                return axios.get(`${getters.getApiUrl}/nft/${draw.nft_id}`).then((res) => {
                     draw.url = res.data.file;
                     if (draw.deadline) {
                         draw.max = parseFloat(draw.deadline) - Math.floor(Date.now(draw.created_at) / 1000);
@@ -291,19 +290,30 @@ export default {
                         (total, participant) => total + participant.quantity,
                         0
                     );
-
                     return draw;
                 });
             });
 
-            Promise.all(raffles_promises).then((results) => {
+            await Promise.all(raffles_promises).then((results) => {
                 this.raffles = results.filter((draw) => {
                     return draw.max - draw.current > 0;
                 });
-                this.displayedRaffles = this.raffles;
-                this.displayedRaffles.sort((a, b) => {
-                    return new Date(b.created_at) - new Date(a.created_at);
-                });
+            });
+
+            for (const raffle of this.raffles) {
+                await axios
+                    .get(`${getters.getApiUrl}/profile/${raffle.owner}`)
+                    .then((res) => {
+                        raffle.owner = `${res.data.first_name} ${res.data.last_name}`;
+                    })
+                    .catch((e) => {
+                        return;
+                    });
+            }
+
+            this.displayedRaffles = this.raffles;
+            this.displayedRaffles.sort((a, b) => {
+                return new Date(b.created_at) - new Date(a.created_at);
             });
         },
         showModal() {
@@ -398,6 +408,11 @@ export default {
                 this.displayedRaffles.sort((a, b) => b.unit_price - a.unit_price);
             }
         },
+        onClickImage(nftId) {
+            this.$router.push({
+                path: "/nft/" + nftId,
+            });
+        },
     },
 };
 </script>
@@ -458,6 +473,7 @@ export default {
     height: 10vh;
     float: left;
     width: 10vh;
+    cursor: pointer;
 }
 .pool-card-primary {
     float: left;
