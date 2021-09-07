@@ -10,6 +10,7 @@ const { makeid } = require("../utils/helpers");
 const imageUtils = require("../utils/imageUtils");
 const mongodbUtils = require("../utils/mongodbUtils");
 const cfxUtils = require("../utils/cfxUtils");
+const s3Utils = require("../utils/s3Utils")
 const s3 = require("../database/s3");
 const { upload } = require("../database/s3");
 
@@ -90,17 +91,11 @@ async function createNft(req, res) {
     // upload image to s3
     console.log(sha256(tmpPath));
     const sha = sha256(tmpPath);
-    const fileToUpload = fs.createReadStream(tmpPath);
-    const s3UploadParams = {
-        Bucket: process.env.S3_BUCKET_NAME,
-        Key: makeid(16),
-        Body: fileToUpload,
-    };
-    const stored = await s3.upload(s3UploadParams).promise();
+    const location = s3Utils.uploadImage(tmpPath, makeid(16))
 
     // create nft on chain
     const guessedTokenId = await cfxUtils.nextTokenId();
-    const uri = await cfxUtils.generateUri(req, stored.Location, sha);
+    const uri = await cfxUtils.generateUri(req, location, sha);
     await cfxUtils.mint(req.body.address, uri);
     const actualTokenId = cfxUtils.actualTokenId(req.body.address, uri, guessedTokenId);
     const nftId = process.env.MINTER_ADDRESS + "-" + guessedTokenId;
@@ -108,7 +103,7 @@ async function createNft(req, res) {
         title: req.body.title,
         nft_id: nftId,
         description: req.body.description,
-        file: stored.Location,
+        file: location,
         file_hash: fileHash,
         status: constants.STATUS_PRIVATE,
         author: req.body.address,
