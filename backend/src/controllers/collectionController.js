@@ -45,37 +45,31 @@ const getDraw = async (req, res) => {
 
 // return a list of on sale NFT's id from cursor position, limit amount
 const getMarket = async (req, res) => {
-  const body = req.body;
-  if (!body) {
-    return res.status(400).json({ error: "invalid request" });
-  }
+    const body = req.body;
+    if (!body) {
+        return res.status(400).json({ error: "invalid request" });
+    }
 
-  const limit = body.limit || 10;
-  const offset = body.offset || 0;
+    const limit = body.limit || 10;
+    const offset = body.offset || 0;
 
-  const nftQuery = Nft.find({ status: constants.STATUS_SALE }, { nft_id: 1 })
-  .sort({ nft_id: "desc" })
-  .skip(offset)
-  .limit(limit)
-    
-  const albumQuery = Album.find(
-    { status: constants.STATUS_SALE },
-    { album_id: 1 }
-  )
-    .sort({ album_id: "desc" })
-    .skip(offset)
-    .limit(limit);
+    const nftQuery = Nft.find({ status: constants.STATUS_SALE }, { nft_id: 1 })
+        .sort({ nft_id: "desc" })
+        .skip(offset)
+        .limit(limit);
 
-  const drawQuery = Draw.find({}, { draw_id: 1 })
-    .sort({ draw_id: "desc" })
-    .skip(offset)
-    .limit(limit);
+    const albumQuery = Album.find({ status: constants.STATUS_SALE }, { album_id: 1 })
+        .sort({ album_id: "desc" })
+        .skip(offset)
+        .limit(limit);
 
-  res.send({
-    nft_ids: (await nftQuery.exec()).map((n) => n.nft_id),
-    album_ids: (await albumQuery.exec()).map((n) => n.album_id),
-    draw_ids: (await drawQuery.exec()).map((n) => n.draw_id),
-  });
+    const drawQuery = Draw.find({}, { draw_id: 1 }).sort({ draw_id: "desc" }).skip(offset).limit(limit);
+
+    res.send({
+        nft_ids: (await nftQuery.exec()).map((n) => n.nft_id),
+        album_ids: (await albumQuery.exec()).map((n) => n.album_id),
+        draw_ids: (await drawQuery.exec()).map((n) => n.draw_id),
+    });
 };
 
 async function createNft(req, res) {
@@ -177,7 +171,7 @@ async function listNftDraw(req, res) {
         participants: [],
     };
 
-    // await cfxUtils.createRaffle(drawParams);
+    await cfxUtils.createRaffle(drawParams);
 
     const newDraw = new Draw(drawParams);
     newDraw.save(function (err) {
@@ -356,7 +350,8 @@ async function transferOwnership(transactionDetails, recordTransaction = true) {
         collectionType = "album";
     } else if (
         transactionDetails.transaction_type === "purchase-nft" ||
-        transactionDetails.transaction_type === "fund-nft"
+        transactionDetails.transaction_type === "fund-nft" ||
+        transactionDetails.transaction_type === "draw-nft"
     ) {
         collectionType = "nft";
     }
@@ -378,7 +373,10 @@ async function transferOwnership(transactionDetails, recordTransaction = true) {
             album_id: transactionDetails.collection_id,
         });
         collection.owner = transactionDetails.buyer;
-    } else if (transactionDetails.transaction_type === "purchase-nft") {
+    } else if (
+        transactionDetails.transaction_type === "purchase-nft" ||
+        transactionDetails.transaction_type === "draw-nft"
+    ) {
         collection = await Nft.findOne({
             nft_id: transactionDetails.collection_id,
         });
@@ -620,6 +618,32 @@ async function drawNft(req, res) {
     }
 
     // TODO: transfer upon deadline/all drawed
+    const totalEntries = draw.participants.reduce((total, participant) => total + participant.quantity, 0);
+    if (totalEntries === draw.quantity) {
+        const minter = draw.nft_id.split("-")[0];
+        const tokenId = draw.nft_id.split("-")[1];
+        const receipt = await cfxUtils.drawRaffle(minter, tokenId);
+        const eventLog = cfxUtils.decodeRaffleLog(receipt.logs[0]);
+        const winner = draw.owner;
+        // in case of abortion event, there is no participant, then there is no winner
+        try {
+            winner = eventLog.object._winner;
+        } catch (e) {}
+
+        const nftTransactionDetails = {
+            buyer: winner,
+            seller: draw.owner,
+            transaction_type: "draw-nft",
+            collection_id: draw.nft_id,
+        };
+        try {
+            await cfxUtils.transferOwnershipOnChain(draw.owner, winner, tokenId);
+            await transferOwnership(nftTransactionDetails, true);
+        } catch (error) {
+            return res.status(404).send(error);
+        }
+    }
+
     await mongodbUtils
         .saveAll([draw, new Transaction(transactionDetails)])
         .then(() => {
@@ -677,7 +701,7 @@ async function purchaseAlbum(req, res) {
             transaction_type: "purchase-nft",
             collection_id: nft.nft_id,
         };
-        
+
         try {
             await cfxUtils.transferOwnershipOnChain(album.owner, body.buyer, nft.nft_id.split("-")[1]);
             await transferOwnership(nftTransactionDetails, false);

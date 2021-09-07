@@ -1,0 +1,333 @@
+{
+  "network": "testnet",
+  "codeHash": "0xa807d01c5586ff0133cdb68fb7839161d71dc39297ed3e7b50e5f1d160e2f9ea",
+  "array": [],
+  "json": {},
+  "obj": {},
+  "empty": true,
+  "receipt": {
+    "transactionHash": "0x48278ca7e27f70375287104cb4ea2eafbff58bf8525cfaa6f3a7fd0f1fc27cee",
+    "index": 0,
+    "blockHash": "0xfd00e67fa150ba5bb43a6c90fa93f3d8e860d5e5496dfad3a4ec21f40b3c5460",
+    "epochNumber": 42384811,
+    "from": "cfxtest:aar3amuxs8fg2u7h1tsngukey8vm2h6vgujhf413e6",
+    "to": null,
+    "gasUsed": "1346322",
+    "gasFee": "1346322",
+    "contractCreated": "cfxtest:acba17zagxykgrh2hg6uzaukdx5tgrfm5jd5btkxk4",
+    "logs": [],
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "stateRoot": "0x7b0bfe0563e9baba7b68c2aca4f0f6840fddb6172e42bdb784c1e0450c070b8a",
+    "outcomeStatus": 0,
+    "txExecErrorMsg": null,
+    "gasCoveredBySponsor": false,
+    "storageCoveredBySponsor": false,
+    "storageCollateralized": "2624",
+    "storageReleased": []
+  },
+  "abi": [
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "manager",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "networkId": 1
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": "address",
+          "networkId": 1
+        },
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "raffles",
+      "outputs": [
+        {
+          "name": "maxTickets",
+          "type": "uint256"
+        },
+        {
+          "name": "price",
+          "type": "uint256"
+        },
+        {
+          "name": "owner",
+          "type": "address",
+          "networkId": 1
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "constructor",
+      "name": "constructor"
+    },
+    {
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "fallback"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "_minter",
+          "type": "address",
+          "networkId": 1
+        },
+        {
+          "indexed": false,
+          "name": "_tokenId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "_owner",
+          "type": "address",
+          "networkId": 1
+        },
+        {
+          "indexed": false,
+          "name": "_maxTickets",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "_price",
+          "type": "uint256"
+        }
+      ],
+      "name": "CreateEvent",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "_minter",
+          "type": "address",
+          "networkId": 1
+        },
+        {
+          "indexed": false,
+          "name": "_tokenId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "_participant",
+          "type": "address",
+          "networkId": 1
+        },
+        {
+          "indexed": false,
+          "name": "_qty",
+          "type": "uint256"
+        }
+      ],
+      "name": "JoinEvent",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "_minter",
+          "type": "address",
+          "networkId": 1
+        },
+        {
+          "indexed": false,
+          "name": "_tokenId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "_winner",
+          "type": "address",
+          "networkId": 1
+        },
+        {
+          "indexed": false,
+          "name": "_nftValue",
+          "type": "uint256"
+        }
+      ],
+      "name": "DrawEvent",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "_minter",
+          "type": "address",
+          "networkId": 1
+        },
+        {
+          "indexed": false,
+          "name": "_tokenId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "_owner",
+          "type": "address",
+          "networkId": 1
+        }
+      ],
+      "name": "AbortEvent",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "_from",
+          "type": "address",
+          "networkId": 1
+        },
+        {
+          "indexed": false,
+          "name": "_value",
+          "type": "uint256"
+        }
+      ],
+      "name": "Paid",
+      "type": "event"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_maxTickets",
+          "type": "uint256"
+        },
+        {
+          "name": "_price",
+          "type": "uint256"
+        },
+        {
+          "name": "_owner",
+          "type": "address",
+          "networkId": 1
+        },
+        {
+          "name": "_minter",
+          "type": "address",
+          "networkId": 1
+        },
+        {
+          "name": "_tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "createRaffle",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_minter",
+          "type": "address",
+          "networkId": 1
+        },
+        {
+          "name": "_tokenId",
+          "type": "uint256"
+        },
+        {
+          "name": "_qty",
+          "type": "uint256"
+        }
+      ],
+      "name": "joinRaffle",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_minter",
+          "type": "address",
+          "networkId": 1
+        },
+        {
+          "name": "_tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "draw",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "networkId": 1
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "_minter",
+          "type": "address",
+          "networkId": 1
+        },
+        {
+          "name": "_tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getParticipants",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address[]"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ]
+}
