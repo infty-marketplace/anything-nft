@@ -209,7 +209,12 @@ export default {
   },
 
   mounted() {
+    window.addEventListener("scroll", this.getMore)
     this.getMore();
+  },
+
+  destroyed() {
+    window.removeEventListener('scroll', this.getMore);
   },
 
   data() {
@@ -242,19 +247,17 @@ export default {
 
   methods: {
       getMore() {
-        window.onscroll = () => {
-          
-          let bottomOfWindow = Math.abs(
-            (document.documentElement.scrollTop + window.innerHeight) - document.documentElement.offsetHeight
-          ) < 1;
-          if(bottomOfWindow) {
-            if (this.tabIndex == 0){
-              this.loadNftMarket();
-            } else {
-              this.loadAlbumMarket();
-            }
+        let bottomOfWindow = Math.abs(
+          (document.documentElement.scrollTop + window.innerHeight) - document.documentElement.offsetHeight
+        ) < 1;
+        if(bottomOfWindow) {
+          if (this.tabIndex == 0){
+            this.loadNftMarket();
+          } else {
+            this.loadAlbumMarket();
           }
         }
+        
       },
 
       async proccessNft(nft_ids) {
