@@ -87,13 +87,6 @@ export default {
             return this.$store.getters.getProfilePic
         }
     },
-    async mounted() {
-        axios
-            .get(`${this.$store.getters.getApiUrl}/profile/${this.$store.getters.getAddress}`)
-            .then((res) => {
-                this.profile_picture = res.data.profile_picture
-            })
-    },
     async created() {
       this.connectWallet()
     //   window.setTimeout(async () => {
@@ -110,7 +103,7 @@ export default {
         axios
             .get(`${this.$store.getters.getApiUrl}/profile/${this.$store.getters.getAddress}`)
             .then((res) => {
-                this.profile_picture = res.data.profile_picture
+                console.log('wallet connected', res)
             })
             .catch((err) => {
                 if (!err.response || err.response.status == 404) {
