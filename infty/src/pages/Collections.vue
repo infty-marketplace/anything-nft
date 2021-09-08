@@ -258,7 +258,7 @@ export default {
 
 .card {
     /* max-width: 400px; */
-    width: 400px;
+    width: 250px;
     height: 100%;
 }
 
