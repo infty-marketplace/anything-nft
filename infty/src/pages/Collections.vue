@@ -1,54 +1,36 @@
 <template>
-  <div class="flex-wrapper" id="collections-page">
-    <Navbar active-index="2" />
-    <div class="flex-wrapper-row m-3" v-if="$store.getters.getAddress">
-      <el-tabs class='main-content'>
-        <el-tab-pane label='NFT'>
-          <p>Unlisted</p>
-          <div class="cards-container">
-            <NftCard
-              class="mt-4 card"
-              v-for="nft in private_nfts"
-              :card="nft"
-              :key="nft.url"
-            />
-            <p class="mt-4" v-if="private_nfts.length == 0"><el-empty description="Nothing"></el-empty></p>
-          </div>
-          <p>On Sale</p>
-          <div class="cards-container">
-            <NftCard
-              class="mt-4 card"
-              v-for="nft in sale_nfts"
-              :card="nft"
-              :key="nft.url"
-            />
-            <p class="mt-4" v-if="sale_nfts.length == 0"><el-empty description="Nothing"></el-empty></p>
-          </div>
-        </el-tab-pane>
-        <el-tab-pane label='Album'>
-          <p>Unlisted</p>
-          <div class="cards-container">
-            <AlbumCard
-              class="mt-4 card"
-              v-for="album in private_albums"
-              :card="album"
-              :key="album.url"
-            />
-            <p class="mt-4" v-if="private_albums.length == 0"><el-empty description="Nothing"></el-empty></p>
-          </div>
-          <p>On Sale</p>
-          <div class="cards-container">
-            <AlbumCard
-              class="mt-4 card"
-              v-for="album in sale_albums"
-              :card="album"
-              :key="album.url"
-            />
-            <p class="mt-4" v-if="sale_albums.length == 0"><el-empty description="Nothing"></el-empty></p>
-          </div>
-        </el-tab-pane>
-      </el-tabs>
-      <!-- <b-tabs class="main-content" content-class="ml-5 mr-5">
+    <div class="flex-wrapper" id="collections-page">
+        <Navbar active-index="2" />
+        <div class="flex-wrapper-row m-3" v-if="$store.getters.getAddress">
+            <el-tabs class="main-content">
+                <el-tab-pane label="NFT">
+                    <p>Unlisted</p>
+                    <div class="cards-container">
+                        <NftCard class="mt-4 card" v-for="nft in private_nfts" :card="nft" :key="nft.url" />
+                        <p class="mt-4" v-if="private_nfts.length == 0"><el-empty description="Nothing"></el-empty></p>
+                    </div>
+                    <p>On Sale</p>
+                    <div class="cards-container">
+                        <NftCard class="mt-4 card" v-for="nft in sale_nfts" :card="nft" :key="nft.url" />
+                        <p class="mt-4" v-if="sale_nfts.length == 0"><el-empty description="Nothing"></el-empty></p>
+                    </div>
+                </el-tab-pane>
+                <el-tab-pane label="Album">
+                    <p>Unlisted</p>
+                    <div class="cards-container">
+                        <AlbumCard class="mt-4 card" v-for="album in private_albums" :card="album" :key="album.url" />
+                        <p class="mt-4" v-if="private_albums.length == 0">
+                            <el-empty description="Nothing"></el-empty>
+                        </p>
+                    </div>
+                    <p>On Sale</p>
+                    <div class="cards-container">
+                        <AlbumCard class="mt-4 card" v-for="album in sale_albums" :card="album" :key="album.url" />
+                        <p class="mt-4" v-if="sale_albums.length == 0"><el-empty description="Nothing"></el-empty></p>
+                    </div>
+                </el-tab-pane>
+            </el-tabs>
+            <!-- <b-tabs class="main-content" content-class="ml-5 mr-5">
         <b-tab title="NFT" active>
           
         </b-tab>
@@ -56,60 +38,34 @@
           ></b-tab
         >
       </b-tabs> -->
+        </div>
+        <div v-else class="flex-wrapper-row">
+            <ConnectWallet />
+        </div>
+        <Footer style="z-index: 0" />
+        <a href="/mine/create">
+            <b-btn variant="primary" class="add-btn"> <b-icon icon="plus-circle-fill"></b-icon> </b-btn
+        ></a>
+        <b-btn v-if="album_candidates.length > 0" variant="info" class="create-album-btn" @click="createAlbumClicked">
+            Create Album</b-btn
+        >
+        <b-modal id="album-modal" ref="album-modal" title="Package NFTs to Album" @ok="createAlbum" class="album-modal">
+            <label>Album Title</label>
+            <b-form-input class="mb-4" v-model="album_title" placeholder="Name for your special album..." />
+            <label>Album Description</label>
+            <b-form-input class="mb-4" v-model="album_description" placeholder="Description for you special album..." />
+            <label>Album Cover</label>
+            <div style="display: flex; min-width: 100%; justify-content: space-around" class="mb-4">
+                <FileUploader pass-file-to-event="Collections.receiveFile" class="file-uploader" />
+            </div>
+        </b-modal>
     </div>
-    <div v-else class="flex-wrapper-row">
-      <ConnectWallet />
-    </div>
-    <Footer style="z-index: 0" />
-    <a href="/mine/create">
-      <b-btn variant="primary" class="add-btn">
-        <b-icon icon="plus-circle-fill"></b-icon> </b-btn
-    ></a>
-    <b-btn
-      v-if="album_candidates.length > 0"
-      variant="info"
-      class="create-album-btn"
-      @click="createAlbumClicked"
-    >
-      Create Album</b-btn
-    >
-    <b-modal
-      id="album-modal"
-      ref="album-modal"
-      title="Package NFTs to Album"
-      @ok="createAlbum"
-      class="album-modal"
-    >
-      <label>Album Title</label>
-      <b-form-input
-        class="mb-4"
-        v-model="album_title"
-        placeholder="Name for your special album..."
-      />
-      <label>Album Description</label>
-      <b-form-input
-        class="mb-4"
-        v-model="album_description"
-        placeholder="Description for you special album..."
-      />
-      <label>Album Cover</label>
-      <div
-        style="display: flex; min-width: 100%; justify-content: space-around"
-        class="mb-4"
-      >
-        <FileUploader
-          pass-file-to-event="Collections.receiveFile"
-          class="file-uploader"
-        />
-      </div>
-    </b-modal>
-  </div>
 </template>
 
 <script>
 import axios from "axios";
 import { eventBus } from "../main";
-import { Notification } from 'element-ui'
+import { Notification } from "element-ui";
 
 import Navbar from "../components/Navbar.vue";
 import Footer from "../components/Footer.vue";
@@ -179,6 +135,7 @@ export default {
       return this.albums.filter((a) => a.status == "sale");
     },
   },
+
   async mounted() {
     const getters = this.$store.getters
     if (getters.getAddress) this.loadCollections();
@@ -279,9 +236,7 @@ export default {
       this.loadNfts(res.data.nft_ids);
       this.loadAlbums(res.data.album_ids);
     },
-    createAlbumClicked() {
-      this.$refs["album-modal"].show();
-    },
+
     createAlbum() {
       this.$notify({
         title: 'Notification',
@@ -308,30 +263,30 @@ export default {
           })
         });
     },
-  },
+  }
 };
 </script>
 
 <style scoped>
 .main-content {
-  width: 100%;
-  max-width: 80vw;
+    width: 100%;
+    max-width: 80vw;
 }
 
 .add-btn {
-  position: fixed;
-  bottom: 5vh;
-  right: 5vw;
-  height: 4vh;
-  box-shadow: 0 0 5px rgba(33, 33, 33, 0.2);
+    position: fixed;
+    bottom: 5vh;
+    right: 5vw;
+    height: 4vh;
+    box-shadow: 0 0 5px rgba(33, 33, 33, 0.2);
 }
 
 .create-album-btn {
-  position: fixed;
-  bottom: 5vh;
-  right: 10vw;
-  height: 4vh;
-  box-shadow: 0 0 5px rgba(33, 33, 33, 0.2);
+    position: fixed;
+    bottom: 5vh;
+    right: 10vw;
+    height: 4vh;
+    box-shadow: 0 0 5px rgba(33, 33, 33, 0.2);
 }
 .cards-container {
   display: flex;
@@ -342,29 +297,27 @@ export default {
 }
 
 .card {
-  max-width: 400px;
-  height: 100%;
+    /* max-width: 400px; */
+    width: 400px;
+    height: 100%;
 }
 
 .file-uploader {
-  width: 80%;
-  height: 450px;
+    width: 80%;
+    height: 450px;
 }
-
-
 </style>
 
 <style>
 @media (min-width: 576px) {
-  #album-modal .modal-dialog {
-    max-width: unset !important;
-  }
+    #album-modal .modal-dialog {
+        max-width: unset !important;
+    }
 }
 #album-modal .modal-dialog {
-  width: 50vw;
+    width: 50vw;
 }
 #collections-page .el-tabs__item.is-top {
-  font-size: 28px;
+    font-size: 28px;
 }
 </style>
-

@@ -59,8 +59,6 @@ export default {
     data: () => ({
         first_name: "",
         last_name: "",
-        profile_picture:
-            "https://ipfs.io/ipfs/QmR9aGP1cQ13sapFBfFLiuhRVSGcrMYvZPmKXNNrobwtFZ?filename=undraw_male_avatar_323b.png",
     }),
     methods: {
         connectWallet() {
@@ -82,13 +80,22 @@ export default {
         loggedIn: function() {
             return !!this.$store.getters.getAddress;
         },
+        addr: function() {
+          return this.$store.getters.getAddress
+        },
+        profile_picture: function() {
+            return this.$store.getters.getProfilePic
+        }
     },
     async created() {
       this.connectWallet()
-      this.addr = window.conflux.selectedAddress;
-      if (this.addr) {
-          this.profile_picture = await this.$store.getters.getProfilePic(this.addr);
-      }
+    //   window.setTimeout(async () => {
+    //     //   this.addr = window.conflux.selectedAddress;
+    //         if (this.addr) {
+    //             this.profile_picture = await this.$store.getters.getProfilePic(this.addr);
+    //         }
+    //   },2000)
+      
       eventBus.$on("Navbar.noWallet", () => {
           this.$bvToast.show("no-wallet-toast");
       });

@@ -214,7 +214,12 @@ export default {
   },
 
   mounted() {
+    window.addEventListener("scroll", this.getMore)
     this.getMore();
+  },
+
+  destroyed() {
+    window.removeEventListener('scroll', this.getMore);
   },
 
   data() {
@@ -249,7 +254,6 @@ export default {
   methods: {
       getMore() {
         window.onscroll = () => {
-          
           let bottomOfWindow = Math.abs(
             (document.documentElement.scrollTop + window.innerHeight) - document.documentElement.offsetHeight
           ) < 1;

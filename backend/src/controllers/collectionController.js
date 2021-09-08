@@ -11,6 +11,7 @@ const { makeid } = require("../utils/helpers");
 const imageUtils = require("../utils/imageUtils");
 const mongodbUtils = require("../utils/mongodbUtils");
 const cfxUtils = require("../utils/cfxUtils");
+const s3Utils = require("../utils/s3Utils")
 const s3 = require("../database/s3");
 const { upload } = require("../database/s3");
 
@@ -101,17 +102,11 @@ async function createNft(req, res) {
     // upload image to s3
     console.log(sha256(tmpPath));
     const sha = sha256(tmpPath);
-    const fileToUpload = fs.createReadStream(tmpPath);
-    const s3UploadParams = {
-        Bucket: process.env.S3_BUCKET_NAME,
-        Key: makeid(16),
-        Body: fileToUpload,
-    };
-    const stored = await s3.upload(s3UploadParams).promise();
+    const location = s3Utils.uploadImage(tmpPath, makeid(16))
 
     // create nft on chain
     const guessedTokenId = await cfxUtils.nextTokenId();
-    const uri = await cfxUtils.generateUri(req, stored.Location, sha);
+    const uri = await cfxUtils.generateUri(req, location, sha);
     await cfxUtils.mint(req.body.address, uri);
     const actualTokenId = cfxUtils.actualTokenId(req.body.address, uri, guessedTokenId);
     const nftId = process.env.MINTER_ADDRESS + "-" + guessedTokenId;
@@ -119,7 +114,7 @@ async function createNft(req, res) {
         title: req.body.title,
         nft_id: nftId,
         description: req.body.description,
-        file: stored.Location,
+        file: location,
         file_hash: fileHash,
         status: constants.STATUS_PRIVATE,
         author: req.body.address,
@@ -213,7 +208,7 @@ async function listNftDraw(req, res) {
         participants: [],
     };
 
-    // await cfxUtils.createRaffle(drawParams);
+    await cfxUtils.createRaffle(drawParams);
 
     const newDraw = new Draw(drawParams);
     newDraw.save(function (err) {
@@ -422,7 +417,8 @@ async function transferOwnership(transactionDetails, recordTransaction = true) {
         collectionType = "album";
     } else if (
         transactionDetails.transaction_type === "purchase-nft" ||
-        transactionDetails.transaction_type === "fund-nft"
+        transactionDetails.transaction_type === "fund-nft" ||
+        transactionDetails.transaction_type === "draw-nft"
     ) {
         collectionType = "nft";
     }
@@ -444,7 +440,10 @@ async function transferOwnership(transactionDetails, recordTransaction = true) {
             album_id: transactionDetails.collection_id,
         });
         collection.owner = transactionDetails.buyer;
-    } else if (transactionDetails.transaction_type === "purchase-nft") {
+    } else if (
+        transactionDetails.transaction_type === "purchase-nft" ||
+        transactionDetails.transaction_type === "draw-nft"
+    ) {
         collection = await Nft.findOne({
             nft_id: transactionDetails.collection_id,
         });
@@ -693,6 +692,32 @@ async function drawNft(req, res) {
     }
 
     // TODO: transfer upon deadline/all drawed
+    const totalEntries = draw.participants.reduce((total, participant) => total + participant.quantity, 0);
+    if (totalEntries === draw.quantity) {
+        const minter = draw.nft_id.split("-")[0];
+        const tokenId = draw.nft_id.split("-")[1];
+        const receipt = await cfxUtils.drawRaffle(minter, tokenId);
+        const eventLog = cfxUtils.decodeRaffleLog(receipt.logs[0]);
+        const winner = draw.owner;
+        // in case of abortion event, there is no participant, then there is no winner
+        try {
+            winner = eventLog.object._winner;
+        } catch (e) {}
+
+        const nftTransactionDetails = {
+            buyer: winner,
+            seller: draw.owner,
+            transaction_type: "draw-nft",
+            collection_id: draw.nft_id,
+        };
+        try {
+            await cfxUtils.transferOwnershipOnChain(draw.owner, winner, tokenId);
+            await transferOwnership(nftTransactionDetails, true);
+        } catch (error) {
+            return res.status(404).send(error);
+        }
+    }
+
     await mongodbUtils
         .saveAll([draw, new Transaction(transactionDetails)])
         .then(() => {
@@ -750,7 +775,7 @@ async function purchaseAlbum(req, res) {
             transaction_type: "purchase-nft",
             collection_id: nft.nft_id,
         };
-        
+
         try {
             await cfxUtils.transferOwnershipOnChain(album.owner, body.buyer, nft.nft_id.split("-")[1]);
             await transferOwnership(nftTransactionDetails, false);
