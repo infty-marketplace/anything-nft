@@ -122,6 +122,7 @@ export default {
       return this.nfts.filter((n, i) => {
         if (n.fragmented) {
           this.nfts[i].status = 'sale'
+          console.log(this.sale_frags)
           return this.sale_frags.map(f=>f.nft_id).includes(n.nft_id)
         } else {
           return n.status == "sale"
@@ -211,7 +212,9 @@ export default {
       });
 
       axios.get(`${api}/fragments?owner=${this.$store.getters.getAddress}`)
-        .then(res => this.fragments = res.data)
+        .then(res =>  {
+          this.fragments = res.data
+        })
     },
     async loadAlbums(album_ids) {
       const album_promises = album_ids.map((aid) =>

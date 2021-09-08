@@ -42,7 +42,7 @@ export default {
         eventBus.$on("App.notifyWIP", () => {
             this.$notify.info({
                 title: "Info",
-                message: 'This functionality is work in progress.</div>',
+                message: 'This functionality is work in progress.',
                 duration: 3000,
             });
         });

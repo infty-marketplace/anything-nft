@@ -2,7 +2,7 @@
   <div class="flex-wrapper">
     <Navbar />
     <button @click='$router.go(-1)' class='back-btn'><i class='el-icon-back' style='color:white'/></button>
-    <div @click='$router.go(-1)' class='percent' v-if="card.status == 'sale' || card.owner.length>1">
+    <div @click='$router.go(-1)' class='percent' v-if="card.fractional">
       <span style='line-height:80%;text-align:center;color:white;font-size: 100%;left:50%;top:50%;position:absolute;transform: translate(-50%, -50%);'>
         {{sharesOwned}}
       Shares
@@ -111,7 +111,7 @@
           class="transaction-info"
           header-tag="header"
           footer-tag="footer"
-          v-if="card.status == 'sale' || card.owner.length>1"
+          v-if="card.status == 'sale' && card.fractional && !isOwner"
         >
           <template #header>
             <h6 class="mb-0">
@@ -218,15 +218,17 @@ export default {
     Footer,
     HeartBtn
   },
-  props: ['card'],
+
   data() {
     return {
+      card: {owner:[]},
       isOwner: true,
       likes: this.rand(0,100),
       view: this.rand(100,2000),
       likeswitch: 1,
       shares: 1,
       fractionProg: 0,
+      listing_commision: '',
       sharesTable: [],
       offersData: [{
         unit_price: 30,
@@ -268,7 +270,7 @@ export default {
     console: () => console
   },
   created() {
-    if (this.card) return;
+    if (!this.card) this.reload();
     if (this.$store.getters.getAddress == undefined) this.$store.dispatch("connectWallet");
   },
 
@@ -285,9 +287,7 @@ export default {
       const frags = (await axios.get(`${getters.getApiUrl}/fragments?nft_id=${card.nft_id}`)).data
       this.fractionProg = card.owner.slice(1).reduce((pv, cv) => pv + cv.percentage, 0)*100
       if (card.status == 'sale') {
-        this.sharesTable = card.owner.slice(1).map(async o => {
-          return {owner: o.address, shares: o.percentage*100, ... frags[frags.findIndex(f => f.owner == o.address)]}
-        })
+        this.sharesTable = frags.map(o => ({owner:o.owner, shares: o.percentage*100}))
       }
 
       if (card.status == 'private') {
@@ -296,15 +296,14 @@ export default {
         })
       }
       
-      await axios.get(`${this.$store.getters.getApiUrl}/profile/${card.author}`).then(resp => {
-        card.author_name = resp.data.first_name + " " + resp.data.last_name;
-        if (this.$store.getters.getAddress != card.owner[0].address) this.isOwner = false;
-      })
-      await axios.get(`${this.$store.getters.getApiUrl}/profile/${card.owner[0].address}`).then(resp => {
-        card.owner_name = resp.data.first_name + " " + resp.data.last_name;
-        card.url = card.file;
-        this.card = card;
-      })
+      const resp = await axios.get(`${this.$store.getters.getApiUrl}/profile/${card.author}`)
+      card.author_name = resp.data.first_name + " " + resp.data.last_name;
+      if (this.$store.getters.getAddress != card.owner[0].address) this.isOwner = false;
+      
+      await axios.get(`${this.$store.getters.getApiUrl}/profile/${card.owner[0].address}`)
+      card.owner_name = resp.data.first_name + " " + resp.data.last_name;
+      card.url = card.file;
+      this.card = card;
     },
     rand(min, max) {
       return Math.floor(Math.random() * (max - min)) + min;
@@ -386,7 +385,7 @@ export default {
             title: "Notification",
             autoHideDelay: 3000
         })
-        this.reload()
+        this.$router.go()
       })
     },
 
@@ -413,7 +412,7 @@ export default {
             title: "Notification",
             autoHideDelay: 3000
         })
-        this.reload()
+        this.$router.go()
       })
     }
   },

@@ -85,6 +85,7 @@
                             :placeholder='`How much in ${currencyValue}... `'
                         />
                         </div>
+                        <div v-if="!card.fragmented">
                         <b-form-checkbox
                         style="display: inline"
                         id="fraction"
@@ -100,7 +101,7 @@
                         <el-tooltip effect="dark" class='ml-2' style='cursor:help' content="Your NFT will be divided into 100 shares." placement="right">
                             <i class='el-icon-warning-outline'/>
                         </el-tooltip>
-                        
+                        </div>
                     </b-modal>
                     <b-modal ref="raffle-modal" title="Raffle It" @ok="handleRaffleNft">
                         <label>Ticket Price</label>
@@ -222,7 +223,7 @@ export default {
                     .sendTransaction({ from: getters.getAddress, to: getters.getMinterAddress, gasPrice: 1 })
                     .executed();
             }
-
+            console.log(this.fractionStatus)
             axios
                 .post(`${this.$store.getters.getApiUrl}/list-nft`, {
                     price: this.listing_price,
