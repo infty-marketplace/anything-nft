@@ -18,26 +18,26 @@
       <span class="shape"></span>
       <span class="shape"></span>
       <span class="shape"></span>
-      <span class="shape"></span>
+
       <div class="about-us">
-        <div class="sm:w-2/3 sm:mr-10">
-          <div class="text">
-            <!-- <span class="text-gray-500 border-b-2 border-indigo-600 uppercase"
+        <span class="text-bg"></span>
+        <div class="text">
+          <!-- <span class="text-gray-500 border-b-2 border-indigo-600 uppercase"
               >ABOUT US</span
             > -->
-            <h2 class="font-bold stress">
-              About <span class="font-bold stress">Our Team</span>
-            </h2>
-            <p class="text-gray-700">
-              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquid,
-              commodi doloremque, fugiat illum magni minus nisi nulla numquam
-              obcaecati placeat quia, repellat tempore voluptatum. Lorem ipsum
-              dolor sit amet, consectetur adipisicing elit. Aliquid, commodi
-              doloremque, fugiat illum magni minus nisi nulla numquam obcaecati
-              placeat quia, repellat tempore voluptatum.
-            </p>
-          </div>
+          <h2 class="font-bold stress">
+            About <span class="font-bold stress">Our Team</span>
+          </h2>
+          <p class="text-gray-700">
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquid,
+            commodi doloremque, fugiat illum magni minus nisi nulla numquam
+            obcaecati placeat quia, repellat tempore voluptatum. Lorem ipsum
+            dolor sit amet, consectetur adipisicing elit. Aliquid, commodi
+            doloremque, fugiat illum magni minus nisi nulla numquam obcaecati
+            placeat quia, repellat tempore voluptatum.
+          </p>
         </div>
+
         <img class="team" :src="team" />
       </div>
     </div>
@@ -161,13 +161,13 @@ export default {
   z-index: -1;
   animation: wave 15s ease-in-out infinite;
 }
-.shape:nth-of-type(4) {
+.text-bg {
   width: 130%;
   height: 80%;
   background: #e5e5e5;
   position: absolute;
   left: -30%;
-  top: 140%;
+  top: 0%;
   opacity: 0.3;
   z-index: -1;
   animation: wave 10s ease-in-out infinite;
@@ -269,6 +269,7 @@ button a {
   text-decoration: none;
 }
 .about-us {
+  position: relative;
   text-align: left;
   display: flex;
   padding: 5%;
