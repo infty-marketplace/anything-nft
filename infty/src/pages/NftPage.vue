@@ -111,7 +111,7 @@
           class="transaction-info"
           header-tag="header"
           footer-tag="footer"
-          v-if="card.status == 'sale' && card.fractional && !isOwner"
+          v-if="card.status == 'sale' && card.fractional"
         >
           <template #header>
             <h6 class="mb-0">
@@ -122,8 +122,8 @@
           
           <el-progress  :text-inside="true" :stroke-width="26" :percentage="fractionProg"></el-progress>
           <hr>
-          <el-input v-model='shares' type='number' style='width: calc(100% - 12rem)'/>
-          <b-button variant="primary" @click="purchaseShares" style='float:right'
+          <el-input v-if='!isOwner' v-model='shares' type='number' style='width: calc(100% - 12rem)'/>
+          <b-button v-if='!isOwner' variant="primary" @click="purchaseShares" style='float:right'
               ><i class='el-icon-s-ticket'/>&nbsp;&nbsp;Purchase shares</b-button>
           </div>
           <el-table
