@@ -3,7 +3,7 @@
         <Navbar />
         <div class="profile-pic-container" v-if="$store.getters.getAddress">
             <img :src="avatar" id="profile-pic" />
-            <a @click="uploadAvatar">
+            <a @click="uploadAvatar" v-if="this.isMyself">
                 <b-icon id="upload_pic_icon" icon="camera" font-scale="2" class="upload-btn p-2"></b-icon>
             </a>
             <b-form style="display:None">
@@ -19,28 +19,19 @@
             <div class="padding-border"></div>
             <el-row class="tac">
                 <el-col :span="5">
-                    <el-menu @select="handleSelect" default-active="3" class="el-menu-vertical-demo">
+                    <el-menu @select="handleSelect" default-active="0" class="el-menu-vertical-demo">
                         <!-- @open="handleOpen" -->
                         <!-- @close="handleClose" -->
-                        <el-submenu index="1">
+                        <el-submenu index="1" v-if="!this.isMyself">
                             <template slot="title">
                                 <i class="el-icon-menu"></i>
-                                <span>Mine</span>
+                                <span>Listing</span>
                             </template>
-                            <el-menu-item-group>
-                                <template slot="title">分组一</template>
-                                <el-menu-item index="1-1">选项1</el-menu-item>
-                                <el-menu-item index="1-2">选项2</el-menu-item>
-                            </el-menu-item-group>
-                            <el-menu-item-group title="分组2">
-                                <el-menu-item index="1-3">选项3</el-menu-item>
-                            </el-menu-item-group>
-                            <el-submenu index="1-4">
-                                <template slot="title">选项4</template>
-                                <el-menu-item index="1-4-1">选项1</el-menu-item>
-                            </el-submenu>
+                            <el-menu-item index="1-1">NFT</el-menu-item>
+                            <el-menu-item index="1-2">Album</el-menu-item>
+                            <el-menu-item index="1-3">Raffle</el-menu-item>
                         </el-submenu>
-                        <el-submenu index="2">
+                        <el-submenu index="2" v-if="this.isMyself">
                             <template slot="title">
                                 <i class="el-icon-notebook-2"></i>
                                 <span slot="title">Transaction History</span>
@@ -49,14 +40,21 @@
                             <el-menu-item index="2-2">Album</el-menu-item>
                             <el-menu-item index="2-3">Raffle</el-menu-item>
                         </el-submenu>
-                        <el-menu-item index="3">
+                        <el-menu-item index="3" v-if="this.isMyself">
                             <i class="el-icon-setting"></i>
-                            <span slot="title">Settings</span>
+                            <span slot="title">My Account</span>
                         </el-menu-item>
                     </el-menu>
                 </el-col>
                 <el-col :span="19">
-                    <div v-if="selectedIndex == '1-1'">1</div>
+                    <div v-if="selectedIndex == '0'"></div>
+                    <div v-if="selectedIndex == '1-1'">
+                        <NftCard class="mt-4 card" v-for="nft in saleNfts" :card="nft" :key="nft.url" />
+                        <p class="mt-4" v-if="saleNfts.length == 0"><el-empty description="Nothing"></el-empty></p>
+                    </div>
+                    <div v-if="selectedIndex == '1-2'">1-2</div>
+                    <div v-if="selectedIndex == '1-3'">1-3</div>
+
                     <div v-if="selectedIndex == '2-1'">
                         <el-card class="box-card m-5 transaction-card">
                             <el-table :data="transactionData" empty-text="Nothing" height="calc(100vh - 250px)">
@@ -94,7 +92,6 @@
                                     @click="update"
                                     class="el-icon-finished"
                                 />
-                                <!-- <el-button style="float: right; padding: 3px 0" type="text">操作按钮</el-button> -->
                             </div>
                             <p>Your Wallet Address</p>
                             <el-input :placeholder="this.$store.getters.getAddress" :disabled="true">
@@ -150,7 +147,7 @@
                         <b-form-input class='mb-4' v-model='new_last' readonly/>
                         <label>Description</label>
                         <b-form-input class='mb-4' v-model='bio' readonly/>
-                    </b-modal> -->
+                        </b-modal> -->
                         <el-switch
                             class="ml-5"
                             style="display: block"
@@ -174,6 +171,7 @@
 import Navbar from "../components/Navbar.vue";
 import Footer from "../components/Footer.vue";
 // import FileUploader from '../components/FileUploader.vue'
+import NftCard from "../components/NftCard.vue";
 import ConnectWallet from "../components/ConnectWallet.vue";
 import axios from "axios";
 export default {
@@ -186,7 +184,7 @@ export default {
     },
     data: () => ({
         avatar: null,
-        selectedIndex: 3,
+        selectedIndex: 0,
         modeSwitch: true,
         transactionData: [],
         bio: "",
@@ -195,7 +193,16 @@ export default {
         first_name: "",
         last_name: "",
         editModes: false,
+        nfts: [],
     }),
+    computed: {
+        isMyself: function() {
+            return this.$store.getters.getAddress === this.$route.params.address;
+        },
+        saleNfts: function() {
+            return this.nfts.filter((n) => n.status == "sale");
+        },
+    },
     methods: {
         handleSelect(i) {
             this.selectedIndex = i;
@@ -265,6 +272,24 @@ export default {
                 });
         },
 
+        async loadNfts() {
+            const getters = this.$store.getters;
+            const res = await axios.post(`${getters.getApiUrl}/market/`, { limit: Number.MAX_SAFE_INTEGER });
+
+            const nftIds = res.data.nft_ids;
+            const promises = nftIds.map((nftId) => axios.get(`${getters.getApiUrl}/nft/${nftId}`));
+
+            await Promise.allSettled(promises).then((results) => {
+                results.forEach((result) => {
+                    if (result.status == "fulfilled") {
+                        this.nfts.push(result.value.data);
+                    }
+                });
+            });
+
+            console.log(this.nfts);
+        },
+
         uploadAvatar() {
             this.$refs["avatar_uploader"].click();
         },
@@ -309,7 +334,7 @@ export default {
         },
     },
     async mounted() {
-        this.$store.dispatch("connectWallet");
+        await this.$store.dispatch("connectWallet");
         const profile = await this.$store.getters.getProfile(this.$route.params.address);
         this.avatar = profile.profile_picture;
         this.first_name = profile.first_name;
@@ -318,6 +343,7 @@ export default {
         this.new_last = profile.last_name;
         this.bio = profile.description;
         this.loadTransactions();
+        await this.loadNfts();
     },
     beforeDestroy() {},
 };
