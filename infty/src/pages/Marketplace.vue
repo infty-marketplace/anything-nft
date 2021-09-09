@@ -15,16 +15,6 @@
               <b-collapse id="collapse-1" class="mt-2">
                 <b-card>
                   <b-form-checkbox @change="filterOthers">Not Mine</b-form-checkbox>
-                  <!-- <b-form-group v-slot="{ ariaDescribedby }">
-                    
-                    <b-form-checkbox-group
-                      id="checkbox-group-1"
-                      v-model="statusSelected"
-                      :options="statusOptions"
-                      :aria-describedby="ariaDescribedby"
-                      name="flavour-1"
-                    ></b-form-checkbox-group>
-                  </b-form-group> -->
                 </b-card>
               </b-collapse>
             </b-list-group-item>
@@ -88,24 +78,7 @@
                 </b-card>
               </b-collapse>
             </b-list-group-item>
-            <!-- <b-list-group-item>
-              <b-button
-                pill
-                v-b-toggle.collapse-4
-                variant="outline-secondary"
-                class="category-button"
-                >Chains</b-button
-              >
-              <b-collapse id="collapse-4" class="mt-2">
-                <b-card>
-                  <b-list-group>
-                    <b-list-group-item>Ethereum</b-list-group-item>
-                    <b-list-group-item>Polygon</b-list-group-item>
-                    <b-list-group-item>Klaytn</b-list-group-item>
-                  </b-list-group>
-                </b-card>
-              </b-collapse>
-            </b-list-group-item> -->
+
             <b-list-group-item>
               <b-button
                 pill
@@ -171,7 +144,7 @@
                   </div>
                 </transition>
                 <el-empty  class='flex-wrapper-row' v-if='usersAlbum.length==0' description="Nothing"/>
-                <AlbumCard  class='mr-4 mb-4' v-for="album in usersAlbum" :card="album" :key="album.url" />
+                <AlbumCard  class='mr-4 mb-4 alb-card' v-for="album in usersAlbum" :card="album" :key="album.url" />
               </div>
               <p v-if="noMoreAlbum && usersAlbum.length != 0"
               style='border-bottom: 1px solid grey; line-height: 0.1rem;text-align:center'>
@@ -198,6 +171,8 @@ import NftCard from "../components/NftCard.vue";
 import axios from 'axios';
 import AlbumCard from '../components/AlbumCard.vue';
 
+const throttle = require('lodash.throttle')
+var handler;
 export default {
   name: "Marketplace",
   components: {
@@ -214,18 +189,18 @@ export default {
   },
 
   mounted() {
-    window.addEventListener("scroll", this.getMore)
-    this.getMore();
+    handler = throttle(this.getMore, 1000)
+    window.addEventListener("scroll", handler)
   },
 
   destroyed() {
-    window.removeEventListener('scroll', this.getMore);
+    window.removeEventListener('scroll', handler);
   },
 
   data() {
     return {
       offsetNft: 0,
-      limit: 4,
+      limit: 6,
       statusSelected: [],
       // statusOptions: [
       //   { text: "Buy Now", value: "buyNow" },
@@ -247,22 +222,21 @@ export default {
       noMoreAlbum: false,
       offsetAlbum: 0,
       user: undefined,
-      notMine: false
+      notMine: false,
+      loadingVar: 0,
     };
   },
 
   methods: {
       getMore() {
-        window.onscroll = () => {
-          let bottomOfWindow = Math.abs(
-            (document.documentElement.scrollTop + window.innerHeight) - document.documentElement.offsetHeight
-          ) < 1;
-          if(bottomOfWindow && !this.noMoreNft) {
-            if (this.tabIndex == 0){
-              this.loadNftMarket();
-            } else {
-              this.loadAlbumMarket();
-            }
+        let bottomOfWindow = Math.abs(
+          (document.documentElement.scrollTop + window.innerHeight) - document.documentElement.offsetHeight
+        ) < 400;
+        if(bottomOfWindow && !this.noMoreNft) {
+          if (this.tabIndex == 0){
+            this.loadNftMarket();
+          } else {
+            this.loadAlbumMarket();
           }
         }
       },
@@ -487,6 +461,10 @@ export default {
   border-radius: 5px;
   left: calc(50% - 45px);
   top: calc(50% - 18px);
+}
+
+.alb-card {
+  width: 250px;
 }
 
 .fade-enter-active, .fade-leave-active {

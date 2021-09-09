@@ -1,6 +1,9 @@
 <template>
-    <div id="app">
+    <div id="app" v-loading='!testnet'>
         <router-view />
+        <h1 v-if='!testnet' id='testnet-err'>
+            Please install ConfluxPortal and switch to testnet, then refresh.
+        </h1>
     </div>
 </template>
 
@@ -14,12 +17,21 @@ import { eventBus } from "./main";
 
 export default {
     name: "App",
+    data: () => ({
+        testnet: true
+    }),
     created() {
         // TODO based on wallet network
         // const cfx = new Conflux({
         //   url:'https://test.confluxrpc.com',
         //   networkId: 1
         // })
+        window.setTimeout(() => {
+            if (!this.conflux || this.conflux.networkVersion == 1) {
+                this.testnet = true
+            }
+        },1000)
+        console.log(window.conflux.networkVersion)
         document.title = "Infty Marketplace";
         const minterContract = window.confluxJS.Contract({
             abi: inftyNftAbi,
@@ -62,7 +74,12 @@ export default {
     },
 };
 </script>
-
+<style scoped>
+.err {
+    position: fixed;
+    top: 0;
+}
+</style>
 <style>
 #app {
     font-family: Avenir, Helvetica, Arial, sans-serif;
@@ -99,5 +116,13 @@ export default {
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+#testnet-err {
+    position: absolute;
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    z-index: 10000;
 }
 </style>

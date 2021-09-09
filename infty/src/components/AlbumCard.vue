@@ -200,7 +200,7 @@ export default {
 
 <style scoped>
 .user-card {
-  width: 250px;
+  width: 100%;
   transition: all 0.15s ease-in-out;
 }
 .user-card:hover {

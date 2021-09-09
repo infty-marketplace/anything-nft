@@ -152,6 +152,11 @@
             width="80">
           </el-table-column>
           <el-table-column
+            prop="price"
+            label="Price (cfx)"
+            width="60">
+          </el-table-column>
+          <el-table-column
             prop="sale"
             label="Sale"
             width="180">
@@ -161,6 +166,7 @@
               <div v-else>Not on sale.</div>
             </template>
           </el-table-column>
+          
         </el-table>
         </b-card>
         <b-card
@@ -287,7 +293,12 @@ export default {
       const frags = (await axios.get(`${getters.getApiUrl}/fragments?nft_id=${card.nft_id}`)).data
       this.fractionProg = card.owner.slice(1).reduce((pv, cv) => pv + cv.percentage, 0)*100
       if (card.status == 'sale') {
-        this.sharesTable = frags.map(o => ({owner:o.owner, shares: o.percentage*100}))
+        this.sharesTable = frags.map(o => ({
+          owner:o.owner, 
+          price: o.status=='sale'?`${o.price}`:'N/A', 
+          shares: o.percentage*100, 
+          status: o.status,
+          nft_id: o.nft_id}))
       }
 
       if (card.status == 'private') {
@@ -393,11 +404,12 @@ export default {
       const getters = this.$store.getters
       const addr = (await window.conflux.send("cfx_requestAccounts"))[0]
       this.$store.dispatch('notifyCommission')
+      console.log(obj)
       const tx = window.confluxJS.sendTransaction({
         from: addr,
         to: getters.getManagerAddr,
         gasPrice: 1,
-        value: 1e18*( parseFloat(this.card.price)/100 * obj.shares)
+        value: 1e18*( parseFloat(obj.price) )
       })
 
       await tx.executed()

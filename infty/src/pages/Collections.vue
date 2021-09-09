@@ -1,32 +1,32 @@
 <template>
     <div class="flex-wrapper" id="collections-page">
         <Navbar active-index="2" />
-        <div class="flex-wrapper-row m-3" v-if="$store.getters.getAddress">
+        <div class="flex-wrapper-row mt-3" v-if="$store.getters.getAddress">
             <el-tabs class="main-content">
                 <el-tab-pane label="NFT">
                     <p>Unlisted</p>
-                    <div class="cards-container">
-                        <NftCard class="mt-4 card" v-for="nft in private_nfts" :card="nft" :key="nft.url" />
-                        <p class="mt-4" v-if="private_nfts.length == 0"><el-empty description="Nothing"></el-empty></p>
+                    <div class="cards-container p-2">
+                        <NftCard class="mb-4 card" v-for="nft in private_nfts" :card="nft" :key="nft.url" />
+                        <p class="mb-4" v-if="private_nfts.length == 0"><el-empty description="Nothing"></el-empty></p>
                     </div>
                     <p>On Sale</p>
-                    <div class="cards-container">
-                        <NftCard class="mt-4 card" v-for="nft in sale_nfts" :card="nft" :key="nft.url" />
-                        <p class="mt-4" v-if="sale_nfts.length == 0"><el-empty description="Nothing"></el-empty></p>
+                    <div class="cards-container p-2">
+                        <NftCard class="mb-4 card" v-for="nft in sale_nfts" :card="nft" :key="nft.url" />
+                        <p class="mb-4" v-if="sale_nfts.length == 0"><el-empty description="Nothing"></el-empty></p>
                     </div>
                 </el-tab-pane>
                 <el-tab-pane label="Album">
                     <p>Unlisted</p>
-                    <div class="cards-container">
-                        <AlbumCard class="mt-4 card" v-for="album in private_albums" :card="album" :key="album.url" />
-                        <p class="mt-4" v-if="private_albums.length == 0">
+                    <div class="cards-container p-2">
+                        <AlbumCard class="mb-4 alb-card" v-for="album in private_albums" :card="album" :key="album.url" />
+                        <p class="mb-4" v-if="private_albums.length == 0">
                             <el-empty description="Nothing"></el-empty>
                         </p>
                     </div>
                     <p>On Sale</p>
-                    <div class="cards-container">
-                        <AlbumCard class="mt-4 card" v-for="album in sale_albums" :card="album" :key="album.url" />
-                        <p class="mt-4" v-if="sale_albums.length == 0"><el-empty description="Nothing"></el-empty></p>
+                    <div class="cards-container p-2">
+                        <AlbumCard class="mb-4 alb-card" v-for="album in sale_albums" :card="album" :key="album.url" />
+                        <p class="mb-4" v-if="sale_albums.length == 0"><el-empty description="Nothing"></el-empty></p>
                     </div>
                 </el-tab-pane>
             </el-tabs>
@@ -122,8 +122,7 @@ export default {
       return this.nfts.filter((n, i) => {
         if (n.fragmented) {
           this.nfts[i].status = 'sale'
-          console.log(this.sale_frags)
-          return this.sale_frags.map(f=>f.nft_id).includes(n.nft_id)
+          return this.sale_frags.map(f=>f.nft_id).includes(n.nft_id) || n.owner[0].address==this.$store.getters.getAddress
         } else {
           return n.status == "sale"
         }
@@ -239,7 +238,9 @@ export default {
       this.loadNfts(res.data.nft_ids);
       this.loadAlbums(res.data.album_ids);
     },
-
+    createAlbumClicked() {
+      this.$refs["album-modal"].show();
+    },
     createAlbum() {
       this.$notify({
         title: 'Notification',
@@ -300,9 +301,10 @@ export default {
 }
 
 .card {
-    /* max-width: 400px; */
-    width: 400px;
-    height: 100%;
+  height: 100%;
+}
+.alb-card {
+  width: 300px;
 }
 
 .file-uploader {

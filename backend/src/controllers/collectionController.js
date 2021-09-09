@@ -254,7 +254,7 @@ async function purchaseFragment(req, res) {
                 owners[i].percentage = buyerFrag.percentage
             }
         })
-        nft.owner = nft.owner.filter(o => o.address != seller)
+        nft.owner = nft.owner.filter(o => o.address != owner)
         await nft.save();
 
         if (buyer100Percent) {
@@ -575,29 +575,10 @@ async function purchaseNft(req, res) {
                 return res.status(404).send(error);
             }
 
-            //check if this nft fullfills a album
-            if (nft.album_id && nft.album_id !== "") {
-                let album = await Album.findOne({ album_id: nft.album_id });
-                // if every nft is not completely funded and every nft's owner is the same
-                const nfts = await getAlbumNfts(album);
-                if (!(await isAlbumFunded(album)) && getNftListOwners(nfts).length === 1) {
-                    const albumTransactionDetails = {
-                        buyer: body.buyer,
-                        seller: album.owner,
-                        transaction_type: "purchase-album",
-                        collection_id: album.album_id,
-                    };
-                    try {
-                        transferOwnership(albumTransactionDetails, false);
-                    } catch (error) {
-                        return res.status(404).send(error);
-                    }
-                }
-            }
         }
-        res.status(200).send();
-        await cfxUtils.transferCfxTo(nft.owner[0].address, parseFloat(nft.price));
     }
+    res.status(200).send();
+    await cfxUtils.transferCfxTo(nft.owner[0].address, parseFloat(nft.price));    
 }
 
 async function fundNft(req, res) {
@@ -668,6 +649,9 @@ async function fundNft(req, res) {
             fragmented: false
         })
         await User.updateOne({address: body.buyer}, { $push: {nft_ids: nft_id}})
+        const u = await User.findOne({address:body.buyer})
+        u.nft_ids = [ ... new Set(u.nft_ids) ]
+        await u.save()
         await User.updateOne({address: sellers[0].address}, { $pull: {nft_ids: nft_id}})
     } else {
         nft.fragmented = true;

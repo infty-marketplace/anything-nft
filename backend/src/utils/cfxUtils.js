@@ -63,7 +63,6 @@ async function transferCfxTo(toAddr, price) {
         chainId: 1,
     };
     const hash = await cfx.sendTransaction(tx).executed();
-    console.log(hash);
 }
 
 async function generateUri(req, imageUri, sha) {
