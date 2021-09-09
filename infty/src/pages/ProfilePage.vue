@@ -87,6 +87,8 @@
                     <div v-if="selectedIndex == '2-1' || selectedIndex == '2-2' || selectedIndex == '2-3'">
                         <el-card class="box-card m-5 transaction-card">
                             <el-table :data="transactions" empty-text="Nothing" height="calc(100vh - 250px)">
+                                <el-table-column prop="time" label="Time" align="center"> </el-table-column>
+
                                 <el-table-column label="Title" align="center">
                                     <template slot-scope="scope">
                                         <el-link target="_blank" :href="`/nft/${scope.row.nft_id}`">
@@ -301,7 +303,9 @@ export default {
                 .get(`${this.$store.getters.getApiUrl}/transaction/${this.$route.params.address}`)
                 .then((res) => {
                     res.data.map((record) => {
+                        const date = Date.parse(record.created_at);
                         let current = {
+                            time: new Date(date).toString(),
                             nft_id: record.collection_id,
                             currency: record.currency,
                             from: record.seller,
@@ -359,21 +363,6 @@ export default {
             });
         },
 
-        // async loadRaffles(nftIds) {
-        //     const promises = nftIds.map((nftId) => axios.get(`${this.$store.getters.getApiUrl}/nft/${nftId}`));
-        //     await Promise.allSettled(promises).then((results) => {
-        //         results.forEach((result) => {
-        //             if (result.status == "fulfilled") {
-        //                 const nft = result.value.data;
-        //                 nft.url = nft.file;
-        //                 nft.author = `${this.first_name} ${this.last_name}`;
-        //                 this.raffles.push(nft);
-        //             }
-        //         });
-        //     });
-        //     console.log(this.raffles);
-        // },
-
         uploadAvatar() {
             this.$refs["avatar_uploader"].click();
         },
@@ -429,7 +418,6 @@ export default {
         this.loadTransactions();
         await this.loadNfts(profile.nft_ids);
         await this.loadAlbums(profile.album_ids);
-        // await this.loadRaffles(profile.nft_ids);
     },
     beforeDestroy() {},
 };

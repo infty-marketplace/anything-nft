@@ -221,8 +221,8 @@ export default {
                 return axios.get(`${getters.getApiUrl}/nft/${draw.nft_id}`).then((res) => {
                     draw.url = res.data.file;
                     if (draw.deadline) {
-                        draw.max = parseFloat(draw.deadline) - Math.floor(Date.now(draw.created_at) / 1000);
-                        draw.current = Math.floor(Date.now() / 1000) - Math.floor(Date.now(draw.created_at) / 1000);
+                        draw.max = parseFloat(draw.deadline) - Math.floor(Date.parse(draw.created_at) / 1000);
+                        draw.current = Math.floor(Date.now() / 1000) - Math.floor(Date.parse(draw.created_at) / 1000);
                         draw.available = draw.quantity;
                     } else {
                         draw.max = draw.quantity;
