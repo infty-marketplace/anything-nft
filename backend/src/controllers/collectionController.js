@@ -139,6 +139,7 @@ async function listNft(req, res) {
     const nftId = req.body.nft_id;
     const nft = await Nft.findOne({nft_id: nftId})
     // if this nft has more owners, then it's fragmented
+    await Nft.findOneAndUpdate({nft_id: nftId}, {status: constants.STATUS_SALE})
     if (nft.fragmented) {
         Fragment.findOneAndUpdate({nft_id: nftId, owner: req.body.owner},
             {
@@ -152,6 +153,7 @@ async function listNft(req, res) {
                 }
                 return res.send("Status changed to sale");
             })
+        
     } else {
         Nft.findOneAndUpdate(
             { nft_id: nftId },
