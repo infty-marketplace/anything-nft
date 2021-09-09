@@ -155,6 +155,7 @@ export default {
     z-index: -1;
     animation: wave 15s ease-in-out infinite;
 }
+<<<<<<< HEAD
 .shape:nth-of-type(4) {
     width: 130%;
     height: 80%;
@@ -165,6 +166,18 @@ export default {
     opacity: 0.3;
     z-index: -1;
     animation: wave 10s ease-in-out infinite;
+=======
+.text-bg {
+  width: 130%;
+  height: 80%;
+  background: #e5e5e5;
+  position: absolute;
+  left: -30%;
+  top: 0%;
+  opacity: 0.3;
+  z-index: -1;
+  animation: wave 10s ease-in-out infinite;
+>>>>>>> 72144552ff322dcdf70a7ed2e31b2651e5e097da
 }
 
 @keyframes wave {
@@ -263,10 +276,18 @@ button a {
     text-decoration: none;
 }
 .about-us {
+<<<<<<< HEAD
     text-align: left;
     display: flex;
     padding: 5%;
     margin-top: 10%;
+=======
+  position: relative;
+  text-align: left;
+  display: flex;
+  padding: 5%;
+  margin-top: 10%;
+>>>>>>> 72144552ff322dcdf70a7ed2e31b2651e5e097da
 }
 .team {
     height: 40%;
