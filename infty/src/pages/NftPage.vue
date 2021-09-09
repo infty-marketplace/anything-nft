@@ -1,7 +1,8 @@
 <template>
   <div class="flex-wrapper">
     <Navbar />
-    <div class="detail-content">
+    <button @click='$router.go(-1)' class='back-btn'><i class='el-icon-back' style='color:white'/></button>
+    <div class="detail-content mb-4">
       <b-card
         class="detailed-card"
         :img-src="card&&card.url"
@@ -12,10 +13,12 @@
           ><b-icon icon="card-text"></b-icon>&nbsp;Description</b-card-title
         >
         <b-card-text>
+          
           <p>Created by {{ card && card.author_name }}</p>
           <p>
             {{ card && card.description || "No description." }}
           </p>
+          
         </b-card-text>
         <b-list-group flush>
           <b-list-group-item>
@@ -40,36 +43,29 @@
               ><b-icon icon="file-earmark-text"></b-icon>Details</b-button
             >
             <b-collapse id="collapse-2" class="mt-2">
-              <p>Contact Address</p>
+              <p>Contract Address: <a target="_blank" :href='`https://testnet.confluxscan.io/token/${$store.getters.getMinterAddress}`'>{{$store.getters.getMinterAddress}}</a></p>
               <p>Token ID {{ rand(1000, 9999) }}</p>
-              <p>Contact Address:Ethereum</p>
             </b-collapse>
           </b-list-group-item>
         </b-list-group>
       </b-card>
+      <div class='album-title-container'>
+        <h1 class='album-title'>&nbsp;{{ card.title }}</h1>
+        
+        <h5 class='owner'>&nbsp;&nbsp;&nbsp;&nbsp;Owned by {{card.owner_name}}&nbsp;&nbsp;&nbsp;
+          <div style='display: inline-block'><b-icon icon='eye'/>&nbsp;{{view}} views</div>
+          <div style='display: inline-block'>
+            <div class='like' @click='likes+=likeswitch;likeswitch*=-1;'><heart-btn/></div> {{likes}} likes
+          </div>
+          
+          </h5>
+      </div>
+      
       <b-card-group deck class="transaction">
-        <b-card
-          class="transaction-info"
-          header-tag="header"
-          footer-tag="footer"
-        >
-          <template #header>
-            <span class="mb-0">
-              <b-icon icon="card-image"></b-icon>&nbsp;{{card && card.title}}
-            </span>
-            <!-- <span class="mb-0 heart"
-              ><button><b-icon icon="heart"></b-icon></button>&nbsp;2</span
-            >  -->
-            <div class='like-container'>
-              <HeartBtn/>
-            </div>
-          </template>
-          <b-card-text>Owned by {{ card && card.owner_name }}</b-card-text>
-          <!-- <template #footer>
-            <em>Footer Slot</em>
-          </template> -->
-        </b-card>
-
+        
+        <el-tooltip style='cursor:pointer' effect="dark" content="You'll see the content once you purchase the NFT." placement="top">
+          <div class='unlock'><i class='el-icon-lock'></i>&nbsp;&nbsp;Contains Unlockable Content</div>
+          </el-tooltip>
         <b-card
           class="transaction-info"
           header-tag="header"
@@ -77,9 +73,9 @@
           v-if='!isOwner'
         >
           <template #header>
-            <h6 class="mb-0" v-if="card.expirationDate">
+            <h6 class="mb-0">
               <b-icon icon="clock"></b-icon>&nbsp;Sale ends in
-              {{ card.expirationDate }} days
+              5 days
             </h6>
           </template>
           <b-card-text>Current Price</b-card-text>
@@ -151,6 +147,7 @@ import axios from "axios"
 import Navbar from "../components/Navbar.vue";
 import Footer from "../components/Footer.vue";
 import HeartBtn from "../components/HeartBtn.vue";
+import { Notification } from 'element-ui' 
 
 export default {
   name: "DetailPage",
@@ -160,8 +157,12 @@ export default {
     HeartBtn
   },
   props: ['card'],
-  data: () => ({
+  data() {
+    return {
       isOwner: true,
+      likes: this.rand(0,100),
+      view: this.rand(100,2000),
+      likeswitch: 1,
       offersData: [{
         unit_price: 30,
         usd: 9,
@@ -183,8 +184,8 @@ export default {
         exp: '1 days',
         from: 'User B'
       },
-      ]
-  }),
+      ]}
+  },
   created() {
     if (this.card) return;
     if (this.$store.getters.getAddress == undefined) this.$store.dispatch("connectWallet");
@@ -216,12 +217,12 @@ export default {
 
     async purchaseNft() {
       const getters = this.$store.getters;
-
+      this.$store.dispatch('notifyCommission')
       const tx = window.confluxJS.sendTransaction({
         from: (await window.conflux.send("cfx_requestAccounts"))[0],
         to: getters.getManagerAddr,
         gasPrice: 1,
-        value: 1e18*(parseFloat(this.listing_commision) + parseFloat(this.card.price))
+        value: 1e18*((parseFloat(this.listing_commision) + parseFloat(this.card.price)))
       })
 
       const res = await tx.executed()
@@ -236,6 +237,7 @@ export default {
       };
       axios.post(`${getters.getApiUrl}/purchase-nft`, data).then(
         res => {
+          Notification.closeAll()
           if (res.status == 200) {
               this.$bvToast.toast("NFT Purchased Successfully", {
                   title: "Notification",
@@ -266,10 +268,15 @@ export default {
 <style scoped>
 .detailed-card {
   float: left;
-  width: 35vw;
-  margin-top: 2em;
-  margin-left: 5%;
-  margin-bottom: 2em;
+  width: 500px;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  margin-right: 1rem;
+}
+@media screen and (max-width: 2000px) {
+  .detailed-card {
+    width: 300px;
+  }
 }
 .category-button {
   width: 100%;
@@ -278,25 +285,71 @@ export default {
   float: right;
 }
 .detail-content {
-  /* display: flex; */
+  width: 80%;
+  margin-left: auto;
+  margin-right: auto;
+}
+@media screen and (max-width: 2000px) {
+  .detailed-content {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+  }
 }
 .transaction {
   float: left;
-  margin-top: 2em;
-  margin-left: 10vw;
-  width: 40vw;
+  margin-top: 2rem;
+  margin-left: 0.5rem;
+  width: calc(80vw - 600px);
   display: flex;
   flex-direction: column;
   gap: 40px;
 }
-/* .transaction-info {
-  margin-bottom: 20px;
-} */
-.like-container {
-  float: right;
-  margin-top: -55px;
-  margin-right: -80px;
-  margin-bottom: -60px;
-  transform: scale(0.15);
+@media screen and (max-width: 2000px) {
+  .transaction {
+    width: calc(80vw - 350px);
+  }
+}
+.transaction-info {
+  max-width: 100%;
+}
+
+
+.album-title-container {
+  margin-top: 2rem;
+}
+.album-title {
+  font-weight: bold;
+  font-size: 4rem;
+}
+
+.like {
+  display: inline-block;
+  transform: scale(0.2);
+  margin-top: -100px;
+  margin-bottom: -58px;
+  margin-left: -30px;
+  margin-right: -60px;
+}
+.back-btn {
+  position: absolute;
+  top: 150px;
+  left: -10px;
+  width: 60px;
+  border-radius: 20%;
+  background-color: rgb(72, 83, 87);
+  border: unset;
+  box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
+}
+.unlock {
+  display: inline-block;
+  padding: 0.3rem;
+  font-size: 1rem;
+  font-weight: bold;
+  color:rgb(203, 132, 236);
+  border-style: solid;
+  border-width: 0.2rem;
+  border-image: linear-gradient(170deg, rgb(224, 169, 255), rgb(101, 224, 255)) 1;
+  margin: 0 15px;
 }
 </style>

@@ -1,4 +1,7 @@
 const User = require("../models/user");
+const Transaction = require("../models/transaction");
+const s3Utils = require("../utils/s3Utils")
+const { makeid } = require("../utils/helpers");
 
 function logout(req, res, success, error) {
     try {
@@ -85,8 +88,26 @@ const updateProfile = async (req, res) => {
     }
 }
 
+const getTransactions = async (req, res) => {
+    if (!req.params.address) {
+        return res.status(400).json({ error: "Invalid request" });
+    }
+
+    const transactions = await Transaction.find({buyer: req.params.address});
+    res.send(transactions);
+}
+
+const updateAvatar = async (req, res) => {
+    const url = await s3Utils.uploadImage(req.files.file.path, makeid(16))
+    await User.findOneAndUpdate({address: req.body.address}, {
+        profile_picture: url
+    })
+    res.status(200).send({url});
+}
 module.exports = {
     authUser,
     getUser,
     updateProfile,
+    getTransactions,
+    updateAvatar
 };
