@@ -49,15 +49,44 @@
                 <el-col :span="19">
                     <div v-if="selectedIndex == '0'"></div>
                     <div v-if="selectedIndex == '1-1'">
-                        <NftCard class="mt-4 card" v-for="nft in saleNfts" :card="nft" :key="nft.url" />
-                        <p class="mt-4" v-if="saleNfts.length == 0"><el-empty description="Nothing"></el-empty></p>
+                        <el-card class="box-card m-5 card-container">
+                            <div class="card-container">
+                                <NftCard class="mt-4 card" v-for="nft in saleNfts" :card="nft" :key="nft.url" />
+                                <p class="mt-4" v-if="saleNfts.length == 0">
+                                    <el-empty description="Nothing"></el-empty>
+                                </p>
+                            </div>
+                        </el-card>
                     </div>
-                    <div v-if="selectedIndex == '1-2'">1-2</div>
-                    <div v-if="selectedIndex == '1-3'">1-3</div>
+                    <div v-if="selectedIndex == '1-2'">
+                        <el-card class="box-card m-5 card-container">
+                            <div class="card-container">
+                                <AlbumCard
+                                    class="mt-4 card"
+                                    v-for="album in saleAlbums"
+                                    :card="album"
+                                    :key="album.url"
+                                />
+                                <p class="mt-4" v-if="saleAlbums.length == 0">
+                                    <el-empty description="Nothing"></el-empty>
+                                </p>
+                            </div>
+                        </el-card>
+                    </div>
+                    <div v-if="selectedIndex == '1-3'">
+                        <el-card class="box-card m-5 card-container">
+                            <div class="card-container">
+                                <NftCard class="mt-4 card" v-for="nft in drawNfts" :card="nft" :key="nft.url" />
+                                <p class="mt-4" v-if="drawNfts.length == 0">
+                                    <el-empty description="Nothing"></el-empty>
+                                </p>
+                            </div>
+                        </el-card>
+                    </div>
 
-                    <div v-if="selectedIndex == '2-1'">
+                    <div v-if="selectedIndex == '2-1' || selectedIndex == '2-2' || selectedIndex == '2-3'">
                         <el-card class="box-card m-5 transaction-card">
-                            <el-table :data="transactionData" empty-text="Nothing" height="calc(100vh - 250px)">
+                            <el-table :data="transactions" empty-text="Nothing" height="calc(100vh - 250px)">
                                 <el-table-column label="Title" align="center">
                                     <template slot-scope="scope">
                                         <el-link target="_blank" :href="`/nft/${scope.row.nft_id}`">
@@ -172,6 +201,7 @@ import Navbar from "../components/Navbar.vue";
 import Footer from "../components/Footer.vue";
 // import FileUploader from '../components/FileUploader.vue'
 import NftCard from "../components/NftCard.vue";
+import AlbumCard from "../components/AlbumCard.vue";
 import ConnectWallet from "../components/ConnectWallet.vue";
 import axios from "axios";
 export default {
@@ -181,12 +211,17 @@ export default {
         Footer,
         //   FileUploader,
         ConnectWallet,
+        NftCard,
+        AlbumCard,
     },
     data: () => ({
         avatar: null,
         selectedIndex: 0,
         modeSwitch: true,
-        transactionData: [],
+        nftTransactions: [],
+        drawTransactions: [],
+        albumTransactions: [],
+
         bio: "",
         new_first: "",
         new_last: "",
@@ -194,6 +229,8 @@ export default {
         last_name: "",
         editModes: false,
         nfts: [],
+        albums: [],
+        raffles: [],
     }),
     computed: {
         isMyself: function() {
@@ -201,6 +238,21 @@ export default {
         },
         saleNfts: function() {
             return this.nfts.filter((n) => n.status == "sale");
+        },
+        drawNfts: function() {
+            return this.nfts.filter((n) => n.status == "draw");
+        },
+        saleAlbums: function() {
+            return this.albums.filter((n) => n.status == "sale");
+        },
+        transactions: function() {
+            if (this.selectedIndex === "2-1") {
+                return this.nftTransactions;
+            } else if (this.selectedIndex === "2-2") {
+                return this.albumTransactions;
+            } else if (this.selectedIndex === "2-3") {
+                return this.drawTransactions;
+            }
         },
     },
     methods: {
@@ -264,7 +316,14 @@ export default {
                         axios.get(`${this.$store.getters.getApiUrl}/nft/${current.nft_id}`).then((r) => {
                             current.title = r.data.title;
                         });
-                        this.transactionData.push(current);
+                        console.log(current);
+                        if (current.type.includes("draw")) {
+                            this.drawTransactions.push(current);
+                        } else if (current.type.includes("album")) {
+                            this.albumTransactions.push(current);
+                        } else if (current.type.includes("nft")) {
+                            this.nftTransactions.push(current);
+                        }
                     });
                 })
                 .catch((err) => {
@@ -272,23 +331,48 @@ export default {
                 });
         },
 
-        async loadNfts() {
-            const getters = this.$store.getters;
-            const res = await axios.post(`${getters.getApiUrl}/market/`, { limit: Number.MAX_SAFE_INTEGER });
-
-            const nftIds = res.data.nft_ids;
-            const promises = nftIds.map((nftId) => axios.get(`${getters.getApiUrl}/nft/${nftId}`));
-
+        async loadNfts(nftIds) {
+            const promises = nftIds.map((nftId) => axios.get(`${this.$store.getters.getApiUrl}/nft/${nftId}`));
             await Promise.allSettled(promises).then((results) => {
                 results.forEach((result) => {
                     if (result.status == "fulfilled") {
-                        this.nfts.push(result.value.data);
+                        const nft = result.value.data;
+                        nft.url = nft.file;
+                        nft.author = `${this.first_name} ${this.last_name}`;
+                        this.nfts.push(nft);
                     }
                 });
             });
-
-            console.log(this.nfts);
         },
+
+        async loadAlbums(albumIds) {
+            const promises = albumIds.map((albumId) => axios.get(`${this.$store.getters.getApiUrl}/album/${albumId}`));
+            await Promise.allSettled(promises).then((results) => {
+                results.forEach((result) => {
+                    if (result.status == "fulfilled") {
+                        const album = result.value.data;
+                        album.url = album.file;
+                        album.author = `${this.first_name} ${this.last_name}`;
+                        this.albums.push(album);
+                    }
+                });
+            });
+        },
+
+        // async loadRaffles(nftIds) {
+        //     const promises = nftIds.map((nftId) => axios.get(`${this.$store.getters.getApiUrl}/nft/${nftId}`));
+        //     await Promise.allSettled(promises).then((results) => {
+        //         results.forEach((result) => {
+        //             if (result.status == "fulfilled") {
+        //                 const nft = result.value.data;
+        //                 nft.url = nft.file;
+        //                 nft.author = `${this.first_name} ${this.last_name}`;
+        //                 this.raffles.push(nft);
+        //             }
+        //         });
+        //     });
+        //     console.log(this.raffles);
+        // },
 
         uploadAvatar() {
             this.$refs["avatar_uploader"].click();
@@ -343,7 +427,9 @@ export default {
         this.new_last = profile.last_name;
         this.bio = profile.description;
         this.loadTransactions();
-        await this.loadNfts();
+        await this.loadNfts(profile.nft_ids);
+        await this.loadAlbums(profile.album_ids);
+        // await this.loadRaffles(profile.nft_ids);
     },
     beforeDestroy() {},
 };
@@ -414,5 +500,29 @@ export default {
     color: white;
     border-radius: 50%;
     background-color: rgb(95, 167, 167);
+}
+
+.card-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    align-items: flex-start;
+}
+
+.card {
+    width: 250px;
+    height: 100%;
+}
+
+/deep/.el-dropdown {
+    display: none;
+}
+
+/deep/.btn-info {
+    display: none;
+}
+
+/deep/.card-owner {
+    pointer-events: none;
 }
 </style>

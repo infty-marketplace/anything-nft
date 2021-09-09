@@ -109,7 +109,9 @@
                     <img :src="raffle.url" class="raffle-image" @click="onClickImage(raffle.nft_id)" />
                     <div class="pool-card-primary">
                         <div><b>Title:</b> {{ raffle.title }}</div>
-                        <div><b>Owner:</b> {{ raffle.owner }}</div>
+                        <div class="raffle-owner" @click="handleRedirectToProfile(raffle.owner_url)">
+                            <b>Owner:</b> {{ raffle.owner }}
+                        </div>
                         <div><b>Discription:</b> {{ raffle.description }}</div>
                     </div>
                     <div class="transaction-primary">
@@ -245,9 +247,10 @@ export default {
             });
 
             for (const raffle of this.raffles) {
-                await axios
+                axios
                     .get(`${getters.getApiUrl}/profile/${raffle.owner}`)
                     .then((res) => {
+                        raffle.owner_url = raffle.owner;
                         raffle.owner = `${res.data.first_name} ${res.data.last_name}`;
                     })
                     .catch((e) => {
@@ -355,6 +358,11 @@ export default {
         onClickImage(nftId) {
             this.$router.push({
                 path: "/nft/" + nftId,
+            });
+        },
+        handleRedirectToProfile(owner) {
+            this.$router.push({
+                path: "/profile/" + owner,
             });
         },
     },
@@ -516,6 +524,14 @@ export default {
 }
 .card-img-left {
     width: 300px;
+}
+
+.raffle-owner {
+    cursor: pointer;
+}
+
+.raffle-owner:hover {
+    color: #0088a9;
 }
 
 @keyframes rotate {
