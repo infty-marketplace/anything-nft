@@ -1,7 +1,7 @@
 <template>
-    <div class="raffle-page">
+    <div class="raffle-page flex-wrapper">
         <Navbar active-index="1" />
-
+        <div v-if="$store.getters.getAddress">
         <div id="sidebar" style="width: 20%">
             <b-card id="sidebar-card">
                 <template #header>
@@ -140,7 +140,10 @@
                 </b-card>
             </div>
         </div>
-
+        </div>
+        <div v-else>
+            <ConnectWallet />
+        </div>
         <Footer />
     </div>
 </template>
@@ -150,17 +153,19 @@ import axios from "axios";
 
 import Navbar from "../components/Navbar.vue";
 import Footer from "../components/Footer.vue";
+import ConnectWallet from '../components/ConnectWallet.vue';
 
 export default {
     name: "RafflePage",
     components: {
         Navbar,
         Footer,
+        ConnectWallet,
     },
     mounted() {
-        if (!this.$store.getters.getAddress) {
-            this.$store.dispatch("connectWallet");
-        }
+        // if (!this.$store.getters.getAddress) {
+        //     this.$store.dispatch("connectWallet");
+        // }
     },
     created() {
         this.loadRaffles();
