@@ -2,7 +2,6 @@
 <div align="center">
 <h1>
     Infty Marketplace: <a href='http://infty.market'>website</a>
-    <hr>
     <img src='https://i.giphy.com/2AsUh6drRSF8bBQ1Zv.gif' />
 </h1>
 
