@@ -70,7 +70,8 @@ In terminal 2:
 cd infty && npm i && npm run serve
 ```
 #### Last step
-Then launch http://localhost:3001
+Then launch http://localhost:3001.
+It's also deployed at http://infty.market.
 
 
 ## Roadmap
