@@ -2,7 +2,7 @@
     <div class="flex-wrapper">
         <Navbar />
         <button @click="$router.go(-1)" class="back-btn"><i class="el-icon-back" style="color:white" /></button>
-        <div @click="$router.go(-1)" class="percent" v-if="card.fractional">
+        <div class="percent" v-if="card.fractional">
             <span
                 style="line-height:80%;text-align:center;color:white;font-size: 100%;left:50%;top:50%;position:absolute;transform: translate(-50%, -50%);"
             >
@@ -14,7 +14,9 @@
             <b-card class="detailed-card" :img-src="card && card.url" img-alt="Card image" img-top>
                 <b-card-title><b-icon icon="card-text"></b-icon>&nbsp;Description</b-card-title>
                 <b-card-text>
-                    <p>Created by {{ card && card.author_name }}</p>
+                    <p class="card-owner" @click="handleRedirectToProfile(card.author)">
+                        Created by {{ card && card.author_name }}
+                    </p>
                     <p>
                         {{ (card && card.description) || "No description." }}
                     </p>
@@ -27,7 +29,7 @@
                         <b-collapse id="collapse-1" class="mt-2">
                             <p>
                                 Pixelglyphs are a set of 10,000 unique on-chain avatar NFTs created using a cellular
-                                automaton on the Ethereum blockchain.
+                                automaton on the Conflux blockchain.
                             </p>
                         </b-collapse>
                     </b-list-group-item>
@@ -53,7 +55,10 @@
                 <h1 class="album-title">&nbsp;{{ card.title }}</h1>
 
                 <h5 class="owner">
-                    &nbsp;&nbsp;&nbsp;&nbsp;Owned by {{ card.owner_name }}&nbsp;&nbsp;&nbsp;
+                  &nbsp;&nbsp;&nbsp;&nbsp;
+                    <div class="card-owner" v-if='!card.fragmented' @click="handleRedirectToProfile(card.owner[0].address)">
+                        Owned by {{ card.owner_name }}&nbsp;&nbsp;&nbsp;
+                    </div>
                     <div style="display: inline-block"><b-icon icon="eye" />&nbsp;{{ view }} views</div>
                     <div style="display: inline-block">
                         <div
@@ -79,12 +84,7 @@
                 >
                     <div class="unlock"><i class="el-icon-lock"></i>&nbsp;&nbsp;Contains Unlockable Content</div>
                 </el-tooltip>
-                <b-card
-                    class="transaction-info"
-                    header-tag="header"
-                    footer-tag="footer"
-                    v-if="!isOwner && card.status == 'sale'"
-                >
+                <b-card class="transaction-info" header-tag="header" footer-tag="footer" v-if="!isOwner">
                     <template #header>
                         <h6 class="mb-0"><b-icon icon="clock"></b-icon>&nbsp;Sale ends in 5 days</h6>
                     </template>
@@ -418,6 +418,11 @@ export default {
                     this.$router.go();
                 });
         },
+        handleRedirectToProfile(address) {
+            this.$router.push({
+                path: "/profile/" + address,
+            });
+        },
     },
 };
 </script>
@@ -520,5 +525,13 @@ export default {
     border: unset;
     z-index: -1;
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+}
+.card-owner {
+    cursor: pointer;
+    display: inline-block;
+}
+
+.card-owner:hover {
+    color: #0088a9;
 }
 </style>

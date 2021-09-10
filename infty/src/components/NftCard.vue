@@ -35,7 +35,7 @@
             <b-card-text class="card-detail">
                 <p>{{ card.title }}</p>
                 <p>{{ card.collection }}</p>
-                <b>{{ card.author }}</b>
+                <b class="card-owner" @click="handleRedirectToProfile">{{ card.author }}</b>
             </b-card-text>
             <template #footer>
                 <div v-if="card.status == 'sale'">
@@ -50,7 +50,15 @@
                         ></span
                     >
                 </div>
-                <div v-else style='display:flex; align-items:center;justify-content:space-between;'>
+
+                <div v-if="card.status == 'draw'">
+                    <span class="text-muted-left"><small class="text-muted">Currently Raffling</small></span>
+                    <span class="text-muted-right card-owner" @click="handleRedirectToRaffle">
+                        <small class="text-muted"><b-icon icon="cash"></b-icon>&nbsp;Entry Raffle</small></span
+                    >
+                </div>
+
+                <div v-if="card.status == 'private'">
                     <small class="text-muted">Currently Unlisted</small>
                     <el-tooltip effect="dark" class='ml-2' style='cursor:help' content="This is a fragment of the NFT." placement="bottom">
                     <b-icon v-if='isPiece' b-icon icon='layout-wtf'/>
@@ -323,6 +331,16 @@ export default {
                     params: { id: this.card.nft_id || "default_id", card: this.card },
                 });
         },
+        handleRedirectToRaffle() {
+            this.$router.push({
+                path: "/raffles/",
+            });
+        },
+        handleRedirectToProfile() {
+            this.$router.push({
+                path: "/profile/" + this.card.owner[0].address,
+            });
+        },
     },
 };
 </script>
@@ -381,6 +399,13 @@ export default {
     margin-right: -80px;
     margin-bottom: -60px;
     transform: scale(0.15);
+}
+.card-owner {
+    cursor: pointer;
+}
+
+.card-owner:hover {
+    color: #0088a9;
 }
 </style>
 

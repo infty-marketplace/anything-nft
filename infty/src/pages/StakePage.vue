@@ -1,6 +1,6 @@
 <template>
     <div class="flex-wrapper">
-        <Navbar />
+        <Navbar :activeIndex="3"/>
 
         <el-dialog title="" :visible.sync="dialogVisible" width="30%">
             <span>{{ dialogMessage }}</span>

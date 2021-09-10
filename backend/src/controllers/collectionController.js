@@ -11,7 +11,7 @@ const { makeid } = require("../utils/helpers");
 const imageUtils = require("../utils/imageUtils");
 const mongodbUtils = require("../utils/mongodbUtils");
 const cfxUtils = require("../utils/cfxUtils");
-const s3Utils = require("../utils/s3Utils")
+const s3Utils = require("../utils/s3Utils");
 const s3 = require("../database/s3");
 const { upload } = require("../database/s3");
 
@@ -453,7 +453,8 @@ async function transferOwnership(transactionDetails, recordTransaction = true) {
     } else if (
         transactionDetails.transaction_type === "purchase-nft" ||
         transactionDetails.transaction_type === "fund-nft" ||
-        transactionDetails.transaction_type === "draw-nft"
+        transactionDetails.transaction_type === "draw-nft" ||
+        transactionDetails.transaction_type === "win-nft"
     ) {
         collectionType = "nft";
     }
@@ -477,7 +478,8 @@ async function transferOwnership(transactionDetails, recordTransaction = true) {
         collection.owner = transactionDetails.buyer;
     } else if (
         transactionDetails.transaction_type === "purchase-nft" ||
-        transactionDetails.transaction_type === "draw-nft"
+        transactionDetails.transaction_type === "draw-nft" ||
+        transactionDetails.transaction_type === "win-nft"
     ) {
         collection = await Nft.findOne({
             nft_id: transactionDetails.collection_id,
@@ -742,12 +744,14 @@ async function drawNft(req, res) {
         // in case of abortion event, there is no participant, then there is no winner
         try {
             winner = eventLog.object._winner;
-        } catch (e) {}
+        } catch (e) {
+            console.log(e);
+        }
 
         const nftTransactionDetails = {
             buyer: winner,
             seller: draw.owner,
-            transaction_type: "draw-nft",
+            transaction_type: "win-nft",
             collection_id: draw.nft_id,
         };
         try {

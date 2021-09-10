@@ -278,6 +278,8 @@ export default {
 }
 
 .add-btn {
+    display: flex;
+    align-items: center;
     position: fixed;
     bottom: 5vh;
     right: 5vw;
@@ -286,6 +288,8 @@ export default {
 }
 
 .create-album-btn {
+    display: flex;
+    align-items: center;
     position: fixed;
     bottom: 5vh;
     right: 10vw;

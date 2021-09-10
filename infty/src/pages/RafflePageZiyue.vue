@@ -76,7 +76,7 @@
                             <b-collapse id="collapse-4" class="mt-2">
                                 <b-card>
                                     <b-list-group>
-                                        <b-list-group-item>Ethereum</b-list-group-item>
+                                        <b-list-group-item>Conflux</b-list-group-item>
                                         <b-list-group-item>Polygon</b-list-group-item>
                                         <b-list-group-item>Klaytn</b-list-group-item>
                                     </b-list-group>
