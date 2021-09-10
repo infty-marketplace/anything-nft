@@ -1,8 +1,10 @@
 
 <div align="center">
 <h1>
-    Infty Marketplace: <a href='http://infty.market'>website</a>
-    <img src='https://i.giphy.com/2AsUh6drRSF8bBQ1Zv.gif' />
+    Infty Marketplace 
+    <a href='http://infty.market'>
+    <img src='https://i.giphy.com/2AsUh6drRSF8bBQ1Zv.gif' /></a>
+    
 </h1>
 
 ![GitHub language count](https://img.shields.io/github/languages/count/InfTkm/anything-nft) 
