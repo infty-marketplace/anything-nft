@@ -1,0 +1,2 @@
+The code in staking.sol was adapted from this repo: https://github.com/Synthetixio/synthetix/blob/develop/contracts/StakingRewards.sol
+Slight changes were made so that we can stake native tokens (such as cfx).
