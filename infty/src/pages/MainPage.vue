@@ -1,7 +1,7 @@
 <template>
     <div class="flex-wrapper">
         <Navbar />
-        <div class="main">
+        <div class="main" data-relative-input='true'>
             <img class="banner" :src="banner" />
             <p class="banner-text mt-5">
                 Create, collect, and trade any craft as NFT.
@@ -14,17 +14,14 @@
                     <router-link to="/mine/create"><button>Create</button></router-link>
                 </div>
             </div>
-
             <span class="shape"></span>
             <span class="shape"></span>
             <span class="shape"></span>
-            <span class="shape"></span>
-            <div class="about-us">
+            
+            <div class="about-us" data-sal='fade' data-sal-delay="200" data-sal-duration="800">
+                <span class="about-shape"></span>
                 <div class="sm:w-2/3 sm:mr-10">
                     <div class="about-text">
-                        <!-- <span class="text-gray-500 border-b-2 border-indigo-600 uppercase"
-              >ABOUT US</span
-            > -->
                         <h2 class="font-bold stress">About <span class="font-bold stress">Our Team</span></h2>
                         <p class="text-gray-700">
                             At Infty, we work on this open-source community-driven NFT trading platform. Our core
@@ -56,6 +53,8 @@
 <script>
 import Navbar from "../components/Navbar.vue";
 import Footer from "../components/Footer.vue";
+import sal from 'sal.js'
+
 export default {
     name: "App",
     components: {
@@ -66,10 +65,14 @@ export default {
         banner: require("../assets/imgs/banner.svg"),
         team: require("../assets/imgs/aboutUs.svg"),
     }),
+    mounted() {
+        sal();
+    }
 };
 </script>
 
 <style scoped>
+@import '../../node_modules/sal.js/dist/sal.css';
 .main {
     text-align: center;
     overflow: hidden;
@@ -159,13 +162,13 @@ export default {
     z-index: -1;
     animation: wave 15s ease-in-out infinite;
 }
-.shape:nth-of-type(4) {
-    width: 130%;
-    height: 80%;
+.about-shape {
+    width: 125%;
+    height: 100%;
     background: #e5e5e5;
     position: absolute;
     left: -30%;
-    top: calc(100% + 50px);
+    top: 0%;
     opacity: 0.3;
     z-index: -1;
     animation: wave 10s ease-in-out infinite;

@@ -109,9 +109,9 @@
         <div id="search-bar">
           <b-input-group size="md" class="mb-2">
             
-            <b-form-input type="search" placeholder="Search..."></b-form-input>
+            <b-form-input type="search" placeholder="Search..."  @keyup.enter='$store.dispatch("notifyWIP")'></b-form-input>
             <b-input-group-prepend is-text>
-              <b-icon icon="search"></b-icon>
+              <b-icon icon="search" style='cursor:pointer' @click='$store.dispatch("notifyWIP")'></b-icon>
             </b-input-group-prepend>
           </b-input-group>
 
@@ -256,7 +256,7 @@ export default {
         nfts.map((n) => {
           if ((this.notMine && this.user != n.data.owner[0].address) || !this.notMine) {
               axios.get(`${this.$store.getters.getApiUrl}/profile/${n.data.author}`).then((res) => {
-              n.data.author = res.data.first_name + " " + res.data.last_name
+              n.data.authorName = res.data.first_name + " " + res.data.last_name
               n.data.url = n.data.file;
               if (n.data.fragmented && this.fragments.some(f => f.nft_id == n.data.nft_id && f.status == 'sale')) {
                 n.data.status = 'sale'

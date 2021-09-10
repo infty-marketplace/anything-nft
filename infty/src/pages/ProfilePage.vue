@@ -4,7 +4,7 @@
         <div class="profile-pic-container" v-if="$store.getters.getAddress">
             <img :src="avatar" id="profile-pic" />
             <a @click="uploadAvatar" v-if="this.isMyself">
-                <b-icon id="upload_pic_icon" icon="camera" font-scale="2" class="upload-btn p-2"></b-icon>
+                <b-icon id="upload_pic_icon" icon="camera" font-scale="2" class="upload-btn p-2" v-if='$store.getters.getAddress==$route.params.address'></b-icon>
             </a>
             <b-form style="display:None">
                 <input type="file" ref="avatar_uploader" id="avatar_uploader" @change="onFileSelected" />
@@ -40,7 +40,7 @@
                             <el-menu-item index="2-2">Album</el-menu-item>
                             <el-menu-item index="2-3">Raffle</el-menu-item>
                         </el-submenu>
-                        <el-menu-item index="3" v-if="this.isMyself">
+                        <el-menu-item index="3" v-if="this.isMyself" id='account-menu'>
                             <i class="el-icon-setting"></i>
                             <span slot="title">My Account</span>
                         </el-menu-item>
@@ -126,7 +126,7 @@
                             </div>
                             <p>Your Wallet Address</p>
                             <el-input :placeholder="this.$store.getters.getAddress" :disabled="true">
-                                <el-button slot="append">Copy</el-button>
+                                <el-button slot="append" @click='$store.dispatch("notifyWIP")'>Copy</el-button>
                             </el-input>
                             <p class="mt-3">Info</p>
                             <el-row>
@@ -225,6 +225,7 @@ export default {
         albumTransactions: [],
 
         bio: "",
+        displayBio: "",
         new_first: "",
         new_last: "",
         first_name: "",
@@ -418,6 +419,14 @@ export default {
         this.loadTransactions();
         await this.loadNfts(profile.nft_ids);
         await this.loadAlbums(profile.album_ids);
+        if (this.isMyself) {
+            this.selectedIndex = '3'
+            document.getElementById('account-menu').click()
+        } else {
+            this.selectedIndex = '1-1'
+            document.querySelector('.el-submenu__title').click()
+            document.querySelector('.el-menu-item').click()
+        }
     },
     beforeDestroy() {},
 };
@@ -495,6 +504,8 @@ export default {
     flex-wrap: wrap;
     justify-content: space-evenly;
     align-items: flex-start;
+    row-gap: 10px;
+    column-gap: 20px;
 }
 
 .card {

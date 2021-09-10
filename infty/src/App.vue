@@ -26,11 +26,7 @@ export default {
         //   url:'https://test.confluxrpc.com',
         //   networkId: 1
         // })
-        window.setTimeout(() => {
-            if (!this.conflux || this.conflux.networkVersion == 1) {
-                this.testnet = true
-            }
-        },1000)
+        
         console.log(window.conflux.networkVersion)
         document.title = "Infty Marketplace";
         const minterContract = window.confluxJS.Contract({
@@ -68,6 +64,17 @@ export default {
             });
         });
     },
+    mounted() {
+        window.setTimeout(() => {
+            if (!window.conflux) {
+                this.testnet = false
+                return
+            }
+            if (window.conflux.networkVersion != 1) {
+                this.testnet = false
+            }
+        },1000)
+    },
     beforeDestroy() {
         eventBus.$off("App.notifyWIP");
         eventBus.$off("App.notifyCommission");
@@ -81,6 +88,7 @@ export default {
 }
 </style>
 <style>
+
 #app {
     font-family: Avenir, Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -120,7 +128,7 @@ export default {
 
 #testnet-err {
     position: absolute;
-    top: 30%;
+    top: 40vh;
     left: 50%;
     transform: translate(-50%,-50%);
     z-index: 10000;

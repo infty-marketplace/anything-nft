@@ -14,6 +14,7 @@
     "element-ui": "^2.15.5",
     "js-conflux-sdk": "^1.7.0",
     "lodash.throttle": "^4.1.1",
+    "sal.js": "^0.8.5",
     "vue": "^2.6.11",
     "vue-router": "^3.5.2",
     "vuex": "^3.6.2"

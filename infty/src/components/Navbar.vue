@@ -24,9 +24,9 @@
                         </b-button>
                     </li>
                     <li v-else>
-                        <router-link :to="`/profile/${this.addr}`">
-                            <img :src="profile_picture" class="profile-pic" />
-                        </router-link>
+                        
+                        <img :src="profile_picture" class="profile-pic" @click='toProfile'/>
+                        
                     </li>
                 </ul>
             </nav>
@@ -75,6 +75,14 @@ export default {
                     console.log('profile saved', res);
                 });
         },
+        toProfile() {
+            const path = this.$route.path
+            if (path.includes('profile') && path.split('profile/')[1] != this.$store.getters.getAddress) {
+                window.location.pathname = `/profile/${this.$store.getters.getAddress}`
+            } else {
+                this.$router.push(`/profile/${this.$store.getters.getAddress}`)
+            }
+        }
     },
     computed: {
         loggedIn: function() {
@@ -89,12 +97,6 @@ export default {
     },
     async created() {
       this.connectWallet()
-    //   window.setTimeout(async () => {
-    //     //   this.addr = window.conflux.selectedAddress;
-    //         if (this.addr) {
-    //             this.profile_picture = await this.$store.getters.getProfilePic(this.addr);
-    //         }
-    //   },2000)
       
       eventBus.$on("Navbar.noWallet", () => {
           this.$bvToast.show("no-wallet-toast");

@@ -135,13 +135,7 @@
                         >
                     </div>
                     <el-table
-                        @cell-click="
-                            (a, b) => {
-                                if (b.label == 'Owner') {
-                                    window.open(`https://testnet.confluxscan.io/address/${a.owner}`);
-                                }
-                            }
-                        "
+                        @cell-click="cellClicked"
                         :data="sharesTable"
                         style="width: 100%"
                         height="150"
@@ -267,6 +261,13 @@ export default {
         this.reload();
     },
     methods: {
+        cellClicked(a, b) {
+          console.log(1)
+            if (b.label =='Owner') {
+              this.$router.push(`/profile/${a.owner}`)
+            }
+        },
+                        
         async reload() {
             const getters = this.$store.getters;
 

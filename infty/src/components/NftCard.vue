@@ -35,7 +35,7 @@
             <b-card-text class="card-detail">
                 <p>{{ card.title }}</p>
                 <p>{{ card.collection }}</p>
-                <b class="card-owner" @click="handleRedirectToProfile">{{ card.author }}</b>
+                <b class="card-owner" @click="handleRedirectToAuthor">{{ card.authorName || card.author}}</b>
             </b-card-text>
             <template #footer>
                 <div v-if="card.status == 'sale'">
@@ -60,7 +60,7 @@
 
                 <div v-if="card.status == 'private'">
                     <small class="text-muted">Currently Unlisted</small>
-                    <el-tooltip effect="dark" class='ml-2' style='cursor:help' content="This is a fragment of the NFT." placement="bottom">
+                    <el-tooltip effect="dark" class='ml-2 mt-1' style='cursor:help; float:right' content="This is a fragment of the NFT." placement="bottom">
                     <b-icon v-if='isPiece' b-icon icon='layout-wtf'/>
                     </el-tooltip>
                     <b-modal ref="list-modal" title="List Item" @ok="handleListNft">
@@ -341,6 +341,11 @@ export default {
                 path: "/profile/" + this.card.owner[0].address,
             });
         },
+        handleRedirectToAuthor() {
+            this.$router.push({
+                path: "/profile/" + this.card.author,
+            });
+        },
     },
 };
 </script>
@@ -350,10 +355,6 @@ export default {
     width: 250px;
     transition: all 0.15s ease-in-out;
 }
-/* .user-card:hover {
-  transform: scale(1.02);
-  box-shadow: 0 0 5px rgba(33, 33, 33, 0.2);
-} */
 .text-muted-right {
     float: right;
 }

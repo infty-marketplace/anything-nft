@@ -82,8 +82,8 @@
              if (b.label == "NFT Title") {
                this.redirectToNft(a.nft_id)
              }
-             if(b.label =="owner") {
-               window.open(`https://testnet.confluxscan.io/address/${a.owner}`)
+             if(b.label =="Owner") {
+               this.$router.push(`/profile/${a.owner}`)
              }
             }'
           :data="nftsTable"
