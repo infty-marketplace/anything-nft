@@ -276,6 +276,7 @@ export default {
     right: 5vw;
     height: 4vh;
     box-shadow: 0 0 5px rgba(33, 33, 33, 0.2);
+    z-index: 1;
 }
 
 .create-album-btn {
