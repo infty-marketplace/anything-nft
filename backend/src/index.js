@@ -19,7 +19,7 @@ let session = require("express-session")({
     },
 });
 app.use(session);
-if (!port.env.PORT) {
+if (!process.env.PORT) {
     app.use(cors());
 }
 app.use(bodyParser.json());
