@@ -72,7 +72,6 @@ export default {
   data: ()=>({lang:false}),
   methods: {
     subscribe() {
-      console.log(this.lang)
       this.$notify({
         title: "Congrats",
         message: "You are now subscribed to receive the latest and greatest news!",

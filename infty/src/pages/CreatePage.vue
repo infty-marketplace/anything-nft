@@ -111,7 +111,6 @@ export default {
             }).catch(err => {
                 console.log(err)
                 Notification.closeAll()
-                console.log(err)
                 if (err.response.status == 409) {
                    this.$notify.error({
                         title: "Error",

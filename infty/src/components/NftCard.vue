@@ -222,7 +222,6 @@ export default {
                     message: "Approving platform to operate the NFT on your behalf.",
                     duration: 0,
                 });
-                console.log(res);
                 
                 const tokenId = this.card.nft_id.split("-")[1];
 
@@ -231,7 +230,7 @@ export default {
                     .sendTransaction({ from: getters.getAddress, to: getters.getMinterAddress, gasPrice: 1 })
                     .executed();
             }
-            console.log(this.fractionStatus)
+
             axios
                 .post(`${this.$store.getters.getApiUrl}/list-nft`, {
                     price: this.listing_price,
@@ -249,7 +248,7 @@ export default {
                         duration: 3000,
                         type: "success",
                     });
-                    console.log(res.data);
+
                     eventBus.$emit("Card.statusChanged", this.card.nft_id);
                 })
                 .catch((err) => {

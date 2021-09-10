@@ -21,13 +21,6 @@ export default {
         testnet: true
     }),
     created() {
-        // TODO based on wallet network
-        // const cfx = new Conflux({
-        //   url:'https://test.confluxrpc.com',
-        //   networkId: 1
-        // })
-        
-        console.log(window.conflux.networkVersion)
         document.title = "Infty Marketplace";
         const minterContract = window.confluxJS.Contract({
             abi: inftyNftAbi,

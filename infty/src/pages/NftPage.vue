@@ -262,7 +262,6 @@ export default {
     },
     methods: {
         cellClicked(a, b) {
-          console.log(1)
             if (b.label =='Owner') {
               this.$router.push(`/profile/${a.owner}`)
             }
@@ -325,8 +324,6 @@ export default {
 
             const res = await tx.executed();
             console.log(res);
-
-            console.log(getters.getAddress);
             const data = {
                 nft_id: this.card.nft_id,
                 buyer: getters.getAddress,
@@ -395,7 +392,6 @@ export default {
             const getters = this.$store.getters;
             const addr = (await window.conflux.send("cfx_requestAccounts"))[0];
             this.$store.dispatch("notifyCommission");
-            console.log(obj);
             const tx = window.confluxJS.sendTransaction({
                 from: addr,
                 to: getters.getManagerAddr,

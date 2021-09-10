@@ -135,7 +135,7 @@ export default {
             });
 
             const res = await tx.executed();
-            console.log(res);
+
             await getters.getMinterContract
                 .setApprovalForAll(getters.getManagerAddr, true)
                 .sendTransaction({ from: getters.getAddress, to: getters.getMinterAddress, gasPrice: 1 })

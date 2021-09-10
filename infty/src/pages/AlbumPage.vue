@@ -325,15 +325,12 @@ export default {
         const api = this.$store.getters.getApiUrl;
         axios.get(`${api}/album/${this.$route.params.id}`).then(async (res) => {
             const card = res.data;
-            console.log(res);
             card.url = card.file;
             this.card = card;
             for (const nid of card.nft_ids) {
                 const res = await axios.get(`${api}/nft/${nid}`);
                 this.nfts.push(res.data);
             }
-
-            console.log(this.nfts);
             this.nftsTable = this.nfts.map((n) => ({
                 title: n.title,
                 price: n.price,
