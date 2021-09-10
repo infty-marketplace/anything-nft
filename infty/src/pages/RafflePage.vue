@@ -254,7 +254,7 @@ export default {
                         raffle.owner = `${res.data.first_name} ${res.data.last_name}`;
                     })
                     .catch((e) => {
-                        return;
+                        console.log(e)
                     });
             }
 
@@ -374,32 +374,25 @@ export default {
 * {
     font-family: "Montserrat", sans-serif;
 }
-.raffle-page {
-    /* background: #0082c8; */
-    /* background: linear-gradient(to right, #667db6, #0082c8, #0082c8, #667db6); */
-    /* background: rgb(18, 18, 18); */
-    /* background: linear-gradient(to right, rgb(38, 38, 38), rgb(18, 18, 18)); /* W3C, IE 10+/ Edge,  */
-}
+
 #sidebar {
     margin-top: 2em;
     display: inline-block;
     text-align: left;
     vertical-align: top;
     border-radius: 10px;
+    margin-left: 2em;
 }
 .filter-header {
     text-align: left;
 }
-#sidebar-card,
-.list-group-item {
-}
+
 .category-button {
     width: 100%;
 }
 #banner {
     margin-top: 2em;
     border-radius: 10px;
-    /* background-image: linear-gradient(-20deg, rgb(38, 38, 38), rgb(18, 18, 18)); */
     background: linear-gradient(-20deg, #434343, #000000);
     height: 200px;
     display: flex;
@@ -410,7 +403,6 @@ export default {
 }
 #banner-content {
     margin-left: 5px;
-    /* width: 70%; */
     color: white;
     font-family: "Palette Mosaic", cursive;
 }
@@ -464,14 +456,11 @@ export default {
     color: rgb(38, 38, 38);
     font-weight: bold;
     width: 100%;
-    /* margin-left: 10%; */
     height: 40px;
     text-align: center;
     margin-top: 2em;
     background-color: rgb(107, 232, 170);
     border: none;
-
-    /* line-height: 40px; */
 }
 .buy-btn:hover {
     background: #383;
@@ -485,11 +474,7 @@ export default {
     background: #383;
 }
 
-#sidebar-card .collapse .card {
-    /* border: none; */
-}
 #sidebar-card {
-    /* border-radius: 25px; */
     height: 100%;
 }
 

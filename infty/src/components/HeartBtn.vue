@@ -8,7 +8,6 @@ export default {
     }),
     methods: {
         heartClicked(){
-            console.log(this.$refs['heart'].classList.length)
             if (this.$refs['heart'].classList.length == 1) this.$refs['heart'].classList.add('liked');
             else this.$refs['heart'].classList.remove('liked');
         }

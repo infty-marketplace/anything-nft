@@ -35,7 +35,7 @@
             <b-card-text class="card-detail">
                 <p>{{ card.title }}</p>
                 <p>{{ card.collection }}</p>
-                <b class="card-owner" @click="handleRedirectToProfile">{{ card.author }}</b>
+                <b class="card-owner" @click="handleRedirectToAuthor">{{ card.authorName || card.author}}</b>
             </b-card-text>
             <template #footer>
                 <div v-if="card.status == 'sale'">
@@ -60,34 +60,56 @@
 
                 <div v-if="card.status == 'private'">
                     <small class="text-muted">Currently Unlisted</small>
-
-                    <!-- <small class="text-muted-right"
-            ><b-button
-              size="sm"
-              style="margin-top: -3px"
-              variant="primary"
-              @click="listNftClicked"
-              >List item</b-button
-            ></small
-          >
-          <small class="text-muted-right mr-2"
-            ><b-button
-              size="sm"
-              style="margin-top: -3px"
-              variant="info"
-              @click="raffleNftClicked"
-              >Raffle it</b-button
-            ></small
-          > -->
+                    <el-tooltip effect="dark" class='ml-2 mt-1' style='cursor:help; float:right' content="This is a fragment of the NFT." placement="bottom">
+                    <b-icon v-if='isPiece' b-icon icon='layout-wtf'/>
+                    </el-tooltip>
                     <b-modal ref="list-modal" title="List Item" @ok="handleListNft">
+                        <div style='display:block;width:100%;' class='mb-2'>
+                        
+                        <label>Settlement Currency:
+                            <el-tooltip effect="dark" class='ml-2' style='cursor:help' content="The commission fee will be waived if you choose INFT as your settlement currency." placement="right">
+                            <i class='el-icon-warning-outline'/>
+                            </el-tooltip></label>
+                        <el-select style='float:right;width:40%' v-model="currencyValue" placeholder="Settlement Currency">
+                        <el-option
+                            v-for="item in options"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value">
+                            </el-option>
+                        </el-select>
+                        </div>
                         <label>Price</label>
-                        <b-form-input class="mb-4" v-model="listing_price" placeholder="How much in cfx..." />
-                        <label>Commision Fee</label>
+                        <b-form-input class="mb-4" v-model="listing_price" :placeholder="`How much in ${currencyValue}...`" />
+                        <div v-if='currencyValue!="inft"'>
+                        <label>Commision Fee
+                            <el-tooltip effect="dark" class='ml-2' style='cursor:help' content="Minimum is 2.5% of the price, or 10 cfx." placement="right">
+                            <i class='el-icon-warning-outline'/>
+                            </el-tooltip>
+                        </label>
                         <b-form-input
                             class="mb-4"
                             v-model="listing_commision"
-                            placeholder="How much in cfx... (Minimum 2.5%)"
+                            :placeholder='`How much in ${currencyValue}... `'
                         />
+                        </div>
+                        <div v-if="!card.fragmented">
+                        <b-form-checkbox
+                        style="display: inline"
+                        id="fraction"
+                        v-model="fractionStatus"
+                        name="fraction"
+                        value="yes"
+                        unchecked-value="no"
+                        >
+                        
+                        Allow Fractional Trading
+                        
+                        </b-form-checkbox>
+                        <el-tooltip effect="dark" class='ml-2' style='cursor:help' content="Your NFT will be divided into 100 shares." placement="right">
+                            <i class='el-icon-warning-outline'/>
+                        </el-tooltip>
+                        </div>
                     </b-modal>
                     <b-modal ref="raffle-modal" title="Raffle It" @ok="handleRaffleNft">
                         <label>Ticket Price</label>
@@ -104,7 +126,7 @@
                         <b-form-datepicker id="example-datepicker" v-model="deadline" class="mb-2"></b-form-datepicker>
                         <b-form-checkbox
                             id="checkbox-1"
-                            v-model="status"
+                            v-model="oneticketStatus"
                             name="checkbox-1"
                             value="accepted"
                             unchecked-value="not_accepted"
@@ -141,7 +163,7 @@ export default {
         HeartBtn,
     },
     data: () => ({
-        status: undefined,
+        oneticketStatus: undefined,
         listing_price: undefined,
         listing_commision: undefined,
         raffle_price: undefined,
@@ -149,11 +171,30 @@ export default {
         raffle_commision: undefined,
         checkState: false,
         deadline: null,
+        fractionStatus: 'no',
+        currencyValue: 'cfx',
+        options: [
+            {
+                label: 'CFX',
+                value: 'cfx'
+            },
+            {
+                label: 'INFT',
+                value: 'inft'
+            },
+            {
+                label: "USDT",
+                value: 'usdt'
+            }
+        ]
     }),
     computed: {
         onMarket: function() {
             return this.$route.path.includes("marketplace");
         },
+        isPiece: function() {
+            return this.card.owner.length > 1;
+        }
     },
     methods: {
         listNftClicked(e) {
@@ -165,8 +206,6 @@ export default {
             this.$refs["raffle-modal"].show();
         },
         async handleListNft() {
-            console.log(this.$store.getters.getManagerAddr);
-            console.log((await window.conflux.send("cfx_requestAccounts"))[0]);
             const tx = window.confluxJS.sendTransaction({
                 from: (await window.conflux.send("cfx_requestAccounts"))[0],
                 to: this.$store.getters.getManagerAddr,
@@ -176,26 +215,31 @@ export default {
             this.$store.dispatch("notifyCommission");
             const res = await tx.executed();
             Notification.closeAll();
-            this.$notify({
-                title: "Notification",
-                message: "Approving platform to operate the NFT on your behalf.",
-                duration: 0,
-            });
-            console.log(res);
             const getters = this.$store.getters;
-            const tokenId = this.card.nft_id.split("-")[1];
+            if (this.card.owner.length == 1) {
+                this.$notify({
+                    title: "Notification",
+                    message: "Approving platform to operate the NFT on your behalf.",
+                    duration: 0,
+                });
+                console.log(res);
+                
+                const tokenId = this.card.nft_id.split("-")[1];
 
-            await getters.getMinterContract
-                .approve(getters.getManagerAddr, tokenId)
-                .sendTransaction({ from: getters.getAddress, to: getters.getMinterAddress, gasPrice: 1 })
-                .executed();
-
+                await getters.getMinterContract
+                    .approve(getters.getManagerAddr, tokenId)
+                    .sendTransaction({ from: getters.getAddress, to: getters.getMinterAddress, gasPrice: 1 })
+                    .executed();
+            }
+            console.log(this.fractionStatus)
             axios
                 .post(`${this.$store.getters.getApiUrl}/list-nft`, {
                     price: this.listing_price,
                     comission: this.listing_commision,
                     currency: "cfx",
                     nft_id: this.card.nft_id,
+                    owner: getters.getAddress,
+                    fractional: this.fractionStatus == 'yes' ? true : false
                 })
                 .then((res) => {
                     Notification.closeAll();
@@ -260,6 +304,7 @@ export default {
             axios
                 .post(`${this.$store.getters.getApiUrl}/delist-nft`, {
                     nft_id: this.card.nft_id,
+                    owner: this.$store.getters.getAddress
                 })
                 .then((res) => {
                     this.$bvToast.toast("Delisted Successfully", {
@@ -296,6 +341,11 @@ export default {
                 path: "/profile/" + this.card.owner[0].address,
             });
         },
+        handleRedirectToAuthor() {
+            this.$router.push({
+                path: "/profile/" + this.card.author,
+            });
+        },
     },
 };
 </script>
@@ -305,14 +355,11 @@ export default {
     width: 250px;
     transition: all 0.15s ease-in-out;
 }
-/* .user-card:hover {
-  transform: scale(1.02);
-  box-shadow: 0 0 5px rgba(33, 33, 33, 0.2);
-} */
 .text-muted-right {
     float: right;
 }
 .card-detail {
+    margin-top: 5px;
     font-size: 0.875em;
 }
 .checkbox {
@@ -362,3 +409,4 @@ export default {
     color: #0088a9;
 }
 </style>
+

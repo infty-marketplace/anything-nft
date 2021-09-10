@@ -19,13 +19,12 @@ const drawSchema = new Schema(
             default: [],
         },
     },
-    {
-        timestamps: {
-            // currentTime: () => Math.floor(Date.now() / 1000),
-            createdAt: "created_at",
-            updatedAt: "updated_at",
-        },
-    }
+  {
+    timestamps: {
+      createdAt: "created_at",
+      updatedAt: "updated_at",
+    },
+  }
 );
 
 const Draw = mongoose.model("Draw", drawSchema, "draws");

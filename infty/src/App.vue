@@ -1,6 +1,9 @@
 <template>
-    <div id="app">
+    <div id="app" v-loading='!testnet'>
         <router-view />
+        <h1 v-if='!testnet' id='testnet-err'>
+            Please install ConfluxPortal and switch to testnet, then refresh.
+        </h1>
     </div>
 </template>
 
@@ -14,12 +17,17 @@ import { eventBus } from "./main";
 
 export default {
     name: "App",
+    data: () => ({
+        testnet: true
+    }),
     created() {
         // TODO based on wallet network
         // const cfx = new Conflux({
         //   url:'https://test.confluxrpc.com',
         //   networkId: 1
         // })
+        
+        console.log(window.conflux.networkVersion)
         document.title = "Infty Marketplace";
         const minterContract = window.confluxJS.Contract({
             abi: inftyNftAbi,
@@ -42,7 +50,7 @@ export default {
         eventBus.$on("App.notifyWIP", () => {
             this.$notify.info({
                 title: "Info",
-                message: 'This functionality is work in progress.</div>',
+                message: 'This functionality is work in progress.',
                 duration: 3000,
             });
         });
@@ -56,14 +64,31 @@ export default {
             });
         });
     },
+    mounted() {
+        window.setTimeout(() => {
+            if (!window.conflux) {
+                this.testnet = false
+                return
+            }
+            if (window.conflux.networkVersion != 1) {
+                this.testnet = false
+            }
+        },1000)
+    },
     beforeDestroy() {
         eventBus.$off("App.notifyWIP");
         eventBus.$off("App.notifyCommission");
     },
 };
 </script>
-
+<style scoped>
+.err {
+    position: fixed;
+    top: 0;
+}
+</style>
 <style>
+
 #app {
     font-family: Avenir, Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -99,5 +124,13 @@ export default {
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+#testnet-err {
+    position: absolute;
+    top: 40vh;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    z-index: 10000;
 }
 </style>

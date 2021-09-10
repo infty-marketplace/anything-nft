@@ -214,8 +214,8 @@ export default {
 
 <style scoped>
 .user-card {
-    width: 250px;
-    transition: all 0.15s ease-in-out;
+  width: 100%;
+  transition: all 0.15s ease-in-out;
 }
 .user-card:hover {
     transform: scale(1.02);

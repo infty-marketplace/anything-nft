@@ -1,13 +1,7 @@
 <template>
-  <!-- <div class="footer-container mt-5">
-    Copyright @ CutoffX -->
   <footer>
     <div class="content">
       <div class="top">
-        <!-- <div class="logo-details">
-          <i class="fab fa-slack"></i>
-          <span class="logo_name">Logo</span>
-        </div> -->
         <router-link to='/'><div class="logo-details">
           <img class="logo-img" src="@/assets/imgs/infty-logo.png" alt="logo" />
         </div></router-link>
@@ -15,20 +9,15 @@
           <a href="https://github.com/InfTkm/anything-nft" target="_blank"
             ><b-icon icon="github"></b-icon>
           </a>
-          <!-- <a href="#"><i class="fab fa-facebook-f"></i></a>
-          <a href="#"><i class="fab fa-twitter"></i></a>
-          <a href="#"><i class="fab fa-instagram"></i></a>
-          <a href="#"><i class="fab fa-linkedin-in"></i></a>
-          <a href="#"><i class="fab fa-youtube"></i></a> -->
         </div>
       </div>
       <div class="link-boxes">
         <ul class="box">
           <li class="link_name">Marketplace</li>
-          <li><a href="#">All NFTs</a></li>
-          <li><a href="#">Art</a></li>
-          <li><a href="#">Trading Cards</a></li>
-          <li><a href="#">Collectibles</a></li>
+          <li><a href="/marketplace">All NFTs</a></li>
+          <li><a href="/marketplace">Art</a></li>
+          <li><a href="/marketplace">Trading Cards</a></li>
+          <li><a href="/marketplace">Collectibles</a></li>
         </ul>
         <ul class="box">
           <li class="link_name">Account</li>
@@ -41,20 +30,25 @@
           <li class="link_name">Stats</li>
           <li><a href="#">Rankings</a></li>
           <li><a href="#">Activity</a></li>
-          <!-- <li><a href="#">Prefrences</a></li>
-          <li><a href="#">Purchase</a></li> -->
         </ul>
         <ul class="box">
           <li class="link_name">CutoffX</li>
           <li><a href="#">Contact us</a></li>
           <li><a href="#">About us</a></li>
-          <!-- <li><a href="#">Photography</a></li>
-          <li><a href="#">Photoshop</a></li> -->
         </ul>
         <ul class="box input-box">
           <li class="link_name">Subscribe</li>
           <li><input type="text" placeholder="Enter your email" /></li>
           <li @click='subscribe'><input type="button" value="Subscribe" /></li>
+          <el-switch
+          class='mt-3'
+          style="display: block;float: right;margin-right:-55px;"
+          v-model="lang"
+          active-color="#13ce66"
+          inactive-color="#3faac1ba"
+          active-text="CN"
+          inactive-text="EN">
+        </el-switch>
         </ul>
       </div>
     </div>
@@ -70,15 +64,15 @@
       </div>
     </div>
   </footer>
-
-  <!-- </div> -->
 </template>
 
 <script>
 export default {
   name: "Navbar",
+  data: ()=>({lang:false}),
   methods: {
     subscribe() {
+      console.log(this.lang)
       this.$notify({
         title: "Congrats",
         message: "You are now subscribed to receive the latest and greatest news!",

@@ -3,6 +3,7 @@ const Album = require("../models/album");
 const Draw = require("../models/draw");
 const Transaction = require("../models/transaction");
 const User = require("../models/user");
+const Fragment = require('../models/fragment')
 const constants = require("../constants");
 const fs = require("fs");
 const sha256 = require("sha256-file");
@@ -45,31 +46,41 @@ const getDraw = async (req, res) => {
 
 // return a list of on sale NFT's id from cursor position, limit amount
 const getMarket = async (req, res) => {
-    const body = req.body;
-    if (!body) {
-        return res.status(400).json({ error: "invalid request" });
-    }
+  const body = req.body;
+  if (!body) {
+    return res.status(400).json({ error: "invalid request" });
+  }
 
-    const limit = body.limit || 10;
-    const offset = body.offset || 0;
+  const limit = body.limit || 10;
+  const offset = body.offset || 0;
 
-    const nftQuery = Nft.find({ status: constants.STATUS_SALE }, { nft_id: 1 })
-        .sort({ nft_id: "desc" })
-        .skip(offset)
-        .limit(limit);
+  const nftQuery = Nft.find({ status: constants.STATUS_SALE }, { nft_id: 1 })
+  .sort({ nft_id: "desc" })
+  .skip(offset)
+  .limit(limit)
+    
+  const albumQuery = Album.find(
+    { status: constants.STATUS_SALE },
+    { album_id: 1 }
+  )
+    .sort({ album_id: "desc" })
+    .skip(offset)
+    .limit(limit);
 
-    const albumQuery = Album.find({ status: constants.STATUS_SALE }, { album_id: 1 })
-        .sort({ album_id: "desc" })
-        .skip(offset)
-        .limit(limit);
+  const drawQuery = Draw.find({}, { draw_id: 1 })
+    .sort({ draw_id: "desc" })
+    .skip(offset)
+    .limit(limit);
 
-    const drawQuery = Draw.find({}, { draw_id: 1 }).sort({ draw_id: "desc" }).skip(offset).limit(limit);
-
-    res.send({
-        nft_ids: (await nftQuery.exec()).map((n) => n.nft_id),
-        album_ids: (await albumQuery.exec()).map((n) => n.album_id),
-        draw_ids: (await drawQuery.exec()).map((n) => n.draw_id),
-    });
+  const fragments = Fragment.find({})
+    .skip(offset)
+    .limit(limit);
+  res.send({
+    nft_ids: (await nftQuery.exec()).map((n) => n.nft_id),
+    album_ids: (await albumQuery.exec()).map((n) => n.album_id),
+    draw_ids: (await drawQuery.exec()).map((n) => n.draw_id),
+    fragments: (await fragments.exec())
+  });
 };
 
 async function createNft(req, res) {
@@ -91,7 +102,7 @@ async function createNft(req, res) {
     // upload image to s3
     console.log(sha256(tmpPath));
     const sha = sha256(tmpPath);
-    const location = s3Utils.uploadImage(tmpPath, makeid(16));
+    const location = await s3Utils.uploadImage(tmpPath, makeid(16))
 
     // create nft on chain
     const guessedTokenId = await cfxUtils.nextTokenId();
@@ -124,26 +135,54 @@ async function createNft(req, res) {
         });
 }
 
-function listNft(req, res) {
+async function listNft(req, res) {
     const nftId = req.body.nft_id;
-    Nft.findOneAndUpdate(
-        { nft_id: nftId },
-        {
-            status: constants.STATUS_SALE,
-            price: req.body.price,
-            currency: req.body.currency,
-        },
-        (err) => {
-            if (err) {
-                return res.status(400).send(err);
+    const nft = await Nft.findOne({nft_id: nftId})
+    // if this nft has more owners, then it's fragmented
+    await Nft.findOneAndUpdate({nft_id: nftId}, {status: constants.STATUS_SALE})
+    if (nft.fragmented) {
+        Fragment.findOneAndUpdate({nft_id: nftId, owner: req.body.owner},
+            {
+                status: constants.STATUS_SALE,
+                price: req.body.price,
+                currency: req.body.currency,
+            },
+            (err) => {
+                if (err) {
+                    return res.status(400).send(err);
+                }
+                return res.send("Status changed to sale");
+            })
+        
+    } else {
+        Nft.findOneAndUpdate(
+            { nft_id: nftId },
+            {
+                status: constants.STATUS_SALE,
+                price: req.body.price,
+                currency: req.body.currency,
+                fractional: req.body.fractional
+            },
+            (err) => {
+                if (err) {
+                    return res.status(400).send(err);
+                }
+                return res.send("Status changed to sale");
             }
-            return res.send("Status changed to sale");
-        }
-    );
+        );
+    }
+    
 }
 
-function delistNft(req, res) {
+async function delistNft(req, res) {
     const nftId = req.body.nft_id;
+    const nft = await Nft.findOne({nft_id: nftId})
+    if (nft.fragmented) {
+        await Fragment.findOneAndUpdate({nft_id: nftId, owner: req.body.owner},
+            {status: constants.STATUS_PRIVATE})
+        return res.status(200).send()
+    }
+    
     Nft.findOneAndUpdate({ nft_id: nftId }, { status: constants.STATUS_PRIVATE }, (err) => {
         if (err) {
             return res.status(400).send(err);
@@ -188,6 +227,69 @@ async function listNftDraw(req, res) {
     });
 }
 
+async function getFragments(req, res) {
+    const { owner, nft_id } = req.query;
+    if (!owner) {
+        return res.send(await Fragment.find({nft_id}))
+    }
+    if (!nft_id) {
+        return res.send(await Fragment.find({owner}))
+    }
+    res.send(await Fragment.find({nft_id, owner}))
+}
+
+async function purchaseFragment(req, res) {
+    const { owner, nft_id, buyer } = req.body
+    console.log(owner, nft_id)
+    const buyerOwnSome = (await Nft.findOne({nft_id})).owner.map(o=>o.address).includes(buyer)
+
+    if (buyerOwnSome) {
+        const sellerFrag = await Fragment.findOne({owner, nft_id})
+        const buyerFrag = await Fragment.findOne({owner: buyer, nft_id})
+        buyerFrag.percentage = buyerFrag.percentage + sellerFrag.percentage
+        const buyer100Percent = buyerFrag.percentage == 1
+        await buyerFrag.save()
+        await Fragment.deleteOne({owner, nft_id})
+        const nft = await Nft.findOne({nft_id})
+        nft.owner.forEach((o,i,owners) => {
+            if (o.address == buyer) {
+                owners[i].percentage = buyerFrag.percentage
+            }
+        })
+        nft.owner = nft.owner.filter(o => o.address != owner)
+        await nft.save();
+
+        if (buyer100Percent) {
+            await Fragment.deleteMany({nft_id})
+            await Nft.findOneAndUpdate({nft_id}, {
+                status: constants.STATUS_PRIVATE,
+                owner: [{address: buyer, percentage: 1}],
+                fragmented: false
+            })
+            const tokenID = nft_id.split('-')[1]
+            await cfxUtils.transferOwnershipOnChain(process.env.MANAGER_ADDRESS, buyer, tokenID);
+        }
+    } else {
+        await Fragment.findOneAndUpdate({owner, nft_id}, {
+            status: constants.STATUS_PRIVATE,
+            owner: buyer
+        })
+        await User.updateOne({address: buyer}, { $push: {nft_ids: nft_id}})
+        const nft = await Nft.findOne({nft_id})
+        nft.owner.forEach((o,i,owners) => {
+            if (o.address == owner) {
+                owners[i].address = buyer
+            }
+        })
+        await nft.save();
+    }
+    
+    await User.updateOne({address: owner}, { $pullAll: {nft_ids: [nft_id]} })
+    
+    
+    res.status(200).send()
+    
+}
 async function createAlbum(req, res) {
     const nft_ids = JSON.parse(req.body.nft_ids);
     let album_id = makeid(16);
@@ -417,7 +519,7 @@ async function transferOwnership(transactionDetails, recordTransaction = true) {
         });
 }
 
-async function purchaseNtf(req, res) {
+async function purchaseNft(req, res) {
     const body = req.body;
     let nft = await Nft.findOne({ nft_id: body.nft_id });
 
@@ -477,32 +579,13 @@ async function purchaseNtf(req, res) {
                 return res.status(404).send(error);
             }
 
-            //check if this nft fullfills a album
-            if (nft.album_id && nft.album_id !== "") {
-                let album = await Album.findOne({ album_id: nft.album_id });
-                // if every nft is not completely funded and every nft's owner is the same
-                const nfts = await getAlbumNfts(album);
-                if (!(await isAlbumFunded(album)) && getNftListOwners(nfts).length === 1) {
-                    const albumTransactionDetails = {
-                        buyer: body.buyer,
-                        seller: album.owner,
-                        transaction_type: "purchase-album",
-                        collection_id: album.album_id,
-                    };
-                    try {
-                        transferOwnership(albumTransactionDetails, false);
-                    } catch (error) {
-                        return res.status(404).send(error);
-                    }
-                }
-            }
         }
-        res.status(200).send();
-        await cfxUtils.transferCfxTo(nft.owner[0].address, parseFloat(nft.price));
     }
+    res.status(200).send();
+    await cfxUtils.transferCfxTo(nft.owner[0].address, parseFloat(nft.price));    
 }
 
-async function fundNtf(req, res) {
+async function fundNft(req, res) {
     const body = req.body;
 
     let nft = await Nft.findOne({ nft_id: body.nft_id });
@@ -515,7 +598,19 @@ async function fundNtf(req, res) {
     // owner[0] is the original seller, owner[1:] are the funder
     let sellers = getNftOwners(nft, false);
     let funders = getNftFunders(nft, false);
-
+    if (funders.map(f => f.address).includes(body.buyer)) {
+        const f = await Fragment.findOne({nft_id: body.nft_id,  owner: body.buyer})
+        f.percentage = f.percentage + body.percentage
+        await f.save()
+    } else {
+        await new Fragment({
+            nft_id:body.nft_id,
+            status: constants.STATUS_PRIVATE,
+            owner: body.buyer,
+            percentage: body.percentage
+        }).save()
+        await User.updateOne({address: body.buyer}, { $push: {nft_ids: body.nft_id}})
+    }
     // added new funder to funders
     const index = funders.map((funder) => funder.address).indexOf(body.buyer);
     if (index >= 0) {
@@ -523,7 +618,7 @@ async function fundNtf(req, res) {
     } else {
         funders.push({ address: body.buyer, percentage: body.percentage });
     }
-
+    
     // if no sellers, then the nft is already funded
     if (sellers.length === 0) {
         return res.status(400).json({ error: "nft is already funded" });
@@ -548,10 +643,29 @@ async function fundNtf(req, res) {
     };
 
     nft.owner = fundedPercentages === 1 ? [] : [...sellers, ...funders];
-    await mongodbUtils.saveAll([nft]);
+    if (funders.length == 1 && fundedPercentages == 1) {
+        const nft_id = nft.nft_id
+        await cfxUtils.transferOwnershipOnChain(sellers[0].address, body.buyer,nft_id.split("-")[1]);
+        await Fragment.deleteMany({nft_id})
+        await Nft.findOneAndUpdate({nft_id}, {
+            status: constants.STATUS_PRIVATE,
+            owner: [{address: body.buyer, percentage: 1}],
+            fragmented: false
+        })
+        await User.updateOne({address: body.buyer}, { $push: {nft_ids: nft_id}})
+        const u = await User.findOne({address:body.buyer})
+        u.nft_ids = [ ... new Set(u.nft_ids) ]
+        await u.save()
+        await User.updateOne({address: sellers[0].address}, { $pull: {nft_ids: nft_id}})
+    } else {
+        nft.fragmented = true;
+        await mongodbUtils.saveAll([nft]);
+    }
 
     // if nft is fully funded, remove seller, trsander ownership to funders
-    if (fundedPercentages === 1) {
+    if (funders.length!= 1 && fundedPercentages === 1) {
+        await cfxUtils.transferOwnershipOnChain(sellers[0].address, process.env.MANAGER_ADDRESS,nft.nft_id.split("-")[1]);
+
         for (const funder of funders) {
             let nftTransactionDetails = {
                 buyer: funder.address,
@@ -729,8 +843,10 @@ module.exports = {
     createAlbum,
     listAlbum,
     delistAlbum,
-    purchaseNtf,
+    purchaseNft,
     purchaseAlbum,
     drawNft,
-    fundNtf,
+    fundNft,
+    getFragments,
+    purchaseFragment
 };

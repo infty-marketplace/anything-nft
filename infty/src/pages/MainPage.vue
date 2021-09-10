@@ -14,17 +14,14 @@
                     <router-link to="/mine/create"><button>Create</button></router-link>
                 </div>
             </div>
-
             <span class="shape"></span>
             <span class="shape"></span>
             <span class="shape"></span>
-            <span class="shape"></span>
-            <div class="about-us">
+            
+            <div class="about-us" data-sal='fade' data-sal-delay="200" data-sal-duration="800">
+                <span class="about-shape"></span>
                 <div class="sm:w-2/3 sm:mr-10">
-                    <div class="text">
-                        <!-- <span class="text-gray-500 border-b-2 border-indigo-600 uppercase"
-              >ABOUT US</span
-            > -->
+                    <div class="about-text">
                         <h2 class="font-bold stress">About <span class="font-bold stress">Our Team</span></h2>
                         <p class="text-gray-700">
                             At Infty, we work on this open-source community-driven NFT trading platform. Our core
@@ -56,6 +53,8 @@
 <script>
 import Navbar from "../components/Navbar.vue";
 import Footer from "../components/Footer.vue";
+import sal from 'sal.js'
+
 export default {
     name: "App",
     components: {
@@ -66,20 +65,28 @@ export default {
         banner: require("../assets/imgs/banner.svg"),
         team: require("../assets/imgs/aboutUs.svg"),
     }),
+    mounted() {
+        sal();
+    }
 };
 </script>
 
 <style scoped>
+@import '../../node_modules/sal.js/dist/sal.css';
 .main {
     text-align: center;
     overflow: hidden;
 }
 .banner {
     margin-top: 150px;
-    height: 80%;
-    width: 50%;
+    width: 40%;
 }
-
+@media screen and (max-width: 1500px) {
+    .banner {
+        margin-top: 150px;
+        width: 50%;
+    }
+}
 .banner-text {
     font-size: 2rem;
     font-weight: 1000;
@@ -121,22 +128,22 @@ export default {
 } */
 
 .shape:nth-of-type(1) {
-    width: 70%;
-    height: 80%;
-    background: #95d0f9;
+    width: 20vw;
+    height: 20vw;
+    background: #e5e5e5;
     position: absolute;
-    left: -50%;
-    top: -15%;
-    opacity: 0.2;
+    left: 10px;
+    top: 130px;
+    opacity: 0;
     z-index: -1;
     animation: wave 6s ease-in-out infinite;
 }
 
 .shape:nth-of-type(2) {
-    width: 50%;
-    height: 80%;
-    left: 28%;
-    top: 35%;
+    width: 60vw;
+    height: 40vw;
+    left: 20%;
+    top: 250px;
     background: #95d0f9;
     position: absolute;
     opacity: 0.3;
@@ -145,23 +152,23 @@ export default {
 }
 
 .shape:nth-of-type(3) {
-    width: 30%;
-    height: 50%;
-    background: #e5e5e5;
+    width: 20vw;
+    height: 20vw;
+    background: #95d0f9;
     position: absolute;
-    left: 70%;
-    top: -10%;
-    opacity: 0.6;
+    right: 0;
+    top: calc(70vh);
+    opacity: 0;
     z-index: -1;
     animation: wave 15s ease-in-out infinite;
 }
-.shape:nth-of-type(4) {
-    width: 130%;
-    height: 80%;
+.about-shape {
+    width: 125%;
+    height: 100%;
     background: #e5e5e5;
     position: absolute;
     left: -30%;
-    top: 140%;
+    top: 0%;
     opacity: 0.3;
     z-index: -1;
     animation: wave 10s ease-in-out infinite;
@@ -237,8 +244,7 @@ body .btn-bg.bg-1 .btn-2 button a {
 body .btn-bg.bg-1 .btn-2 button:hover {
     /* background: #95d0f9;
   color: #ffffff; */
-    color: #95d0f9;
-    background: transparent;
+    background: #55b8ff;
     border: 3px solid #95d0f9;
     -webkit-transition: all 0.35s ease;
     transition: all 0.35s ease;
@@ -298,4 +304,5 @@ button a {
     font-weight: 400;
     color: #3f3e54;
 }
+
 </style>

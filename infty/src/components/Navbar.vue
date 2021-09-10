@@ -24,9 +24,9 @@
                         </b-button>
                     </li>
                     <li v-else>
-                        <router-link :to="`/profile/${this.addr}`">
-                            <img :src="profile_picture" class="profile-pic" />
-                        </router-link>
+                        
+                        <img :src="profile_picture" class="profile-pic" @click='toProfile'/>
+                        
                     </li>
                 </ul>
             </nav>
@@ -72,9 +72,17 @@ export default {
                     address: this.$store.getters.getAddress,
                 })
                 .then((res) => {
-                    console.log(res);
+                    console.log('profile saved', res);
                 });
         },
+        toProfile() {
+            const path = this.$route.path
+            if (path.includes('profile') && path.split('profile/')[1] != this.$store.getters.getAddress) {
+                window.location.pathname = `/profile/${this.$store.getters.getAddress}`
+            } else {
+                this.$router.push(`/profile/${this.$store.getters.getAddress}`)
+            }
+        }
     },
     computed: {
         loggedIn: function() {
@@ -89,21 +97,15 @@ export default {
     },
     async created() {
       this.connectWallet()
-    //   window.setTimeout(async () => {
-    //     //   this.addr = window.conflux.selectedAddress;
-    //         if (this.addr) {
-    //             this.profile_picture = await this.$store.getters.getProfilePic(this.addr);
-    //         }
-    //   },2000)
       
       eventBus.$on("Navbar.noWallet", () => {
           this.$bvToast.show("no-wallet-toast");
       });
-      eventBus.$on("Navbar.connectWalletSuccess", () => {
+      eventBus.$on("Navbar.connectWalletSuccess", async () => {
         axios
-            .get(`${this.$store.getters.getApiUrl}/profile/${this.$store.getters.getAddress}`)
+            .get(`${this.$store.getters.getApiUrl}/profile/${(await window.conflux.send("cfx_requestAccounts"))[0]}`)
             .then((res) => {
-                console.log('wallet connected', res)
+                console.log('wallet connected', res);
             })
             .catch((err) => {
                 if (!err.response || err.response.status == 404) {

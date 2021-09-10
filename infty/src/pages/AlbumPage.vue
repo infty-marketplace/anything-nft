@@ -1,25 +1,120 @@
 <template>
-    <div class="flex-wrapper">
-        <Navbar />
-        <button @click="$router.go(-1)" class="back-btn"><i class="el-icon-back" style="color:white" /></button>
-        <div class="detailed-content mb-4" id="album-page">
-            <b-card class="detailed-card">
-                <el-carousel trigger="click" class="carousel" :autoplay="false">
-                    <el-carousel-item class="crs-item">
-                        <el-tooltip
-                            class="item"
-                            effect="dark"
-                            content="Whoever collects all of the NFTs in this album will be rewarded with this album cover NFT."
-                            placement="top-start"
-                        >
-                            <b-icon icon="sun" class="cover-tag" />
-                        </el-tooltip>
-                        <img :src="card.url" class="nft-img" />
-                    </el-carousel-item>
-                    <el-carousel-item class="crs-item" v-for="nft in nfts" :key="nft.nft_id">
-                        <img :src="nft.file" class="nft-img" />
-                    </el-carousel-item>
-                </el-carousel>
+  <div class="flex-wrapper">
+    <Navbar />
+    <button @click='$router.go(-1)' class='back-btn'><i class='el-icon-back' style='color:white'/></button>
+    <div class="detailed-content mb-4" id='album-page'>
+      <b-card
+        class="detailed-card"
+      >
+        <el-carousel trigger="click" class='carousel' :autoplay='false'>
+          <el-carousel-item class='crs-item'>
+            <el-tooltip class="item" effect="dark" content="Whoever collects all of the NFTs in this album will be rewarded with this album cover NFT." placement="top-start">
+              <b-icon icon='disc' class='cover-tag'/>
+            </el-tooltip>
+            <img :src="card.url" class='nft-img'/>
+          </el-carousel-item>
+          <el-carousel-item class='crs-item' v-for="nft in nfts" :key="nft.nft_id">
+            <img :src="nft.file" class='nft-img'/>
+          </el-carousel-item>
+        </el-carousel>
+        
+        <b-card-title
+          ><b-icon icon="card-text"></b-icon>&nbsp;Description</b-card-title
+        >
+        <b-card-text>
+          <p>Created by {{ this.authorName }}</p>
+          <p>
+            {{ card.description || "No description." }}
+          </p>
+        </b-card-text>
+        <b-list-group flush>
+          <b-list-group-item>
+            <b-button
+              v-b-toggle.collapse-1
+              variant="outline-secondary"
+              class="category-button"
+              ><b-icon icon="file-earmark-richtext"></b-icon>About</b-button
+            >
+            <b-collapse id="collapse-1" class="mt-2">
+              <p>
+                Pixelglyphs are a set of 10,000 unique on-chain avatar NFTs
+                created using a cellular automaton on the Conflux blockchain.
+              </p>
+            </b-collapse>
+          </b-list-group-item>
+          <b-list-group-item>
+            <b-button
+              v-b-toggle.collapse-2
+              variant="outline-secondary"
+              class="category-button"
+              ><b-icon icon="file-earmark-text"></b-icon>Details</b-button
+            >
+            <b-collapse id="collapse-2" class="mt-2">
+              <p>Contract Address: <a target="_blank" :href='`https://testnet.confluxscan.io/token/${$store.getters.getMinterAddress}`'>{{$store.getters.getMinterAddress}}</a></p>
+              <p>Token ID {{ rand(1000, 9999) }}</p>
+            </b-collapse>
+          </b-list-group-item>
+        </b-list-group>
+      </b-card>
+      <div class='album-title-container'>
+        <h1 class='album-title'>&nbsp;{{ card.title }}</h1>
+        <h5 class='owner'>&nbsp;&nbsp;&nbsp;&nbsp;Owned by {{this.ownerName}}&nbsp;&nbsp;&nbsp;
+          <b-icon icon='eye'/>&nbsp;{{view}} views
+          <div class='like' @click='likes+=likeswitch;likeswitch*=-1;'><heart-btn/></div> {{likes}} likes
+          </h5>
+      </div>
+      
+      
+      <b-card-group deck class="transaction">
+        <b-card
+          class="transaction-info"
+          header-tag="header"
+          footer-tag="footer"
+        >
+          <template #header>
+            <span class="mb-0">
+              <b-icon icon="list"></b-icon>&nbsp;NFTs
+            </span>
+            
+          </template>
+           <el-table
+           @cell-click='(a,b) => {
+             if (b.label == "NFT Title") {
+               this.redirectToNft(a.nft_id)
+             }
+             if(b.label =="Owner") {
+               this.$router.push(`/profile/${a.owner}`)
+             }
+            }'
+          :data="nftsTable"
+          style="width: 100%"
+          height='200'
+          empty-text="Nothing"
+          :cell-style='({columnIndex})=> {
+            if (columnIndex==0 || columnIndex == 3) return "cursor:pointer; color: #007bff;"
+          }'>
+          <el-table-column
+            prop="title"
+            label="NFT Title"
+            width="180"
+            style='cursor:pointer'>
+          </el-table-column>
+          <el-table-column
+            prop="price"
+            label="Listing Price"
+            width="180">
+          </el-table-column>
+          <el-table-column
+            prop="usd"
+            label="in USD">
+          </el-table-column>
+          <el-table-column
+            prop="owner"
+            label="Owner">
+          </el-table-column>
+        </el-table>
+        
+        </b-card>
 
                 <b-card-title><b-icon icon="card-text"></b-icon>&nbsp;Description</b-card-title>
                 <b-card-text>
@@ -38,7 +133,7 @@
                         <b-collapse id="collapse-1" class="mt-2">
                             <p>
                                 Pixelglyphs are a set of 10,000 unique on-chain avatar NFTs created using a cellular
-                                automaton on the Ethereum blockchain.
+                                automaton on the Conflux blockchain.
                             </p>
                         </b-collapse>
                     </b-list-group-item>
@@ -60,6 +155,7 @@
                     </b-list-group-item>
                 </b-list-group>
             </b-card>
+      </b-card-group>
             <div class="album-title-container">
                 <h1 class="album-title">&nbsp;{{ card.title }}</h1>
                 <h5 class="owner">

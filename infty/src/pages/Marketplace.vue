@@ -15,16 +15,6 @@
               <b-collapse id="collapse-1" class="mt-2">
                 <b-card>
                   <b-form-checkbox @change="filterOthers">Not Mine</b-form-checkbox>
-                  <!-- <b-form-group v-slot="{ ariaDescribedby }">
-                    
-                    <b-form-checkbox-group
-                      id="checkbox-group-1"
-                      v-model="statusSelected"
-                      :options="statusOptions"
-                      :aria-describedby="ariaDescribedby"
-                      name="flavour-1"
-                    ></b-form-checkbox-group>
-                  </b-form-group> -->
                 </b-card>
               </b-collapse>
             </b-list-group-item>
@@ -88,24 +78,7 @@
                 </b-card>
               </b-collapse>
             </b-list-group-item>
-            <!-- <b-list-group-item>
-              <b-button
-                pill
-                v-b-toggle.collapse-4
-                variant="outline-secondary"
-                class="category-button"
-                >Chains</b-button
-              >
-              <b-collapse id="collapse-4" class="mt-2">
-                <b-card>
-                  <b-list-group>
-                    <b-list-group-item>Ethereum</b-list-group-item>
-                    <b-list-group-item>Polygon</b-list-group-item>
-                    <b-list-group-item>Klaytn</b-list-group-item>
-                  </b-list-group>
-                </b-card>
-              </b-collapse>
-            </b-list-group-item> -->
+
             <b-list-group-item>
               <b-button
                 pill
@@ -136,9 +109,9 @@
         <div id="search-bar">
           <b-input-group size="md" class="mb-2">
             
-            <b-form-input type="search" placeholder="Search..."></b-form-input>
+            <b-form-input type="search" placeholder="Search..."  @keyup.enter='$store.dispatch("notifyWIP")'></b-form-input>
             <b-input-group-prepend is-text>
-              <b-icon icon="search"></b-icon>
+              <b-icon icon="search" style='cursor:pointer' @click='$store.dispatch("notifyWIP")'></b-icon>
             </b-input-group-prepend>
           </b-input-group>
 
@@ -156,7 +129,10 @@
                 <el-empty class='flex-wrapper-row' v-if='usersCards.length==0' description="Nothing"/>
                 <NftCard v-for="card in usersCards" :card="card" :key="card.url" class='mr-5 mb-4'/>
               </div>
-              <p v-if="noMoreNft && usersCards.length!=0">No More</p>
+              <p v-if="noMoreNft && usersCards.length!=0"
+              style='border-bottom: 1px solid grey; line-height: 0.1rem;text-align:center'>
+              <span style='padding: 0px 20px;background-color:white;color:grey;'>End of Market</span>
+              </p>
             </b-tab>
 
 
@@ -168,10 +144,12 @@
                   </div>
                 </transition>
                 <el-empty  class='flex-wrapper-row' v-if='usersAlbum.length==0' description="Nothing"/>
-                <AlbumCard  class='mr-4 mb-4' v-for="album in usersAlbum" :card="album" :key="album.url" />
+                <AlbumCard  class='mr-4 mb-4 alb-card' v-for="album in usersAlbum" :card="album" :key="album.url" />
               </div>
-              <p v-if="noMoreAlbum && usersAlbum.length != 0">No More</p>
-              
+              <p v-if="noMoreAlbum && usersAlbum.length != 0"
+              style='border-bottom: 1px solid grey; line-height: 0.1rem;text-align:center'>
+              <span style='padding: 0px 20px;background-color:white;color:grey;'>End of Market</span>
+              </p>
             </b-tab>
           </b-tabs>
         </div>
@@ -193,6 +171,8 @@ import NftCard from "../components/NftCard.vue";
 import axios from 'axios';
 import AlbumCard from '../components/AlbumCard.vue';
 
+const throttle = require('lodash.throttle')
+var handler;
 export default {
   name: "Marketplace",
   components: {
@@ -209,18 +189,18 @@ export default {
   },
 
   mounted() {
-    window.addEventListener("scroll", this.getMore)
-    this.getMore();
+    handler = throttle(this.getMore, 1000)
+    window.addEventListener("scroll", handler)
   },
 
   destroyed() {
-    window.removeEventListener('scroll', this.getMore);
+    window.removeEventListener('scroll', handler);
   },
 
   data() {
     return {
       offsetNft: 0,
-      limit: 2,
+      limit: 6,
       statusSelected: [],
       // statusOptions: [
       //   { text: "Buy Now", value: "buyNow" },
@@ -234,6 +214,7 @@ export default {
         { value: "eth", text: "Ether(ETH)" },
       ],
       usersCards: [],
+      fragments: [],
       loadingNft: false,
       noMoreNft: false,
       usersAlbum: [],
@@ -241,7 +222,8 @@ export default {
       noMoreAlbum: false,
       offsetAlbum: 0,
       user: undefined,
-      notMine: false
+      notMine: false,
+      loadingVar: 0,
     };
   },
 
@@ -249,31 +231,40 @@ export default {
       getMore() {
         let bottomOfWindow = Math.abs(
           (document.documentElement.scrollTop + window.innerHeight) - document.documentElement.offsetHeight
-        ) < 1;
-        if(bottomOfWindow) {
+        ) < 400;
+        if(bottomOfWindow && !this.noMoreNft) {
           if (this.tabIndex == 0){
             this.loadNftMarket();
           } else {
             this.loadAlbumMarket();
           }
         }
-        
       },
 
       async proccessNft(nft_ids) {
+        nft_ids = this.fragments.filter(f => f.status=='sale').map(f => f.nft_id).concat(nft_ids)
+        nft_ids = [ ... new Set(nft_ids)]
         const nft_promises = nft_ids.map((nid) =>
             axios.get(`${this.$store.getters.getApiUrl}/nft/${nid}`)
         );
+        
         const nft_promises_result = await Promise.allSettled(nft_promises);
-        const nfts = nft_promises_result.map((p) => {
+        let nfts = nft_promises_result.map((p) => {
             if (p.status == "fulfilled") return p.value;
         });
+        
         nfts.map((n) => {
           if ((this.notMine && this.user != n.data.owner[0].address) || !this.notMine) {
               axios.get(`${this.$store.getters.getApiUrl}/profile/${n.data.author}`).then((res) => {
-              n.data.author = res.data.first_name + " " + res.data.last_name
+              n.data.authorName = res.data.first_name + " " + res.data.last_name
               n.data.url = n.data.file;
-              this.usersCards.push(n.data);
+              if (n.data.fragmented && this.fragments.some(f => f.nft_id == n.data.nft_id && f.status == 'sale')) {
+                n.data.status = 'sale'
+                this.usersCards.push(n.data);
+              } else {
+                this.usersCards.push(n.data);
+              }
+              
             })
           }
         });
@@ -306,6 +297,7 @@ export default {
           axios.post(this.$store.getters.getApiUrl+"/market", body)
           .then((res) => {
               const nft_ids = res.data.nft_ids;
+              this.fragments = res.data.fragments;
               console.log(nft_ids)
               this.proccessNft(nft_ids);
               this.offsetNft += nft_ids.length;
@@ -469,6 +461,10 @@ export default {
   border-radius: 5px;
   left: calc(50% - 45px);
   top: calc(50% - 18px);
+}
+
+.alb-card {
+  width: 250px;
 }
 
 .fade-enter-active, .fade-leave-active {

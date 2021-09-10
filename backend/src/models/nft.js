@@ -25,10 +25,11 @@ const nftSchema = new Schema(
 
         draw_smart_contract_address: { type: String },
         share_smart_contract_address: { type: String },
+        fractional: { type: Boolean, default: false },
+        fragmented: { type: Boolean }
     },
     {
         timestamps: {
-            // currentTime: () => new Date(Math.floor(Date.now() / 1000)),
             createdAt: "created_at",
             updatedAt: "updated_at",
         },
