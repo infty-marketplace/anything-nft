@@ -1,7 +1,7 @@
 <template>
     <div class="flex-wrapper">
         <Navbar />
-        <div class="main" data-relative-input='true'>
+        <div class="main">
             <img class="banner" :src="banner" />
             <p class="banner-text mt-5">
                 Create, collect, and trade any craft as NFT.
