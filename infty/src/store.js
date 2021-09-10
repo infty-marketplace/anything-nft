@@ -7,7 +7,7 @@ Vue.use(Vuex);
 const store = new Vuex.Store({
     state: {
         address: undefined,
-        apiUrl: "http://localhost:3001/api",
+        apiUrl: "/api",
         managerAddr: "cfxtest:aar3amuxs8fg2u7h1tsngukey8vm2h6vgujhf413e6",
         minterContract: undefined,
         minterAddress: "cfxtest:ace5gcmv1x118ts2tta4k83asp7sxrz566w4defuhr",
