@@ -154,7 +154,7 @@
                         </b-collapse>
                     </b-list-group-item>
                 </b-list-group>
-            </b-card>
+            
       </b-card-group>
             <div class="album-title-container">
                 <h1 class="album-title">&nbsp;{{ card.title }}</h1>

@@ -134,7 +134,7 @@ export default {
                 value: 1e18 * parseFloat(this.listing_commision),
             });
 
-            const res = await tx.executed();
+            await tx.executed();
 
             await getters.getMinterContract
                 .setApprovalForAll(getters.getManagerAddr, true)

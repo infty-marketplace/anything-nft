@@ -213,7 +213,7 @@ export default {
                 value: 1e18 * this.listing_commision,
             });
             this.$store.dispatch("notifyCommission");
-            const res = await tx.executed();
+            await tx.executed();
             Notification.closeAll();
             const getters = this.$store.getters;
             if (this.card.owner.length == 1) {
@@ -240,7 +240,7 @@ export default {
                     owner: getters.getAddress,
                     fractional: this.fractionStatus == 'yes' ? true : false
                 })
-                .then((res) => {
+                .then(() => {
                     Notification.closeAll();
                     this.$notify({
                         title: "Congrats",

@@ -65,7 +65,7 @@ export default {
         banner: require("../assets/imgs/banner.svg"),
         team: require("../assets/imgs/aboutUs.svg"),
     }),
-    created() {
+    mounted() {
         sal();
     }
 };
