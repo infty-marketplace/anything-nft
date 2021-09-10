@@ -96,7 +96,7 @@ export default {
         }
     },
     async created() {
-      this.connectWallet()
+    //   this.connectWallet()
       
       eventBus.$on("Navbar.noWallet", () => {
           this.$bvToast.show("no-wallet-toast");

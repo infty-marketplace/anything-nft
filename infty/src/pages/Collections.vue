@@ -30,22 +30,15 @@
                     </div>
                 </el-tab-pane>
             </el-tabs>
-            <!-- <b-tabs class="main-content" content-class="ml-5 mr-5">
-        <b-tab title="NFT" active>
-          
-        </b-tab>
-        <b-tab title="Album"
-          ></b-tab
-        >
-      </b-tabs> -->
-        </div>
-        <div v-else class="flex-wrapper-row">
-            <ConnectWallet />
-        </div>
-        <Footer style="z-index: 0" />
         <a href="/mine/create">
             <b-btn variant="primary" class="add-btn"> <b-icon icon="plus-circle-fill"></b-icon> </b-btn
         ></a>
+        </div>
+        <div v-else class="flex-wrapper-row" style='height: auto;'>
+            <ConnectWallet />
+        </div>
+        <Footer style="z-index: 0" />
+        
         <b-btn v-if="album_candidates.length > 0" variant="info" class="create-album-btn" @click="createAlbumClicked">
             Create Album</b-btn
         >
@@ -139,7 +132,7 @@ export default {
   async mounted() {
     const getters = this.$store.getters
     if (getters.getAddress) this.loadCollections();
-    this.$store.dispatch("connectWallet");
+    // this.$store.dispatch("connectWallet");
 
     eventBus.$on("Collections.loadCollections", () => this.loadCollections());
     eventBus.$on("Card.statusChanged", (nid) => {
