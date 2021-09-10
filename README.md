@@ -47,7 +47,9 @@ Infty is an easy-to-use NFT trading platform on the Conflux blockchain, with a v
 ### Built with
 - [Conflux Blockchain](https://confluxnetwork.org/)
 - Vue.js + Express.js + MongoDB
-- Solidity
+- Solidity  
+
+Note: the database currently used is publicly accessible, and only used for testing purposes.
 
 ## Getting Started
 ### Prerequisites
