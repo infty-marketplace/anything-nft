@@ -132,8 +132,6 @@ export default {
   async mounted() {
     const getters = this.$store.getters
     if (getters.getAddress) this.loadCollections();
-    // this.$store.dispatch("connectWallet");
-
     eventBus.$on("Collections.loadCollections", () => this.loadCollections());
     eventBus.$on("Card.statusChanged", (nid) => {
       axios.get(`${getters.getApiUrl}/nft/${nid}`).then(async (res) => {
