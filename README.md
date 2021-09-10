@@ -1,4 +1,9 @@
-# Infty Marketplace
+
+<div align="center">
+<h1>
+    Infty Marketplace: <a href='http://infty.market'>website</a>
+</h1>
+
 ![GitHub language count](https://img.shields.io/github/languages/count/InfTkm/anything-nft) 
 ![GitHub top language](https://img.shields.io/github/languages/top/inftkm/anything-nft?color=42b883)
 ![GitHub issues](https://img.shields.io/github/issues/inftkm/anything-nft)
@@ -8,6 +13,8 @@
 ![GitHub contributors](https://img.shields.io/github/contributors/inftkm/anything-nft)
 ![Website](https://img.shields.io/website?url=http%3A%2F%2Finfty.market)
 ![GitHub Repo stars](https://img.shields.io/github/stars/inftkm/anything-nft?style=social)
+</div>
+
 <details open="open">
 <summary>Table of Contents</summary>
 
