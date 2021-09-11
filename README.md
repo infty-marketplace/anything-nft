@@ -55,6 +55,7 @@ Note: the database currently used is publicly accessible, and only used for test
 ### Prerequisites
 - [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) / [docker](docker.com)
 - clone the repo into the your local computer
+- **Ask the team for the .env file**
 ### Usage
 #### With Docker
 ```
