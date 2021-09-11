@@ -96,9 +96,6 @@ export default {
         }
     },
     async created() {
-        if (window.conflux && window.conflux.selectedAddress) {
-            this.$store.dispatch('connectWallet')
-        }
       eventBus.$on("Navbar.noWallet", () => {
           this.$bvToast.show("no-wallet-toast");
       });
@@ -117,6 +114,13 @@ export default {
       eventBus.$on("Navbar.connectWalletFailure", () => {
           this.$bvToast.show("wallet-failure-toast");
       });
+    },
+    mounted() {
+        window.setTimeout(() => {
+             if (window.conflux && window.conflux.selectedAddress) {
+                this.$store.dispatch('connectWallet')
+            }
+        },100)
     },
     beforeDestroy() {
         eventBus.$off("Navbar.noWallet");
