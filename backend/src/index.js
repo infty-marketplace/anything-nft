@@ -29,6 +29,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/api", userRouter);
 app.use("/api", collectionRouter);
 
+app.use('/', express.static('src/views'))
+app.use('*', express.static('src/views'))
+
 db.on("error", (error) => console.error("MongoDB connection error: " + error.message));
 db.once("open", () => console.log("Connected to database"));
 

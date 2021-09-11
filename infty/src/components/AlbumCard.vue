@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-card class="user-card" @click="cardClicked">
+        <b-card class="user-card">
             <!-- <b-form-checkbox
       v-bind:class="{'checkbox': !checkState, 'checkbox-active': checkState}"
       v-model='checkState'
@@ -126,7 +126,7 @@ export default {
         // },
         async handleListAlbum() {
             const getters = this.$store.getters;
-            this.$store.dispatch("notifyCommission");
+            this.$store.dispatch("notifyLoading", {msg:"Paying commission now."});
             const tx = window.confluxJS.sendTransaction({
                 from: (await window.conflux.send("cfx_requestAccounts"))[0],
                 to: getters.getManagerAddr,
@@ -220,7 +220,7 @@ export default {
 .user-card:hover {
     transform: scale(1.02);
     box-shadow: 0 0 5px rgba(33, 33, 33, 0.2);
-    cursor: pointer;
+
 }
 .text-muted-right {
     float: right;

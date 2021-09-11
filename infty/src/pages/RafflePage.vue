@@ -106,7 +106,7 @@
             </div>
             <div class="mt-4" v-for="raffle in this.displayedRaffles" :key="raffle.nft_id">
                 <b-card class="mb-3 pool-card">
-                    <img :src="raffle.url" class="raffle-image" @click="onClickImage(raffle.nft_id)" />
+                    <img :src="raffle.url" class="raffle-image" @click="onClickImage(raffle.nft_id)" style='object-fit:contain;'/>
                     <div class="pool-card-primary">
                         <div><b>Title:</b> {{ raffle.title }}</div>
                         <div class="raffle-owner" @click="handleRedirectToProfile(raffle.owner_url)">
@@ -135,7 +135,8 @@
                                 </span>
                             </b-progress-bar>
                         </b-progress>
-                        <b-button class="buy-btn" variant="primary" @click="OpenBuyRaffleModal(raffle)">Buy</b-button>
+                        <b-button class="buy-btn" variant="primary" @click="OpenBuyRaffleModal(raffle)">
+                            Buy</b-button>
                     </div>
                 </b-card>
             </div>
@@ -150,7 +151,7 @@
 
 <script>
 import axios from "axios";
-
+import {Notification} from 'element-ui';
 import Navbar from "../components/Navbar.vue";
 import Footer from "../components/Footer.vue";
 import ConnectWallet from '../components/ConnectWallet.vue';
@@ -277,10 +278,21 @@ export default {
             this.$refs["my-modal"].hide();
         },
         OpenBuyRaffleModal(card) {
-            this.nftRaffleToBuy = card;
-            this.showModal();
+            if(card.owner_url == this.$store.getters.getAddress) {
+                this.$notify.error({
+                    title: "Sry",
+                    message: "You can't buy your own raffle.",
+                    duration: 3000,
+                    type: "error",
+                });
+            } else {
+                this.nftRaffleToBuy = card;
+                this.showModal();
+            }
+            
         },
         buyNowClicked() {
+            this.$store.dispatch('notifyLoading', {msg:'Entering now.'})
             this.buyRaffle(this.nftRaffleToBuy);
             this.hideModal();
         },
@@ -301,6 +313,7 @@ export default {
                         value: 1e18 * nftRaffleToBuy.unit_price * quantity,
                     })
                     .executed();
+                Notification.closeAll();
             } catch (e) {
                 if (e.code == 4001) {
                     this.$bvToast.toast("User cancelled transaction", {

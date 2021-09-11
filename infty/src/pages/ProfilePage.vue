@@ -1,6 +1,12 @@
 <template>
     <div class="flex-wrapper main">
         <Navbar />
+        <button @click="$router.go(-1)" class="back-btn"><i class="el-icon-back" style="color:white" /></button>
+        <div class='actions' v-if='!this.isMyself' @click='$store.dispatch("notifyWIP")'>
+            <el-button type="primary">打赏</el-button>
+            <el-button type="primary">关注</el-button>
+            <el-button type="primary">站内信</el-button>
+        </div>
         <div class="profile-pic-container" v-if="$store.getters.getAddress">
             <img :src="avatar" id="profile-pic" />
             <a @click="uploadAvatar" v-if="this.isMyself">
@@ -40,9 +46,17 @@
                             <el-menu-item index="2-2">Album</el-menu-item>
                             <el-menu-item index="2-3">Raffle</el-menu-item>
                         </el-submenu>
+                        <el-menu-item index="4" v-if="this.isMyself" id='fav'>
+                            <i class="el-icon-star-off"></i>
+                            <span slot="title">My liked NFTs</span>
+                        </el-menu-item>
                         <el-menu-item index="3" v-if="this.isMyself" id='account-menu'>
                             <i class="el-icon-setting"></i>
                             <span slot="title">My Account</span>
+                        </el-menu-item>
+                        <el-menu-item index="5" v-if="!this.isMyself" id='bang'>
+                            <i class="el-icon-coin"></i>
+                            <span slot="title">粉丝打榜</span>
                         </el-menu-item>
                     </el-menu>
                 </el-col>
@@ -107,6 +121,16 @@
                             </el-table>
                         </el-card>
                     </div>
+                     <div v-if="selectedIndex == '4'">
+                        <el-card class="box-card m-5 card-container">
+                             <el-empty description="Nothing"></el-empty>
+                        </el-card>
+                     </div>
+                     <div v-if='selectedIndex == 5'> 
+                         <el-card class="box-card m-5 card-container">
+                             <el-empty description="Nothing"></el-empty>
+                        </el-card>
+                     </div>
                     <div v-if="selectedIndex == '3'">
                         <el-card class="box-card m-5">
                             <div slot="header" class="clearfix">
@@ -261,6 +285,9 @@ export default {
     },
     methods: {
         handleSelect(i) {
+            if (i == 4 || i == 5) {
+                this.$store.dispatch('notifyWIP')
+            }
             this.selectedIndex = i;
         },
 
@@ -434,6 +461,11 @@ export default {
 </script>
 
 <style scoped>
+.actions {
+    position: absolute;
+    top: 150px;
+    right: 10px;
+}
 .content {
     width: 100%;
     margin-top: 200px;

@@ -1,7 +1,6 @@
 <template>
-    <div class="flex-wrapper">
+    <div class="flex-wrapper" style='background-color:black'>
         <Navbar :activeIndex="3"/>
-
         <el-dialog title="" :visible.sync="dialogVisible" width="30%">
             <span>{{ dialogMessage }}</span>
             <span slot="footer" class="dialog-footer">
@@ -78,6 +77,7 @@
                 </el-card>
             </div>
         </div>
+
         <Footer />
     </div>
 </template>

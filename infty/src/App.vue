@@ -48,11 +48,11 @@ export default {
             });
         });
 
-        eventBus.$on("App.notifyCommission", () => {
+        eventBus.$on("App.notifyLoading", (msg) => {
             this.$notify({
                 title: "Notification",
                 dangerouslyUseHTMLString: true,
-                message: '<div style="display:flex; align-items: center;"> <div class="loader"></div><div style="display:inline">Paying commission now. </div></div>',
+                message: `<div style="display:flex; align-items: center;"> <div class="loader"></div><div style="display:inline">${msg}</div></div>`,
                 duration: 0,
             });
         });
@@ -70,7 +70,7 @@ export default {
     },
     beforeDestroy() {
         eventBus.$off("App.notifyWIP");
-        eventBus.$off("App.notifyCommission");
+        eventBus.$off("App.notifyLoading");
     },
 };
 </script>
@@ -125,5 +125,15 @@ export default {
     left: 50%;
     transform: translate(-50%,-50%);
     z-index: 10000;
+}
+.back-btn {
+    position: absolute;
+    top: 150px;
+    left: -10px;
+    width: 60px;
+    border-radius: 20%;
+    background-color: rgb(72, 83, 87);
+    border: unset;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
 }
 </style>

@@ -115,6 +115,13 @@ export default {
           this.$bvToast.show("wallet-failure-toast");
       });
     },
+    mounted() {
+        window.setTimeout(() => {
+             if (window.conflux && window.conflux.selectedAddress) {
+                this.$store.dispatch('connectWallet')
+            }
+        },100)
+    },
     beforeDestroy() {
         eventBus.$off("Navbar.noWallet");
         eventBus.$off("Navbar.connectWalletSuccess");

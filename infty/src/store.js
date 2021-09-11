@@ -38,8 +38,9 @@ const store = new Vuex.Store({
             eventBus.$emit("App.notifyWIP");
         },
 
-        notifyCommission() {
-            eventBus.$emit("App.notifyCommission");
+        notifyLoading(state, payload) {
+            const {msg} = payload;
+            eventBus.$emit("App.notifyLoading", msg);
         },
     },
     mutations: {

@@ -314,7 +314,7 @@ export default {
 
         async purchaseNft() {
             const getters = this.$store.getters;
-            this.$store.dispatch("notifyCommission");
+            this.$store.dispatch("notifyLoading", {msg:"Paying commission now."});
             const tx = window.confluxJS.sendTransaction({
                 from: (await window.conflux.send("cfx_requestAccounts"))[0],
                 to: getters.getManagerAddr,
@@ -360,7 +360,7 @@ export default {
 
         async purchaseShares() {
             const addr = (await window.conflux.send("cfx_requestAccounts"))[0];
-            this.$store.dispatch("notifyCommission");
+            this.$store.dispatch("notifyLoading", {msg:"Paying commission now."});
             const getters = this.$store.getters;
             const tx = window.confluxJS.sendTransaction({
                 from: addr,
@@ -391,7 +391,7 @@ export default {
         async transferShares(obj) {
             const getters = this.$store.getters;
             const addr = (await window.conflux.send("cfx_requestAccounts"))[0];
-            this.$store.dispatch("notifyCommission");
+            this.$store.dispatch("notifyLoading", {msg:"Paying commission now."});
             const tx = window.confluxJS.sendTransaction({
                 from: addr,
                 to: getters.getManagerAddr,

@@ -1,126 +1,29 @@
 <template>
-  <div class="flex-wrapper">
-    <Navbar />
-    <button @click='$router.go(-1)' class='back-btn'><i class='el-icon-back' style='color:white'/></button>
-    <div class="detailed-content mb-4" id='album-page'>
-      <b-card
-        class="detailed-card"
-      >
-        <el-carousel trigger="click" class='carousel' :autoplay='false'>
-          <el-carousel-item class='crs-item'>
-            <el-tooltip class="item" effect="dark" content="Whoever collects all of the NFTs in this album will be rewarded with this album cover NFT." placement="top-start">
-              <b-icon icon='disc' class='cover-tag'/>
-            </el-tooltip>
-            <img :src="card.url" class='nft-img'/>
-          </el-carousel-item>
-          <el-carousel-item class='crs-item' v-for="nft in nfts" :key="nft.nft_id">
-            <img :src="nft.file" class='nft-img'/>
-          </el-carousel-item>
-        </el-carousel>
-        
-        <b-card-title
-          ><b-icon icon="card-text"></b-icon>&nbsp;Description</b-card-title
-        >
-        <b-card-text>
-          <p>Created by {{ this.authorName }}</p>
-          <p>
-            {{ card.description || "No description." }}
-          </p>
-        </b-card-text>
-        <b-list-group flush>
-          <b-list-group-item>
-            <b-button
-              v-b-toggle.collapse-1
-              variant="outline-secondary"
-              class="category-button"
-              ><b-icon icon="file-earmark-richtext"></b-icon>About</b-button
-            >
-            <b-collapse id="collapse-1" class="mt-2">
-              <p>
-                Pixelglyphs are a set of 10,000 unique on-chain avatar NFTs
-                created using a cellular automaton on the Conflux blockchain.
-              </p>
-            </b-collapse>
-          </b-list-group-item>
-          <b-list-group-item>
-            <b-button
-              v-b-toggle.collapse-2
-              variant="outline-secondary"
-              class="category-button"
-              ><b-icon icon="file-earmark-text"></b-icon>Details</b-button
-            >
-            <b-collapse id="collapse-2" class="mt-2">
-              <p>Contract Address: <a target="_blank" :href='`https://testnet.confluxscan.io/token/${$store.getters.getMinterAddress}`'>{{$store.getters.getMinterAddress}}</a></p>
-              <p>Token ID {{ rand(1000, 9999) }}</p>
-            </b-collapse>
-          </b-list-group-item>
-        </b-list-group>
-      </b-card>
-      <div class='album-title-container'>
-        <h1 class='album-title'>&nbsp;{{ card.title }}</h1>
-        <h5 class='owner'>&nbsp;&nbsp;&nbsp;&nbsp;Owned by {{this.ownerName}}&nbsp;&nbsp;&nbsp;
-          <b-icon icon='eye'/>&nbsp;{{view}} views
-          <div class='like' @click='likes+=likeswitch;likeswitch*=-1;'><heart-btn/></div> {{likes}} likes
-          </h5>
-      </div>
-      
-      
-      <b-card-group deck class="transaction">
-        <b-card
-          class="transaction-info"
-          header-tag="header"
-          footer-tag="footer"
-        >
-          <template #header>
-            <span class="mb-0">
-              <b-icon icon="list"></b-icon>&nbsp;NFTs
-            </span>
-            
-          </template>
-           <el-table
-           @cell-click='(a,b) => {
-             if (b.label == "NFT Title") {
-               this.redirectToNft(a.nft_id)
-             }
-             if(b.label =="Owner") {
-               this.$router.push(`/profile/${a.owner}`)
-             }
-            }'
-          :data="nftsTable"
-          style="width: 100%"
-          height='200'
-          empty-text="Nothing"
-          :cell-style='({columnIndex})=> {
-            if (columnIndex==0 || columnIndex == 3) return "cursor:pointer; color: #007bff;"
-          }'>
-          <el-table-column
-            prop="title"
-            label="NFT Title"
-            width="180"
-            style='cursor:pointer'>
-          </el-table-column>
-          <el-table-column
-            prop="price"
-            label="Listing Price"
-            width="180">
-          </el-table-column>
-          <el-table-column
-            prop="usd"
-            label="in USD">
-          </el-table-column>
-          <el-table-column
-            prop="owner"
-            label="Owner">
-          </el-table-column>
-        </el-table>
-        
-        </b-card>
+    <div class="flex-wrapper">
+        <Navbar />
+        <button @click="$router.go(-1)" class="back-btn"><i class="el-icon-back" style="color:white" /></button>
+        <div class="detailed-content mb-4" id="album-page">
+            <b-card class="detailed-card">
+                <el-carousel trigger="click" class="carousel" :autoplay="false">
+                    <el-carousel-item class="crs-item">
+                        <el-tooltip
+                            class="item"
+                            effect="dark"
+                            content="Whoever collects all of the NFTs in this album will be rewarded with this album cover NFT."
+                            placement="top-start"
+                        >
+                            <b-icon icon="disc" class="cover-tag" />
+                        </el-tooltip>
+                        <img :src="card.url" class="nft-img" />
+                    </el-carousel-item>
+                    <el-carousel-item class="crs-item" v-for="nft in nfts" :key="nft.nft_id">
+                        <img :src="nft.file" class="nft-img" />
+                    </el-carousel-item>
+                </el-carousel>
 
                 <b-card-title><b-icon icon="card-text"></b-icon>&nbsp;Description</b-card-title>
                 <b-card-text>
-                    <p class="card-owner" @click="handleRedirectToProfile(card.author)">
-                        Created by {{ this.authorName }}
-                    </p>
+                    <p class='card-owner' @click='$router.push("/profile/"+card.author)'>Created by {{ card && card.authorName }}</p>
                     <p>
                         {{ card.description || "No description." }}
                     </p>
@@ -154,14 +57,11 @@
                         </b-collapse>
                     </b-list-group-item>
                 </b-list-group>
-            
-      </b-card-group>
+            </b-card>
             <div class="album-title-container">
                 <h1 class="album-title">&nbsp;{{ card.title }}</h1>
                 <h5 class="owner">
-                    <div class="card-owner" @click="handleRedirectToProfile(card.owner)">
-                        &nbsp;&nbsp;&nbsp;&nbsp;Owned by {{ this.ownerName }}&nbsp;&nbsp;&nbsp;
-                    </div>
+                    &nbsp;&nbsp;&nbsp;
                     <b-icon icon="eye" />&nbsp;{{ view }} views
                     <div
                         class="like"
@@ -188,7 +88,7 @@
                                     this.redirectToNft(a.nft_id);
                                 }
                                 if (b.label == 'Owner') {
-                                    window.open(`https://testnet.confluxscan.io/address/${a.owner}`);
+                                    this.$router.push(`/profile/${a.owner}`);
                                 }
                             }
                         "
@@ -204,8 +104,8 @@
                     >
                         <el-table-column prop="title" label="NFT Title" width="180" style="cursor:pointer">
                         </el-table-column>
-                        <el-table-column prop="price" label="Listing Price" width="180"> </el-table-column>
-                        <el-table-column prop="usd" label="in USD"> </el-table-column>
+                        <el-table-column prop="price" label="Listing Price" width="120"> </el-table-column>
+                        <el-table-column prop="usd" label="in USD" width="120"> </el-table-column>
                         <el-table-column prop="owner" label="Owner"> </el-table-column>
                     </el-table>
                 </b-card>
@@ -231,17 +131,14 @@
                     <b-button variant="outline-primary" class="ml-2" @click="$store.dispatch('notifyWIP')"
                         ><b-icon icon="tag-fill" />&nbsp;Make offer</b-button
                     >
-                    <!-- <template #footer>
-            <em>Footer Slot</em>
-          </template> -->
                 </b-card>
                 <b-card class="transaction-info">
                     <template #header>
                         <h6 class="mb-0"><b-icon icon="card-list" /> Offers</h6>
                     </template>
                     <el-table :data="offersData" style="width: 100%" height="200" empty-text="Nothing">
-                        <el-table-column prop="unit_price" label="Unit Price" width="180"> </el-table-column>
-                        <el-table-column prop="usd" label="USD" width="180"> </el-table-column>
+                        <el-table-column prop="unit_price" label="Unit Price" width="100"> </el-table-column>
+                        <el-table-column prop="usd" label="USD" width="100"> </el-table-column>
                         <el-table-column prop="exp" label="Expiration"> </el-table-column>
                         <el-table-column prop="from" label="From"> </el-table-column>
                     </el-table>
@@ -321,10 +218,13 @@ export default {
             ],
         };
     },
-    created() {
+    mounted() {
         const api = this.$store.getters.getApiUrl;
+        
         axios.get(`${api}/album/${this.$route.params.id}`).then(async (res) => {
             const card = res.data;
+            const resp = await axios.get(`${this.$store.getters.getApiUrl}/profile/${card.author}`);
+            card.authorName = resp.data.first_name + " " + resp.data.last_name;
             card.url = card.file;
             this.card = card;
             for (const nid of card.nft_ids) {
@@ -340,9 +240,6 @@ export default {
             }));
             axios.get(`${api}/profile/${this.card.owner}`).then((resp) => {
                 this.ownerName = resp.data.first_name + " " + resp.data.last_name;
-            });
-            axios.get(`${api}/profile/${this.card.author}`).then((resp) => {
-                this.authorName = resp.data.first_name + " " + resp.data.last_name;
             });
         });
     },
@@ -360,7 +257,7 @@ export default {
                 buyer = this.$store.getters.getAddress;
             }
             const getters = this.$store.getters;
-            this.$store.dispatch("notifyCommission");
+            this.$store.dispatch("notifyLoading", {msg:"Paying commission now."});
             const tx = window.confluxJS.sendTransaction({
                 from: (await window.conflux.send("cfx_requestAccounts"))[0],
                 to: getters.getManagerAddr,
@@ -440,7 +337,7 @@ export default {
     max-width: 100%;
 }
 .carousel {
-    width: 80vw;
+    /* width: 80vw; */
     margin-left: auto;
     margin-right: auto;
     color: #dadada;
@@ -489,6 +386,19 @@ export default {
         width: 300px;
         height: 300px;
     }
+
+    .crs-item {
+        width: 300px;
+        height: 300px;
+    }
+    .nft-img {
+      margin-left: auto;
+      margin-right: auto;
+      display: block;
+      object-fit: contain;
+      height: 300px;
+      width: 300px;
+  }
 }
 .album-title-container {
     margin-top: 2rem;
@@ -506,16 +416,7 @@ export default {
     margin-left: -30px;
     margin-right: -60px;
 }
-.back-btn {
-    position: absolute;
-    top: 150px;
-    left: -10px;
-    width: 60px;
-    border-radius: 20%;
-    background-color: rgb(72, 83, 87);
-    border: unset;
-    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
-}
+
 .card-owner {
     cursor: pointer;
 }
@@ -528,5 +429,15 @@ export default {
 <style>
 #album-page .el-carousel__container {
     height: 500px;
+}
+@media screen and (max-width: 2000px) {
+  .el-carousel__item {
+    width: 300px;
+    height: 300px;
+    object-fit: contain;
+  }
+  #album-page .el-carousel__container {
+    height: 300px;
+}
 }
 </style>
