@@ -212,17 +212,12 @@ export default {
                 gasPrice: 1,
                 value: 1e18 * this.listing_commision,
             });
-            this.$store.dispatch("notifyCommission");
+            this.$store.dispatch("notifyLoading", {msg:"Paying commission now."});
             await tx.executed();
             Notification.closeAll();
             const getters = this.$store.getters;
             if (this.card.owner.length == 1) {
-                this.$notify({
-                    title: "Notification",
-                    message: "Approving platform to operate the NFT on your behalf.",
-                    duration: 0,
-                });
-                
+                this.$store.dispatch("notifyLoading", {msg:"Approving platform to operate the NFT on your behalf."});
                 const tokenId = this.card.nft_id.split("-")[1];
 
                 await getters.getMinterContract
@@ -261,6 +256,7 @@ export default {
                 });
         },
         async handleRaffleNft() {
+            this.$store.dispatch("notifyLoading", {msg:"Creating the raffle for ya."});
             const getters = this.$store.getters;
             const tokenId = this.card.nft_id.split("-")[1];
             try {
@@ -283,6 +279,7 @@ export default {
                     owner: this.card.owner[0].address,
                 })
                 .then(() => {
+                    Notification.closeAll()
                     this.$bvToast.toast("Raffling Successfully", {
                         title: "Congrats",
                         autoHideDelay: 3000,

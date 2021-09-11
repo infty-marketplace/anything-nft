@@ -48,11 +48,11 @@ export default {
             });
         });
 
-        eventBus.$on("App.notifyCommission", () => {
+        eventBus.$on("App.notifyLoading", (msg) => {
             this.$notify({
                 title: "Notification",
                 dangerouslyUseHTMLString: true,
-                message: '<div style="display:flex; align-items: center;"> <div class="loader"></div><div style="display:inline">Paying commission now. </div></div>',
+                message: `<div style="display:flex; align-items: center;"> <div class="loader"></div><div style="display:inline">${msg}</div></div>`,
                 duration: 0,
             });
         });
@@ -70,7 +70,7 @@ export default {
     },
     beforeDestroy() {
         eventBus.$off("App.notifyWIP");
-        eventBus.$off("App.notifyCommission");
+        eventBus.$off("App.notifyLoading");
     },
 };
 </script>

@@ -23,7 +23,7 @@
 
                 <b-card-title><b-icon icon="card-text"></b-icon>&nbsp;Description</b-card-title>
                 <b-card-text>
-                    <p>Created by {{ this.authorName }}</p>
+                    <p class='card-owner' @click='$router.push("/profile/"+card.author)'>Created by {{ card && card.authorName }}</p>
                     <p>
                         {{ card.description || "No description." }}
                     </p>
@@ -61,7 +61,7 @@
             <div class="album-title-container">
                 <h1 class="album-title">&nbsp;{{ card.title }}</h1>
                 <h5 class="owner">
-                    &nbsp;&nbsp;&nbsp;&nbsp;Owned by {{ this.ownerName }}&nbsp;&nbsp;&nbsp;
+                    &nbsp;&nbsp;&nbsp;
                     <b-icon icon="eye" />&nbsp;{{ view }} views
                     <div
                         class="like"
@@ -218,10 +218,13 @@ export default {
             ],
         };
     },
-    created() {
+    mounted() {
         const api = this.$store.getters.getApiUrl;
+        
         axios.get(`${api}/album/${this.$route.params.id}`).then(async (res) => {
             const card = res.data;
+            const resp = await axios.get(`${this.$store.getters.getApiUrl}/profile/${card.author}`);
+            card.authorName = resp.data.first_name + " " + resp.data.last_name;
             card.url = card.file;
             this.card = card;
             for (const nid of card.nft_ids) {
@@ -237,9 +240,6 @@ export default {
             }));
             axios.get(`${api}/profile/${this.card.owner}`).then((resp) => {
                 this.ownerName = resp.data.first_name + " " + resp.data.last_name;
-            });
-            axios.get(`${api}/profile/${this.card.author}`).then((resp) => {
-                this.authorName = resp.data.first_name + " " + resp.data.last_name;
             });
         });
     },
@@ -257,7 +257,7 @@ export default {
                 buyer = this.$store.getters.getAddress;
             }
             const getters = this.$store.getters;
-            this.$store.dispatch("notifyCommission");
+            this.$store.dispatch("notifyLoading", {msg:"Paying commission now."});
             const tx = window.confluxJS.sendTransaction({
                 from: (await window.conflux.send("cfx_requestAccounts"))[0],
                 to: getters.getManagerAddr,
