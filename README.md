@@ -47,7 +47,9 @@ Infty is an easy-to-use NFT trading platform on the Conflux blockchain, with a v
 ### Built with
 - [Conflux Blockchain](https://confluxnetwork.org/)
 - Vue.js + Express.js + MongoDB
-- Solidity
+- Solidity  
+
+Note: the database currently used is publicly accessible, and only used for testing purposes.
 
 ## Getting Started
 ### Prerequisites
@@ -61,13 +63,21 @@ docker run -p 3001:3001 infty
 ```
 
 #### With NPM
-In terminal 1:
 ``` 
-cd backend && npm i && node src/index.js
+cd infty && npm i && npm run build
+rm -rf ../backend/src/views && cp -r dist/* ../backend/src/views/
+cd ../backend && npm i && node src/index.js
 ```
-In terminal 2:
+#### Development Mode
+Run two terminals. Also, need to change the variable `apiUrl` in [store.js](infty/src/store.js) to `http://localhost:3001/api`. 
+
+Terminal 1 (front end running at port 8080): 
 ```
 cd infty && npm i && npm run serve
+```
+Terminal 2 (backend running at port 3001):
+```
+cd backend && npm i && node src/index.js
 ```
 #### Last step
 Then launch http://localhost:3001.

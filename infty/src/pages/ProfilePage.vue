@@ -256,6 +256,7 @@ export default {
             } else if (this.selectedIndex === "2-3") {
                 return this.drawTransactions;
             }
+            return []
         },
     },
     methods: {

@@ -25,13 +25,14 @@ if (!process.env.PORT) {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use('/', express.static('src/views'))
 
 app.use("/api", userRouter);
 app.use("/api", collectionRouter);
 
 db.on("error", (error) => console.error("MongoDB connection error: " + error.message));
 db.once("open", () => console.log("Connected to database"));
+
+app.use('/*', express.static('src/views'))
 
 app.listen(apiPort, () => console.log(`Server running on port ${apiPort}`));
 

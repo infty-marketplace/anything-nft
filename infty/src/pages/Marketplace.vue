@@ -298,7 +298,6 @@ export default {
           .then((res) => {
               const nft_ids = res.data.nft_ids;
               this.fragments = res.data.fragments;
-              console.log(nft_ids)
               this.proccessNft(nft_ids);
               this.offsetNft += nft_ids.length;
               this.noMoreNft = nft_ids.length < this.limit;
