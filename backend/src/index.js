@@ -35,6 +35,8 @@ app.use('*', express.static('src/views'))
 db.on("error", (error) => console.error("MongoDB connection error: " + error.message));
 db.once("open", () => console.log("Connected to database"));
 
+app.use('/*', express.static('src/views'))
+
 app.listen(apiPort, () => console.log(`Server running on port ${apiPort}`));
 
 module.exports = app;
