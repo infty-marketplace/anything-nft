@@ -1,48 +1,48 @@
-import Vue from 'vue';
-import Router from 'vue-router';
+import Vue from "vue";
+import Router from "vue-router";
 
-import CreatePage from './pages/CreatePage.vue';
-import MainPage from './pages/MainPage.vue';
-import Marketplace from './pages/Marketplace';
-import Collections from './pages/Collections.vue';
-import NftPage from './pages/NftPage.vue';
-import AlbumPage from './pages/AlbumPage';
-import ProfilePage from './pages/ProfilePage';
+import CreatePage from "./pages/CreatePage.vue";
+import MainPage from "./pages/MainPage.vue";
+import Marketplace from "./pages/Marketplace";
+import Collections from "./pages/Collections.vue";
+import NftPage from "./pages/NftPage.vue";
+import AlbumPage from "./pages/AlbumPage";
+import ProfilePage from "./pages/ProfilePage";
 
 Vue.use(Router);
 export default new Router({
-    mode: 'history',
+    mode: "history",
     routes: [
         {
-            path: '/',
+            path: "/",
             component: MainPage,
         },
         {
-            path: '/marketplace',
+            path: "/marketplace",
             component: Marketplace,
         },
         {
-            path: '/mine/create',
+            path: "/mine/create",
             component: CreatePage,
         },
         {
-            path: '/mine/collections',
+            path: "/mine/collections",
             component: Collections,
         },
         {
-            path: '/nft/:id',
-            name: 'nft-detail',
+            path: "/nft/:id",
+            name: "nft-detail",
             component: NftPage,
             props: true,
         },
         {
-            path: '/album/:id',
-            name: 'album-detail',
+            path: "/album/:id",
+            name: "album-detail",
             component: AlbumPage,
             props: true,
         },
         {
-            path: '/profile/:address',
+            path: "/profile/:address",
             component: ProfilePage,
         },
     ],

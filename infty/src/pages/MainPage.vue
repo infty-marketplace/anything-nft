@@ -51,19 +51,19 @@
 </template>
 
 <script>
-import Navbar from '../components/Navbar.vue';
-import Footer from '../components/Footer.vue';
-import sal from 'sal.js';
+import Navbar from "../components/Navbar.vue";
+import Footer from "../components/Footer.vue";
+import sal from "sal.js";
 
 export default {
-    name: 'App',
+    name: "App",
     components: {
         Navbar,
         Footer,
     },
     data: () => ({
-        banner: require('../assets/imgs/banner.svg'),
-        team: require('../assets/imgs/aboutUs.svg'),
+        banner: require("../assets/imgs/banner.svg"),
+        team: require("../assets/imgs/aboutUs.svg"),
     }),
     mounted() {
         sal({ once: false });
@@ -72,7 +72,7 @@ export default {
 </script>
 
 <style scoped>
-@import '../../node_modules/sal.js/dist/sal.css';
+@import "../../node_modules/sal.js/dist/sal.css";
 .main {
     text-align: center;
     overflow: hidden;
@@ -274,7 +274,7 @@ button {
     font-weight: 400;
     padding: 1rem 3rem 1rem 3rem;
     text-transform: uppercase;
-    font-family: 'Lato';
+    font-family: "Lato";
     font-size: 1.5em;
 }
 button a {

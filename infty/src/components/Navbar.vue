@@ -44,19 +44,19 @@
 </template>
 
 <script>
-import axios from 'axios';
-import { eventBus } from '../main';
+import axios from "axios";
+import { eventBus } from "../main";
 
 export default {
-    name: 'Navbar',
-    props: ['activeIndex'],
+    name: "Navbar",
+    props: ["activeIndex"],
     data: () => ({
-        first_name: '',
-        last_name: '',
+        first_name: "",
+        last_name: "",
     }),
     methods: {
         connectWallet() {
-            this.$store.dispatch('connectWallet');
+            this.$store.dispatch("connectWallet");
         },
         handleRegister() {
             axios
@@ -66,12 +66,12 @@ export default {
                     address: this.$store.getters.getAddress,
                 })
                 .then((res) => {
-                    console.log('profile saved', res);
+                    console.log("profile saved", res);
                 });
         },
         toProfile() {
             const path = this.$route.path;
-            if (path.includes('profile') && path.split('profile/')[1] != this.$store.getters.getAddress) {
+            if (path.includes("profile") && path.split("profile/")[1] != this.$store.getters.getAddress) {
                 window.location.pathname = `/profile/${this.$store.getters.getAddress}`;
             } else {
                 this.$router.push(`/profile/${this.$store.getters.getAddress}`);
@@ -90,43 +90,43 @@ export default {
         },
     },
     async created() {
-        eventBus.$on('Navbar.noWallet', () => {
-            this.$bvToast.show('no-wallet-toast');
+        eventBus.$on("Navbar.noWallet", () => {
+            this.$bvToast.show("no-wallet-toast");
         });
-        eventBus.$on('Navbar.connectWalletSuccess', async () => {
+        eventBus.$on("Navbar.connectWalletSuccess", async () => {
             axios
                 .get(
-                    `${this.$store.getters.getApiUrl}/profile/${(await window.conflux.send('cfx_requestAccounts'))[0]}`
+                    `${this.$store.getters.getApiUrl}/profile/${(await window.conflux.send("cfx_requestAccounts"))[0]}`
                 )
                 .then((res) => {
-                    console.log('wallet connected', res);
+                    console.log("wallet connected", res);
                 })
                 .catch((err) => {
                     if (!err.response || err.response.status == 404) {
-                        this.$refs['reg-modal'].show();
+                        this.$refs["reg-modal"].show();
                     }
                 });
         });
-        eventBus.$on('Navbar.connectWalletFailure', () => {
-            this.$bvToast.show('wallet-failure-toast');
+        eventBus.$on("Navbar.connectWalletFailure", () => {
+            this.$bvToast.show("wallet-failure-toast");
         });
     },
     mounted() {
         window.setTimeout(() => {
             if (window.conflux && window.conflux.selectedAddress) {
-                this.$store.dispatch('connectWallet');
+                this.$store.dispatch("connectWallet");
             }
         }, 100);
     },
     beforeDestroy() {
-        eventBus.$off('Navbar.noWallet');
-        eventBus.$off('Navbar.connectWalletSuccess');
-        eventBus.$off('Navbar.connectWalletFailure');
+        eventBus.$off("Navbar.noWallet");
+        eventBus.$off("Navbar.connectWalletSuccess");
+        eventBus.$off("Navbar.connectWalletFailure");
     },
 };
 </script>
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap");
 * {
     box-sizing: border-box;
     margin: 0;
@@ -152,7 +152,7 @@ header {
 
 .nav__links a,
 .overlay__content a {
-    font-family: 'Montserrat', sans-serif;
+    font-family: "Montserrat", sans-serif;
     font-weight: 500;
     font-size: 1.2rem;
     color: #edf0f1;
