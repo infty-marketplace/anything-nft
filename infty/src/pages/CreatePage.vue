@@ -103,57 +103,57 @@ export default {
             if (!this.imageData || !this.title || this.title.replace(/\s+/g, '').length == 0) {
                 Notification.closeAll()
                 this.$notify.error({
-                    title: 'Error',
-                    message: 'Missing required information: Please fill in all fields marked *',
+                    title: 'Missing Required Information',
+                    message: 'Please fill in all fields marked *.',
                     duration: 3000,
                 })
-            } else {
-                this.$notify({
-                    title: 'Notification',
-                    dangerouslyUseHTMLString: true,
-                    message:
-                        '<div style="display:flex; align-items: center;"> <div class="loader"></div><div style="display:inline">NFT Minting In Progress</div></div>',
-                    duration: 0,
-                })
-                const fd = new FormData()
-                fd.append('file', this.imageData)
-                fd.append('address', this.$store.getters.getAddress)
-                fd.append('title', this.title)
-                fd.append('description', this.description)
-                axios
-                    .post(this.$store.getters.getApiUrl + '/create-nft', fd)
-                    .then((res) => {
-                        if (res.status == 200) {
-                            Notification.closeAll()
-                            this.$notify({
-                                title: 'Congrats',
-                                message: 'NFT Created Successfully',
-                                duration: 3000,
-                                type: 'success',
-                            })
-                        }
-                        eventBus.$emit('CreatePage.nftCreated')
-                        this.title = ''
-                        this.description = ''
-                    })
-                    .catch((err) => {
-                        console.log(err)
-                        Notification.closeAll()
-                        if (err.response.status == 409) {
-                            this.$notify.error({
-                                title: 'Error',
-                                message: 'Conflicting Title: Please try another title for your NFT.',
-                                duration: 3000,
-                            })
-                        } else {
-                            this.$notify.error({
-                                title: 'Error',
-                                message: 'NFT Creation Failed',
-                                duration: 3000,
-                            })
-                        }
-                    })
+                return
             }
+            this.$notify({
+                title: 'Notification',
+                dangerouslyUseHTMLString: true,
+                message:
+                    '<div style="display:flex; align-items: center;"> <div class="loader"></div><div style="display:inline">NFT Minting In Progress</div></div>',
+                duration: 0,
+            })
+            const fd = new FormData()
+            fd.append('file', this.imageData)
+            fd.append('address', this.$store.getters.getAddress)
+            fd.append('title', this.title)
+            fd.append('description', this.description)
+            axios
+                .post(this.$store.getters.getApiUrl + '/create-nft', fd)
+                .then((res) => {
+                    if (res.status == 200) {
+                        Notification.closeAll()
+                        this.$notify({
+                            title: 'Congrats',
+                            message: 'NFT Created Successfully',
+                            duration: 3000,
+                            type: 'success',
+                        })
+                    }
+                    eventBus.$emit('CreatePage.nftCreated')
+                    this.title = ''
+                    this.description = ''
+                })
+                .catch((err) => {
+                    console.log(err)
+                    Notification.closeAll()
+                    if (err.response.status == 409) {
+                        this.$notify.error({
+                            title: 'Error',
+                            message: 'Conflicting Title: Please try another title for your NFT.',
+                            duration: 3000,
+                        })
+                    } else {
+                        this.$notify.error({
+                            title: 'Error',
+                            message: 'NFT Creation Failed',
+                            duration: 3000,
+                        })
+                    }
+                })
         },
 
         clearTextArea() {
