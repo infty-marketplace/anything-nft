@@ -60,8 +60,8 @@
                     <el-button
                         type="primary"
                         @click="
-                            $store.dispatch('notifyWIP');
-                            ucVisible = false;
+                            $store.dispatch('notifyWIP')
+                            ucVisible = false
                         "
                         >Confirm</el-button
                     >
@@ -74,16 +74,16 @@
 </template>
 
 <script>
-import { eventBus } from "../main";
-import axios from "axios";
-import { Notification } from "element-ui";
+import { eventBus } from '../main'
+import axios from 'axios'
+import { Notification } from 'element-ui'
 
-import Navbar from "../components/Navbar.vue";
-import Footer from "../components/Footer.vue";
-import FileUploader from "../components/FileUploader.vue";
-import ConnectWallet from "../components/ConnectWallet.vue";
+import Navbar from '../components/Navbar.vue'
+import Footer from '../components/Footer.vue'
+import FileUploader from '../components/FileUploader.vue'
+import ConnectWallet from '../components/ConnectWallet.vue'
 export default {
-    name: "CreatePage",
+    name: 'CreatePage',
     components: {
         Navbar,
         Footer,
@@ -91,88 +91,88 @@ export default {
         ConnectWallet,
     },
     data: () => ({
-        title: "",
-        description: "",
-        ucDescription: "",
+        title: '',
+        description: '',
+        ucDescription: '',
         imageData: undefined,
         ucVisible: false,
         ucImageData: undefined,
     }),
     methods: {
         createNft() {
-            if (!this.imageData || !this.title || this.title.replace(/\s+/g, "").length == 0) {
-                Notification.closeAll();
+            if (!this.imageData || !this.title || this.title.replace(/\s+/g, '').length == 0) {
+                Notification.closeAll()
                 this.$notify.error({
-                    title: "Error",
-                    message: "Missing required information: Please fill in all fields marked *",
+                    title: 'Error',
+                    message: 'Missing required information: Please fill in all fields marked *',
                     duration: 3000,
-                });
+                })
             } else {
                 this.$notify({
-                    title: "Notification",
+                    title: 'Notification',
                     dangerouslyUseHTMLString: true,
                     message:
                         '<div style="display:flex; align-items: center;"> <div class="loader"></div><div style="display:inline">NFT Minting In Progress</div></div>',
                     duration: 0,
-                });
-                const fd = new FormData();
-                fd.append("file", this.imageData);
-                fd.append("address", this.$store.getters.getAddress);
-                fd.append("title", this.title);
-                fd.append("description", this.description);
+                })
+                const fd = new FormData()
+                fd.append('file', this.imageData)
+                fd.append('address', this.$store.getters.getAddress)
+                fd.append('title', this.title)
+                fd.append('description', this.description)
                 axios
-                    .post(this.$store.getters.getApiUrl + "/create-nft", fd)
+                    .post(this.$store.getters.getApiUrl + '/create-nft', fd)
                     .then((res) => {
                         if (res.status == 200) {
-                            Notification.closeAll();
+                            Notification.closeAll()
                             this.$notify({
-                                title: "Congrats",
-                                message: "NFT Created Successfully",
+                                title: 'Congrats',
+                                message: 'NFT Created Successfully',
                                 duration: 3000,
-                                type: "success",
-                            });
+                                type: 'success',
+                            })
                         }
-                        eventBus.$emit("CreatePage.nftCreated");
-                        this.title = "";
-                        this.description = "";
+                        eventBus.$emit('CreatePage.nftCreated')
+                        this.title = ''
+                        this.description = ''
                     })
                     .catch((err) => {
-                        console.log(err);
-                        Notification.closeAll();
+                        console.log(err)
+                        Notification.closeAll()
                         if (err.response.status == 409) {
                             this.$notify.error({
-                                title: "Error",
-                                message: "Conflicting Title: Please try another title for your NFT.",
+                                title: 'Error',
+                                message: 'Conflicting Title: Please try another title for your NFT.',
                                 duration: 3000,
-                            });
+                            })
                         } else {
                             this.$notify.error({
-                                title: "Error",
-                                message: "NFT Creation Failed",
+                                title: 'Error',
+                                message: 'NFT Creation Failed',
                                 duration: 3000,
-                            });
+                            })
                         }
-                    });
+                    })
             }
         },
 
         clearTextArea() {
-            this.description = "";
+            this.description = ''
         },
     },
     async mounted() {
-        this.$store.dispatch("connectWallet");
-        eventBus.$on("CreatePage.receiveFile", (imageData) => {
-            this.imageData = imageData;
-        });
-        eventBus.$on("CreatePage.receiveUCFile", (imageData) => {
-            this.ucImageData = imageData;
-        });
+        this.$store.dispatch('connectWallet')
+        eventBus.$on('CreatePage.receiveFile', (imageData) => {
+            this.imageData = imageData
+        })
+        eventBus.$on('CreatePage.receiveUCFile', (imageData) => {
+            this.ucImageData = imageData
+        })
     },
     beforeDestroy() {
-        eventBus.$off("CreatePage.receiveFile");
+        eventBus.$off('CreatePage.receiveFile')
     },
-};
+}
 </script>
 
 <style scoped>
