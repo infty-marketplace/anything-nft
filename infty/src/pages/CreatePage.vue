@@ -100,7 +100,7 @@ export default {
     }),
     methods: {
         createNft() {
-            if (!this.imageData || !this.title) {
+            if (!this.imageData || !this.title || this.title.replace(/\s+/g, "").length == 0) {
                 Notification.closeAll();
                 this.$notify.error({
                     title: "Error",
