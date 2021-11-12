@@ -79,8 +79,12 @@
                             </el-option>
                         </el-select>
                         </div>
+
                         <label>Price</label>
-                        <b-form-input class="mb-4" v-model="listing_price" :placeholder="`How much in ${currencyValue}...`" />
+                        <b-form-input class="mb-4" v-model="listing_price" :state="isListingPrice" :placeholder="`How much in ${currencyValue}...`" aria-describedby="input-live-feedback"/>
+                        <b-form-invalid-feedback id="input-live-feedback">
+                            Your input should be a number with a maximum of 18 decimal places.
+                        </b-form-invalid-feedback>
                         <div v-if='currencyValue!="inft"'>
                         <label>Commision Fee
                             <el-tooltip effect="dark" class='ml-2' style='cursor:help' content="Minimum is 2.5% of the price, or 10 cfx." placement="right">
@@ -90,9 +94,15 @@
                         <b-form-input
                             class="mb-4"
                             v-model="listing_commision"
+                            :state="isListingCommision"
+                            aria-describedby="input-live-feedback"
                             :placeholder='`How much in ${currencyValue}... `'
                         />
+                        <b-form-invalid-feedback id="input-live-feedback">
+                            Your input should be a number with a maximum of 18 decimal places.
+                        </b-form-invalid-feedback>
                         </div>
+                        
                         <div v-if="!card.fragmented">
                         <b-form-checkbox
                         style="display: inline"
@@ -194,6 +204,28 @@ export default {
         },
         isPiece: function() {
             return this.card.owner.length > 1;
+        },
+        isListingPrice() {
+            if(typeof(this.listing_price) === 'undefined' || this.listing_price.length == 0) return null;
+            var converted = parseFloat(this.listing_price);
+            if (converted > 0.0){
+                if(this.listing_price.includes(".")){
+                    return this.listing_price.split(".")[1].length < 19;
+                }
+                return true;
+            }
+            return false;
+        },
+        isListingCommision() {
+            if(typeof(this.listing_commision) === 'undefined' || this.listing_commision.length == 0) return null;
+            var converted = parseFloat(this.listing_commision);
+            if (converted > 0.0){
+                if(this.listing_commision.includes(".")){
+                    return this.listing_commision.split(".")[1].length < 19;
+                }
+                return true;
+            }
+            return false;
         }
     },
     methods: {
@@ -205,7 +237,33 @@ export default {
             e.preventDefault();
             this.$refs["raffle-modal"].show();
         },
+        handleListNft_NotifyHelper() {
+            Notification.closeAll();
+            this.$notify.error({
+                title: 'Missing Required Information',
+                message: 'Please fill all fields correctly.',
+                duration: 3000,
+            })
+        },
+        handleListNft_Validation(list_item){
+            var converted = parseFloat(list_item);
+            if (converted < 0.0 || typeof(converted) !== "number" || (list_item.includes(".") && 
+            list_item.split(".")[1].length > 18)){
+                this.handleListNft_NotifyHelper();
+                return false;
+            }
+            return true;
+        },
         async handleListNft() {
+            if(!this.listing_price || !this.listing_commision){
+                this.handleListNft_NotifyHelper();
+                return;
+            } else if(this.handleListNft_Validation(this.listing_price) == false) {
+                return;
+            } else if(this.handleListNft_Validation(this.listing_commision) == false) {
+                return;
+            }
+            console.log("processing");
             const tx = window.confluxJS.sendTransaction({
                 from: (await window.conflux.send("cfx_requestAccounts"))[0],
                 to: this.$store.getters.getManagerAddr,
