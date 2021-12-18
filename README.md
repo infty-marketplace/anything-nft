@@ -23,7 +23,7 @@
 <summary>Table of Contents</summary>
 
 - [About](#about)
-  - [Built with](#built-with)
+  - [Built With](#built-with)
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
   - [Usage](#usage)
@@ -47,7 +47,7 @@ In this hackathon-ish event, a group of six UofT graduates completed this projec
 
 Infty is an easy-to-use NFT trading platform on the Conflux blockchain, with a variety of features, including raffles, fractional trading, staking, and more to add.
 
-### Built with
+### Built With
 
 -   [Conflux Blockchain](https://confluxnetwork.org/)
 -   Vue.js + Express.js + MongoDB
