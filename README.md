@@ -65,6 +65,13 @@ Note: the database currently used is publicly accessible, and only used for test
 
 ### Usage
 
+#### Enable Submodule
+
+```
+git config --global submodule.recurse true
+git submodule update --init
+```
+
 #### With Docker
 
 ```
