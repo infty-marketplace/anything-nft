@@ -103,23 +103,7 @@
                         </b-form-invalid-feedback>
                         </div>
                         
-                        <div v-if="!card.fragmented">
-                        <b-form-checkbox
-                        style="display: inline"
-                        id="fraction"
-                        v-model="fractionStatus"
-                        name="fraction"
-                        value="yes"
-                        unchecked-value="no"
-                        >
                         
-                        Allow Fractional Trading
-                        
-                        </b-form-checkbox>
-                        <el-tooltip effect="dark" class='ml-2' style='cursor:help' content="Your NFT will be divided into 100 shares." placement="right">
-                            <i class='el-icon-warning-outline'/>
-                        </el-tooltip>
-                        </div>
                     </b-modal>
                     <b-modal ref="raffle-modal" title="Raffle It" @ok="handleRaffleNft">
                         <label>Ticket Price</label>

@@ -2,7 +2,8 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const db = require("./database/mongodb");
 const userRouter = require("./routes/userRouter");
-const collectionRouter = require("./routes/collectionRouter");
+const nftRouter = require("./routes/nftRouter");
+const albumRouter = require("./routes/albumRouter");
 const cors = require("cors");
 
 require("dotenv").config();
@@ -27,7 +28,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 
 app.use("/api", userRouter);
-app.use("/api", collectionRouter);
+app.use("/api", nftRouter);
+app.use("/api", albumRouter);
 
 app.use('/', express.static('src/views'))
 app.use('*', express.static('src/views'))
