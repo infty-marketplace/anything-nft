@@ -41,6 +41,7 @@ const getMarket = async (req, res) => {
   });
 };
 
+// get nft_id
 const getNft = async (req, res) => {
     const nft = await Nft.findOne({ nft_id: req.params.nft_id });
     if (!nft) {
@@ -53,7 +54,7 @@ async function createNft(req, res) {
     console.log("Create NFT");
     const titleExists = await Nft.exists({ title: req.body.title });
     if (titleExists) {
-        return res.status(409).send();
+        return res.status(409).send(); // 409: Conflict response status
     }
     // compare image similarity
     const tmpPath = req.files.file.path;
@@ -101,6 +102,7 @@ async function createNft(req, res) {
         });
 }
 
+// list NFT to change status to sale
 async function listNft(req, res) {
     const nftId = req.body.nft_id;
     const nft = await Nft.findOne({nft_id: nftId})
@@ -126,6 +128,7 @@ async function listNft(req, res) {
     
 }
 
+// delist the nft to change the status to private
 async function delistNft(req, res) {
     const nftId = req.body.nft_id;
     const nft = await Nft.findOne({nft_id: nftId})
@@ -138,6 +141,7 @@ async function delistNft(req, res) {
     });
 }
 
+// get a list of nfts given an album
 async function getAlbumNfts(album) {
     let nfts = [];
     for (const id of album.nft_ids) {
@@ -147,6 +151,7 @@ async function getAlbumNfts(album) {
     return nfts;
 }
 
+// return a list of owners given nft and an optional boolean parameter {addressOnly}
 function getNftOwners(nft, addressOnly = true) {
     const owners = nft.owner.filter((element) => {
         return element.percentage === 1;
@@ -159,6 +164,7 @@ function getNftOwners(nft, addressOnly = true) {
     return owners;
 }
 
+// return a list of funders for {nft}, and default {addressOnly} is true
 function getNftFunders(nft, addressOnly = true) {
     const funders = nft.owner.filter((element) => {
         return element.percentage !== 1;
@@ -171,6 +177,7 @@ function getNftFunders(nft, addressOnly = true) {
     return funders;
 }
 
+// return an {unique} list of owners given a list of {nfts} with {addressOnly}
 function getNftListOwners(nfts, addressOnly = true, unique = true) {
     let owners = [];
     for (const nft of nfts) {
@@ -182,6 +189,7 @@ function getNftListOwners(nfts, addressOnly = true, unique = true) {
     return owners;
 }
 
+// return
 async function transferOwnership(transactionDetails, recordTransaction = true) {
     // get buyer/seller
     let buyer = await User.findOne({ address: transactionDetails.buyer });
@@ -263,6 +271,7 @@ async function transferOwnership(transactionDetails, recordTransaction = true) {
         });
 }
 
+// purchase nft by specifying nft_id in request body
 async function purchaseNft(req, res) {
     const body = req.body;
     let nft = await Nft.findOne({ nft_id: body.nft_id });
