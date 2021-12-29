@@ -189,7 +189,7 @@ function getNftListOwners(nfts, addressOnly = true, unique = true) {
     return owners;
 }
 
-// return
+// transferOwnership according to transferOwnership, {recordTransaction} is true by default
 async function transferOwnership(transactionDetails, recordTransaction = true) {
     // get buyer/seller
     let buyer = await User.findOne({ address: transactionDetails.buyer });
