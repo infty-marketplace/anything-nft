@@ -15,6 +15,7 @@ const s3Utils = require("../utils/s3Utils");
 const s3 = require("../database/s3");
 
 
+// get album by album_id
 const getAlbum = async (req, res) => {
     const album = await Album.findOne({ album_id: req.params.album_id });
     if (!album) {
@@ -23,8 +24,11 @@ const getAlbum = async (req, res) => {
     res.send(album);
 };
 
+// create a new album
 async function createAlbum(req, res) {
+    // obtain the list of nfts that will be included in the new album
     const nft_ids = JSON.parse(req.body.nft_ids);
+    // generate an album_id
     let album_id = makeid(16);
     const tmp_path = req.files.file.path;
     const fileToUpload = fs.createReadStream(tmp_path);
@@ -57,12 +61,16 @@ async function createAlbum(req, res) {
     };
 
     try {
+        // save new album to database
         const newAlbum = await new Album(params).save();
+
+        // assign each nft in the list of nft_ids to the new created album
         for (const nid of nft_ids) {
             const n = await Nft.findOne({ nft_id: nid });
             n.album_id = album_id;
             await n.save();
         }
+        // associate a album to an user 
         const u = await User.findOne({ address: req.body.address });
         await User.findOneAndUpdate({ address: req.body.address }, { album_ids: [album_id, ...u.album_ids] });
         // TODO: If fail, revert changes
@@ -73,6 +81,7 @@ async function createAlbum(req, res) {
     }
 }
 
+// change each nft's status in the album to sale
 async function listAlbum(req, res) {
     const album_id = req.body.album_id;
     let album = await Album.findOne({ album_id });
@@ -91,6 +100,7 @@ async function listAlbum(req, res) {
     return res.send(album);
 }
 
+// change each nft's status in the album back to private
 async function delistAlbum(req, res) {
     const album_id = req.body.album_id;
     let album = await Album.findOne({ album_id });
@@ -102,6 +112,7 @@ async function delistAlbum(req, res) {
     return res.send(album);
 }
 
+// get a list of nft_ids included in the album
 async function getAlbumNfts(album) {
     let nfts = [];
     for (const id of album.nft_ids) {
@@ -207,6 +218,7 @@ async function purchaseAlbum(req, res) {
         collection_id: album.album_id,
     };
     try {
+        // transfer ownership
         await transferOwnership(transactionDetails);
     } catch (error) {
         console.log(error);
