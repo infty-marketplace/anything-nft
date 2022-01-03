@@ -12,5 +12,6 @@ router.post("/create-nft", multipartMiddleware, nftController.createNft);
 router.post("/list-nft", nftController.listNft);
 router.post("/delist-nft", nftController.delistNft);
 router.post("/purchase-nft", nftController.purchaseNft);
+router.post("/update-views/:nft_id", nftController.updateViews);
 
 module.exports = router;

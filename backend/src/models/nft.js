@@ -26,7 +26,8 @@ const nftSchema = new Schema(
         draw_smart_contract_address: { type: String },
         share_smart_contract_address: { type: String },
         fractional: { type: Boolean, default: false },
-        fragmented: { type: Boolean }
+        fragmented: { type: Boolean },
+        views: { type: Number, required: true, default: 0}
     },
     {
         timestamps: {
