@@ -59,7 +59,7 @@
                     <div class="card-owner" v-if='!card.fragmented' @click="handleRedirectToProfile(card.owner[0].address)">
                         Owned by {{ card.owner_name }}&nbsp;&nbsp;&nbsp;
                     </div>
-                    <div style="display: inline-block"><b-icon icon="eye" />&nbsp;{{ view }} views</div>
+                    <div style="display: inline-block"><b-icon icon="eye" />&nbsp;{{ views }} views</div>
                     <div style="display: inline-block">
                         <div
                             class="like"
@@ -203,7 +203,8 @@ export default {
             card: { owner: [] },
             isOwner: true,
             likes: this.rand(0, 100),
-            view: this.rand(100, 2000),
+            // view: this.rand(100, 2000),
+            views: '',
             likeswitch: 1,
             shares: 1,
             fractionProg: 0,
@@ -258,6 +259,10 @@ export default {
     },
 
     async mounted() {
+        // fetch and update the views with api to backend
+        const res = await axios.post(`${this.$store.getters.getApiUrl}/update-views/${this.$route.params.id}`);
+        this.views = res.data.views;
+        
         this.reload();
     },
     methods: {

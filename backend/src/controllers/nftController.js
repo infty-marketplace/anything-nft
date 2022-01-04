@@ -50,6 +50,14 @@ const getNft = async (req, res) => {
     res.send(nft);
 };
 
+// update views according to the nft_id provided in the url, update the database
+const updateViews = async (req, res) => {
+  const nftId = req.params.nft_id;
+  const nft = await Nft.findOne({nft_id: nftId});
+  await Nft.findOneAndUpdate({nft_id: nftId}, {views: nft.views + 1});
+  res.send({views: nft.views+1});
+};
+
 async function createNft(req, res) {
     console.log("Create NFT");
     const titleExists = await Nft.exists({ title: req.body.title });
@@ -341,4 +349,5 @@ module.exports = {
     listNft,
     delistNft,
     purchaseNft,
+    updateViews,
 };
