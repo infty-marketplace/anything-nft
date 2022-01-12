@@ -277,18 +277,7 @@ export default {
 
             const res = await axios.get(`${getters.getApiUrl}/nft/${this.$route.params.id}`);
             const card = res.data;
-            const frags = (await axios.get(`${getters.getApiUrl}/fragments?nft_id=${card.nft_id}`)).data;
             this.fractionProg = card.owner.slice(1).reduce((pv, cv) => pv + cv.percentage, 0) * 100;
-
-            if (card.status == "private") {
-                this.sharesTable = card.owner.map((o) => {
-                    return {
-                        owner: o.address,
-                        shares: o.percentage * 100,
-                        ...frags[frags.findIndex((f) => f.owner == o.address)],
-                    };
-                });
-            }
 
             const resp = await axios.get(`${this.$store.getters.getApiUrl}/profile/${card.author}`);
             card.author_name = resp.data.first_name + " " + resp.data.last_name;
