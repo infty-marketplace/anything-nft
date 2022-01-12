@@ -279,15 +279,6 @@ export default {
             const card = res.data;
             const frags = (await axios.get(`${getters.getApiUrl}/fragments?nft_id=${card.nft_id}`)).data;
             this.fractionProg = card.owner.slice(1).reduce((pv, cv) => pv + cv.percentage, 0) * 100;
-            if (card.status == "sale") {
-                this.sharesTable = frags.map((o) => ({
-                    owner: o.owner,
-                    price: o.status == "sale" ? `${o.price}` : "N/A",
-                    shares: o.percentage * 100,
-                    status: o.status,
-                    nft_id: o.nft_id,
-                }));
-            }
 
             if (card.status == "private") {
                 this.sharesTable = card.owner.map((o) => {
