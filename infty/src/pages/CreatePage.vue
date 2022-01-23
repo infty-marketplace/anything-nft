@@ -19,6 +19,10 @@
                 />
                 <b-icon v-if="description" font-scale="1.5" class="icon" icon="x" @click="clearTextArea"></b-icon>
             </div>
+            <label class="mt-5">Labels</label>
+            <div v-for="(item, index) in labels" :key="index">
+                <button @click="clicked(index)" class="label-selection-button" :class="{'clicked': selectedLabels[index]}">{{labels[index]}}</button>
+            </div>
             <div class="mt-5">
                 <b-form-checkbox style="display:inline"
                     >Image On-chain Storage<b-badge pill variant="info" class="ml-2"
@@ -97,7 +101,14 @@ export default {
         imageData: undefined,
         ucVisible: false,
         ucImageData: undefined,
+        labels: ['Animal', 'Nature', 'Landscape', 'Painting'],
+        selectedLabels: [],
     }),
+
+    beforeMount() {
+        this.items.forEach((item, index) => this.$set(this.selectedLabels, index, false))
+    },
+
     methods: {
         createNft() {
             if (!this.imageData || !this.title || this.title.replace(/\s+/g, '').length == 0) {
@@ -159,6 +170,10 @@ export default {
         clearTextArea() {
             this.description = ''
         },
+
+        clicked(index) {
+            this.$set(this.selectedLabels, index, !this.selectedLabels[index]) // change label state on click
+        }
     },
     async mounted() {
         this.$store.dispatch('connectWallet')
@@ -208,5 +223,20 @@ export default {
 <style>
 #uc-file-uploader svg {
     display: none;
+}
+.label-selection-button {
+    background-color: white; /* Green */
+    border: 1px solid rgb(36, 36, 173);
+    color: blue;
+    padding: 5px 5px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    border-radius: 12px;
+    font-size: 16px;
+}
+.clicked {
+    background: blue;
+    color: white;
 }
 </style>
