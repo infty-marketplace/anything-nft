@@ -93,7 +93,8 @@ async function createNft(req, res) {
 
     // compare image similarity
     const fileHash = await imageUtils.hash(filePath);
-    for await (const nft of Nft.find({})) {
+    const nfts = await Nft.find({}, { file_hash: 1, _id: 0 });
+    for (const nft of nfts) {
         if (imageUtils.calculateSimilarity(nft.file_hash, fileHash) >= process.env.IMAGE_SIMILARITY_THRESHOLD) {
             return res.status(400).json({ error: "file already exists" });
         }
