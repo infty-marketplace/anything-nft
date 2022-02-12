@@ -59,7 +59,7 @@
                     <div class="card-owner" v-if='!card.fragmented' @click="handleRedirectToProfile(card.owner[0].address)">
                         Owned by {{ card.owner_name }}&nbsp;&nbsp;&nbsp;
                     </div>
-                    <div style="display: inline-block"><b-icon icon="eye" />&nbsp;{{ view }} views</div>
+                    <div style="display: inline-block"><b-icon icon="eye" />&nbsp;{{ views }} views</div>
                     <div style="display: inline-block">
                         <div
                             class="like"
@@ -203,7 +203,8 @@ export default {
             card: { owner: [] },
             isOwner: true,
             likes: this.rand(0, 100),
-            view: this.rand(100, 2000),
+            // view: this.rand(100, 2000),
+            views: '',
             likeswitch: 1,
             shares: 1,
             fractionProg: 0,
@@ -258,6 +259,10 @@ export default {
     },
 
     async mounted() {
+        // fetch and update the views with api to backend
+        const res = await axios.post(`${this.$store.getters.getApiUrl}/update-views/${this.$route.params.id}`);
+        this.views = res.data.views;
+        
         this.reload();
     },
     methods: {
@@ -272,27 +277,7 @@ export default {
 
             const res = await axios.get(`${getters.getApiUrl}/nft/${this.$route.params.id}`);
             const card = res.data;
-            const frags = (await axios.get(`${getters.getApiUrl}/fragments?nft_id=${card.nft_id}`)).data;
             this.fractionProg = card.owner.slice(1).reduce((pv, cv) => pv + cv.percentage, 0) * 100;
-            if (card.status == "sale") {
-                this.sharesTable = frags.map((o) => ({
-                    owner: o.owner,
-                    price: o.status == "sale" ? `${o.price}` : "N/A",
-                    shares: o.percentage * 100,
-                    status: o.status,
-                    nft_id: o.nft_id,
-                }));
-            }
-
-            if (card.status == "private") {
-                this.sharesTable = card.owner.map((o) => {
-                    return {
-                        owner: o.address,
-                        shares: o.percentage * 100,
-                        ...frags[frags.findIndex((f) => f.owner == o.address)],
-                    };
-                });
-            }
 
             const resp = await axios.get(`${this.$store.getters.getApiUrl}/profile/${card.author}`);
             card.author_name = resp.data.first_name + " " + resp.data.last_name;

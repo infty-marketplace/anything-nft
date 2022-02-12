@@ -11,22 +11,16 @@
                     <li v-bind:class="{ active: activeIndex == 0 }">
                         <router-link to="/marketplace">Marketplace</router-link>
                     </li>
-                    <li v-bind:class="{ active: activeIndex == 1 }">
-                        <router-link to="/raffles">Raffles</router-link>
-                    </li>
                     <li v-bind:class="{ active: activeIndex == 2 }">
                         <router-link to="/mine/collections">Collections</router-link>
                     </li>
-                    <li v-bind:class="{ active: activeIndex == 3 }"><router-link to="/stake">Staking</router-link></li>
                     <li v-if="!loggedIn">
                         <b-button pill variant="primary" class="wallet-btn" @click="connectWallet">
                             <b-icon class="ml-2 mr-2" icon="wallet2" aria-hidden="true"></b-icon>
                         </b-button>
                     </li>
                     <li v-else>
-                        
-                        <img :src="profile_picture" class="profile-pic" @click='toProfile'/>
-                        
+                        <img :src="profile_picture" class="profile-pic" @click="toProfile" />
                     </li>
                 </ul>
             </nav>
@@ -72,55 +66,57 @@ export default {
                     address: this.$store.getters.getAddress,
                 })
                 .then((res) => {
-                    console.log('profile saved', res);
+                    console.log("profile saved", res);
                 });
         },
         toProfile() {
-            const path = this.$route.path
-            if (path.includes('profile') && path.split('profile/')[1] != this.$store.getters.getAddress) {
-                window.location.pathname = `/profile/${this.$store.getters.getAddress}`
+            const path = this.$route.path;
+            if (path.includes("profile") && path.split("profile/")[1] != this.$store.getters.getAddress) {
+                window.location.pathname = `/profile/${this.$store.getters.getAddress}`;
             } else {
-                this.$router.push(`/profile/${this.$store.getters.getAddress}`)
+                this.$router.push(`/profile/${this.$store.getters.getAddress}`);
             }
-        }
+        },
     },
     computed: {
         loggedIn: function() {
             return !!this.$store.getters.getAddress;
         },
         addr: function() {
-          return this.$store.getters.getAddress
+            return this.$store.getters.getAddress;
         },
         profile_picture: function() {
-            return this.$store.getters.getProfilePic
-        }
+            return this.$store.getters.getProfilePic;
+        },
     },
     async created() {
-      eventBus.$on("Navbar.noWallet", () => {
-          this.$bvToast.show("no-wallet-toast");
-      });
-      eventBus.$on("Navbar.connectWalletSuccess", async () => {
-        axios
-            .get(`${this.$store.getters.getApiUrl}/profile/${(await window.conflux.send("cfx_requestAccounts"))[0]}`)
-            .then((res) => {
-                console.log('wallet connected', res);
-            })
-            .catch((err) => {
-                if (!err.response || err.response.status == 404) {
-                    this.$refs["reg-modal"].show();
-                }
-            });
-      });
-      eventBus.$on("Navbar.connectWalletFailure", () => {
-          this.$bvToast.show("wallet-failure-toast");
-      });
+        eventBus.$on("Navbar.noWallet", () => {
+            this.$bvToast.show("no-wallet-toast");
+        });
+        eventBus.$on("Navbar.connectWalletSuccess", async () => {
+            axios
+                .get(
+                    `${this.$store.getters.getApiUrl}/profile/${(await window.conflux.send("cfx_requestAccounts"))[0]}`
+                )
+                .then((res) => {
+                    console.log("wallet connected", res);
+                })
+                .catch((err) => {
+                    if (!err.response || err.response.status == 404) {
+                        this.$refs["reg-modal"].show();
+                    }
+                });
+        });
+        eventBus.$on("Navbar.connectWalletFailure", () => {
+            this.$bvToast.show("wallet-failure-toast");
+        });
     },
     mounted() {
         window.setTimeout(() => {
-             if (window.conflux && window.conflux.selectedAddress) {
-                this.$store.dispatch('connectWallet')
+            if (window.conflux && window.conflux.selectedAddress) {
+                this.$store.dispatch("connectWallet");
             }
-        },100)
+        }, 100);
     },
     beforeDestroy() {
         eventBus.$off("Navbar.noWallet");
