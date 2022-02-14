@@ -75,9 +75,11 @@ async function createNft(req, res) {
 
     // upload image to nft storage
     const metadataUrl = await nftStorageUtils.upload(filePath, req.body.title, req.body.description);
-    let [_, imageUrl] = await Promise.all([ cfxUtils.mint(req.body.address, metadataUrl), nftStorageUtils.getImageUrl(metadataUrl)]);
 
     // create nft on chain
+    let [_, imageUrl] = await Promise.all([ cfxUtils.mint(req.body.address, metadataUrl), nftStorageUtils.getImageUrl(metadataUrl)]);
+
+    // store nft to our own database
     const nftId = process.env.MINTER_ADDRESS + "-" + await cfxUtils.nextTokenId();
     const params = {
         title: req.body.title,
