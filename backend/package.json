@@ -13,6 +13,7 @@
     "dependencies": {
         "@canvas/image": "^1.0.1",
         "aws-sdk": "^2.958.0",
+        "axios": "^0.25.0",
         "blockhash-core": "^0.1.0",
         "connect-multiparty": "^2.2.0",
         "cors": "^2.8.5",
@@ -21,7 +22,9 @@
         "express-session": "^1.17.2",
         "fs": "0.0.1-security",
         "js-conflux-sdk": "^1.7.0",
+        "mime": "^3.0.0",
         "mongoose": "^5.13.3",
+        "nft.storage": "^6.0.0",
         "sha256-file": "^1.0.0"
     },
     "devDependencies": {
