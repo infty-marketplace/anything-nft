@@ -20,8 +20,11 @@
                 <b-icon v-if="description" font-scale="1.5" class="icon" icon="x" @click="clearTextArea"></b-icon>
             </div>
             <label class="mt-5">Labels</label>
-            <div v-for="(item, index) in labels" :key="index">
-                <button @click="clicked(index)" class="label-selection-button" :class="{'clicked': selectedLabels[index]}">{{labels[index]}}</button>
+            <div style="width:100%">
+                <div style="display:inline-block" v-for="(item, index) in labels" :key="index">
+                    <button @click="clicked(index)" class="label-selection-button" 
+                    :class="{'clicked': selectedLabels[index]}">{{labels[index]}}</button>
+                </div>
             </div>
             <div class="mt-5">
                 <b-form-checkbox style="display:inline"
@@ -132,6 +135,7 @@ export default {
             fd.append('address', this.$store.getters.getAddress)
             fd.append('title', this.title)
             fd.append('description', this.description)
+            fd.append('labels', this.selectedLabels)
             axios
                 .post(this.$store.getters.getApiUrl + '/create-nft', fd)
                 .then((res) => {
@@ -226,17 +230,17 @@ export default {
 }
 .label-selection-button {
     background-color: white; /* Green */
-    border: 1px solid rgb(36, 36, 173);
-    color: blue;
+    border: 1px solid rgb(54, 91, 192);
+    color: rgb(54, 91, 192);
     padding: 5px 5px;
     text-align: center;
     text-decoration: none;
-    display: inline-block;
+    margin-right: 10px;
     border-radius: 12px;
-    font-size: 16px;
+    font-size: 14px;
 }
 .clicked {
-    background: blue;
+    background: rgb(54, 91, 192);
     color: white;
 }
 </style>
