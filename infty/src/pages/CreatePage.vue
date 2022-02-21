@@ -23,7 +23,7 @@
             <div style="width:100%">
                 <div style="display:inline-block" v-for="(item, index) in labels" :key="index">
                     <button @click="clicked(index)" class="label-selection-button" 
-                    :class="{'clicked': selectedLabels[index]}">{{labels[index]}}</button>
+                    :class="{'clicked': labelState[index]}">{{labels[index]}}</button>
                 </div>
             </div>
             <div class="mt-5">
@@ -105,11 +105,11 @@ export default {
         ucVisible: false,
         ucImageData: undefined,
         labels: ['Animal', 'Nature', 'Landscape', 'Painting'],
-        selectedLabels: [],
+        labelState: [],
     }),
 
     beforeMount() {
-        this.items.forEach((item, index) => this.$set(this.selectedLabels, index, false))
+        this.labels.forEach((item, index) => this.$set(this.labelState, index, false))
     },
 
     methods: {
@@ -135,7 +135,9 @@ export default {
             fd.append('address', this.$store.getters.getAddress)
             fd.append('title', this.title)
             fd.append('description', this.description)
-            fd.append('labels', this.selectedLabels)
+            const selectedLabels = this.labels.filter((l, i) => this.labelState[i]==true)
+            console.log(selectedLabels)
+            fd.append('labels', JSON.stringify(selectedLabels))
             axios
                 .post(this.$store.getters.getApiUrl + '/create-nft', fd)
                 .then((res) => {
@@ -176,7 +178,7 @@ export default {
         },
 
         clicked(index) {
-            this.$set(this.selectedLabels, index, !this.selectedLabels[index]) // change label state on click
+            this.$set(this.labelState, index, !this.labelState[index]) // change label state on click
         }
     },
     async mounted() {

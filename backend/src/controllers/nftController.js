@@ -90,6 +90,7 @@ async function createNft(req, res) {
         status: constants.STATUS_PRIVATE,
         author: req.body.address,
         owner: [{ address: req.body.address, percentage: 1 }],
+        labels: JSON.parse(req.body.labels),
     };
 
     const newNft = new Nft(params);
