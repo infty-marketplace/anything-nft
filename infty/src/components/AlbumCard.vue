@@ -19,11 +19,13 @@
             <template #footer>
                 <div v-if="card.status == 'sale'">
                     <span class="text-muted-left"
-                        ><small class="text-muted"><b-icon icon="clock"></b-icon>&nbsp;X days left</small></span
+                        ><small class="text-muted"
+                            ><b-icon icon="clock"></b-icon>&nbsp;{{ $t('daysLeft') }}</small
+                        ></span
                     >
                     <span class="text-muted-right"
                         ><small class="text-muted"
-                            ><b-icon icon="suit-diamond-fill"></b-icon>&nbsp;Price: {{ card.price }}</small
+                            ><b-icon icon="suit-diamond-fill"></b-icon>&nbsp;{{ $t('price') }}: {{ card.price }}</small
                         ></span
                     >
                 </div>
@@ -87,12 +89,12 @@
 </template>
 
 <script>
-import axios from "axios";
-import { eventBus } from "../main";
-import { Notification } from "element-ui";
+import axios from 'axios';
+import { eventBus } from '../main';
+import { Notification } from 'element-ui';
 
 export default {
-    name: "Card",
+    name: 'Card',
     props: {
         card: Object,
     },
@@ -111,14 +113,14 @@ export default {
             const nft_promises = nft_ids.map((nid) => axios.get(`${this.$store.getters.getApiUrl}/nft/${nid}`));
             const nft_promises_result = await Promise.allSettled(nft_promises);
             this.nfts = nft_promises_result.map((p) => {
-                if (p.status == "fulfilled") return p.value.data;
+                if (p.status == 'fulfilled') return p.value.data;
             });
         });
     },
     methods: {
         listAlbumClicked(e) {
             e.preventDefault();
-            this.$refs["list-modal"].show();
+            this.$refs['list-modal'].show();
         },
         // raffleNftClicked(e) {
         //   e.preventDefault();
@@ -126,9 +128,9 @@ export default {
         // },
         async handleListAlbum() {
             const getters = this.$store.getters;
-            this.$store.dispatch("notifyLoading", {msg:"Paying commission now."});
+            this.$store.dispatch('notifyLoading', { msg: 'Paying commission now.' });
             const tx = window.confluxJS.sendTransaction({
-                from: (await window.conflux.send("cfx_requestAccounts"))[0],
+                from: (await window.conflux.send('cfx_requestAccounts'))[0],
                 to: getters.getManagerAddr,
                 gasPrice: 1,
                 value: 1e18 * parseFloat(this.listing_commision),
@@ -147,23 +149,23 @@ export default {
                     price: this.listing_price,
                     nft_prices,
                     comission: this.listing_commision,
-                    currency: "cfx",
+                    currency: 'cfx',
                     album_id: this.card.album_id,
                 })
                 .then(() => {
                     Notification.closeAll();
                     this.$notify({
-                        title: "Congrats",
-                        message: "Album listed successfully",
+                        title: 'Congrats',
+                        message: 'Album listed successfully',
                         duration: 3000,
-                        type: "success",
+                        type: 'success',
                     });
-                    eventBus.$emit("AlbumCard.statusChanged", this.card.album_id);
+                    eventBus.$emit('AlbumCard.statusChanged', this.card.album_id);
                 })
                 .catch((err) => {
                     console.log(err);
-                    this.$bvToast.toast("Listing Failed", {
-                        title: "Error",
+                    this.$bvToast.toast('Listing Failed', {
+                        title: 'Error',
                         autoHideDelay: 3000,
                         appendToast: false,
                     });
@@ -174,12 +176,12 @@ export default {
             axios
                 .post(`${this.$store.getters.getApiUrl}/delist-album`, { album_id: this.card.album_id })
                 .then((res) => {
-                    this.$bvToast.toast("Delisted Successfully", {
-                        title: "Info",
+                    this.$bvToast.toast('Delisted Successfully', {
+                        title: 'Info',
                         autoHideDelay: 3000,
                         appendToast: false,
                     });
-                    eventBus.$emit("AlbumCard.statusChanged", this.card.album_id);
+                    eventBus.$emit('AlbumCard.statusChanged', this.card.album_id);
                     console.log(res);
                 });
         },
@@ -191,22 +193,22 @@ export default {
         //   }
         // },
         cardClicked(e) {
-            if (!["BUTTON", "LABEL", "INPUT"].includes(e.srcElement.nodeName))
+            if (!['BUTTON', 'LABEL', 'INPUT'].includes(e.srcElement.nodeName))
                 this.$router.push({
-                    path: "/album/:id",
-                    name: "album-detail",
-                    params: { id: this.card.album_id || "default_id", card: this.card },
+                    path: '/album/:id',
+                    name: 'album-detail',
+                    params: { id: this.card.album_id || 'default_id', card: this.card },
                 });
         },
         handleRedirectToProfile() {
             this.$router.push({
-                path: "/profile/" + this.card.owner,
+                path: '/profile/' + this.card.owner,
             });
         },
     },
     computed: {
         onMarket: function() {
-            return this.$route.path.includes("marketplace");
+            return this.$route.path.includes('marketplace');
         },
     },
 };
@@ -214,13 +216,12 @@ export default {
 
 <style scoped>
 .user-card {
-  width: 100%;
-  transition: all 0.15s ease-in-out;
+    width: 100%;
+    transition: all 0.15s ease-in-out;
 }
 .user-card:hover {
     transform: scale(1.02);
     box-shadow: 0 0 5px rgba(33, 33, 33, 0.2);
-
 }
 .text-muted-right {
     float: right;
