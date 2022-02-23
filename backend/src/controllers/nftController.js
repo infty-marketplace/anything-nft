@@ -4,12 +4,10 @@ const Album = require("../models/album");
 const Transaction = require("../models/transaction");
 const User = require("../models/user");
 const constants = require("../constants");
-const sha256 = require("sha256-file");
-const { makeid } = require("../utils/helpers");
 const imageUtils = require("../utils/imageUtils");
 const mongodbUtils = require("../utils/mongodbUtils");
+const nftStorageUtils = require("../utils/nftStorageUtils");
 const cfxUtils = require("../utils/cfxUtils");
-const s3Utils = require("../utils/s3Utils");
 
 
 // return a list of on sale NFT's id from cursor position, limit amount
@@ -59,37 +57,35 @@ const updateViews = async (req, res) => {
 };
 
 async function createNft(req, res) {
-    console.log("Create NFT");
     const titleExists = await Nft.exists({ title: req.body.title });
     if (titleExists) {
-        return res.status(409).send(); // 409: Conflict response status
+        return res.status(409).send();
     }
-    // compare image similarity
-    const tmpPath = req.files.file.path;
-    const fileHash = await imageUtils.hash(tmpPath);
 
-    for await (const nft of Nft.find({})) {
+    const filePath = req.files.file.path;
+
+    // compare image similarity
+    const fileHash = await imageUtils.hash(filePath);
+    const nfts = await Nft.find({}, { file_hash: 1, _id: 0 });
+    for (const nft of nfts) {
         if (imageUtils.calculateSimilarity(nft.file_hash, fileHash) >= process.env.IMAGE_SIMILARITY_THRESHOLD) {
             return res.status(400).json({ error: "file already exists" });
         }
     }
 
-    // upload image to s3
-    console.log(sha256(tmpPath));
-    const sha = sha256(tmpPath);
-    const location = await s3Utils.uploadImage(tmpPath, makeid(16))
+    // upload image to nft storage
+    const metadataUrl = await nftStorageUtils.upload(filePath, req.body.title, req.body.description);
 
     // create nft on chain
-    const guessedTokenId = await cfxUtils.nextTokenId();
-    const uri = await cfxUtils.generateUri(req, location, sha);
-    await cfxUtils.mint(req.body.address, uri);
-    const actualTokenId = cfxUtils.actualTokenId(req.body.address, uri, guessedTokenId);
-    const nftId = process.env.MINTER_ADDRESS + "-" + guessedTokenId;
+    let [_, imageUrl] = await Promise.all([ cfxUtils.mint(req.body.address, metadataUrl), nftStorageUtils.getImageUrl(metadataUrl)]);
+
+    // store nft to our own database
+    const nftId = process.env.MINTER_ADDRESS + "-" + await cfxUtils.nextTokenId();
     const params = {
         title: req.body.title,
         nft_id: nftId,
         description: req.body.description,
-        file: location,
+        file: imageUrl,
         file_hash: fileHash,
         status: constants.STATUS_PRIVATE,
         author: req.body.address,
