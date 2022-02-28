@@ -136,7 +136,6 @@ export default {
             fd.append('title', this.title)
             fd.append('description', this.description)
             const selectedLabels = this.labels.filter((l, i) => this.labelState[i]==true)
-            console.log(selectedLabels)
             fd.append('labels', JSON.stringify(selectedLabels))
             axios
                 .post(this.$store.getters.getApiUrl + '/create-nft', fd)

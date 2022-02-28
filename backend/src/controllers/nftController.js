@@ -92,7 +92,6 @@ async function createNft(req, res) {
         owner: [{ address: req.body.address, percentage: 1 }],
         labels: JSON.parse(req.body.labels),
     };
-
     const newNft = new Nft(params);
     const user = await User.findOne({ address: req.body.address });
     user.nft_ids.push({address: nftId, percentage: 1});
