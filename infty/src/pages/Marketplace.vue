@@ -24,14 +24,14 @@
                 v-b-toggle.collapse-2
                 variant="outline-secondary"
                 class="category-button"
-                >Price</b-button
+                >Price (in CFX)</b-button
               >
               <b-collapse id="collapse-2" class="mt-2">
                 <b-card>
-                  <b-form-select
+                  <!-- <b-form-select
                     v-model="priceTypeSelected"
                     :options="priceTypeOptions"
-                  ></b-form-select>
+                  ></b-form-select> -->
                   <b-form-input
                     v-model="text"
                     placeholder="Min"
@@ -208,11 +208,12 @@ export default {
       //   { text: "New", value: "new" },
       //   { text: "Has Offers", value: "hasOffers" },
       // ],
-      priceTypeSelected: "usd",
-      priceTypeOptions: [
-        { value: "usd", text: "United States Dollar(USD)" },
-        { value: "eth", text: "Ether(ETH)" },
-      ],
+      // TODO: add support for other currencies in the future.
+      // priceTypeSelected: "usd",
+      // priceTypeOptions: [
+      //   { value: "usd", text: "United States Dollar(USD)" },
+      //   { value: "eth", text: "Ether(ETH)" },
+      // ],
       usersCards: [],
       loadingNft: false,
       noMoreNft: false,
@@ -387,7 +388,6 @@ export default {
 .price-range {
   width: 40%;
   display: inline-block;
-  margin-top: 1em;
   margin-right: 3%;
   margin-left: 2%;
 }
