@@ -94,7 +94,7 @@ async function createNft(req, res) {
 
     const newNft = new Nft(params);
     const user = await User.findOne({ address: req.body.address });
-    user.nft_ids.push(nftId);
+    user.nft_ids.push({address: nftId, percentage: 1});
 
     await mongodbUtils
         .saveAll([newNft, user])
@@ -194,64 +194,64 @@ function getNftListOwners(nfts, addressOnly = true, unique = true) {
 }
 
 // transferOwnership according to transferOwnership, {recordTransaction} is true by default
-async function transferOwnership(transactionDetails, recordTransaction = true) {
+async function transferOwnership(txnData, recordTransaction = true) {
     // get buyer/seller
-    let buyer = await User.findOne({ address: transactionDetails.buyer });
-    let seller = await User.findOne({ address: transactionDetails.seller });
+    let buyer = await User.findOne({ address: txnData.buyer });
+    let seller = await User.findOne({ address: txnData.seller });
 
     if (!buyer || !seller) {
         throw new Error("user not found");
     }
 
     let collectionType = "";
-    if (transactionDetails.transaction_type === "purchase-album") {
+    if (txnData.transaction_type === "purchase-album") {
         collectionType = "album";
     } else if (
-        transactionDetails.transaction_type === "purchase-nft" ||
-        transactionDetails.transaction_type === "fund-nft" ||
-        transactionDetails.transaction_type === "draw-nft" ||
-        transactionDetails.transaction_type === "win-nft"
+        txnData.transaction_type === "purchase-nft" ||
+        txnData.transaction_type === "fund-nft" ||
+        txnData.transaction_type === "draw-nft" ||
+        txnData.transaction_type === "win-nft"
     ) {
         collectionType = "nft";
     }
 
     // add collection to buyer if collection not already exist
-    if (!buyer[`${collectionType}_ids`].includes(transactionDetails.collection_id)) {
-        buyer[`${collectionType}_ids`].push(transactionDetails.collection_id);
+    if (buyer[`${collectionType}_ids`].every(c=>c.address !== txnData.collection_id)) {
+        buyer[`${collectionType}_ids`].push({ address: txnData.collection_id, percentage: 1 });
     }
     // remove collection from seller if exist
-    const index = seller[`${collectionType}_ids`].indexOf(transactionDetails.collection_id);
+    const index = seller[`${collectionType}_ids`].findIndex(c=>c.address === txnData.collection_id);
     if (index !== -1) {
         seller[`${collectionType}_ids`].splice(index, 1);
     }
 
     // get collection and update collection's owner
     let collection = null;
-    if (transactionDetails.transaction_type === "purchase-album") {
+    if (txnData.transaction_type === "purchase-album") {
         collection = await Album.findOne({
-            album_id: transactionDetails.collection_id,
+            album_id: txnData.collection_id,
         });
-        collection.owner = transactionDetails.buyer;
+        collection.owner = txnData.buyer;
     } else if (
-        transactionDetails.transaction_type === "purchase-nft" ||
-        transactionDetails.transaction_type === "draw-nft" ||
-        transactionDetails.transaction_type === "win-nft"
+        txnData.transaction_type === "purchase-nft" ||
+        txnData.transaction_type === "draw-nft" ||
+        txnData.transaction_type === "win-nft"
     ) {
         collection = await Nft.findOne({
-            nft_id: transactionDetails.collection_id,
+            nft_id: txnData.collection_id,
         });
-        collection.owner = [{ address: transactionDetails.buyer, percentage: 1 }];
-    } else if (transactionDetails.transaction_type === "fund-nft") {
+        collection.owner = [{ address: txnData.buyer, percentage: 1 }];
+    } else if (txnData.transaction_type === "fund-nft") {
         collection = await Nft.findOne({
-            nft_id: transactionDetails.collection_id,
+            nft_id: txnData.collection_id,
         });
-        const index = [...getNftOwners(collection), ...getNftFunders(collection)].indexOf(transactionDetails.buyer);
+        const index = [...getNftOwners(collection), ...getNftFunders(collection)].indexOf(txnData.buyer);
         if (index >= 0) {
-            collection.owner[index].percentage += transactionDetails.percentage;
+            collection.owner[index].percentage += txnData.percentage;
         } else {
             collection.owner.push({
-                address: transactionDetails.buyer,
-                percentage: transactionDetails.percentage,
+                address: txnData.buyer,
+                percentage: txnData.percentage,
             });
         }
     }
@@ -262,7 +262,7 @@ async function transferOwnership(transactionDetails, recordTransaction = true) {
     // save document changes
     let documents = [collection, buyer, seller];
     if (recordTransaction) {
-        const transaction = new Transaction(transactionDetails);
+        const transaction = new Transaction(txnData);
         documents.push(transaction);
     }
     await mongodbUtils
@@ -294,7 +294,7 @@ async function purchaseNft(req, res) {
     await cfxUtils.transferOwnershipOnChain(nft.owner[0].address, body.buyer, tokenID);
 
     // create a transaction record
-    let transactionDetails = {
+    let txnData = {
         buyer: body.buyer,
         seller: nft.owner[0].address,
         transaction_type: "purchase-nft",
@@ -305,7 +305,7 @@ async function purchaseNft(req, res) {
         collection_id: nft.nft_id,
     };
     try {
-        transferOwnership(transactionDetails);
+        transferOwnership(txnData);
     } catch (error) {
         return res.status(404).send(error);
     }
@@ -316,7 +316,7 @@ async function purchaseNft(req, res) {
         // if every nft is not completely funded and every nft's owner is the same
         const nfts = await getAlbumNfts(album);
         if (!(getNftListOwners(nfts).length === 1)) {
-            const albumTransactionDetails = {
+            const albumTxnData = {
                 buyer: body.buyer,
                 seller: nft.owner[0].address,
                 transaction_type: "purchase-nft",
@@ -327,7 +327,7 @@ async function purchaseNft(req, res) {
                 collection_id: nft.nft_id,
             };
             try {
-                transferOwnership(transactionDetails);
+                transferOwnership(albumTxnData);
             } catch (error) {
                 return res.status(404).send(error);
             }
