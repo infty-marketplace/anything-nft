@@ -9,6 +9,7 @@ router.post("/market", nftController.getMarket);
 
 router.get("/nft/:nft_id", nftController.getNft);
 router.post("/create-nft", multipartMiddleware, nftController.createNft);
+router.post("/mint-estimate", nftController.getMintEstimate);
 router.post("/list-nft", nftController.listNft);
 router.post("/delist-nft", nftController.delistNft);
 router.post("/purchase-nft", nftController.purchaseNft);

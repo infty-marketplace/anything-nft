@@ -26,8 +26,7 @@ async function mint(addr, uri) {
 
 // Estimate how much gas will cost if mint
 async function mintEstimate(addr, uri) {
-    var estimate = await minterContract.mint(addr, uri).estimateGasAndCollateral();
-    console.log(estimate);
+    const estimate = await minterContract.mint(addr, uri).estimateGasAndCollateral();
     return estimate.gasLimit + estimate.storageCollateralized;
 }
 
