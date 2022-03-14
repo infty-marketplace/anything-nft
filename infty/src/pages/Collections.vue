@@ -226,8 +226,19 @@ export default {
       const res = await axios.get(
         `${getters.getApiUrl}/profile/${getters.getAddress}`
       );
-      this.loadNfts(res.data.nft_ids);
-      this.loadAlbums(res.data.album_ids);
+      const nft_ids = res.data.nft_ids;
+      const album_ids = res.data.album_ids
+      // new database schema
+      if(nft_ids.length > 0 && nft_ids[0].hasOwnProperty("address")){
+        this.loadNfts(nft_ids.map(c=>c.address));
+        this.loadAlbums(album_ids.map(c=>c.address));
+      } 
+      // old database schema
+      else {
+        this.loadNfts(nft_ids.map(id=>Object.keys(id).map(i=>id[i]).join("")));
+        this.loadAlbums(album_ids.map(id=>Object.keys(id).map(i=>id[i]).join("")));
+      }
+      
     },
     createAlbumClicked() {
       this.$refs["album-modal"].show();
