@@ -19,9 +19,13 @@ async function nextTokenId() {
     return (await minterContract.totalSupply()) + 1n;
 }
 
+// Mint NFT on chain.
 async function mint(addr, uri) {
-    return await minterContract.mint(addr, uri).sendTransaction({ from: process.env.MANAGER_ADDRESS }).executed();
+    var a = await minterContract.mint(addr, uri).estimateGasAndCollateral()
+    return a.gasLimit 
 }
+
+// Estimate how much gas will cost if mint the NFT on chain.
 
 async function createRaffle(details) {
     return await raffleContract
