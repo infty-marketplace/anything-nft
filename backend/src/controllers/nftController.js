@@ -1,6 +1,6 @@
 const Nft = require("../models/nft");
 const Album = require("../models/album");
-const { Conflux } = require("js-conflux-sdk");
+
 const Transaction = require("../models/transaction");
 const User = require("../models/user");
 const constants = require("../constants");
