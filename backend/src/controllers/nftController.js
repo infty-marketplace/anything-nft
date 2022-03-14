@@ -109,7 +109,7 @@ async function createNft(req, res) {
 // return estimated gas to mint a hard code item from manager address
 async function getMintEstimate(req, res) {
     try {
-        const uri = "https://ipfs.io/ipfs/bafybeie62yfnisftp6o5a4sojxeh4kmlkkrbjaiz4s7c4gzorhk67dlo2y/Certificate%20of%20Completion.pdf";
+        const uri = "https://ipfs.io/ipfs/00000000000000000000000000000000000000000000000000000000000";
         const cost = await cfxUtils.mintEstimate(process.env.MANAGER_ADDRESS, uri);
         return res.json({ gas: cost.toString() });
     } catch (error) {
