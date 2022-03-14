@@ -21,11 +21,15 @@ async function nextTokenId() {
 
 // Mint NFT on chain.
 async function mint(addr, uri) {
-    var a = await minterContract.mint(addr, uri).estimateGasAndCollateral()
-    return a.gasLimit 
+    return await minterContract.mint(addr, uri).sendTransaction({ from: process.env.MANAGER_ADDRESS }).executed();
 }
 
-// Estimate how much gas will cost if mint the NFT on chain.
+// Estimate how much gas will cost if mint
+async function mintEstimate(addr, uri) {
+    var estimate = await minterContract.mint(addr, uri).estimateGasAndCollateral();
+    console.log(estimate);
+    return estimate.gasLimit + estimate.storageCollateralized;
+}
 
 async function createRaffle(details) {
     return await raffleContract
@@ -112,6 +116,7 @@ function actualTokenId(addr, uri, guess) {
 module.exports = {
     nextTokenId,
     mint,
+    mintEstimate,
     actualTokenId,
     generateUri,
     generateAlbumUri,
