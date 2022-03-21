@@ -35,6 +35,7 @@
             <b-card-text class="card-detail">
                 <p>{{ card.title }}</p>
                 <p>{{ card.collection }}</p>
+                <b class="card-owner" @click="handleRedirectToAuthor">{{ card.authorName || card.author}}</b>
             </b-card-text>
             <template #footer>
                 <div v-if="card.status == 'sale'">

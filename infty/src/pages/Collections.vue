@@ -198,6 +198,7 @@ export default {
       nfts = nfts.filter(n => !!n && !!n.file)
       this.nfts = nfts.map((n) => {
         n.url = n.file;
+        n.author = "";
         return n;
       });
 
@@ -217,7 +218,7 @@ export default {
       albums = albums.filter(a => !!a && !!a.file)
       this.albums = albums.map((n) => {
         n.url = n.file;
-        n.author = n.owner;
+        n.author = "";
         return n;
       });
     },
