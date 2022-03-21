@@ -89,6 +89,7 @@ import Navbar from '../components/Navbar.vue'
 import Footer from '../components/Footer.vue'
 import FileUploader from '../components/FileUploader.vue'
 import ConnectWallet from '../components/ConnectWallet.vue'
+import constant from '../constants/index.js'
 export default {
     name: 'CreatePage',
     components: {
@@ -104,7 +105,7 @@ export default {
         imageData: undefined,
         ucVisible: false,
         ucImageData: undefined,
-        labels: ['Animal', 'Nature', 'Landscape', 'Painting'],
+        labels: constant.LABELS,
         labelState: [],
     }),
 
