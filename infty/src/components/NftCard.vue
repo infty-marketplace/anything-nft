@@ -2,23 +2,7 @@
     <div>
         <b-card class="user-card">
             <template #header>
-                <el-dropdown v-if="!onMarket" class="dropdown">
-                    <span class="el-dropdown-link">
-                        <i class="el-icon-arrow-down el-icon--right"></i>
-                    </span>
-                    <el-dropdown-menu slot="dropdown">
-                        <a @click="listNftClicked"
-                            ><el-dropdown-item v-if="card.status == 'private'">List Item</el-dropdown-item></a
-                        >
-                        <a @click="raffleNftClicked"
-                            ><el-dropdown-item v-if="card.status == 'private'">Raffle It</el-dropdown-item></a
-                        >
-                        <a @click="delistNft"
-                            ><el-dropdown-item v-if="card.status == 'sale'">Delist</el-dropdown-item></a
-                        >
-                    </el-dropdown-menu>
-                </el-dropdown>
-                <div v-else class="like-container">
+                <div v-if="onMarket" class="like-container">
                     <heart-btn />
                 </div>
             </template>
@@ -60,6 +44,7 @@
 
                 <div v-if="card.status == 'private'">
                     <small class="text-muted">Currently Unlisted</small>
+                    <b-btn size='sm' variant='primary' pill class="list-btn" @click="listNftClicked">List Item</b-btn>
                     <el-tooltip effect="dark" class='ml-2 mt-1' style='cursor:help; float:right' content="This is a fragment of the NFT." placement="bottom">
                     <b-icon v-if='isPiece' b-icon icon='layout-wtf'/>
                     </el-tooltip>
@@ -445,6 +430,15 @@ export default {
 
 .card-owner:hover {
     color: #0088a9;
+}
+
+.list-btn {
+    font-size:small;
+    float:right
+}
+
+.card-header {
+    height: 2.25rem;
 }
 </style>
 
