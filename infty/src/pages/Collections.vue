@@ -227,19 +227,24 @@ export default {
       const res = await axios.get(
         `${getters.getApiUrl}/profile/${getters.getAddress}`
       );
-      const nft_ids = res.data.nft_ids;
-      const album_ids = res.data.album_ids
+      let nft_ids = res.data.nft_ids;
+      let album_ids = res.data.album_ids
       // new database schema
-      if(nft_ids.length > 0 && nft_ids[0].hasOwnProperty("address")){
-        this.loadNfts(nft_ids.map(c=>c.address));
-        this.loadAlbums(album_ids.map(c=>c.address));
-      } 
-      // old database schema
-      else {
-        this.loadNfts(nft_ids.map(id=>Object.keys(id).map(i=>id[i]).join("")));
-        this.loadAlbums(album_ids.map(id=>Object.keys(id).map(i=>id[i]).join("")));
-      }
-      
+      nft_ids = nft_ids.map(id=>{
+        if(id.hasOwnProperty("address")){
+          return id.address;
+        }
+        return Object.keys(id).map(i=>id[i]).join("");
+
+      })
+      album_ids = album_ids.map(id=>{
+        if(id.hasOwnProperty("address")){
+          return id.address;
+        }
+        return Object.keys(id).map(i=>id[i]).join("");
+      })
+      this.loadNfts(nft_ids);
+      this.loadAlbums(album_ids);
     },
     createAlbumClicked() {
       this.$refs["album-modal"].show();
