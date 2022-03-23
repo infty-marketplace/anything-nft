@@ -31,7 +31,11 @@
                                 Pixelglyphs are a set of 10,000 unique on-chain avatar NFTs created using a cellular
                                 automaton on the Conflux blockchain.
                             </p>
+                            <span class="badge badge-pill badge-info" style="display:inline-block;margin-right:5px;" v-for="(item, index) in card.labels" :key="index">
+                                {{item}}
+                            </span>
                         </b-collapse>
+                        
                     </b-list-group-item>
                     <b-list-group-item>
                         <b-button v-b-toggle.collapse-2 variant="outline-secondary" class="category-button"

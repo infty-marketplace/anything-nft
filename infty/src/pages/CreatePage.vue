@@ -19,6 +19,13 @@
                 />
                 <b-icon v-if="description" font-scale="1.5" class="icon" icon="x" @click="clearTextArea"></b-icon>
             </div>
+            <label class="mt-5">Labels</label>
+            <div style="width:100%">
+                <div style="display:inline-block" v-for="(item, index) in labels" :key="index">
+                    <button @click="clicked(index)" class="label-selection-button" 
+                    :class="{'clicked': labelState[index]}">{{labels[index]}}</button>
+                </div>
+            </div>
             <div class="mt-5">
                 <b-form-checkbox style="display:inline"
                     >Image On-chain Storage<b-badge pill variant="info" class="ml-2"
@@ -82,6 +89,7 @@ import Navbar from '../components/Navbar.vue'
 import Footer from '../components/Footer.vue'
 import FileUploader from '../components/FileUploader.vue'
 import ConnectWallet from '../components/ConnectWallet.vue'
+import constant from '../constants/index.js'
 export default {
     name: 'CreatePage',
     components: {
@@ -97,7 +105,14 @@ export default {
         imageData: undefined,
         ucVisible: false,
         ucImageData: undefined,
+        labels: constant.LABELS,
+        labelState: [],
     }),
+
+    beforeMount() {
+        this.labels.forEach((item, index) => this.$set(this.labelState, index, false))
+    },
+
     methods: {
         createNft() {
             if (!this.imageData || !this.title || this.title.replace(/\s+/g, '').length == 0) {
@@ -121,6 +136,8 @@ export default {
             fd.append('address', this.$store.getters.getAddress)
             fd.append('title', this.title)
             fd.append('description', this.description)
+            const selectedLabels = this.labels.filter((l, i) => this.labelState[i]==true)
+            fd.append('labels', JSON.stringify(selectedLabels))
             axios
                 .post(this.$store.getters.getApiUrl + '/create-nft', fd)
                 .then((res) => {
@@ -159,6 +176,10 @@ export default {
         clearTextArea() {
             this.description = ''
         },
+
+        clicked(index) {
+            this.$set(this.labelState, index, !this.labelState[index]) // change label state on click
+        }
     },
     async mounted() {
         this.$store.dispatch('connectWallet')
@@ -208,5 +229,20 @@ export default {
 <style>
 #uc-file-uploader svg {
     display: none;
+}
+.label-selection-button {
+    background-color: white; /* Green */
+    border: 1px solid rgb(54, 91, 192);
+    color: rgb(54, 91, 192);
+    padding: 5px 5px;
+    text-align: center;
+    text-decoration: none;
+    margin-right: 10px;
+    border-radius: 12px;
+    font-size: 14px;
+}
+.clicked {
+    background: rgb(54, 91, 192);
+    color: white;
 }
 </style>
