@@ -1,6 +1,6 @@
 <template>
     <div class="flex-wrapper main">
-        <Navbar />
+        <Navbar activeIndex="2"/>
         <div class="content mt-5 mb-5" v-if="$store.getters.getAddress">
             <h2>Create your own NFT</h2>
             <label class="mt-4">Title*</label>
@@ -27,11 +27,8 @@
                 </div>
             </div>
             <div class="mt-5">
-                <b-form-checkbox style="display:inline"
-                    >Image On-chain Storage<b-badge pill variant="info" class="ml-2"
-                        >Free for limited time</b-badge
-                    ></b-form-checkbox
-                >
+                
+                <b-badge pill variant="info" class="ml-2">Decentralized Image Storage on IPFS</b-badge>
                 <b-button variant="primary" class="create-btn" @click="createNft">Create</b-button>
                 <b-button variant="outline-primary" class="create-btn mr-2" @click="ucVisible = true"
                     >Add unlockable content</b-button

@@ -55,8 +55,8 @@
                     </b-list-group-item>
                 </b-list-group>
             </b-card>
-            <div class="album-title-container">
-                <h1 class="album-title">&nbsp;{{ card.title }}</h1>
+            <div class="title-container">
+                <h1 class="title">&nbsp;{{ card.title }}</h1>
 
                 <h5 class="owner">
                   &nbsp;&nbsp;&nbsp;&nbsp;
@@ -462,10 +462,10 @@ export default {
     max-width: 100%;
 }
 
-.album-title-container {
+.title-container {
     margin-top: 2rem;
 }
-.album-title {
+.title {
     font-weight: bold;
     font-size: 4rem;
 }

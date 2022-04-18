@@ -66,7 +66,7 @@ export default {
         team: require("../assets/imgs/aboutUs.svg"),
     }),
     mounted() {
-        sal({once: false});
+        sal();
     }
 };
 </script>

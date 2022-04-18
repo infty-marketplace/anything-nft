@@ -1,5 +1,4 @@
 const Nft = require("../models/nft");
-const Album = require("../models/album");
 
 const Transaction = require("../models/transaction");
 const User = require("../models/user");
@@ -25,17 +24,8 @@ const getMarket = async (req, res) => {
         .skip(offset)
         .limit(limit)
 
-    const albumQuery = Album.find(
-        { status: constants.STATUS_SALE },
-        { album_id: 1 }
-    )
-        .sort({ album_id: "desc" })
-        .skip(offset)
-        .limit(limit);
-
     res.send({
-        nft_ids: (await nftQuery.exec()).map((n) => n.nft_id),
-        album_ids: (await albumQuery.exec()).map((n) => n.album_id)
+        nft_ids: (await nftQuery.exec()).map((n) => n.nft_id)
     });
 };
 
@@ -156,16 +146,6 @@ async function delistNft(req, res) {
     });
 }
 
-// get a list of nfts given an album
-async function getAlbumNfts(album) {
-    let nfts = [];
-    for (const id of album.nft_ids) {
-        const nft = await Nft.findOne({ nft_id: id });
-        nfts.push(nft);
-    }
-    return nfts;
-}
-
 // return a list of owners given nft and an optional boolean parameter {addressOnly}
 function getNftOwners(nft, addressOnly = true) {
     const owners = nft.owner.filter((element) => {
@@ -215,9 +195,7 @@ async function transferOwnership(txnData, recordTransaction = true) {
     }
 
     let collectionType = "";
-    if (txnData.transaction_type === "purchase-album") {
-        collectionType = "album";
-    } else if (
+    if (
         txnData.transaction_type === "purchase-nft" ||
         txnData.transaction_type === "fund-nft" ||
         txnData.transaction_type === "draw-nft" ||
@@ -238,12 +216,7 @@ async function transferOwnership(txnData, recordTransaction = true) {
 
     // get collection and update collection's owner
     let collection = null;
-    if (txnData.transaction_type === "purchase-album") {
-        collection = await Album.findOne({
-            album_id: txnData.collection_id,
-        });
-        collection.owner = txnData.buyer;
-    } else if (
+    if (
         txnData.transaction_type === "purchase-nft" ||
         txnData.transaction_type === "draw-nft" ||
         txnData.transaction_type === "win-nft"
@@ -321,30 +294,6 @@ async function purchaseNft(req, res) {
         return res.status(404).send(error);
     }
 
-    //check if this nft fullfills a album
-    if (nft.album_id && nft.album_id !== "") {
-        let album = await Album.findOne({ album_id: nft.album_id });
-        // if every nft is not completely funded and every nft's owner is the same
-        const nfts = await getAlbumNfts(album);
-        if (!(getNftListOwners(nfts).length === 1)) {
-            const albumTxnData = {
-                buyer: body.buyer,
-                seller: nft.owner[0].address,
-                transaction_type: "purchase-nft",
-                price: nft.price,
-                currency: nft.currency,
-                commission: body.commission,
-                commission_currency: body.commission_currency,
-                collection_id: nft.nft_id,
-            };
-            try {
-                transferOwnership(albumTxnData);
-            } catch (error) {
-                return res.status(404).send(error);
-            }
-
-        }
-    }
     res.status(200).send();
     await cfxUtils.transferCfxTo(nft.owner[0].address, parseFloat(nft.price));
 }
