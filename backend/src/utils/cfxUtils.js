@@ -89,9 +89,17 @@ async function generateUri(req, imageUri, sha) {
     return `https://conflux-infty.s3.amazonaws.com/${sha}`;
 }
 
-// TODO
-function actualTokenId(addr, uri, guess) {
-    return makeid(5);
+// return the tokenId among the nfts of owner and has URI = uri.
+async function actualTokenId(ownerAddr, uri) {
+    const ownerBalance = await minterContract.balanceOf(ownerAddr)
+    for (let i = ownerBalance-1n; i >= 0; i--) {
+        const currTokenId = await minterContract.tokenOfOwnerByIndex(ownerAddr, i)
+        // if the metadata matches given uri, then return currTokenId
+        if (await minterContract.tokenURI(currTokenId) == uri) {
+            return currTokenId
+        }
+    }
+    return -1
 }
 
 module.exports = {
