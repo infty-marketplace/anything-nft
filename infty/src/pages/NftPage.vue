@@ -2,14 +2,6 @@
     <div class="flex-wrapper">
         <Navbar />
         <button @click="$router.go(-1)" class="back-btn"><i class="el-icon-back" style="color:white" /></button>
-        <div class="percent" v-if="card.fractional">
-            <span
-                style="line-height:80%;text-align:center;color:white;font-size: 100%;left:50%;top:50%;position:absolute;transform: translate(-50%, -50%);"
-            >
-                {{ sharesOwned }}
-                Shares
-            </span>
-        </div>
         <div class="detail-content mb-4">
             <b-card class="detailed-card" :img-src="card && card.url" img-alt="Card image" img-top>
                 <b-card-title><b-icon icon="card-text"></b-icon>&nbsp;Description</b-card-title>
@@ -117,57 +109,7 @@
                             placeholder="How much in cfx... (Minimum 2.5%)"
                         />
                     </b-modal>
-                    <!-- <template #footer>
-            <em>Footer Slot</em>
-          </template> -->
-                </b-card>
-                <b-card
-                    class="transaction-info"
-                    header-tag="header"
-                    footer-tag="footer"
-                    v-if="card.status == 'sale' && card.fractional"
-                >
-                    <template #header>
-                        <h6 class="mb-0"><i class="el-icon-menu" />&nbsp;Fractional Trading</h6>
-                    </template>
-                    <div v-if="card.status == 'sale'">
-                        <el-progress :text-inside="true" :stroke-width="26" :percentage="fractionProg"></el-progress>
-                        <hr />
-                        <el-input v-if="!isOwner" v-model="shares" type="number" style="width: calc(100% - 12rem)" />
-                        <b-button v-if="!isOwner" variant="primary" @click="purchaseShares" style="float:right"
-                            ><i class="el-icon-s-ticket" />&nbsp;&nbsp;Purchase shares</b-button
-                        >
-                    </div>
-                    <el-table
-                        @cell-click="cellClicked"
-                        :data="sharesTable"
-                        style="width: 100%"
-                        height="150"
-                        empty-text="Unfunded"
-                        :cell-style="
-                            ({ columnIndex }) => {
-                                if (columnIndex == 0) return 'cursor:pointer; color: #007bff;';
-                            }
-                        "
-                    >
-                        <el-table-column prop="owner" label="Owner"> </el-table-column>
-                        <el-table-column prop="shares" label="Shares" width="80"> </el-table-column>
-                        <el-table-column prop="price" label="Price (cfx)" width="60"> </el-table-column>
-                        <el-table-column prop="sale" label="Sale" width="180">
-                            <template slot-scope="scope">
-                                <b-button
-                                    variant="primary"
-                                    size="sm"
-                                    @click="() => transferShares(scope.row)"
-                                    v-if="scope.row.status == 'sale'"
-                                    ><i class="el-icon-s-ticket" />&nbsp;&nbsp;<span style="font-size: 0.6rem;"
-                                        >Purchase shares</span
-                                    ></b-button
-                                >
-                                <div v-else>Not on sale.</div>
-                            </template>
-                        </el-table-column>
-                    </el-table>
+
                 </b-card>
                 <b-card class="transaction-info" header-tag="header" footer-tag="footer">
                     <template #header>

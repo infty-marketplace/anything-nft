@@ -159,31 +159,6 @@ function getNftOwners(nft, addressOnly = true) {
     return owners;
 }
 
-// return a list of funders for {nft}, and default {addressOnly} is true
-function getNftFunders(nft, addressOnly = true) {
-    const funders = nft.owner.filter((element) => {
-        return element.percentage !== 1;
-    });
-    if (addressOnly) {
-        return funders.map((element) => {
-            return element.address;
-        });
-    }
-    return funders;
-}
-
-// return an {unique} list of owners given a list of {nfts} with {addressOnly}
-function getNftListOwners(nfts, addressOnly = true, unique = true) {
-    let owners = [];
-    for (const nft of nfts) {
-        owners = [...owners, ...getNftOwners(nft, addressOnly)];
-    }
-    if (unique) {
-        return [...new Set(owners)];
-    }
-    return owners;
-}
-
 // transferOwnership according to transferOwnership, {recordTransaction} is true by default
 async function transferOwnership(txnData, recordTransaction = true) {
     // get buyer/seller
@@ -195,12 +170,8 @@ async function transferOwnership(txnData, recordTransaction = true) {
     }
 
     let collectionType = "";
-    if (
-        txnData.transaction_type === "purchase-nft" ||
-        txnData.transaction_type === "fund-nft" ||
-        txnData.transaction_type === "draw-nft" ||
-        txnData.transaction_type === "win-nft"
-    ) {
+    // TODO: if type not match, throw error
+    if (txnData.transaction_type === "purchase-nft") {
         collectionType = "nft";
     }
 
@@ -216,28 +187,12 @@ async function transferOwnership(txnData, recordTransaction = true) {
 
     // get collection and update collection's owner
     let collection = null;
-    if (
-        txnData.transaction_type === "purchase-nft" ||
-        txnData.transaction_type === "draw-nft" ||
-        txnData.transaction_type === "win-nft"
-    ) {
+    // TODO: if type not match, throw error
+    if (txnData.transaction_type === "purchase-nft") {
         collection = await Nft.findOne({
             nft_id: txnData.collection_id,
         });
         collection.owner = [{ address: txnData.buyer, percentage: 1 }];
-    } else if (txnData.transaction_type === "fund-nft") {
-        collection = await Nft.findOne({
-            nft_id: txnData.collection_id,
-        });
-        const index = [...getNftOwners(collection), ...getNftFunders(collection)].indexOf(txnData.buyer);
-        if (index >= 0) {
-            collection.owner[index].percentage += txnData.percentage;
-        } else {
-            collection.owner.push({
-                address: txnData.buyer,
-                percentage: txnData.percentage,
-            });
-        }
     }
 
     // update collection's status

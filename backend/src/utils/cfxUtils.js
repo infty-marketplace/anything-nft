@@ -16,7 +16,7 @@ const minterContract = cfx.Contract({ abi: minterAbi, address: process.env.MINTE
 const raffleContract = cfx.Contract({ abi: raffleAbi, address: process.env.RAFFLE_ADDRESS });
 
 async function nextTokenId() {
-    return (await minterContract.totalSupply()) + 1n;
+    return (await minterContract.totalSupply());
 }
 
 // Mint NFT on chain.
