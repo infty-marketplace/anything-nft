@@ -129,6 +129,11 @@
                 <el-empty class='flex-wrapper-row' v-if='usersCards.length==0' description="Nothing"/>
                 <NftCard v-for="card in usersCards" :card="card" :key="card.url" class='mr-5 mb-4'/>
               </div>
+
+              <b-button v-if="!noMoreNft" v-on:click="loadNftMarket" style="float: left; width: 36%; display:block; margin-left:32%" variant="primary" size="lg">show more</b-button>
+              <br><br>
+              <b-button v-if="!noMoreNft" v-on:click="loadAllNftMarket" style=" width: 24%; margin:auto; margin-left:38%; margin-top:15px;margin-bottom:15px" size="md">show all</b-button>
+
               <p v-if="noMoreNft && usersCards.length!=0"
               style='border-bottom: 1px solid grey; line-height: 0.1rem;text-align:center'>
               <span style='padding: 0px 20px;background-color:white;color:grey;'>End of Market</span>
@@ -204,14 +209,6 @@ export default {
   },
 
   methods: {
-      getMore() {
-        let bottomOfWindow = Math.abs(
-          (document.documentElement.scrollTop + window.innerHeight) - document.documentElement.offsetHeight
-        ) < 400;
-        if(bottomOfWindow && !this.noMoreNft) {
-          this.loadNftMarket();
-        }
-      },
 
       async proccessNft(nft_ids) {
         nft_ids = [ ... new Set(nft_ids)]
@@ -253,6 +250,24 @@ export default {
               this.proccessNft(nft_ids);
               this.offsetNft += nft_ids.length;
               this.noMoreNft = nft_ids.length < this.limit;
+              this.loadingNft = false;
+          });
+        }, 200)
+    },
+
+    loadAllNftMarket(){
+        this.loadingNft = true;
+        setTimeout(() => {
+          const body = {
+            offset: this.offsetNft,
+            limit: 999999,
+          };
+          axios.post(this.$store.getters.getApiUrl+"/market", body)
+          .then((res) => {
+              const nft_ids = res.data.nft_ids;
+              this.proccessNft(nft_ids);
+              this.offsetNft += nft_ids.length;
+              this.noMoreNft = true;
               this.loadingNft = false;
           });
         }, 200)
