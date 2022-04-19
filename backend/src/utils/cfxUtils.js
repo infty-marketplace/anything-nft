@@ -15,10 +15,6 @@ const { abi: raffleAbi } = require("../assets/Raffle.json");
 const minterContract = cfx.Contract({ abi: minterAbi, address: process.env.MINTER_ADDRESS });
 const raffleContract = cfx.Contract({ abi: raffleAbi, address: process.env.RAFFLE_ADDRESS });
 
-async function nextTokenId() {
-    return (await minterContract.totalSupply());
-}
-
 // Mint NFT on chain.
 async function mint(addr, uri) {
     return await minterContract.mint(addr, uri).sendTransaction({ from: process.env.MANAGER_ADDRESS }).executed();
@@ -103,7 +99,6 @@ async function actualTokenId(ownerAddr, uri) {
 }
 
 module.exports = {
-    nextTokenId,
     mint,
     mintEstimate,
     actualTokenId,
