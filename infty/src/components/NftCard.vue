@@ -22,14 +22,7 @@
                     <heart-btn />
                 </div>
             </template>
-            <b-form-checkbox
-                v-bind:class="{ checkbox: !checkState, 'checkbox-active': checkState }"
-                v-model="checkState"
-                :value="true"
-                :unchecked-value="false"
-                v-if="card.status == 'private'"
-                @change="checkBox"
-            />
+            
             <img @click="cardClicked" :src="card.url" class="nft-img" />
             <!-- <router-link :to="{ path:'/card/:id', name: 'card-detail', params: { id: card.nft_id || 'default_id', card: card } }"> -->
             <b-card-text class="card-detail">
@@ -163,7 +156,6 @@ export default {
         raffle_price: undefined,
         raffle_tickets: undefined,
         raffle_commision: undefined,
-        checkState: false,
         deadline: null,
         fractionStatus: 'no',
         currencyValue: 'cfx',
@@ -354,13 +346,6 @@ export default {
                     console.log(res);
                 });
         },
-        checkBox() {
-            if (this.checkState) {
-                eventBus.$emit("Card.addAlbumCandidate", this.card.nft_id);
-            } else {
-                eventBus.$emit("Card.delAlbumCandidate", this.card.nft_id);
-            }
-        },
         cardClicked(e) {
             if (!["BUTTON", "LABEL", "INPUT"].includes(e.srcElement.nodeName))
                 this.$router.push({
@@ -399,27 +384,6 @@ export default {
 .card-detail {
     margin-top: 5px;
     font-size: 0.875em;
-}
-.checkbox {
-    position: absolute;
-    left: 10px;
-    top: 5px;
-    z-index: 0;
-}
-
-.checkbox-active {
-    display: block;
-    position: absolute;
-    left: 10px;
-    top: 5px;
-    z-index: 0;
-}
-.checkbox:hover {
-    display: block;
-}
-
-.user-card:hover .checkbox {
-    display: block;
 }
 
 .nft-img {

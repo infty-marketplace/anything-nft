@@ -1,6 +1,6 @@
 <template>
     <div class="flex-wrapper" id="collections-page">
-        <Navbar active-index="2" />
+        <Navbar active-index="3" />
         <div class="flex-wrapper-row mt-3" v-if="$store.getters.getAddress">
             <el-tabs class="main-content">
                 <el-tab-pane label="NFT">
@@ -15,20 +15,6 @@
                         <p class="mb-4" v-if="sale_nfts.length == 0"><el-empty description="Nothing"></el-empty></p>
                     </div>
                 </el-tab-pane>
-                <el-tab-pane label="Album">
-                    <p>Unlisted</p>
-                    <div class="cards-container p-2">
-                        <AlbumCard class="mb-4 alb-card" v-for="album in private_albums" :card="album" :key="album.url" />
-                        <p class="mb-4" v-if="private_albums.length == 0">
-                            <el-empty description="Nothing"></el-empty>
-                        </p>
-                    </div>
-                    <p>On Sale</p>
-                    <div class="cards-container p-2">
-                        <AlbumCard class="mb-4 alb-card" v-for="album in sale_albums" :card="album" :key="album.url" />
-                        <p class="mb-4" v-if="sale_albums.length == 0"><el-empty description="Nothing"></el-empty></p>
-                    </div>
-                </el-tab-pane>
             </el-tabs>
         <a href="/mine/create">
             <b-btn variant="primary" class="add-btn"> <b-icon icon="plus-circle-fill"></b-icon> </b-btn
@@ -38,34 +24,17 @@
             <ConnectWallet />
         </div>
         <Footer style="z-index: 0" />
-        
-        <b-btn v-if="album_candidates.length > 0" variant="info" class="create-album-btn" @click="createAlbumClicked">
-            Create Album</b-btn
-        >
-        <b-modal id="album-modal" ref="album-modal" title="Package NFTs to Album" @ok="createAlbum" class="album-modal">
-            <label>Album Title</label>
-            <b-form-input class="mb-4" v-model="album_title" placeholder="Name for your special album..." />
-            <label>Album Description</label>
-            <b-form-input class="mb-4" v-model="album_description" placeholder="Description for you special album..." />
-            <label>Album Cover</label>
-            <div style="display: flex; min-width: 100%; justify-content: space-around" class="mb-4">
-                <FileUploader pass-file-to-event="Collections.receiveFile" class="file-uploader" />
-            </div>
-        </b-modal>
     </div>
 </template>
 
 <script>
 import axios from "axios";
 import { eventBus } from "../main";
-import { Notification } from "element-ui";
 
 import Navbar from "../components/Navbar.vue";
 import Footer from "../components/Footer.vue";
 import NftCard from "../components/NftCard.vue";
-import AlbumCard from "../components/AlbumCard.vue";
 import ConnectWallet from "../components/ConnectWallet.vue";
-import FileUploader from "../components/FileUploader.vue";
 
 export default {
   name: "Collections",
@@ -73,35 +42,14 @@ export default {
     Navbar,
     Footer,
     NftCard,
-    AlbumCard,
-    ConnectWallet,
-    FileUploader,
+    ConnectWallet
   },
   data: () => ({
     nfts: [],
-    fragments: [],
-    albums: [],
-    album_candidates: [],
-    album_title: "",
-    album_description: "",
-    album_cover: undefined,
-    album_price: "",
   }),
   computed: {
-    private_frags: function() {
-      return this.fragments.filter(f => f.status=='private')
-    },  
-    sale_frags: function() {
-      return this.fragments.filter(f => f.status=='sale')
-    },
     private_nfts: function () {
-      const nfts = this.nfts.filter((n) => {
-        if (n.fragmented) {
-          return this.private_frags.map(f=>f.nft_id).includes(n.nft_id)
-        } else {
-          return n.status == "private" 
-        }
-      });
+      const nfts = this.nfts.filter(n => n.status == "private");
       const res = []
       nfts.forEach(n => {
         const nclone = JSON.parse(JSON.stringify(n))
@@ -112,21 +60,8 @@ export default {
       return res;
     },
     sale_nfts: function () {
-      return this.nfts.filter((n, i) => {
-        if (n.fragmented) {
-          this.nfts[i].status = 'sale'
-          return this.sale_frags.map(f=>f.nft_id).includes(n.nft_id) || n.owner[0].address==this.$store.getters.getAddress
-        } else {
-          return n.status == "sale"
-        }
-      });
-    },
-    private_albums: function () {
-      return this.albums.filter((a) => a.status == "private");
-    },
-    sale_albums: function () {
-      return this.albums.filter((a) => a.status == "sale");
-    },
+      return this.nfts.filter(n => n.status == "sale");
+    }
   },
 
   async mounted() {
@@ -137,12 +72,6 @@ export default {
       axios.get(`${getters.getApiUrl}/nft/${nid}`).then(async (res) => {
         const newNft = res.data;
         newNft.url = newNft.file;
-        if (newNft.fragmented) {
-          const fres = await axios.get(`${getters.getApiUrl}/fragments?owner=${getters.getAddress}`)
-          const f = fres.data.filter(f => (f.nft_id == nid && f.owner == getters.getAddress))[0]
-          newNft.price = f.price
-          newNft.status = f.status
-        }
 
         this.$set(
           this.nfts,
@@ -153,37 +82,11 @@ export default {
         this.loadCollections()
       });
     });
-    eventBus.$on("AlbumCard.statusChanged", (aid) => {
-      axios.get(`${this.$store.getters.getApiUrl}/album/${aid}`).then((res) => {
-        const newAlbum = res.data;
-        newAlbum.url = newAlbum.file;
-        newAlbum.author = newAlbum.owner;
-        this.$set(
-          this.albums,
-          this.albums.findIndex((a) => a.album_id == aid),
-          newAlbum
-        );
-      });
-    });
-    eventBus.$on("Card.addAlbumCandidate", (candId) => {
-      this.album_candidates.push(candId);
-    });
-    eventBus.$on("Card.delAlbumCandidate", (candId) => {
-      this.album_candidates = this.album_candidates.filter(
-        (cid) => cid != candId
-      );
-    });
-    eventBus.$on("Collections.receiveFile", (file) => {
-      this.album_cover = file;
-    });
   },
   beforeDestroy() {
     eventBus.$off("Collections.loadCollections");
-    eventBus.$off("Card.addAlbumCandidate");
-    eventBus.$off("Card.delAlbumCandidate");
     eventBus.$off("Collections.receiveImage");
     eventBus.$off("Card.statusChanged");
-    eventBus.$off("AlbumCard.statusChanged");
   },
   methods: {
     async loadNfts(nft_ids) {
@@ -201,26 +104,6 @@ export default {
         n.author = "";
         return n;
       });
-
-      axios.get(`${api}/fragments?owner=${this.$store.getters.getAddress}`)
-        .then(res =>  {
-          this.fragments = res.data
-        })
-    },
-    async loadAlbums(album_ids) {
-      const album_promises = album_ids.map((aid) =>
-        axios.get(`${this.$store.getters.getApiUrl}/album/${aid}`)
-      );
-      const album_promises_result = await Promise.allSettled(album_promises);
-      let albums = album_promises_result.map((p) => {
-        if (p.status == "fulfilled") return p.value.data;
-      });
-      albums = albums.filter(a => !!a && !!a.file)
-      this.albums = albums.map((n) => {
-        n.url = n.file;
-        n.author = "";
-        return n;
-      });
     },
     async loadCollections() {
       const getters = this.$store.getters;
@@ -228,53 +111,15 @@ export default {
         `${getters.getApiUrl}/profile/${getters.getAddress}`
       );
       let nft_ids = res.data.nft_ids;
-      let album_ids = res.data.album_ids
       // new database schema
       nft_ids = nft_ids.map(id=>{
-        if(id.hasOwnProperty("address")){
-          return id.address;
-        }
-        return Object.keys(id).map(i=>id[i]).join("");
-
-      })
-      album_ids = album_ids.map(id=>{
-        if(id.hasOwnProperty("address")){
+        if (Object.prototype.hasOwnProperty.call(id, "address")){
           return id.address;
         }
         return Object.keys(id).map(i=>id[i]).join("");
       })
       this.loadNfts(nft_ids);
-      this.loadAlbums(album_ids);
-    },
-    createAlbumClicked() {
-      this.$refs["album-modal"].show();
-    },
-    createAlbum() {
-      this.$notify({
-        title: 'Notification',
-        dangerouslyUseHTMLString: true,
-        message: '<div style="display:flex; align-items: center;"> <div class="loader"></div><div style="display:inline">Album Minting In Progress</div></div>', 
-        duration: 0
-      })
-      const fd = new FormData();
-      fd.append("file", this.album_cover);
-      fd.append("address", this.$store.getters.getAddress);
-      fd.append("title", this.album_title);
-      fd.append("description", this.album_description);
-      fd.append("nft_ids", JSON.stringify(this.album_candidates));
-      axios
-        .post(`${this.$store.getters.getApiUrl}/create-album`, fd)
-        .then(() => {
-          this.loadCollections();
-          Notification.closeAll();
-          this.$notify({
-              title: "Congrats",
-              message: "Album Created Successfully",
-              duration: 3000,
-              type: 'success'
-          })
-        });
-    },
+    }
   }
 };
 </script>
@@ -296,15 +141,6 @@ export default {
     z-index: 1;
 }
 
-.create-album-btn {
-    display: flex;
-    align-items: center;
-    position: fixed;
-    bottom: 5vh;
-    right: 10vw;
-    height: 4vh;
-    box-shadow: 0 0 5px rgba(33, 33, 33, 0.2);
-}
 .cards-container {
   display: flex;
   flex-wrap: wrap;
@@ -327,14 +163,6 @@ export default {
 </style>
 
 <style>
-@media (min-width: 576px) {
-    #album-modal .modal-dialog {
-        max-width: unset !important;
-    }
-}
-#album-modal .modal-dialog {
-    width: 50vw;
-}
 #collections-page .el-tabs__item.is-top {
     font-size: 28px;
 }

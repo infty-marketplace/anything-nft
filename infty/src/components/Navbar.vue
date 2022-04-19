@@ -12,6 +12,9 @@
                         <router-link to="/marketplace">Marketplace</router-link>
                     </li>
                     <li v-bind:class="{ active: activeIndex == 2 }">
+                        <router-link to="/mine/create">Create</router-link>
+                    </li>
+                    <li v-bind:class="{ active: activeIndex == 3 }">
                         <router-link to="/mine/collections">Collections</router-link>
                     </li>
                     <li v-if="!loggedIn">

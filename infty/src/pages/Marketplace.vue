@@ -134,23 +134,6 @@
               <span style='padding: 0px 20px;background-color:white;color:grey;'>End of Market</span>
               </p>
             </b-tab>
-
-
-            <b-tab title="Album">
-              <div class='album-container'>
-                <transition name="fade">
-                  <div class="loading" v-show="loadingAlbum">
-                    <span class="fa fa-spinner fa-spin"></span> Loading
-                  </div>
-                </transition>
-                <el-empty  class='flex-wrapper-row' v-if='usersAlbum.length==0' description="Nothing"/>
-                <AlbumCard  class='mr-4 mb-4 alb-card' v-for="album in usersAlbum" :card="album" :key="album.url" />
-              </div>
-              <p v-if="noMoreAlbum && usersAlbum.length != 0"
-              style='border-bottom: 1px solid grey; line-height: 0.1rem;text-align:center'>
-              <span style='padding: 0px 20px;background-color:white;color:grey;'>End of Market</span>
-              </p>
-            </b-tab>
           </b-tabs>
         </div>
 
@@ -169,7 +152,6 @@ import Navbar from "../components/Navbar.vue";
 import Footer from "../components/Footer.vue";
 import NftCard from "../components/NftCard.vue";
 import axios from 'axios';
-import AlbumCard from '../components/AlbumCard.vue';
 
 const throttle = require('lodash.throttle')
 var handler;
@@ -178,14 +160,12 @@ export default {
   components: {
     Navbar,
     Footer,
-    NftCard,
-    AlbumCard,
+    NftCard
   },
 
   beforeMount() {
     this.user = this.$store.getters.getAddress;
     this.loadNftMarket();
-    this.loadAlbumMarket();
   },
 
   mounted() {
@@ -217,10 +197,6 @@ export default {
       usersCards: [],
       loadingNft: false,
       noMoreNft: false,
-      usersAlbum: [],
-      loadingAlbum: false,
-      noMoreAlbum: false,
-      offsetAlbum: 0,
       user: undefined,
       notMine: false,
       loadingVar: 0,
@@ -233,11 +209,7 @@ export default {
           (document.documentElement.scrollTop + window.innerHeight) - document.documentElement.offsetHeight
         ) < 400;
         if(bottomOfWindow && !this.noMoreNft) {
-          if (this.tabIndex == 0){
-            this.loadNftMarket();
-          } else {
-            this.loadAlbumMarket();
-          }
+          this.loadNftMarket();
         }
       },
 
@@ -268,23 +240,6 @@ export default {
         });
       },
 
-      async proccessAlbum(album_id){
-        const album_promises = album_id.map((aid) => axios.get(`${this.$store.getters.getApiUrl}/album/${aid}`));
-        const album_promises_result = await Promise.allSettled(album_promises);
-        const albums = album_promises_result.map((p) => {
-          if (p.status == "fulfilled") return p.value;
-        });
-        albums.map((a) => {
-          if ((this.notMine && this.user != a.data.owner) || !this.notMine) {
-            axios.get(`${this.$store.getters.getApiUrl}/profile/${a.data.author}`).then((res) => {
-              a.data.author = res.data.first_name + " " + res.data.last_name
-              a.data.url = a.data.file;
-              this.usersAlbum.push(a.data);
-            })
-          }
-        })
-      },
-
       loadNftMarket(){
         this.loadingNft = true;
         setTimeout(() => {
@@ -303,36 +258,14 @@ export default {
         }, 200)
     },
 
-    loadAlbumMarket(){
-      this.loadingAlbum = true;
-      setTimeout(() => {
-        const body = {
-          offset: this.offsetAlbum,
-          limit: this.limit,
-        };
-        axios.post(this.$store.getters.getApiUrl+"/market", body)
-        .then((res) => {
-            const album_ids = res.data.album_ids;
-            this.proccessAlbum(album_ids);
-            this.offsetAlbum += album_ids.length;
-            this.noMoreAlbum = album_ids.length < this.limit;
-            this.loadingAlbum = false;
-        });
-      }, 200)
-    },
-    
     filterOthers(checked) {
       this.user = this.$store.getters.getAddress;
       this.notMine = checked;
       if (checked) {
         const nft_list = this.usersCards;
-        const album_list = this.usersAlbum;
         let target_nfts = []
-        let target_albums = []
         nft_list.map((n) => { if (n.owner[0].address != this.user) target_nfts.push(n) })
-        album_list.map((a) => { if (a.owner != this.user) target_albums.push(a) })
         this.usersCards = target_nfts;
-        this.usersAlbum = target_albums;
       } else {
         this.loadingNft = true;
         setTimeout(() => {
@@ -346,21 +279,6 @@ export default {
               this.usersCards = [];
               this.proccessNft(nft_ids);
               this.loadingNft = false;
-          });
-        }, 200)
-
-        this.loadingAlbum = true;
-        setTimeout(() => {
-          const album_body = {
-            offset: 0,
-            limit: this.offsetAlbum,
-          };
-          axios.post(this.$store.getters.getApiUrl+"/market", album_body)
-          .then(async (res) => {
-              const album_ids = res.data.album_ids;
-              this.usersAlbum = [];
-              this.proccessAlbum(album_ids);
-              this.loadingAlbum = false;
           });
         }, 200)
       }
@@ -431,12 +349,6 @@ export default {
   align-items: flex-start;
 }
 
-.album-container {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  width: 100%;
-}
 .search-bar-container {
   width: 100%;
   display: flex;
