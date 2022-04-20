@@ -10,9 +10,6 @@
                         <a @click="listNftClicked"
                             ><el-dropdown-item v-if="card.status == 'private'">List Item</el-dropdown-item></a
                         >
-                        <a @click="raffleNftClicked"
-                            ><el-dropdown-item v-if="card.status == 'private'">Raffle It</el-dropdown-item></a
-                        >
                         <a @click="deleteNftClicked"
                             ><el-dropdown-item v-if="card.status == 'private'">Delete It</el-dropdown-item></a
                         >
@@ -44,13 +41,6 @@
                         ><small class="text-muted"
                             ><b-icon icon="suit-diamond-fill"></b-icon>&nbsp;Price: {{ card.price }}</small
                         ></span
-                    >
-                </div>
-
-                <div v-if="card.status == 'draw'">
-                    <span class="text-muted-left"><small class="text-muted">Currently Raffling</small></span>
-                    <span class="text-muted-right card-owner" @click="handleRedirectToRaffle">
-                        <small class="text-muted"><b-icon icon="cash"></b-icon>&nbsp;Entry Raffle</small></span
                     >
                 </div>
 
@@ -129,29 +119,6 @@
                             </b-form-invalid-feedback>
                         </div>
                     </b-modal>
-                    <b-modal ref="raffle-modal" title="Raffle It" @ok="handleRaffleNft">
-                        <label>Ticket Price</label>
-                        <b-form-input class="mb-4" v-model="raffle_price" placeholder="How much in cfx..." />
-                        <label>Number of Tickets</label>
-                        <b-form-input class="mb-4" v-model="raffle_tickets" placeholder="How many tickets..." />
-                        <label>Commision</label>
-                        <b-form-input
-                            class="mb-4"
-                            v-model="raffle_commision"
-                            placeholder="How much in cfx... (Minimum 5%)"
-                        />
-                        <label for="example-datepicker">Deadline</label>
-                        <b-form-datepicker id="example-datepicker" v-model="deadline" class="mb-2"></b-form-datepicker>
-                        <b-form-checkbox
-                            id="checkbox-1"
-                            v-model="oneticketStatus"
-                            name="checkbox-1"
-                            value="accepted"
-                            unchecked-value="not_accepted"
-                        >
-                            One Ticket Per Address
-                        </b-form-checkbox>
-                    </b-modal>
                 </div>
                 <!-- <b-btn
           v-if="card.status == 'sale'"
@@ -184,9 +151,6 @@ export default {
         oneticketStatus: undefined,
         listing_price: undefined,
         listing_commision: undefined,
-        raffle_price: undefined,
-        raffle_tickets: undefined,
-        raffle_commision: undefined,
         deadline: null,
         fractionStatus: "no",
         currencyValue: "cfx",
@@ -236,10 +200,6 @@ export default {
         listNftClicked(e) {
             e.preventDefault();
             this.$refs["list-modal"].show();
-        },
-        raffleNftClicked(e) {
-            e.preventDefault();
-            this.$refs["raffle-modal"].show();
         },
         async deleteNftClicked(e) {
             e.preventDefault();
@@ -327,46 +287,6 @@ export default {
                     });
                 });
         },
-        async handleRaffleNft() {
-            this.$store.dispatch("notifyLoading", { msg: "Creating the raffle for ya." });
-            const getters = this.$store.getters;
-            const tokenId = this.card.nft_id.split("-")[1];
-            try {
-                await getters.getMinterContract
-                    .approve(getters.getManagerAddr, tokenId)
-                    .sendTransaction({ from: getters.getAddress, to: getters.getMinterAddress, gasPrice: 1 })
-                    .executed();
-            } catch (e) {
-                return;
-            }
-            await axios
-                .post(`${getters.getApiUrl}/list-nft-draw`, {
-                    title: this.card.title,
-                    description: this.card.description,
-                    unit_price: this.raffle_price,
-                    quantity: this.raffle_tickets,
-                    currency: "cfx",
-                    deadline: new Date(this.deadline).getTime() / 1000,
-                    nft_id: this.card.nft_id,
-                    owner: this.card.owner[0].address,
-                })
-                .then(() => {
-                    Notification.closeAll();
-                    this.$bvToast.toast("Raffling Successfully", {
-                        title: "Congrats",
-                        autoHideDelay: 3000,
-                        appendToast: false,
-                    });
-                    eventBus.$emit("Card.statusChanged", this.card.nft_id);
-                })
-                .catch(() => {
-                    this.$bvToast.toast("Raffling Failed", {
-                        title: "Error",
-                        autoHideDelay: 3000,
-                        appendToast: false,
-                    });
-                });
-        },
         delistNft(e) {
             e.preventDefault();
             axios
@@ -391,11 +311,6 @@ export default {
                     name: "nft-detail",
                     params: { id: this.card.nft_id || "default_id", card: this.card },
                 });
-        },
-        handleRedirectToRaffle() {
-            this.$router.push({
-                path: "/raffles/",
-            });
         },
 
         handleRedirectToAuthor() {
