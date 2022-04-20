@@ -43,10 +43,10 @@
                                 <a
                                     target="_blank"
                                     :href="`https://testnet.confluxscan.io/token/${$store.getters.getMinterAddress}`"
-                                    >{{ $store.getters.getMinterAddress }}</a
+                                    >{{ card.nft_id.split("-")[0] }}</a
                                 >
                             </p>
-                            <p>Token ID {{ rand(1000, 9999) }}</p>
+                            <p>Token ID {{ card.nft_id.split("-")[1] }}</p>
                         </b-collapse>
                     </b-list-group-item>
                 </b-list-group>
