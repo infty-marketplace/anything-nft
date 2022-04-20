@@ -47,6 +47,7 @@ const updateViews = async (req, res) => {
 };
 
 async function createNft(req, res) {
+    const addr = req.body.address
     const titleExists = await Nft.exists({ title: req.body.title });
     if (titleExists) {
         return res.status(409).send();
@@ -67,10 +68,15 @@ async function createNft(req, res) {
     const metadataUrl = await nftStorageUtils.upload(filePath, req.body.title, req.body.description);
 
     // create nft on chain
-    let [_, imageUrl] = await Promise.all([cfxUtils.mint(req.body.address, metadataUrl), nftStorageUtils.getImageUrl(metadataUrl)]);
+    let [_, imageUrl] = await Promise.all([cfxUtils.mint(addr, metadataUrl), nftStorageUtils.getImageUrl(metadataUrl)]);
 
     // store nft to our own database
-    const nftId = process.env.MINTER_ADDRESS + "-" + await cfxUtils.nextTokenId();
+    const tokenId = await cfxUtils.actualTokenId(addr, metadataUrl);
+    if (tokenId == -1) {
+        // TODO Burn the NFT since failed. Should retry.
+        return res.status(500).send()
+    }
+    const nftId = process.env.MINTER_ADDRESS + "-" + tokenId;
     const params = {
         title: req.body.title,
         nft_id: nftId,
@@ -78,12 +84,12 @@ async function createNft(req, res) {
         file: imageUrl,
         file_hash: fileHash,
         status: constants.STATUS_PRIVATE,
-        author: req.body.address,
-        owner: [{ address: req.body.address, percentage: 1 }],
+        author: addr,
+        owner: [{ address: raddr, percentage: 1 }],
         labels: JSON.parse(req.body.labels),
     };
     const newNft = new Nft(params);
-    const user = await User.findOne({ address: req.body.address });
+    const user = await User.findOne({ address: addr });
     user.nft_ids.push({address: nftId, percentage: 1});
 
     await mongodbUtils
