@@ -62,11 +62,7 @@ const unlikeNft = async (req, res) => {
 };
 
 async function createNft(req, res) {
-<<<<<<< HEAD
     const address = req.body.address;
-=======
-    const addr = req.body.address;
->>>>>>> fb4abbc (init)
     const titleExists = await Nft.exists({ title: req.body.title });
     if (titleExists) {
         return res.status(409).send();
@@ -111,11 +107,7 @@ async function createNft(req, res) {
         labels: JSON.parse(req.body.labels),
     };
     const newNft = new Nft(params);
-<<<<<<< HEAD
     const user = await User.findOne({ address: address });
-=======
-    const user = await User.findOne({ address: addr });
->>>>>>> fb4abbc (init)
     user.nft_ids.push({ address: nftId, percentage: 1 });
 
     await mongodbUtils
