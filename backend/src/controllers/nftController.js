@@ -62,7 +62,11 @@ const unlikeNft = async (req, res) => {
 };
 
 async function createNft(req, res) {
+<<<<<<< HEAD
     const address = req.body.address;
+=======
+    const addr = req.body.address;
+>>>>>>> fb4abbc (init)
     const titleExists = await Nft.exists({ title: req.body.title });
     if (titleExists) {
         return res.status(409).send();
@@ -107,7 +111,11 @@ async function createNft(req, res) {
         labels: JSON.parse(req.body.labels),
     };
     const newNft = new Nft(params);
+<<<<<<< HEAD
     const user = await User.findOne({ address: address });
+=======
+    const user = await User.findOne({ address: addr });
+>>>>>>> fb4abbc (init)
     user.nft_ids.push({ address: nftId, percentage: 1 });
 
     await mongodbUtils
@@ -118,6 +126,50 @@ async function createNft(req, res) {
         .catch((error) => {
             return res.status(422).json({ error: error.message });
         });
+}
+
+async function deleteNft(req, res) {
+    const nft = await Nft.findOne({ nft_id: req.body.nft_id });
+    if (!nft) {
+        return res.status(404).json({ error: "nft not found" });
+    }
+
+    // upload image to nft storage
+    nftStorageUtils.burn(nft.file);
+
+    // // create nft on chain
+    // let [_, imageUrl] = await Promise.all([cfxUtils.mint(addr, metadataUrl), nftStorageUtils.getImageUrl(metadataUrl)]);
+
+    // // store nft to our own database
+    // const tokenId = await cfxUtils.actualTokenId(addr, metadataUrl);
+    // if (tokenId == -1) {
+    //     // TODO Burn the NFT since failed. Should retry.
+    //     return res.status(500).send();
+    // }
+    // const nftId = process.env.MINTER_ADDRESS + "-" + tokenId;
+    // const params = {
+    //     title: req.body.title,
+    //     nft_id: nftId,
+    //     description: req.body.description,
+    //     file: imageUrl,
+    //     file_hash: fileHash,
+    //     status: constants.STATUS_PRIVATE,
+    //     author: addr,
+    //     owner: [{ address: raddr, percentage: 1 }],
+    //     labels: JSON.parse(req.body.labels),
+    // };
+    // const newNft = new Nft(params);
+    // const user = await User.findOne({ address: addr });
+    // user.nft_ids.push({ address: nftId, percentage: 1 });
+
+    // await mongodbUtils
+    //     .saveAll([newNft, user])
+    //     .then(() => {
+    //         return res.send("File uploaded successfully");
+    //     })
+    //     .catch((error) => {
+    //         return res.status(422).json({ error: error.message });
+    //     });
 }
 
 // return estimated gas to mint a hard code item from manager address
@@ -279,6 +331,7 @@ module.exports = {
     getMarket,
     getNft,
     createNft,
+    deleteNft,
     listNft,
     delistNft,
     purchaseNft,
