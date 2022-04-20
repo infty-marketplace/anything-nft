@@ -8,6 +8,7 @@ const nftSchema = new Schema(
         nft_id: { type: String, required: true },
         description: { type: String, default: "" },
         file: { type: String, required: true },
+        metadata: { type: String, required: true },
         file_hash: { type: String, required: true },
 
         status: {
