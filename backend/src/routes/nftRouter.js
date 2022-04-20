@@ -14,5 +14,7 @@ router.post("/list-nft", nftController.listNft);
 router.post("/delist-nft", nftController.delistNft);
 router.post("/purchase-nft", nftController.purchaseNft);
 router.post("/update-views/:nft_id", nftController.updateViews);
+router.post("/like-nft", nftController.likeNft);
+router.post("/unlike-nft", nftController.unlikeNft);
 
 module.exports = router;
