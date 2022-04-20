@@ -338,7 +338,7 @@ export default {
                 });
         },
 
-        async loadNfts(nftIds) {
+        async loadNfts(nftIds, enableLike = false) {
             const nfts = [];
             const nftPromises = nftIds.map((nftId) => axios.get(`${this.$store.getters.getApiUrl}/nft/${nftId}`));
             await Promise.allSettled(nftPromises).then((results) => {
@@ -346,6 +346,8 @@ export default {
                     if (result.status == "fulfilled") {
                         const nft = result.value.data;
                         nft.url = nft.file;
+                        nft.enableLike = enableLike;
+                        nft.isLiked = nft.liked_users.includes(this.$store.getters.getAddress);
                         axios.get(`${this.$store.getters.getApiUrl}/profile/${nft.author}`).then((r) => {
                             nft.authorName = `${r.data.first_name} ${r.data.last_name}`;
                             nfts.push(nft);
@@ -422,8 +424,7 @@ export default {
         });
 
         this.nfts = await this.loadNfts(nft_ids);
-
-        this.likedNfts = await this.loadNfts(profile.liked_nfts);
+        this.likedNfts = await this.loadNfts(profile.liked_nfts, true);
 
         if (this.isMyself) {
             this.selectedIndex = "3";
@@ -434,7 +435,6 @@ export default {
             document.querySelector(".el-menu-item").click();
         }
     },
-    beforeDestroy() {},
 };
 </script>
 
@@ -530,9 +530,5 @@ export default {
 
 /deep/.btn-info {
     display: none;
-}
-
-/deep/.card-owner {
-    pointer-events: none;
 }
 </style>

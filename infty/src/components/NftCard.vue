@@ -2,7 +2,7 @@
     <div>
         <b-card class="user-card">
             <template #header>
-                <el-dropdown v-if="!onMarket" class="dropdown">
+                <el-dropdown v-if="!card.enableLike" class="dropdown">
                     <span class="el-dropdown-link">
                         <i class="el-icon-arrow-down el-icon--right"></i>
                     </span>
@@ -390,15 +390,14 @@ export default {
                 path: "/raffles/",
             });
         },
-        handleRedirectToProfile() {
-            this.$router.push({
-                path: "/profile/" + this.card.owner[0].address,
-            });
-        },
+
         handleRedirectToAuthor() {
-            this.$router.push({
-                path: "/profile/" + this.card.author,
-            });
+            const path = this.$route.path;
+            if (path.includes("profile") && path.split("profile/")[1] != this.card.author) {
+                window.location.pathname = `/profile/${this.card.author}`;
+            } else {
+                this.$router.push(`/profile/${this.card.author}`);
+            }
         },
     },
 };
