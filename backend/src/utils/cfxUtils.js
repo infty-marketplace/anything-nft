@@ -20,6 +20,12 @@ async function mint(addr, uri) {
     return await minterContract.mint(addr, uri).sendTransaction({ from: process.env.MANAGER_ADDRESS }).executed();
 }
 
+//TODO: the burn function is currently internal in our nft contract, make it public, redeploy it so we can use it here
+async function burn(tokenId) {
+    return;
+    // return await minterContract.burn(tokenId).sendTransaction({ from: process.env.MANAGER_ADDRESS }).executed();
+}
+
 // Estimate how much gas will cost if mint
 async function mintEstimate(addr, uri) {
     const estimate = await minterContract.mint(addr, uri).estimateGasAndCollateral();
@@ -87,19 +93,20 @@ async function generateUri(req, imageUri, sha) {
 
 // return the tokenId among the nfts of owner and has URI = uri.
 async function actualTokenId(ownerAddr, uri) {
-    const ownerBalance = await minterContract.balanceOf(ownerAddr)
-    for (let i = ownerBalance-1n; i >= 0; i--) {
-        const currTokenId = await minterContract.tokenOfOwnerByIndex(ownerAddr, i)
+    const ownerBalance = await minterContract.balanceOf(ownerAddr);
+    for (let i = ownerBalance - 1n; i >= 0; i--) {
+        const currTokenId = await minterContract.tokenOfOwnerByIndex(ownerAddr, i);
         // if the metadata matches given uri, then return currTokenId
-        if (await minterContract.tokenURI(currTokenId) == uri) {
-            return currTokenId
+        if ((await minterContract.tokenURI(currTokenId)) == uri) {
+            return currTokenId;
         }
     }
-    return -1
+    return -1;
 }
 
 module.exports = {
     mint,
+    burn,
     mintEstimate,
     actualTokenId,
     generateUri,

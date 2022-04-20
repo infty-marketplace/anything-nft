@@ -27,11 +27,15 @@ async function upload(filePath, name, description) {
 
 async function burn(url) {
     const nftstorage = new NFTStorage({ token: process.env.NFT_STORAGE_KEY });
-    await nftstorage.delete(urlToCid(url));
+    await nftstorage.delete(urlToCid(url)).catch((e) => {
+        // if it does not exist, we can ignore the error and move on
+        if (e.message === "NFT not found") return;
+        throw e;
+    });
 }
 
 async function getImageUrl(metadataUrl) {
     const res = await axios.get(metadataUrl);
     return ipfsToHttps(res.data.image);
 }
-module.exports = { upload, getImageUrl };
+module.exports = { upload, getImageUrl, burn };

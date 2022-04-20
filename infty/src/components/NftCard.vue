@@ -13,6 +13,9 @@
                         <a @click="raffleNftClicked"
                             ><el-dropdown-item v-if="card.status == 'private'">Raffle It</el-dropdown-item></a
                         >
+                        <a @click="deleteNftClicked"
+                            ><el-dropdown-item v-if="card.status == 'private'">Delete It</el-dropdown-item></a
+                        >
                         <a @click="delistNft"
                             ><el-dropdown-item v-if="card.status == 'sale'">Delist</el-dropdown-item></a
                         >
@@ -237,6 +240,13 @@ export default {
         raffleNftClicked(e) {
             e.preventDefault();
             this.$refs["raffle-modal"].show();
+        },
+        async deleteNftClicked(e) {
+            e.preventDefault();
+            await axios.post(`${this.$store.getters.getApiUrl}/delete-nft`, {
+                nft_id: this.card.nft_id,
+            });
+            eventBus.$emit("Card.statusChanged", this.card.nft_id);
         },
         handleListNft_NotifyHelper() {
             Notification.closeAll();
