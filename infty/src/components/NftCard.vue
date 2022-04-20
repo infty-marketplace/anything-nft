@@ -203,9 +203,6 @@ export default {
         ],
     }),
     computed: {
-        onMarket: function() {
-            return this.$route.path.includes("marketplace");
-        },
         isPiece: function() {
             return this.card.owner.length > 1;
         },

@@ -422,6 +422,7 @@ export default {
                 .map((i) => id[i])
                 .join("");
         });
+        console.log(nft_ids);
 
         this.nfts = await this.loadNfts(nft_ids);
         this.likedNfts = await this.loadNfts(profile.liked_nfts, true);
