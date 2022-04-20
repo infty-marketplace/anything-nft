@@ -8,7 +8,6 @@ const mongodbUtils = require("../utils/mongodbUtils");
 const nftStorageUtils = require("../utils/nftStorageUtils");
 const cfxUtils = require("../utils/cfxUtils");
 
-
 // return a list of on sale NFT's id from cursor position, limit amount
 const getMarket = async (req, res) => {
     const body = req.body;
@@ -22,10 +21,10 @@ const getMarket = async (req, res) => {
     const nftQuery = Nft.find({ status: constants.STATUS_SALE }, { nft_id: 1 })
         .sort({ nft_id: "desc" })
         .skip(offset)
-        .limit(limit)
+        .limit(limit);
 
     res.send({
-        nft_ids: (await nftQuery.exec()).map((n) => n.nft_id)
+        nft_ids: (await nftQuery.exec()).map((n) => n.nft_id),
     });
 };
 
@@ -44,6 +43,22 @@ const updateViews = async (req, res) => {
     const nft = await Nft.findOne({ nft_id: nftId });
     await Nft.findOneAndUpdate({ nft_id: nftId }, { views: nft.views + 1 });
     res.send({ views: nft.views + 1 });
+};
+
+const likeNft = async (req, res) => {
+    const nftId = req.body.nft_id;
+    const address = req.body.address;
+    await User.findOneAndUpdate({ address: address }, { $push: { liked_nfts: nftId } });
+    await Nft.findOneAndUpdate({ nft_id: nftId }, { $push: { liked_users: address } });
+    return res.status(200).send();
+};
+
+const unlikeNft = async (req, res) => {
+    const nftId = req.body.nft_id;
+    const address = req.body.address;
+    await User.findOneAndUpdate({ address: address }, { $pull: { liked_nfts: nftId } });
+    await Nft.findOneAndUpdate({ nft_id: nftId }, { $pull: { liked_users: address } });
+    return res.status(200).send();
 };
 
 async function createNft(req, res) {
@@ -67,10 +82,13 @@ async function createNft(req, res) {
     const metadataUrl = await nftStorageUtils.upload(filePath, req.body.title, req.body.description);
 
     // create nft on chain
-    let [_, imageUrl] = await Promise.all([cfxUtils.mint(req.body.address, metadataUrl), nftStorageUtils.getImageUrl(metadataUrl)]);
+    let [_, imageUrl] = await Promise.all([
+        cfxUtils.mint(req.body.address, metadataUrl),
+        nftStorageUtils.getImageUrl(metadataUrl),
+    ]);
 
     // store nft to our own database
-    const nftId = process.env.MINTER_ADDRESS + "-" + await cfxUtils.nextTokenId();
+    const nftId = process.env.MINTER_ADDRESS + "-" + (await cfxUtils.nextTokenId());
     const params = {
         title: req.body.title,
         nft_id: nftId,
@@ -84,7 +102,7 @@ async function createNft(req, res) {
     };
     const newNft = new Nft(params);
     const user = await User.findOne({ address: req.body.address });
-    user.nft_ids.push({address: nftId, percentage: 1});
+    user.nft_ids.push({ address: nftId, percentage: 1 });
 
     await mongodbUtils
         .saveAll([newNft, user])
@@ -110,9 +128,9 @@ async function getMintEstimate(req, res) {
 // list NFT to change status to sale
 async function listNft(req, res) {
     const nftId = req.body.nft_id;
-    const nft = await Nft.findOne({ nft_id: nftId })
+    const nft = await Nft.findOne({ nft_id: nftId });
     // if this nft has more owners, then it's fragmented
-    await Nft.findOneAndUpdate({ nft_id: nftId }, { status: constants.STATUS_SALE })
+    await Nft.findOneAndUpdate({ nft_id: nftId }, { status: constants.STATUS_SALE });
 
     Nft.findOneAndUpdate(
         { nft_id: nftId },
@@ -120,7 +138,7 @@ async function listNft(req, res) {
             status: constants.STATUS_SALE,
             price: req.body.price,
             currency: req.body.currency,
-            fractional: req.body.fractional
+            fractional: req.body.fractional,
         },
         (err) => {
             if (err) {
@@ -129,14 +147,12 @@ async function listNft(req, res) {
             return res.send("Status changed to sale");
         }
     );
-
-
 }
 
 // delist the nft to change the status to private
 async function delistNft(req, res) {
     const nftId = req.body.nft_id;
-    const nft = await Nft.findOne({ nft_id: nftId })
+    const nft = await Nft.findOne({ nft_id: nftId });
 
     Nft.findOneAndUpdate({ nft_id: nftId }, { status: constants.STATUS_PRIVATE }, (err) => {
         if (err) {
@@ -176,11 +192,11 @@ async function transferOwnership(txnData, recordTransaction = true) {
     }
 
     // add collection to buyer if collection not already exist
-    if (buyer[`${collectionType}_ids`].every(c=>c.address !== txnData.collection_id)) {
+    if (buyer[`${collectionType}_ids`].every((c) => c.address !== txnData.collection_id)) {
         buyer[`${collectionType}_ids`].push({ address: txnData.collection_id, percentage: 1 });
     }
     // remove collection from seller if exist
-    const index = seller[`${collectionType}_ids`].findIndex(c=>c.address === txnData.collection_id);
+    const index = seller[`${collectionType}_ids`].findIndex((c) => c.address === txnData.collection_id);
     if (index !== -1) {
         seller[`${collectionType}_ids`].splice(index, 1);
     }
@@ -261,5 +277,7 @@ module.exports = {
     delistNft,
     purchaseNft,
     updateViews,
-    getMintEstimate
+    getMintEstimate,
+    likeNft,
+    unlikeNft,
 };

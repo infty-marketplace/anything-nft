@@ -214,6 +214,7 @@ export default {
       },
 
       async proccessNft(nft_ids) {
+        this.user = this.$store.getters.getAddress;
         nft_ids = [ ... new Set(nft_ids)]
         const nft_promises = nft_ids.map((nid) =>
             axios.get(`${this.$store.getters.getApiUrl}/nft/${nid}`)
@@ -229,6 +230,7 @@ export default {
               axios.get(`${this.$store.getters.getApiUrl}/profile/${n.data.author}`).then((res) => {
               n.data.authorName = res.data.first_name + " " + res.data.last_name
               n.data.url = n.data.file;
+              n.data.isLiked = n.data.liked_users.includes(this.user);
               if (n.data.fragmented && this.fragments.some(f => f.nft_id == n.data.nft_id && f.status == 'sale')) {
                 n.data.status = 'sale'
                 this.usersCards.push(n.data);

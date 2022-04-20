@@ -2,15 +2,27 @@
     <div class="heart-like-button" ref="heart" @click="onClickLike"></div>
 </template>
 <script>
+import axios from "axios";
 export default {
-    data: () => ({
-        isLiked: false,
-    }),
+    props: {
+        isLiked: Boolean,
+        nftId: String,
+    },
+    data() {
+        return { isUpating: false };
+    },
     async mounted() {
-        this.isLiked = this.$refs["heart"].getAttribute("isLiked");
         this.updateHeartColor();
     },
     methods: {
+        async waitUntilUpdated() {
+            while (this.isUpating) {
+                await this.sleep(100);
+            }
+        },
+        async sleep(ms) {
+            return new Promise((resolve) => setTimeout(resolve, ms));
+        },
         updateHeartColor() {
             if (this.isLiked) {
                 this.$refs["heart"].classList.add("liked");
@@ -18,15 +30,23 @@ export default {
                 this.$refs["heart"].classList.remove("liked");
             }
         },
-        onClickLike() {
-            const walletAddress = this.$store.getters.getAddress;
-            if (!walletAddress) {
+        async onClickLike() {
+            const address = this.$store.getters.getAddress;
+            if (!address) {
                 return this.$store.dispatch("connectWallet");
             }
-            console.log(this.$store.getters.getAddress);
-            console.log(this.$refs["heart"].getAttribute("nftId"));
+
+            this.isUpating = true;
+            // if the nft is currently liked, we should unlike it, otherwise like it
+            if (this.isLiked) {
+                await axios.post(this.$store.getters.getApiUrl + "/unlike-nft", { address, nft_id: this.nftId });
+            } else {
+                await axios.post(this.$store.getters.getApiUrl + "/like-nft", { address, nft_id: this.nftId });
+            }
+
             this.isLiked = !this.isLiked;
             this.updateHeartColor();
+            this.isUpating = false;
         },
     },
 };

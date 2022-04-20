@@ -19,7 +19,7 @@
                     </el-dropdown-menu>
                 </el-dropdown>
                 <div v-else class="like-container">
-                    <heart-btn :nftId="card.nft_id" :isLiked="false" />
+                    <heart-btn :nftId="card.nft_id" :isLiked="card.isLiked" />
                 </div>
             </template>
 

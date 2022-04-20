@@ -23,11 +23,15 @@
                                 Pixelglyphs are a set of 10,000 unique on-chain avatar NFTs created using a cellular
                                 automaton on the Conflux blockchain.
                             </p>
-                            <span class="badge badge-pill badge-info" style="display:inline-block;margin-right:5px;" v-for="(item, index) in card.labels" :key="index">
-                                {{item}}
+                            <span
+                                class="badge badge-pill badge-info"
+                                style="display:inline-block;margin-right:5px;"
+                                v-for="(item, index) in card.labels"
+                                :key="index"
+                            >
+                                {{ item }}
                             </span>
                         </b-collapse>
-                        
                     </b-list-group-item>
                     <b-list-group-item>
                         <b-button v-b-toggle.collapse-2 variant="outline-secondary" class="category-button"
@@ -51,22 +55,20 @@
                 <h1 class="title">&nbsp;{{ card.title }}</h1>
 
                 <h5 class="owner">
-                  &nbsp;&nbsp;&nbsp;&nbsp;
-                    <div class="card-owner" v-if='!card.fragmented' @click="handleRedirectToProfile(card.owner[0].address)">
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    <div
+                        class="card-owner"
+                        v-if="!card.fragmented"
+                        @click="handleRedirectToProfile(card.owner[0].address)"
+                    >
                         Owned by {{ card.owner_name }}&nbsp;&nbsp;&nbsp;
                     </div>
                     <div style="display: inline-block"><b-icon icon="eye" />&nbsp;{{ views }} views</div>
                     <div style="display: inline-block">
-                        <div
-                            class="like"
-                            @click="
-                                likes += likeswitch;
-                                likeswitch *= -1;
-                            "
-                        >
-                            <heart-btn />
+                        <div class="like" @click="onClickHeart">
+                            <heart-btn ref="heartBtn" :nftId="card.nft_id" :isLiked="card.isLiked" />
                         </div>
-                        {{ likes }} likes
+                        {{ card.likes }} likes
                     </div>
                 </h5>
             </div>
@@ -109,7 +111,6 @@
                             placeholder="How much in cfx... (Minimum 2.5%)"
                         />
                     </b-modal>
-
                 </b-card>
                 <b-card class="transaction-info" header-tag="header" footer-tag="footer">
                     <template #header>
@@ -146,12 +147,9 @@ export default {
 
     data() {
         return {
-            card: { owner: [] },
+            card: undefined,
             isOwner: true,
-            likes: this.rand(0, 100),
-            // view: this.rand(100, 2000),
-            views: '',
-            likeswitch: 1,
+            views: "",
             shares: 1,
             fractionProg: 0,
             listing_commision: "",
@@ -208,16 +206,18 @@ export default {
         // fetch and update the views with api to backend
         const res = await axios.post(`${this.$store.getters.getApiUrl}/update-views/${this.$route.params.id}`);
         this.views = res.data.views;
-        
         this.reload();
     },
     methods: {
         cellClicked(a, b) {
-            if (b.label =='Owner') {
-              this.$router.push(`/profile/${a.owner}`)
+            if (b.label == "Owner") {
+                this.$router.push(`/profile/${a.owner}`);
             }
         },
-                        
+        async onClickHeart() {
+            await this.$refs.heartBtn.waitUntilUpdated();
+            this.reload();
+        },
         async reload() {
             const getters = this.$store.getters;
 
@@ -232,6 +232,8 @@ export default {
             await axios.get(`${this.$store.getters.getApiUrl}/profile/${card.owner[0].address}`);
             card.owner_name = resp.data.first_name + " " + resp.data.last_name;
             card.url = card.file;
+            card.likes = res.data.liked_users.length;
+            card.isLiked = res.data.liked_users.includes(this.$store.getters.getAddress);
             this.card = card;
         },
         rand(min, max) {
@@ -245,7 +247,7 @@ export default {
 
         async purchaseNft() {
             const getters = this.$store.getters;
-            this.$store.dispatch("notifyLoading", {msg:"Paying commission now."});
+            this.$store.dispatch("notifyLoading", { msg: "Paying commission now." });
             const tx = window.confluxJS.sendTransaction({
                 from: (await window.conflux.send("cfx_requestAccounts"))[0],
                 to: getters.getManagerAddr,
@@ -291,7 +293,7 @@ export default {
 
         async purchaseShares() {
             const addr = (await window.conflux.send("cfx_requestAccounts"))[0];
-            this.$store.dispatch("notifyLoading", {msg:"Paying commission now."});
+            this.$store.dispatch("notifyLoading", { msg: "Paying commission now." });
             const getters = this.$store.getters;
             const tx = window.confluxJS.sendTransaction({
                 from: addr,
@@ -322,7 +324,7 @@ export default {
         async transferShares(obj) {
             const getters = this.$store.getters;
             const addr = (await window.conflux.send("cfx_requestAccounts"))[0];
-            this.$store.dispatch("notifyLoading", {msg:"Paying commission now."});
+            this.$store.dispatch("notifyLoading", { msg: "Paying commission now." });
             const tx = window.confluxJS.sendTransaction({
                 from: addr,
                 to: getters.getManagerAddr,
