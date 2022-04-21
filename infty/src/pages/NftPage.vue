@@ -247,23 +247,40 @@ export default {
 
         async purchaseNft() {
             const getters = this.$store.getters;
-            this.$store.dispatch("notifyLoading", { msg: "Paying commission now." });
-            const tx = window.confluxJS.sendTransaction({
-                from: (await window.conflux.send("cfx_requestAccounts"))[0],
-                to: getters.getManagerAddr,
-                gasPrice: 1,
-                value: 1e18 * (parseFloat(this.listing_commision) + parseFloat(this.card.price)),
-            });
+            this.$store.dispatch("notifyLoading", { msg: "Paying commission now" });
+            const res = await window.confluxJS
+                .sendTransaction({
+                    from: (await window.conflux.send("cfx_requestAccounts"))[0],
+                    to: getters.getManagerAddr,
+                    gasPrice: 1,
+                    value: 1e18 * (parseFloat(this.listing_commision) + parseFloat(this.card.price)),
+                })
+                .executed()
+                .catch((e) => {
+                    Notification.closeAll();
+                    let title = "Transaction Failed";
+                    let message = "Transaction failed, please try again";
+                    if (e.code === 4001) {
+                        message = "User denied transaction signature";
+                    }
+                    this.$notify.error({
+                        title,
+                        message,
+                        duration: 3000,
+                    });
+                });
 
-            const res = await tx.executed();
-            console.log(res);
+            // if res is undefined, then the transaction is not executed, we should abort
+            if (!res) {
+                return;
+            }
             const data = {
                 nft_id: this.card.nft_id,
                 buyer: getters.getAddress,
                 commission: this.listing_commision,
                 commission_currency: "cfx",
             };
-            axios
+            await axios
                 .post(`${getters.getApiUrl}/purchase-nft`, data)
                 .then((res) => {
                     Notification.closeAll();
