@@ -17,7 +17,7 @@ const router = express.Router();
 router.post("/market", nftController.getMarket);
 
 router.get("/nft/:nft_id", nftController.getNft);
-router.post("/create-nft", multipartMiddleware, createLimiter, nftController.createNft);
+router.post("/create-nft", createLimiter, multipartMiddleware, nftController.createNft);
 router.post("/delete-nft", nftController.deleteNft);
 router.post("/mint-estimate", nftController.getMintEstimate);
 router.post("/list-nft", nftController.listNft);
