@@ -218,22 +218,28 @@ export default {
             await this.$refs.heartBtn.waitUntilUpdated();
             this.reload();
         },
+        getOwnerAddress(owners) {
+            return owners.find((owner) => owner.percentage === 1).address;
+        },
         async reload() {
             const getters = this.$store.getters;
 
-            const res = await axios.get(`${getters.getApiUrl}/nft/${this.$route.params.id}`);
-            const card = res.data;
+            const card = (await axios.get(`${getters.getApiUrl}/nft/${this.$route.params.id}`)).data;
+
             this.fractionProg = card.owner.slice(1).reduce((pv, cv) => pv + cv.percentage, 0) * 100;
 
-            const resp = await axios.get(`${this.$store.getters.getApiUrl}/profile/${card.author}`);
-            card.author_name = resp.data.first_name + " " + resp.data.last_name;
-            if (this.$store.getters.getAddress != card.owner[0].address) this.isOwner = false;
+            const author = (await axios.get(`${this.$store.getters.getApiUrl}/profile/${card.author}`)).data;
+            card.author_name = author.first_name + " " + author.last_name;
 
-            await axios.get(`${this.$store.getters.getApiUrl}/profile/${card.owner[0].address}`);
-            card.owner_name = resp.data.first_name + " " + resp.data.last_name;
+            this.isOwner = this.$store.getters.getAddress === this.getOwnerAddress(card.owner);
+
+            const owner = (
+                await axios.get(`${this.$store.getters.getApiUrl}/profile/${this.getOwnerAddress(card.owner)}`)
+            ).data;
+            card.owner_name = owner.first_name + " " + owner.last_name;
             card.url = card.file;
-            card.likes = res.data.liked_users.length;
-            card.isLiked = res.data.liked_users.includes(this.$store.getters.getAddress);
+            card.likes = card.liked_users.length;
+            card.isLiked = card.liked_users.includes(this.$store.getters.getAddress);
             this.card = card;
         },
         rand(min, max) {

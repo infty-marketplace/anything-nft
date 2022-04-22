@@ -337,25 +337,28 @@ export default {
                     console.log(err);
                 });
         },
-
+        getOwnerAddress(owners) {
+            return owners.find((owner) => owner.percentage === 1).address;
+        },
         async loadNfts(nftIds, enableLike = false) {
-            const nfts = [];
             const nftPromises = nftIds.map((nftId) => axios.get(`${this.$store.getters.getApiUrl}/nft/${nftId}`));
-            await Promise.allSettled(nftPromises).then((results) => {
-                results.forEach((result) => {
-                    if (result.status == "fulfilled") {
-                        const nft = result.value.data;
-                        nft.url = nft.file;
-                        nft.enableLike = enableLike;
-                        nft.isLiked = nft.liked_users.includes(this.$store.getters.getAddress);
-                        axios.get(`${this.$store.getters.getApiUrl}/profile/${nft.author}`).then((r) => {
-                            nft.authorName = `${r.data.first_name} ${r.data.last_name}`;
-                            nfts.push(nft);
-                        });
-                    }
-                });
+            const results = await Promise.allSettled(nftPromises);
+            let nfts = results.map((result) => {
+                if (result.status == "fulfilled") return result.value.data;
             });
 
+            nfts = await Promise.all(
+                nfts.map(async (nft) => {
+                    nft.url = nft.file;
+                    nft.enableLike = enableLike;
+                    nft.isLiked = nft.liked_users.includes(this.$store.getters.getAddress);
+                    const ownerAddress = this.getOwnerAddress(nft.owner);
+                    const owner = (await axios.get(`${this.$store.getters.getApiUrl}/profile/${ownerAddress}`)).data;
+                    nft.ownerName = owner.first_name + " " + owner.last_name;
+                    nft.ownerAddress = ownerAddress;
+                    return nft;
+                })
+            );
             return nfts;
         },
 
@@ -422,7 +425,6 @@ export default {
                 .map((i) => id[i])
                 .join("");
         });
-        console.log(nft_ids);
 
         this.nfts = await this.loadNfts(nft_ids);
         this.likedNfts = await this.loadNfts(profile.liked_nfts, true);
