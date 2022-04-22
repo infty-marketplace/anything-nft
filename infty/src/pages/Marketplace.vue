@@ -14,7 +14,7 @@
                             >
                             <b-collapse id="collapse-1" class="mt-2">
                                 <b-card>
-                                    <b-form-checkbox @change="filterOthers">Not Mine</b-form-checkbox>
+                                    <b-form-checkbox @change="filterNotMine">Not Mine</b-form-checkbox>
                                 </b-card>
                             </b-collapse>
                         </b-list-group-item>
@@ -110,15 +110,11 @@
                                         <span class="fa fa-spinner fa-spin"></span> Loading
                                     </div>
                                 </transition>
-                                <el-empty
-                                    class="flex-wrapper-row"
-                                    v-if="usersCards.length == 0"
-                                    description="Nothing"
-                                />
-                                <NftCard v-for="card in usersCards" :card="card" :key="card.url" class="mr-5 mb-4" />
+                                <el-empty class="flex-wrapper-row" v-if="nftCards.length == 0" description="Nothing" />
+                                <NftCard v-for="card in nftCards" :card="card" :key="card.url" class="mr-5 mb-4" />
                             </div>
                             <p
-                                v-if="noMoreNft && usersCards.length != 0"
+                                v-if="noMoreNft && nftCards.length != 0"
                                 style="border-bottom: 1px solid grey; line-height: 0.1rem;text-align:center"
                             >
                                 <span style="padding: 0px 20px;background-color:white;color:grey;">End of Market</span>
@@ -182,12 +178,11 @@ export default {
             //   { value: "usd", text: "United States Dollar(USD)" },
             //   { value: "eth", text: "Ether(ETH)" },
             // ],
-            usersCards: [],
+            nftCards: [],
             loadingNft: false,
             noMoreNft: false,
             user: undefined,
-            notMine: false,
-            loadingVar: 0,
+            filter: { notMine: false },
         };
     },
 
@@ -201,35 +196,42 @@ export default {
                 this.loadNftMarket();
             }
         },
-
-        async proccessNft(nft_ids) {
+        getOwnerAddress(owners) {
+            return owners.find((owner) => owner.percentage === 1).address;
+        },
+        async proccessNft(nftIds) {
             this.user = this.$store.getters.getAddress;
-            nft_ids = [...new Set(nft_ids)];
-            const nft_promises = nft_ids.map((nid) => axios.get(`${this.$store.getters.getApiUrl}/nft/${nid}`));
-
-            const nft_promises_result = await Promise.allSettled(nft_promises);
-            let nfts = nft_promises_result.map((p) => {
-                if (p.status == "fulfilled") return p.value;
+            // remove duplicates
+            nftIds = nftIds.filter((v, i, a) => a.indexOf(v) === i);
+            const promises = nftIds.map((nid) => axios.get(`${this.$store.getters.getApiUrl}/nft/${nid}`));
+            const results = await Promise.allSettled(promises);
+            let nfts = results.map((p) => {
+                if (p.status == "fulfilled") return p.value.data;
             });
 
-            nfts.map((n) => {
-                if ((this.notMine && this.user != n.data.owner[0].address) || !this.notMine) {
-                    axios.get(`${this.$store.getters.getApiUrl}/profile/${n.data.author}`).then((res) => {
-                        n.data.authorName = res.data.first_name + " " + res.data.last_name;
-                        n.data.url = n.data.file;
-                        n.data.isLiked = n.data.liked_users.includes(this.user);
-                        n.data.enableLike = true;
-                        if (
-                            n.data.fragmented &&
-                            this.fragments.some((f) => f.nft_id == n.data.nft_id && f.status == "sale")
-                        ) {
-                            n.data.status = "sale";
-                            this.usersCards.push(n.data);
-                        } else {
-                            this.usersCards.push(n.data);
-                        }
-                    });
+            // set up NFTs, including retriving owner's name...
+            nfts = await Promise.all(
+                nfts.map(async (nft) => {
+                    const ownerAddress = this.getOwnerAddress(nft.owner);
+                    const owner = (await axios.get(`${this.$store.getters.getApiUrl}/profile/${ownerAddress}`)).data;
+                    nft.ownerName = owner.first_name + " " + owner.last_name;
+                    nft.ownerAddress = ownerAddress;
+                    nft.url = nft.file;
+                    nft.isLiked = nft.liked_users.includes(this.user);
+                    nft.enableLike = true;
+                    if (nft.fragmented && this.fragments.some((f) => f.nft_id == nft.nft_id && f.status == "sale")) {
+                        nft.status = "sale";
+                    }
+                    return nft;
+                })
+            );
+
+            // apply filter
+            nfts.forEach((nft) => {
+                if (this.filter.notMine && this.getOwnerAddress(nft.owner) === this.user) {
+                    return;
                 }
+                this.nftCards.push(nft);
             });
         },
 
@@ -250,31 +252,11 @@ export default {
             }, 200);
         },
 
-        filterOthers(checked) {
-            this.user = this.$store.getters.getAddress;
-            this.notMine = checked;
-            if (checked) {
-                const nft_list = this.usersCards;
-                let target_nfts = [];
-                nft_list.map((n) => {
-                    if (n.owner[0].address != this.user) target_nfts.push(n);
-                });
-                this.usersCards = target_nfts;
-            } else {
-                this.loadingNft = true;
-                setTimeout(() => {
-                    const nft_body = {
-                        offset: 0,
-                        limit: this.offsetNft,
-                    };
-                    axios.post(this.$store.getters.getApiUrl + "/market", nft_body).then(async (res) => {
-                        const nft_ids = res.data.nft_ids;
-                        this.usersCards = [];
-                        this.proccessNft(nft_ids);
-                        this.loadingNft = false;
-                    });
-                }, 200);
-            }
+        filterNotMine(checked) {
+            this.filter.notMine = checked;
+            this.offsetNft = 0;
+            this.nftCards = [];
+            this.loadNftMarket();
         },
     },
 };

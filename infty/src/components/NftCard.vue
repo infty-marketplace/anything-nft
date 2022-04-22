@@ -28,7 +28,7 @@
             <b-card-text class="card-detail">
                 <p>{{ card.title }}</p>
                 <p>{{ card.collection }}</p>
-                <b class="card-owner" @click="handleRedirectToAuthor">{{ card.authorName || card.author }}</b>
+                <b class="card-owner" @click="handleRedirectToOwner">{{ card.ownerName || card.ownerAddress }}</b>
             </b-card-text>
             <template #footer>
                 <div v-if="card.status == 'sale'">
@@ -313,12 +313,12 @@ export default {
                 });
         },
 
-        handleRedirectToAuthor() {
+        handleRedirectToOwner() {
             const path = this.$route.path;
-            if (path.includes("profile") && path.split("profile/")[1] != this.card.author) {
-                window.location.pathname = `/profile/${this.card.author}`;
+            if (path.includes("profile") && path.split("profile/")[1] != this.card.ownerAddress) {
+                window.location.pathname = `/profile/${this.card.ownerAddress}`;
             } else {
-                this.$router.push(`/profile/${this.card.author}`);
+                this.$router.push(`/profile/${this.card.ownerAddress}`);
             }
         },
     },
