@@ -341,7 +341,6 @@ export default {
             return owners.find((owner) => owner.percentage === 1).address;
         },
         async loadNfts(nftIds, enableLike = false) {
-            // const nfts = [];
             const nftPromises = nftIds.map((nftId) => axios.get(`${this.$store.getters.getApiUrl}/nft/${nftId}`));
             const results = await Promise.allSettled(nftPromises);
             let nfts = results.map((result) => {
@@ -360,7 +359,6 @@ export default {
                     return nft;
                 })
             );
-            // console.log(nfts);
             return nfts;
         },
 
