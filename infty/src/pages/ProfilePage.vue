@@ -343,10 +343,7 @@ export default {
         async loadNfts(nftIds, enableLike = false) {
             const nftPromises = nftIds.map((nftId) => axios.get(`${this.$store.getters.getApiUrl}/nft/${nftId}`));
             const results = await Promise.allSettled(nftPromises);
-            let nfts = results.map((result) => {
-                if (result.status == "fulfilled") return result.value.data;
-            });
-
+            let nfts = results.filter((result) => result.status === "fulfilled").map((result) => result.value.data);
             nfts = await Promise.all(
                 nfts.map(async (nft) => {
                     nft.url = nft.file;

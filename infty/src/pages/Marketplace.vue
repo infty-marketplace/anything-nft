@@ -205,9 +205,7 @@ export default {
             nftIds = nftIds.filter((v, i, a) => a.indexOf(v) === i);
             const promises = nftIds.map((nid) => axios.get(`${this.$store.getters.getApiUrl}/nft/${nid}`));
             const results = await Promise.allSettled(promises);
-            let nfts = results.map((p) => {
-                if (p.status == "fulfilled") return p.value.data;
-            });
+            let nfts = results.filter((result) => result.status === "fulfilled").map((result) => result.value.data);
 
             // set up NFTs, including retriving owner's name...
             nfts = await Promise.all(
