@@ -126,7 +126,7 @@ export default {
                 return;
             }
 
-            if (this.imageData.size > 1 * 1024 * 1024) {
+            if (this.imageData.size > 100 * 1024 * 1024) {
                 Notification.closeAll();
                 this.$notify.error({
                     title: "File Too Large",
