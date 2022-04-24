@@ -120,11 +120,22 @@ export default {
                 Notification.closeAll();
                 this.$notify.error({
                     title: "Missing Required Information",
-                    message: "Please fill in all fields marked *.",
+                    message: "Please fill in all fields marked *",
                     duration: 3000,
                 });
                 return;
             }
+
+            if (this.imageData.size > 1 * 1024 * 1024) {
+                Notification.closeAll();
+                this.$notify.error({
+                    title: "Image Too Large",
+                    message: "Please ensure the image size is no larger than 100 MB",
+                    duration: 3000,
+                });
+                return;
+            }
+
             this.$notify({
                 title: "Pending",
                 dangerouslyUseHTMLString: true,
