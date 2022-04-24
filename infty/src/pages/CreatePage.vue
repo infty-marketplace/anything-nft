@@ -126,6 +126,7 @@ export default {
                 return;
             }
 
+            // limit file size to 100 MB
             if (this.imageData.size > 100 * 1024 * 1024) {
                 Notification.closeAll();
                 this.$notify.error({
