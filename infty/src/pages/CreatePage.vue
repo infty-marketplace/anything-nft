@@ -116,7 +116,7 @@ export default {
 
     methods: {
         createNft() {
-            if (!this.imageData || !this.title || this.title.replace(/\s+/g, "").length == 0) {
+            if (!this.imageData || !this.title || this.title.replace(/\s+/g, "").length === 0) {
                 Notification.closeAll();
                 this.$notify.error({
                     title: "Missing Required Information",
@@ -144,6 +144,7 @@ export default {
                     '<div style="display:flex; align-items: center;"> <div class="loader"></div><div style="display:inline">NFT minting in progress</div></div>',
                 duration: 0,
             });
+
             const fd = new FormData();
             fd.append("file", this.imageData);
             fd.append("address", this.$store.getters.getAddress);
@@ -151,6 +152,7 @@ export default {
             fd.append("description", this.description);
             const selectedLabels = this.labels.filter((l, i) => this.labelState[i] == true);
             fd.append("labels", JSON.stringify(selectedLabels));
+
             axios
                 .post(this.$store.getters.getApiUrl + "/create-nft", fd)
                 .then((res) => {
