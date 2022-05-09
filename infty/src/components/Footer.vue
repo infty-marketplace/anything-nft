@@ -72,6 +72,18 @@ import i18n from '../i18n';
 export default {
     name: 'Navbar',
     data: () => ({ lang: false }),
+    mounted() {
+        var language = window.navigator.language;
+        //console.log(language);
+       if (language == 'zh-CN'){
+           i18n.locale = 'cn';
+           this.lang = true;
+           //console.log(this.lang);
+       } else {
+           i18n.locale = 'en';
+       }
+       this.$store.commit('setLang');
+    },
     methods: {
         subscribe() {
             this.$notify({
@@ -82,7 +94,7 @@ export default {
             });
         },
         onChange(e) {
-            console.log(e);
+            //console.log(e);
             if (e) {
                 i18n.locale = 'cn';
             } else {
