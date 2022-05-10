@@ -85,9 +85,6 @@ const store = new Vuex.Store({
             return res.data;
         },
         getProfilePic: (state) => state.profilePic,
-        getNftsInAlbum: (state) => async (aid) => {
-            return (await axios.get(`${state.apiUrl}/album/${aid}`)).data.nft_ids;
-        },
     },
 });
 

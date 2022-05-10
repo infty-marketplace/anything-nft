@@ -9,25 +9,25 @@
                     </template>
                     <b-list-group flush>
                         <b-list-group-item>
-                            <b-button pill v-b-toggle.collapse-1 variant="outline-secondary" class="category-button">{{
-                                $t('status')
-                            }}</b-button>
+                            <b-button pill v-b-toggle.collapse-1 variant="outline-secondary" class="category-button"
+                                >Status</b-button
+                            >
                             <b-collapse id="collapse-1" class="mt-2">
                                 <b-card>
-                                    <b-form-checkbox @change="filterOthers">Not Mine</b-form-checkbox>
+                                    <b-form-checkbox @change="filterNotMine">Not Mine</b-form-checkbox>
                                 </b-card>
                             </b-collapse>
                         </b-list-group-item>
                         <b-list-group-item>
-                            <b-button pill v-b-toggle.collapse-2 variant="outline-secondary" class="category-button">{{
-                                $t('price')
-                            }}</b-button>
+                            <b-button pill v-b-toggle.collapse-2 variant="outline-secondary" class="category-button"
+                                >Price (in CFX)</b-button
+                            >
                             <b-collapse id="collapse-2" class="mt-2">
                                 <b-card>
-                                    <b-form-select
-                                        v-model="priceTypeSelected"
-                                        :options="priceTypeOptions"
-                                    ></b-form-select>
+                                    <!-- <b-form-select
+                    v-model="priceTypeSelected"
+                    :options="priceTypeOptions"
+                  ></b-form-select> -->
                                     <b-form-input v-model="text" placeholder="Min" class="price-range"></b-form-input>
                                     <span>to</span>
                                     <b-form-input v-model="text" placeholder="Max" class="price-range"></b-form-input>
@@ -36,9 +36,9 @@
                             </b-collapse>
                         </b-list-group-item>
                         <b-list-group-item>
-                            <b-button pill v-b-toggle.collapse-3 variant="outline-secondary" class="category-button">{{
-                                $t('collections')
-                            }}</b-button>
+                            <b-button pill v-b-toggle.collapse-3 variant="outline-secondary" class="category-button"
+                                >Collections</b-button
+                            >
                             <b-collapse id="collapse-3" class="mt-2">
                                 <b-card>
                                     <b-input-group size="sm" class="mb-2">
@@ -62,9 +62,9 @@
                         </b-list-group-item>
 
                         <b-list-group-item>
-                            <b-button pill v-b-toggle.collapse-5 variant="outline-secondary" class="category-button">{{
-                                $t('categories')
-                            }}</b-button>
+                            <b-button pill v-b-toggle.collapse-5 variant="outline-secondary" class="category-button"
+                                >Categories</b-button
+                            >
                             <b-collapse id="collapse-5" class="mt-2">
                                 <b-card>
                                     <b-list-group>
@@ -110,49 +110,14 @@
                                         <span class="fa fa-spinner fa-spin"></span> Loading
                                     </div>
                                 </transition>
-                                <el-empty
-                                    class="flex-wrapper-row"
-                                    v-if="usersCards.length == 0"
-                                    description="Nothing"
-                                />
-                                <NftCard v-for="card in usersCards" :card="card" :key="card.url" class="mr-5 mb-4" />
+                                <el-empty class="flex-wrapper-row" v-if="nftCards.length == 0" description="Nothing" />
+                                <NftCard v-for="card in nftCards" :card="card" :key="card.url" class="mr-5 mb-4" />
                             </div>
                             <p
-                                v-if="noMoreNft && usersCards.length != 0"
+                                v-if="noMoreNft && nftCards.length != 0"
                                 style="border-bottom: 1px solid grey; line-height: 0.1rem;text-align:center"
                             >
-                                <span style="padding: 0px 20px;background-color:white;color:grey;">{{
-                                    $t('endOfMarket')
-                                }}</span>
-                            </p>
-                        </b-tab>
-
-                        <b-tab title="album">
-                            <div class="album-container">
-                                <transition name="fade">
-                                    <div class="loading" v-show="loadingAlbum">
-                                        <span class="fa fa-spinner fa-spin"></span> Loading
-                                    </div>
-                                </transition>
-                                <el-empty
-                                    class="flex-wrapper-row"
-                                    v-if="usersAlbum.length == 0"
-                                    description="Nothing"
-                                />
-                                <AlbumCard
-                                    class="mr-4 mb-4 alb-card"
-                                    v-for="album in usersAlbum"
-                                    :card="album"
-                                    :key="album.url"
-                                />
-                            </div>
-                            <p
-                                v-if="noMoreAlbum && usersAlbum.length != 0"
-                                style="border-bottom: 1px solid grey; line-height: 0.1rem;text-align:center"
-                            >
-                                <span style="padding: 0px 20px;background-color:white;color:grey;">{{
-                                    $t('endOfMarket')
-                                }}</span>
+                                <span style="padding: 0px 20px;background-color:white;color:grey;">End of Market</span>
                             </p>
                         </b-tab>
                     </b-tabs>
@@ -167,36 +132,33 @@
 </template>
 
 <script>
-import Navbar from '../components/Navbar.vue';
-import Footer from '../components/Footer.vue';
-import NftCard from '../components/NftCard.vue';
-import axios from 'axios';
-import AlbumCard from '../components/AlbumCard.vue';
+import Navbar from "../components/Navbar.vue";
+import Footer from "../components/Footer.vue";
+import NftCard from "../components/NftCard.vue";
+import axios from "axios";
 
-const throttle = require('lodash.throttle');
+const throttle = require("lodash.throttle");
 var handler;
 export default {
-    name: 'Marketplace',
+    name: "Marketplace",
     components: {
         Navbar,
         Footer,
         NftCard,
-        AlbumCard,
     },
 
     beforeMount() {
         this.user = this.$store.getters.getAddress;
         this.loadNftMarket();
-        this.loadAlbumMarket();
     },
 
     mounted() {
         handler = throttle(this.getMore, 1000);
-        window.addEventListener('scroll', handler);
+        window.addEventListener("scroll", handler);
     },
 
     destroyed() {
-        window.removeEventListener('scroll', handler);
+        window.removeEventListener("scroll", handler);
     },
 
     data() {
@@ -210,21 +172,17 @@ export default {
             //   { text: "New", value: "new" },
             //   { text: "Has Offers", value: "hasOffers" },
             // ],
-            priceTypeSelected: 'usd',
-            priceTypeOptions: [
-                { value: 'usd', text: 'United States Dollar(USD)' },
-                { value: 'eth', text: 'Ether(ETH)' },
-            ],
-            usersCards: [],
+            // TODO: add support for other currencies in the future.
+            // priceTypeSelected: "usd",
+            // priceTypeOptions: [
+            //   { value: "usd", text: "United States Dollar(USD)" },
+            //   { value: "eth", text: "Ether(ETH)" },
+            // ],
+            nftCards: [],
             loadingNft: false,
             noMoreNft: false,
-            usersAlbum: [],
-            loadingAlbum: false,
-            noMoreAlbum: false,
-            offsetAlbum: 0,
             user: undefined,
-            notMine: false,
-            loadingVar: 0,
+            filter: { notMine: false },
         };
     },
 
@@ -235,56 +193,43 @@ export default {
                     document.documentElement.scrollTop + window.innerHeight - document.documentElement.offsetHeight
                 ) < 400;
             if (bottomOfWindow && !this.noMoreNft) {
-                if (this.tabIndex == 0) {
-                    this.loadNftMarket();
-                } else {
-                    this.loadAlbumMarket();
-                }
+                this.loadNftMarket();
             }
         },
-
-        async proccessNft(nft_ids) {
-            nft_ids = [...new Set(nft_ids)];
-            const nft_promises = nft_ids.map((nid) => axios.get(`${this.$store.getters.getApiUrl}/nft/${nid}`));
-
-            const nft_promises_result = await Promise.allSettled(nft_promises);
-            let nfts = nft_promises_result.map((p) => {
-                if (p.status == 'fulfilled') return p.value;
-            });
-
-            nfts.map((n) => {
-                if ((this.notMine && this.user != n.data.owner[0].address) || !this.notMine) {
-                    axios.get(`${this.$store.getters.getApiUrl}/profile/${n.data.author}`).then((res) => {
-                        n.data.authorName = res.data.first_name + ' ' + res.data.last_name;
-                        n.data.url = n.data.file;
-                        if (
-                            n.data.fragmented &&
-                            this.fragments.some((f) => f.nft_id == n.data.nft_id && f.status == 'sale')
-                        ) {
-                            n.data.status = 'sale';
-                            this.usersCards.push(n.data);
-                        } else {
-                            this.usersCards.push(n.data);
-                        }
-                    });
-                }
-            });
+        getOwnerAddress(owners) {
+            return owners.find((owner) => owner.percentage === 1).address;
         },
+        async proccessNft(nftIds) {
+            this.user = this.$store.getters.getAddress;
+            // remove duplicates
+            nftIds = nftIds.filter((v, i, a) => a.indexOf(v) === i);
+            const promises = nftIds.map((nid) => axios.get(`${this.$store.getters.getApiUrl}/nft/${nid}`));
+            const results = await Promise.allSettled(promises);
+            let nfts = results.filter((result) => result.status === "fulfilled").map((result) => result.value.data);
 
-        async proccessAlbum(album_id) {
-            const album_promises = album_id.map((aid) => axios.get(`${this.$store.getters.getApiUrl}/album/${aid}`));
-            const album_promises_result = await Promise.allSettled(album_promises);
-            const albums = album_promises_result.map((p) => {
-                if (p.status == 'fulfilled') return p.value;
-            });
-            albums.map((a) => {
-                if ((this.notMine && this.user != a.data.owner) || !this.notMine) {
-                    axios.get(`${this.$store.getters.getApiUrl}/profile/${a.data.author}`).then((res) => {
-                        a.data.author = res.data.first_name + ' ' + res.data.last_name;
-                        a.data.url = a.data.file;
-                        this.usersAlbum.push(a.data);
-                    });
+            // set up NFTs, including retriving owner's name...
+            nfts = await Promise.all(
+                nfts.map(async (nft) => {
+                    const ownerAddress = this.getOwnerAddress(nft.owner);
+                    const owner = (await axios.get(`${this.$store.getters.getApiUrl}/profile/${ownerAddress}`)).data;
+                    nft.ownerName = owner.first_name + " " + owner.last_name;
+                    nft.ownerAddress = ownerAddress;
+                    nft.url = nft.file;
+                    nft.isLiked = nft.liked_users.includes(this.user);
+                    nft.enableLike = true;
+                    if (nft.fragmented && this.fragments.some((f) => f.nft_id == nft.nft_id && f.status == "sale")) {
+                        nft.status = "sale";
+                    }
+                    return nft;
+                })
+            );
+
+            // apply filter
+            nfts.forEach((nft) => {
+                if (this.filter.notMine && this.getOwnerAddress(nft.owner) === this.user) {
+                    return;
                 }
+                this.nftCards.push(nft);
             });
         },
 
@@ -295,7 +240,7 @@ export default {
                     offset: this.offsetNft,
                     limit: this.limit,
                 };
-                axios.post(this.$store.getters.getApiUrl + '/market', body).then((res) => {
+                axios.post(this.$store.getters.getApiUrl + "/market", body).then((res) => {
                     const nft_ids = res.data.nft_ids;
                     this.proccessNft(nft_ids);
                     this.offsetNft += nft_ids.length;
@@ -305,68 +250,11 @@ export default {
             }, 200);
         },
 
-        loadAlbumMarket() {
-            this.loadingAlbum = true;
-            setTimeout(() => {
-                const body = {
-                    offset: this.offsetAlbum,
-                    limit: this.limit,
-                };
-                axios.post(this.$store.getters.getApiUrl + '/market', body).then((res) => {
-                    const album_ids = res.data.album_ids;
-                    this.proccessAlbum(album_ids);
-                    this.offsetAlbum += album_ids.length;
-                    this.noMoreAlbum = album_ids.length < this.limit;
-                    this.loadingAlbum = false;
-                });
-            }, 200);
-        },
-
-        filterOthers(checked) {
-            this.user = this.$store.getters.getAddress;
-            this.notMine = checked;
-            if (checked) {
-                const nft_list = this.usersCards;
-                const album_list = this.usersAlbum;
-                let target_nfts = [];
-                let target_albums = [];
-                nft_list.map((n) => {
-                    if (n.owner[0].address != this.user) target_nfts.push(n);
-                });
-                album_list.map((a) => {
-                    if (a.owner != this.user) target_albums.push(a);
-                });
-                this.usersCards = target_nfts;
-                this.usersAlbum = target_albums;
-            } else {
-                this.loadingNft = true;
-                setTimeout(() => {
-                    const nft_body = {
-                        offset: 0,
-                        limit: this.offsetNft,
-                    };
-                    axios.post(this.$store.getters.getApiUrl + '/market', nft_body).then(async (res) => {
-                        const nft_ids = res.data.nft_ids;
-                        this.usersCards = [];
-                        this.proccessNft(nft_ids);
-                        this.loadingNft = false;
-                    });
-                }, 200);
-
-                this.loadingAlbum = true;
-                setTimeout(() => {
-                    const album_body = {
-                        offset: 0,
-                        limit: this.offsetAlbum,
-                    };
-                    axios.post(this.$store.getters.getApiUrl + '/market', album_body).then(async (res) => {
-                        const album_ids = res.data.album_ids;
-                        this.usersAlbum = [];
-                        this.proccessAlbum(album_ids);
-                        this.loadingAlbum = false;
-                    });
-                }, 200);
-            }
+        filterNotMine(checked) {
+            this.filter.notMine = checked;
+            this.offsetNft = 0;
+            this.nftCards = [];
+            this.loadNftMarket();
         },
     },
 };
@@ -391,7 +279,6 @@ export default {
 .price-range {
     width: 40%;
     display: inline-block;
-    margin-top: 1em;
     margin-right: 3%;
     margin-left: 2%;
 }
@@ -435,12 +322,6 @@ export default {
     align-items: flex-start;
 }
 
-.album-container {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    width: 100%;
-}
 .search-bar-container {
     width: 100%;
     display: flex;

@@ -2,7 +2,7 @@
     <div>
         <b-card class="user-card">
             <template #header>
-                <el-dropdown v-if="!onMarket" class="dropdown">
+                <el-dropdown v-if="!card.enableLike" class="dropdown">
                     <span class="el-dropdown-link">
                         <i class="el-icon-arrow-down el-icon--right"></i>
                     </span>
@@ -10,8 +10,8 @@
                         <a @click="listNftClicked"
                             ><el-dropdown-item v-if="card.status == 'private'">List Item</el-dropdown-item></a
                         >
-                        <a @click="raffleNftClicked"
-                            ><el-dropdown-item v-if="card.status == 'private'">Raffle It</el-dropdown-item></a
+                        <a @click="deleteNftClicked"
+                            ><el-dropdown-item v-if="card.status == 'private'">Delete It</el-dropdown-item></a
                         >
                         <a @click="delistNft"
                             ><el-dropdown-item v-if="card.status == 'sale'">Delist</el-dropdown-item></a
@@ -19,23 +19,16 @@
                     </el-dropdown-menu>
                 </el-dropdown>
                 <div v-else class="like-container">
-                    <heart-btn />
+                    <heart-btn :nftId="card.nft_id" :isLiked="card.isLiked" />
                 </div>
             </template>
-            <b-form-checkbox
-                v-bind:class="{ checkbox: !checkState, 'checkbox-active': checkState }"
-                v-model="checkState"
-                :value="true"
-                :unchecked-value="false"
-                v-if="card.status == 'private'"
-                @change="checkBox"
-            />
+
             <img @click="cardClicked" :src="card.url" class="nft-img" />
             <!-- <router-link :to="{ path:'/card/:id', name: 'card-detail', params: { id: card.nft_id || 'default_id', card: card } }"> -->
             <b-card-text class="card-detail">
                 <p>{{ card.title }}</p>
                 <p>{{ card.collection }}</p>
-                <b class="card-owner" @click="handleRedirectToAuthor">{{ card.authorName || card.author }}</b>
+                <b class="card-owner" @click="handleRedirectToOwner">{{ card.ownerName || card.ownerAddress }}</b>
             </b-card-text>
             <template #footer>
                 <div v-if="card.status == 'sale'">
@@ -48,13 +41,6 @@
                         ><small class="text-muted"
                             ><b-icon icon="suit-diamond-fill"></b-icon>&nbsp;{{ $t('price') }}: {{ card.price }}</small
                         ></span
-                    >
-                </div>
-
-                <div v-if="card.status == 'draw'">
-                    <span class="text-muted-left"><small class="text-muted">Currently Raffling</small></span>
-                    <span class="text-muted-right card-owner" @click="handleRedirectToRaffle">
-                        <small class="text-muted"><b-icon icon="cash"></b-icon>&nbsp;Entry Raffle</small></span
                     >
                 </div>
 
@@ -133,29 +119,6 @@
                             </b-form-invalid-feedback>
                         </div>
                     </b-modal>
-                    <b-modal ref="raffle-modal" title="Raffle It" @ok="handleRaffleNft">
-                        <label>Ticket Price</label>
-                        <b-form-input class="mb-4" v-model="raffle_price" placeholder="How much in cfx..." />
-                        <label>Number of Tickets</label>
-                        <b-form-input class="mb-4" v-model="raffle_tickets" placeholder="How many tickets..." />
-                        <label>Commision</label>
-                        <b-form-input
-                            class="mb-4"
-                            v-model="raffle_commision"
-                            placeholder="How much in cfx... (Minimum 5%)"
-                        />
-                        <label for="example-datepicker">Deadline</label>
-                        <b-form-datepicker id="example-datepicker" v-model="deadline" class="mb-2"></b-form-datepicker>
-                        <b-form-checkbox
-                            id="checkbox-1"
-                            v-model="oneticketStatus"
-                            name="checkbox-1"
-                            value="accepted"
-                            unchecked-value="not_accepted"
-                        >
-                            One Ticket Per Address
-                        </b-form-checkbox>
-                    </b-modal>
                 </div>
                 <!-- <b-btn
           v-if="card.status == 'sale'"
@@ -188,52 +151,45 @@ export default {
         oneticketStatus: undefined,
         listing_price: undefined,
         listing_commision: undefined,
-        raffle_price: undefined,
-        raffle_tickets: undefined,
-        raffle_commision: undefined,
-        checkState: false,
         deadline: null,
-        fractionStatus: 'no',
-        currencyValue: 'cfx',
+        fractionStatus: "no",
+        currencyValue: "cfx",
         options: [
             {
-                label: 'CFX',
-                value: 'cfx',
+                label: "CFX",
+                value: "cfx",
             },
             {
-                label: 'INFT',
-                value: 'inft',
+                label: "INFT",
+                value: "inft",
             },
             {
-                label: 'USDT',
-                value: 'usdt',
+                label: "USDT",
+                value: "usdt",
             },
         ],
     }),
     computed: {
-        onMarket: function() {
-            return this.$route.path.includes('marketplace');
-        },
         isPiece: function() {
             return this.card.owner.length > 1;
         },
         isListingPrice() {
-            if (typeof this.listing_price === 'undefined' || this.listing_price.length == 0) return null;
+            if (typeof this.listing_price === "undefined" || this.listing_price.length == 0) return null;
             var converted = parseFloat(this.listing_price);
             if (converted > 0.0) {
-                if (this.listing_price.includes('.')) {
-                    return this.listing_price.split('.')[1].length < 19;
+                if (this.listing_price.includes(".")) {
+                    return this.listing_price.split(".")[1].length < 19;
                 }
                 return true;
             }
             return false;
         },
         isListingCommision() {
-            if (typeof this.listing_commision === 'undefined' || this.listing_commision.length == 0) return null;
+            if (typeof this.listing_commision === "undefined" || this.listing_commision.length == 0) return null;
             var converted = parseFloat(this.listing_commision);
             if (converted > 0.0) {
-                if (this.listing_commision.includes('.')) {
-                    return this.listing_commision.split('.')[1].length < 19;
+                if (this.listing_commision.includes(".")) {
+                    return this.listing_commision.split(".")[1].length < 19;
                 }
                 return true;
             }
@@ -245,15 +201,18 @@ export default {
             e.preventDefault();
             this.$refs['list-modal'].show();
         },
-        raffleNftClicked(e) {
+        async deleteNftClicked(e) {
             e.preventDefault();
-            this.$refs['raffle-modal'].show();
+            await axios.post(`${this.$store.getters.getApiUrl}/delete-nft`, {
+                nft_id: this.card.nft_id,
+            });
+            eventBus.$emit("Card.statusChanged", this.card.nft_id);
         },
         handleListNft_NotifyHelper() {
             Notification.closeAll();
             this.$notify.error({
-                title: 'Missing Required Information',
-                message: 'Please fill all fields correctly.',
+                title: "Missing Required Information",
+                message: "Please fill all fields correctly.",
                 duration: 3000,
             });
         },
@@ -261,8 +220,8 @@ export default {
             var converted = parseFloat(list_item);
             if (
                 converted < 0.0 ||
-                typeof converted !== 'number' ||
-                (list_item.includes('.') && list_item.split('.')[1].length > 18)
+                typeof converted !== "number" ||
+                (list_item.includes(".") && list_item.split(".")[1].length > 18)
             ) {
                 this.handleListNft_NotifyHelper();
                 return false;
@@ -285,13 +244,13 @@ export default {
                 gasPrice: 1,
                 value: 1e18 * this.listing_commision,
             });
-            this.$store.dispatch('notifyLoading', { msg: 'Paying commission now.' });
+            this.$store.dispatch("notifyLoading", { msg: "Paying commission now." });
             await tx.executed();
             Notification.closeAll();
             const getters = this.$store.getters;
             if (this.card.owner.length == 1) {
-                this.$store.dispatch('notifyLoading', { msg: 'Approving platform to operate the NFT on your behalf.' });
-                const tokenId = this.card.nft_id.split('-')[1];
+                this.$store.dispatch("notifyLoading", { msg: "Approving platform to operate the NFT on your behalf." });
+                const tokenId = this.card.nft_id.split("-")[1];
 
                 await getters.getMinterContract
                     .approve(getters.getManagerAddr, tokenId)
@@ -306,7 +265,7 @@ export default {
                     currency: 'cfx',
                     nft_id: this.card.nft_id,
                     owner: getters.getAddress,
-                    fractional: this.fractionStatus == 'yes' ? true : false,
+                    fractional: this.fractionStatus == "yes" ? true : false,
                 })
                 .then(() => {
                     Notification.closeAll();
@@ -322,46 +281,6 @@ export default {
                 .catch((err) => {
                     console.log(err);
                     this.$bvToast.toast('Listing Failed', {
-                        title: 'Error',
-                        autoHideDelay: 3000,
-                        appendToast: false,
-                    });
-                });
-        },
-        async handleRaffleNft() {
-            this.$store.dispatch('notifyLoading', { msg: 'Creating the raffle for ya.' });
-            const getters = this.$store.getters;
-            const tokenId = this.card.nft_id.split('-')[1];
-            try {
-                await getters.getMinterContract
-                    .approve(getters.getManagerAddr, tokenId)
-                    .sendTransaction({ from: getters.getAddress, to: getters.getMinterAddress, gasPrice: 1 })
-                    .executed();
-            } catch (e) {
-                return;
-            }
-            await axios
-                .post(`${getters.getApiUrl}/list-nft-draw`, {
-                    title: this.card.title,
-                    description: this.card.description,
-                    unit_price: this.raffle_price,
-                    quantity: this.raffle_tickets,
-                    currency: 'cfx',
-                    deadline: new Date(this.deadline).getTime() / 1000,
-                    nft_id: this.card.nft_id,
-                    owner: this.card.owner[0].address,
-                })
-                .then(() => {
-                    Notification.closeAll();
-                    this.$bvToast.toast('Raffling Successfully', {
-                        title: 'Congrats',
-                        autoHideDelay: 3000,
-                        appendToast: false,
-                    });
-                    eventBus.$emit('Card.statusChanged', this.card.nft_id);
-                })
-                .catch(() => {
-                    this.$bvToast.toast('Raffling Failed', {
                         title: 'Error',
                         autoHideDelay: 3000,
                         appendToast: false,
@@ -385,13 +304,6 @@ export default {
                     console.log(res);
                 });
         },
-        checkBox() {
-            if (this.checkState) {
-                eventBus.$emit('Card.addAlbumCandidate', this.card.nft_id);
-            } else {
-                eventBus.$emit('Card.delAlbumCandidate', this.card.nft_id);
-            }
-        },
         cardClicked(e) {
             if (!['BUTTON', 'LABEL', 'INPUT'].includes(e.srcElement.nodeName))
                 this.$router.push({
@@ -400,20 +312,14 @@ export default {
                     params: { id: this.card.nft_id || 'default_id', card: this.card },
                 });
         },
-        handleRedirectToRaffle() {
-            this.$router.push({
-                path: '/raffles/',
-            });
-        },
-        handleRedirectToProfile() {
-            this.$router.push({
-                path: '/profile/' + this.card.owner[0].address,
-            });
-        },
-        handleRedirectToAuthor() {
-            this.$router.push({
-                path: '/profile/' + this.card.author,
-            });
+
+        handleRedirectToOwner() {
+            const path = this.$route.path;
+            if (path.includes("profile") && path.split("profile/")[1] != this.card.ownerAddress) {
+                window.location.pathname = `/profile/${this.card.ownerAddress}`;
+            } else {
+                this.$router.push(`/profile/${this.card.ownerAddress}`);
+            }
         },
     },
 };
@@ -430,27 +336,6 @@ export default {
 .card-detail {
     margin-top: 5px;
     font-size: 0.875em;
-}
-.checkbox {
-    position: absolute;
-    left: 10px;
-    top: 5px;
-    z-index: 0;
-}
-
-.checkbox-active {
-    display: block;
-    position: absolute;
-    left: 10px;
-    top: 5px;
-    z-index: 0;
-}
-.checkbox:hover {
-    display: block;
-}
-
-.user-card:hover .checkbox {
-    display: block;
 }
 
 .nft-img {

@@ -7,9 +7,10 @@ const userSchema = new Schema(
         last_name: { type: String },
         address: { type: String, required: true },
         description: { type: String, default: "" },
-        nft_ids: { type: [String], default: [] },
-        album_ids: { type: [String], default: [] },
+        nft_ids: { type: [{ address: String, percentage: Number }], default: [] },
+        album_ids: { type: [{ address: String, percentage: Number }], default: [] },
         profile_picture: { type: String },
+        liked_nfts: { type: [String], default: [] },
     },
     {
         timestamps: {

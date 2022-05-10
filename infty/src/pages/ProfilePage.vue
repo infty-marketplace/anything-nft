@@ -2,7 +2,7 @@
     <div class="flex-wrapper main">
         <Navbar />
         <button @click="$router.go(-1)" class="back-btn"><i class="el-icon-back" style="color:white" /></button>
-        <div class='actions' v-if='!this.isMyself' @click='$store.dispatch("notifyWIP")'>
+        <div class="actions" v-if="!this.isMyself" @click="$store.dispatch('notifyWIP')">
             <el-button type="primary">打赏</el-button>
             <el-button type="primary">关注</el-button>
             <el-button type="primary">站内信</el-button>
@@ -10,7 +10,13 @@
         <div class="profile-pic-container" v-if="$store.getters.getAddress">
             <img :src="avatar" id="profile-pic" />
             <a @click="uploadAvatar" v-if="this.isMyself">
-                <b-icon id="upload_pic_icon" icon="camera" font-scale="2" class="upload-btn p-2" v-if='$store.getters.getAddress==$route.params.address'></b-icon>
+                <b-icon
+                    id="upload_pic_icon"
+                    icon="camera"
+                    font-scale="2"
+                    class="upload-btn p-2"
+                    v-if="$store.getters.getAddress == $route.params.address"
+                ></b-icon>
             </a>
             <b-form style="display:None">
                 <input type="file" ref="avatar_uploader" id="avatar_uploader" @change="onFileSelected" />
@@ -34,27 +40,21 @@
                                 <span>Listing</span>
                             </template>
                             <el-menu-item index="1-1">NFT</el-menu-item>
-                            <el-menu-item index="1-2">Album</el-menu-item>
-                            <el-menu-item index="1-3">Raffle</el-menu-item>
+                            <el-menu-item index="1-2">Raffle</el-menu-item>
                         </el-submenu>
-                        <el-submenu index="2" v-if="this.isMyself">
-                            <template slot="title">
-                                <i class="el-icon-notebook-2"></i>
-                                <span slot="title">Transaction History</span>
-                            </template>
-                            <el-menu-item index="2-1">NFT</el-menu-item>
-                            <el-menu-item index="2-2">Album</el-menu-item>
-                            <el-menu-item index="2-3">Raffle</el-menu-item>
-                        </el-submenu>
-                        <el-menu-item index="4" v-if="this.isMyself" id='fav'>
+                        <el-menu-item index="2" v-if="this.isMyself">
+                            <i class="el-icon-notebook-2"></i>
+                            <span slot="title">Transaction History</span>
+                        </el-menu-item>
+                        <el-menu-item index="4" v-if="this.isMyself" id="fav">
                             <i class="el-icon-star-off"></i>
                             <span slot="title">My liked NFTs</span>
                         </el-menu-item>
-                        <el-menu-item index="3" v-if="this.isMyself" id='account-menu'>
+                        <el-menu-item index="3" v-if="this.isMyself" id="account-menu">
                             <i class="el-icon-setting"></i>
                             <span slot="title">My Account</span>
                         </el-menu-item>
-                        <el-menu-item index="5" v-if="!this.isMyself" id='bang'>
+                        <el-menu-item index="5" v-if="!this.isMyself" id="bang">
                             <i class="el-icon-coin"></i>
                             <span slot="title">粉丝打榜</span>
                         </el-menu-item>
@@ -72,22 +72,8 @@
                             </div>
                         </el-card>
                     </div>
+
                     <div v-if="selectedIndex == '1-2'">
-                        <el-card class="box-card m-5 card-container">
-                            <div class="card-container">
-                                <AlbumCard
-                                    class="mt-4 card"
-                                    v-for="album in saleAlbums"
-                                    :card="album"
-                                    :key="album.url"
-                                />
-                                <p class="mt-4" v-if="saleAlbums.length == 0">
-                                    <el-empty description="Nothing"></el-empty>
-                                </p>
-                            </div>
-                        </el-card>
-                    </div>
-                    <div v-if="selectedIndex == '1-3'">
                         <el-card class="box-card m-5 card-container">
                             <div class="card-container">
                                 <NftCard class="mt-4 card" v-for="nft in drawNfts" :card="nft" :key="nft.url" />
@@ -98,7 +84,7 @@
                         </el-card>
                     </div>
 
-                    <div v-if="selectedIndex == '2-1' || selectedIndex == '2-2' || selectedIndex == '2-3'">
+                    <div v-if="selectedIndex == '2'">
                         <el-card class="box-card m-5 transaction-card">
                             <el-table :data="transactions" empty-text="Nothing" height="calc(100vh - 250px)">
                                 <el-table-column prop="time" label="Time" align="center"> </el-table-column>
@@ -121,16 +107,21 @@
                             </el-table>
                         </el-card>
                     </div>
-                     <div v-if="selectedIndex == '4'">
+                    <div v-if="selectedIndex == '4'">
                         <el-card class="box-card m-5 card-container">
-                             <el-empty description="Nothing"></el-empty>
+                            <div class="card-container">
+                                <NftCard class="mt-4 card" v-for="nft in likedNfts" :card="nft" :key="nft.url" />
+                                <p class="mt-4" v-if="likedNfts.length == 0">
+                                    <el-empty description="Nothing"></el-empty>
+                                </p>
+                            </div>
                         </el-card>
-                     </div>
-                     <div v-if='selectedIndex == 5'> 
-                         <el-card class="box-card m-5 card-container">
-                             <el-empty description="Nothing"></el-empty>
+                    </div>
+                    <div v-if="selectedIndex == 5">
+                        <el-card class="box-card m-5 card-container">
+                            <el-empty description="Nothing"></el-empty>
                         </el-card>
-                     </div>
+                    </div>
                     <div v-if="selectedIndex == '3'">
                         <el-card class="box-card m-5">
                             <div slot="header" class="clearfix">
@@ -150,7 +141,7 @@
                             </div>
                             <p>Your Wallet Address</p>
                             <el-input :placeholder="this.$store.getters.getAddress" :disabled="true">
-                                <el-button slot="append" @click='$store.dispatch("notifyWIP")'>Copy</el-button>
+                                <el-button slot="append" @click="$store.dispatch('notifyWIP')">Copy</el-button>
                             </el-input>
                             <p class="mt-3">Info</p>
                             <el-row>
@@ -225,9 +216,7 @@
 <script>
 import Navbar from "../components/Navbar.vue";
 import Footer from "../components/Footer.vue";
-// import FileUploader from '../components/FileUploader.vue'
 import NftCard from "../components/NftCard.vue";
-import AlbumCard from "../components/AlbumCard.vue";
 import ConnectWallet from "../components/ConnectWallet.vue";
 import axios from "axios";
 export default {
@@ -238,16 +227,12 @@ export default {
         //   FileUploader,
         ConnectWallet,
         NftCard,
-        AlbumCard,
     },
     data: () => ({
         avatar: null,
         selectedIndex: 0,
         modeSwitch: true,
         nftTransactions: [],
-        drawTransactions: [],
-        albumTransactions: [],
-
         bio: "",
         displayBio: "",
         new_first: "",
@@ -256,8 +241,7 @@ export default {
         last_name: "",
         editModes: false,
         nfts: [],
-        albums: [],
-        raffles: [],
+        likedNfts: [],
     }),
     computed: {
         isMyself: function() {
@@ -269,24 +253,17 @@ export default {
         drawNfts: function() {
             return this.nfts.filter((n) => n.status == "draw");
         },
-        saleAlbums: function() {
-            return this.albums.filter((n) => n.status == "sale");
-        },
         transactions: function() {
-            if (this.selectedIndex === "2-1") {
+            if (this.selectedIndex === "2") {
                 return this.nftTransactions;
-            } else if (this.selectedIndex === "2-2") {
-                return this.albumTransactions;
-            } else if (this.selectedIndex === "2-3") {
-                return this.drawTransactions;
             }
-            return []
+            return [];
         },
     },
     methods: {
         handleSelect(i) {
-            if (i == 4 || i == 5) {
-                this.$store.dispatch('notifyWIP')
+            if (i == 5) {
+                this.$store.dispatch("notifyWIP");
             }
             this.selectedIndex = i;
         },
@@ -349,11 +326,8 @@ export default {
                         axios.get(`${this.$store.getters.getApiUrl}/nft/${current.nft_id}`).then((r) => {
                             current.title = r.data.title;
                         });
-                        console.log(current);
                         if (current.type.includes("draw")) {
                             this.drawTransactions.push(current);
-                        } else if (current.type.includes("album")) {
-                            this.albumTransactions.push(current);
                         } else if (current.type.includes("nft")) {
                             this.nftTransactions.push(current);
                         }
@@ -363,33 +337,26 @@ export default {
                     console.log(err);
                 });
         },
-
-        async loadNfts(nftIds) {
-            const promises = nftIds.map((nftId) => axios.get(`${this.$store.getters.getApiUrl}/nft/${nftId}`));
-            await Promise.allSettled(promises).then((results) => {
-                results.forEach((result) => {
-                    if (result.status == "fulfilled") {
-                        const nft = result.value.data;
-                        nft.url = nft.file;
-                        nft.author = `${this.first_name} ${this.last_name}`;
-                        this.nfts.push(nft);
-                    }
-                });
-            });
+        getOwnerAddress(owners) {
+            return owners.find((owner) => owner.percentage === 1).address;
         },
-
-        async loadAlbums(albumIds) {
-            const promises = albumIds.map((albumId) => axios.get(`${this.$store.getters.getApiUrl}/album/${albumId}`));
-            await Promise.allSettled(promises).then((results) => {
-                results.forEach((result) => {
-                    if (result.status == "fulfilled") {
-                        const album = result.value.data;
-                        album.url = album.file;
-                        album.author = `${this.first_name} ${this.last_name}`;
-                        this.albums.push(album);
-                    }
-                });
-            });
+        async loadNfts(nftIds, enableLike = false) {
+            const nftPromises = nftIds.map((nftId) => axios.get(`${this.$store.getters.getApiUrl}/nft/${nftId}`));
+            const results = await Promise.allSettled(nftPromises);
+            let nfts = results.filter((result) => result.status === "fulfilled").map((result) => result.value.data);
+            nfts = await Promise.all(
+                nfts.map(async (nft) => {
+                    nft.url = nft.file;
+                    nft.enableLike = enableLike;
+                    nft.isLiked = nft.liked_users.includes(this.$store.getters.getAddress);
+                    const ownerAddress = this.getOwnerAddress(nft.owner);
+                    const owner = (await axios.get(`${this.$store.getters.getApiUrl}/profile/${ownerAddress}`)).data;
+                    nft.ownerName = owner.first_name + " " + owner.last_name;
+                    nft.ownerAddress = ownerAddress;
+                    return nft;
+                })
+            );
+            return nfts;
         },
 
         uploadAvatar() {
@@ -445,18 +412,29 @@ export default {
         this.new_last = profile.last_name;
         this.bio = profile.description;
         this.loadTransactions();
-        await this.loadNfts(profile.nft_ids);
-        await this.loadAlbums(profile.album_ids);
+
+        // new database schema
+        const nft_ids = profile.nft_ids.map((id) => {
+            if (Object.prototype.hasOwnProperty.call(id, "address")) {
+                return id.address;
+            }
+            return Object.keys(id)
+                .map((i) => id[i])
+                .join("");
+        });
+
+        this.nfts = await this.loadNfts(nft_ids);
+        this.likedNfts = await this.loadNfts(profile.liked_nfts, true);
+
         if (this.isMyself) {
-            this.selectedIndex = '3'
-            document.getElementById('account-menu').click()
+            this.selectedIndex = "3";
+            document.getElementById("account-menu").click();
         } else {
-            this.selectedIndex = '1-1'
-            document.querySelector('.el-submenu__title').click()
-            document.querySelector('.el-menu-item').click()
+            this.selectedIndex = "1-1";
+            document.querySelector(".el-submenu__title").click();
+            document.querySelector(".el-menu-item").click();
         }
     },
-    beforeDestroy() {},
 };
 </script>
 
@@ -552,9 +530,5 @@ export default {
 
 /deep/.btn-info {
     display: none;
-}
-
-/deep/.card-owner {
-    pointer-events: none;
 }
 </style>

@@ -15,12 +15,21 @@ const { abi: raffleAbi } = require("../assets/Raffle.json");
 const minterContract = cfx.Contract({ abi: minterAbi, address: process.env.MINTER_ADDRESS });
 const raffleContract = cfx.Contract({ abi: raffleAbi, address: process.env.RAFFLE_ADDRESS });
 
-async function nextTokenId() {
-    return (await minterContract.totalSupply()) + 1n;
-}
-
+// Mint NFT on chain.
 async function mint(addr, uri) {
     return await minterContract.mint(addr, uri).sendTransaction({ from: process.env.MANAGER_ADDRESS }).executed();
+}
+
+//TODO: the burn function is currently internal in our nft contract, make it public, redeploy it so we can use it here
+async function burn(tokenId) {
+    return;
+    // return await minterContract.burn(tokenId).sendTransaction({ from: process.env.MANAGER_ADDRESS }).executed();
+}
+
+// Estimate how much gas will cost if mint
+async function mintEstimate(addr, uri) {
+    const estimate = await minterContract.mint(addr, uri).estimateGasAndCollateral();
+    return estimate.gasLimit + estimate.storageCollateralized;
 }
 
 async function createRaffle(details) {
@@ -82,35 +91,25 @@ async function generateUri(req, imageUri, sha) {
     return `https://conflux-infty.s3.amazonaws.com/${sha}`;
 }
 
-async function generateAlbumUri(req, imageUri, sha) {
-    const metaData = {
-        name: req.body.title,
-        description: req.body.description,
-        image: imageUri,
-        nft_ids: JSON.parse(req.body.nft_ids),
-    };
-    const data = await s3
-        .putObject({
-            Bucket: process.env.S3_BUCKET_NAME,
-            Key: sha,
-            Body: JSON.stringify(metaData),
-            ContentType: "application/json",
-        })
-        .promise();
-    return `https://conflux-infty.s3.amazonaws.com/${sha}`;
-}
-
-// TODO
-function actualTokenId(addr, uri, guess) {
-    return makeid(5);
+// return the tokenId among the nfts of owner and has URI = uri.
+async function actualTokenId(ownerAddr, uri) {
+    const ownerBalance = await minterContract.balanceOf(ownerAddr);
+    for (let i = ownerBalance - 1n; i >= 0; i--) {
+        const currTokenId = await minterContract.tokenOfOwnerByIndex(ownerAddr, i);
+        // if the metadata matches given uri, then return currTokenId
+        if ((await minterContract.tokenURI(currTokenId)) == uri) {
+            return currTokenId;
+        }
+    }
+    return -1;
 }
 
 module.exports = {
-    nextTokenId,
     mint,
+    burn,
+    mintEstimate,
     actualTokenId,
     generateUri,
-    generateAlbumUri,
     transferOwnershipOnChain,
     transferCfxTo,
     createRaffle,
