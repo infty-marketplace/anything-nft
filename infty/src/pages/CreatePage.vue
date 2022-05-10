@@ -180,6 +180,9 @@ export default {
                     } else if (err.response.status == 429) {
                         title = "Daily Creation Limit Reached";
                         message = "If you'd like to create more NFTs, please contact us at contacts@infty.market";
+                    } else if (err.response.status == 413) {
+                        title = "File Too Large";
+                        message = "Please ensure the file size is no larger than 100 MB";
                     }
                     this.$notify.error({
                         title: title,
