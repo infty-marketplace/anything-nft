@@ -116,15 +116,27 @@ export default {
 
     methods: {
         createNft() {
-            if (!this.imageData || !this.title || this.title.replace(/\s+/g, "").length == 0) {
+            if (!this.imageData || !this.title || this.title.replace(/\s+/g, "").length === 0) {
                 Notification.closeAll();
                 this.$notify.error({
                     title: "Missing Required Information",
-                    message: "Please fill in all fields marked *.",
+                    message: "Please fill in all fields marked *",
                     duration: 3000,
                 });
                 return;
             }
+
+            // limit file size to 100 MB
+            if (this.imageData.size > 100 * 1024 * 1024) {
+                Notification.closeAll();
+                this.$notify.error({
+                    title: "File Too Large",
+                    message: "Please ensure the file size is no larger than 100 MB",
+                    duration: 3000,
+                });
+                return;
+            }
+
             this.$notify({
                 title: "Pending",
                 dangerouslyUseHTMLString: true,
@@ -132,6 +144,7 @@ export default {
                     '<div style="display:flex; align-items: center;"> <div class="loader"></div><div style="display:inline">NFT minting in progress</div></div>',
                 duration: 0,
             });
+
             const fd = new FormData();
             fd.append("file", this.imageData);
             fd.append("address", this.$store.getters.getAddress);
@@ -139,6 +152,7 @@ export default {
             fd.append("description", this.description);
             const selectedLabels = this.labels.filter((l, i) => this.labelState[i] == true);
             fd.append("labels", JSON.stringify(selectedLabels));
+
             axios
                 .post(this.$store.getters.getApiUrl + "/create-nft", fd)
                 .then((res) => {
@@ -166,6 +180,9 @@ export default {
                     } else if (err.response.status == 429) {
                         title = "Daily Creation Limit Reached";
                         message = "If you'd like to create more NFTs, please contact us at contacts@infty.market";
+                    } else if (err.response.status == 413) {
+                        title = "File Too Large";
+                        message = "Please ensure the file size is no larger than 100 MB";
                     }
                     this.$notify.error({
                         title: title,

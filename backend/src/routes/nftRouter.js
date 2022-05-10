@@ -3,7 +3,7 @@ const nftController = require("../controllers/nftController");
 const multipart = require("connect-multiparty");
 const rateLimit = require("express-rate-limit");
 
-const multipartMiddleware = multipart();
+const multipartMiddleware = multipart({ maxFilesSize: 100 * 1024 * 1024 }); // limit file size to 100 MB
 const createLimiter = rateLimit({
     windowMs: 24 * 60 * 60 * 1000, // 24 hours
     max: 100, // Limit each IP to 100 create NFTs requests per `window`
