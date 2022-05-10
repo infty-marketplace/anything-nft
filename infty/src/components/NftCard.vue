@@ -34,12 +34,12 @@
                 <div v-if="card.status == 'sale'">
                     <span class="text-muted-left"
                         ><small class="text-muted"
-                            ><b-icon icon="clock"></b-icon>&nbsp;{{ card.expirationDate }} X days left</small
+                            ><b-icon icon="clock"></b-icon>&nbsp;{{ card.expirationDate }} {{ $t('daysLeft') }}</small
                         ></span
                     >
                     <span class="text-muted-right"
                         ><small class="text-muted"
-                            ><b-icon icon="suit-diamond-fill"></b-icon>&nbsp;Price: {{ card.price }}</small
+                            ><b-icon icon="suit-diamond-fill"></b-icon>&nbsp;{{ $t('price') }}: {{ card.price }}</small
                         ></span
                     >
                 </div>
@@ -134,13 +134,13 @@
 </template>
 
 <script>
-import axios from "axios";
-import { eventBus } from "../main";
-import { Notification } from "element-ui";
-import HeartBtn from "./HeartBtn.vue";
+import axios from 'axios';
+import { eventBus } from '../main';
+import { Notification } from 'element-ui';
+import HeartBtn from './HeartBtn.vue';
 
 export default {
-    name: "Card",
+    name: 'Card',
     props: {
         card: Object,
     },
@@ -199,7 +199,7 @@ export default {
     methods: {
         listNftClicked(e) {
             e.preventDefault();
-            this.$refs["list-modal"].show();
+            this.$refs['list-modal'].show();
         },
         async deleteNftClicked(e) {
             e.preventDefault();
@@ -237,9 +237,9 @@ export default {
             } else if (this.handleListNft_Validation(this.listing_commision) == false) {
                 return;
             }
-            console.log("processing");
+            console.log('processing');
             const tx = window.confluxJS.sendTransaction({
-                from: (await window.conflux.send("cfx_requestAccounts"))[0],
+                from: (await window.conflux.send('cfx_requestAccounts'))[0],
                 to: this.$store.getters.getManagerAddr,
                 gasPrice: 1,
                 value: 1e18 * this.listing_commision,
@@ -262,7 +262,7 @@ export default {
                 .post(`${this.$store.getters.getApiUrl}/list-nft`, {
                     price: this.listing_price,
                     comission: this.listing_commision,
-                    currency: "cfx",
+                    currency: 'cfx',
                     nft_id: this.card.nft_id,
                     owner: getters.getAddress,
                     fractional: this.fractionStatus == "yes" ? true : false,
@@ -270,18 +270,18 @@ export default {
                 .then(() => {
                     Notification.closeAll();
                     this.$notify({
-                        title: "Congrats",
-                        message: "NFT listed successfully",
+                        title: 'Congrats',
+                        message: 'NFT listed successfully',
                         duration: 3000,
-                        type: "success",
+                        type: 'success',
                     });
 
-                    eventBus.$emit("Card.statusChanged", this.card.nft_id);
+                    eventBus.$emit('Card.statusChanged', this.card.nft_id);
                 })
                 .catch((err) => {
                     console.log(err);
-                    this.$bvToast.toast("Listing Failed", {
-                        title: "Error",
+                    this.$bvToast.toast('Listing Failed', {
+                        title: 'Error',
                         autoHideDelay: 3000,
                         appendToast: false,
                     });
@@ -295,21 +295,21 @@ export default {
                     owner: this.$store.getters.getAddress,
                 })
                 .then((res) => {
-                    this.$bvToast.toast("Delisted Successfully", {
-                        title: "Info",
+                    this.$bvToast.toast('Delisted Successfully', {
+                        title: 'Info',
                         autoHideDelay: 3000,
                         appendToast: false,
                     });
-                    eventBus.$emit("Card.statusChanged", this.card.nft_id);
+                    eventBus.$emit('Card.statusChanged', this.card.nft_id);
                     console.log(res);
                 });
         },
         cardClicked(e) {
-            if (!["BUTTON", "LABEL", "INPUT"].includes(e.srcElement.nodeName))
+            if (!['BUTTON', 'LABEL', 'INPUT'].includes(e.srcElement.nodeName))
                 this.$router.push({
-                    path: "/nft/:id",
-                    name: "nft-detail",
-                    params: { id: this.card.nft_id || "default_id", card: this.card },
+                    path: '/nft/:id',
+                    name: 'nft-detail',
+                    params: { id: this.card.nft_id || 'default_id', card: this.card },
                 });
         },
 

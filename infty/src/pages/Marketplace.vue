@@ -5,7 +5,7 @@
             <div id="sidebar" style="width: 25%" class="mr-2 mb-4">
                 <b-card no-body class="filter-card">
                     <template #header>
-                        <h4 class="mb-0"><b-icon icon="filter-circle"></b-icon>&nbsp;Filter</h4>
+                        <h4 class="mb-0"><b-icon icon="filter-circle"></b-icon>&nbsp;{{ $t('filter') }}</h4>
                     </template>
                     <b-list-group flush>
                         <b-list-group-item>

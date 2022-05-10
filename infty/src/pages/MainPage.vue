@@ -4,31 +4,31 @@
         <div class="main">
             <img class="banner" :src="banner" />
             <p class="banner-text mt-5">
-                Create, collect, and trade any craft as NFT.
+                {{ $t('banner') }}
             </p>
             <div class="btn-bg bg-1">
                 <div class="btn btn-2">
-                    <router-link to="/marketplace"><button>Explore</button></router-link>
+                    <router-link to="/marketplace"
+                        ><button>{{ $t('explore') }}</button></router-link
+                    >
                 </div>
                 <div class="btn btn-1">
-                    <router-link to="/mine/create"><button>Create</button></router-link>
+                    <router-link to="/mine/create"
+                        ><button>{{ $t('create') }}</button></router-link
+                    >
                 </div>
             </div>
             <span class="shape"></span>
             <span class="shape"></span>
             <span class="shape"></span>
-            
-            <div class="about-us" data-sal='fade' data-sal-delay="200" data-sal-duration="800">
+
+            <div class="about-us" data-sal="fade" data-sal-delay="200" data-sal-duration="800">
                 <span class="about-shape"></span>
                 <div class="sm:w-2/3 sm:mr-10">
                     <div class="about-text">
                         <h2 class="font-bold stress">About <span class="font-bold stress">Our Team</span></h2>
                         <p class="text-gray-700">
-                            At Infty, we work on this open-source community-driven NFT trading platform. Our core
-                            members come from a variety of fields in computer science, such as software engineers at
-                            giant tech comapnies, and graduate students at top universities. We came to know each other
-                            because we are all graduates of University of Toronto, but more importantly, we are a group
-                            of blockchain enthusiasts.
+                            {{ $t('aboutUsContent') }}
                         </p>
                     </div>
                 </div>
@@ -51,19 +51,19 @@
 </template>
 
 <script>
-import Navbar from "../components/Navbar.vue";
-import Footer from "../components/Footer.vue";
-import sal from 'sal.js'
+import Navbar from '../components/Navbar.vue';
+import Footer from '../components/Footer.vue';
+import sal from 'sal.js';
 
 export default {
-    name: "App",
+    name: 'App',
     components: {
         Navbar,
         Footer,
     },
     data: () => ({
-        banner: require("../assets/imgs/banner.svg"),
-        team: require("../assets/imgs/aboutUs.svg"),
+        banner: require('../assets/imgs/banner.svg'),
+        team: require('../assets/imgs/aboutUs.svg'),
     }),
     mounted() {
         sal();
@@ -274,7 +274,7 @@ button {
     font-weight: 400;
     padding: 1rem 3rem 1rem 3rem;
     text-transform: uppercase;
-    font-family: "Lato";
+    font-family: 'Lato';
     font-size: 1.5em;
 }
 button a {
@@ -304,5 +304,4 @@ button a {
     font-weight: 400;
     color: #3f3e54;
 }
-
 </style>
