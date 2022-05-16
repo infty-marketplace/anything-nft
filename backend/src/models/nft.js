@@ -8,6 +8,7 @@ const nftSchema = new Schema(
         nft_id: { type: String, required: true },
         description: { type: String, default: "" },
         file: { type: String, required: true },
+        metadata: { type: String, required: true },
         file_hash: { type: String, required: true },
 
         status: {
@@ -27,8 +28,9 @@ const nftSchema = new Schema(
         share_smart_contract_address: { type: String },
         fractional: { type: Boolean, default: false },
         fragmented: { type: Boolean },
-        views: { type: Number, required: true, default: 0},
+        views: { type: Number, required: true, default: 0 },
         labels: { type: [String], default: [] },
+        liked_users: { type: [String], default: [] },
     },
     {
         timestamps: {
