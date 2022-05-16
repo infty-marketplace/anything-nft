@@ -157,15 +157,6 @@ export default {
         this.loadNftMarket();
     },
 
-    mounted() {
-        // handler = throttle(this.getMore, 1000);
-        // window.addEventListener("scroll", handler);
-    },
-
-    destroyed() {
-        // window.removeEventListener("scroll", handler);
-    },
-
     data() {
         return {
             offsetNft: 0,
