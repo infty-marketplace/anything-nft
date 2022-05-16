@@ -28,10 +28,10 @@
                     v-model="priceTypeSelected"
                     :options="priceTypeOptions"
                   ></b-form-select> -->
-                                    <b-form-input v-model="text" placeholder="Min" class="price-range"></b-form-input>
+                                    <b-form-input v-model="min" placeholder="Min" class="price-range" type="number"></b-form-input>
                                     <span>to</span>
-                                    <b-form-input v-model="text" placeholder="Max" class="price-range"></b-form-input>
-                                    <b-button id="price-apply-btn" variant="outline-primary">Apply</b-button>
+                                    <b-form-input v-model="max" placeholder="Max" class="price-range" type="number"></b-form-input>
+                                    <b-button id="price-apply-btn" variant="outline-primary" @click="pricefilter" >Apply</b-button>
                                 </b-card>
                             </b-collapse>
                         </b-list-group-item>
@@ -111,7 +111,7 @@
                                     </div>
                                 </transition>
                                 <el-empty class="flex-wrapper-row" v-if="nftCards.length == 0" description="Nothing" />
-                                <NftCard v-for="card in nftCards" :card="card" :key="card.url" class="mr-5 mb-4" />
+                                <NftCard v-for="card in nftCards" :card="card" :key="card.url" class="mr-5 mb-4" v-show="card.showstatus"/>
                             </div>
                             <p
                                 v-if="noMoreNft && nftCards.length != 0"
@@ -183,6 +183,11 @@ export default {
             noMoreNft: false,
             user: undefined,
             filter: { notMine: false },
+            min: null,
+            max: null,
+            filtermode: null,
+            searchText: ""
+            
         };
     },
 
@@ -220,6 +225,7 @@ export default {
                     if (nft.fragmented && this.fragments.some((f) => f.nft_id == nft.nft_id && f.status == "sale")) {
                         nft.status = "sale";
                     }
+                    nft.showstatus = true
                     return nft;
                 })
             );
@@ -239,6 +245,10 @@ export default {
                 const body = {
                     offset: this.offsetNft,
                     limit: this.limit,
+                    filtermode: this.filtermode,
+                    min: this.min,
+                    max: this.max,
+                    text: this.searchText
                 };
                 axios.post(this.$store.getters.getApiUrl + "/market", body).then((res) => {
                     const nft_ids = res.data.nft_ids;
@@ -256,6 +266,14 @@ export default {
             this.nftCards = [];
             this.loadNftMarket();
         },
+
+        pricefilter(){
+            this.filtermode = "price"
+            this.nftCards.forEach((item) =>{
+               item.showstatus = ((item.price > this.max || item.price < this.min) ?  false : true)
+            })
+        }
+
     },
 };
 </script>
