@@ -5,7 +5,14 @@
             <div id="sidebar" style="width: 25%" class="mr-2 mb-4">
                 <b-card no-body class="filter-card">
                     <template #header>
-                        <h4 class="mb-0"><b-icon icon="filter-circle"></b-icon>&nbsp;{{ $t('filter') }}</h4>
+                        <h4 class="mb-0 d-flex" style="justify-content: space-between">
+                            <div>
+                                <b-icon icon="filter-circle"></b-icon>&nbsp;{{ $t('filter') }}
+                            </div>
+                            <div>
+                                <button class="btn bg-primary text-white" @click="reset">Reset</button>
+                            </div>
+                        </h4>
                     </template>
                     <b-list-group flush>
                         <b-list-group-item>
@@ -91,6 +98,7 @@
                                 placeholder="Search..."
                                 @keyup.enter="$store.dispatch('notifyWIP')"
                                 @update='search'
+                                v-model="searchText"
                             ></b-form-input>
                             <b-input-group-prepend is-text>
                                 <b-icon
@@ -280,6 +288,17 @@ export default {
             this.nftCards.forEach((item) =>{
                 item.showstatus = ((item.title.indexOf(value) != -1) ? true : false)
             })
+        },
+
+        reset(){
+            this.offsetNft = 0
+            this.nftCards = []
+            this.noMoreNft = false
+            this.min = null
+            this.max = null
+            this.filtermode = null
+            this.searchText = ""
+            this.loadNftMarket();
         }
 
     },
