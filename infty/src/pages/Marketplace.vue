@@ -90,12 +90,13 @@
                                 type="search"
                                 placeholder="Search..."
                                 @keyup.enter="$store.dispatch('notifyWIP')"
+                                @update='search'
                             ></b-form-input>
                             <b-input-group-prepend is-text>
                                 <b-icon
                                     icon="search"
                                     style="cursor:pointer"
-                                    @click="$store.dispatch('notifyWIP')"
+                                    @click='search'
                                 ></b-icon>
                             </b-input-group-prepend>
                         </b-input-group>
@@ -271,6 +272,13 @@ export default {
             this.filtermode = "price"
             this.nftCards.forEach((item) =>{
                item.showstatus = ((item.price > this.max || item.price < this.min) ?  false : true)
+            })
+        },
+
+        search(value){
+            this.filtermode = "search"
+            this.nftCards.forEach((item) =>{
+                item.showstatus = ((item.title.indexOf(value) != -1) ? true : false)
             })
         }
 
