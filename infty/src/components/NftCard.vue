@@ -35,11 +35,11 @@
             </b-card-text>
             <template #footer>
                 <div v-if="card.status == 'sale'">
-                    <span class="text-muted-left"
+                    <!-- <span class="text-muted-left"
                         ><small class="text-muted"
                             ><b-icon icon="clock"></b-icon>&nbsp;{{ card.expirationDate }} {{ $t('daysLeft') }}</small
                         ></span
-                    >
+                    > -->
                     <span class="text-muted-right"
                         ><small class="text-muted"
                             ><b-icon icon="suit-diamond-fill"></b-icon>&nbsp;{{ $t('price') }}: {{ card.price }}</small
