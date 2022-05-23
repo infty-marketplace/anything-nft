@@ -56,6 +56,14 @@ export default {
                 duration: 0,
             });
         });
+
+        eventBus.$on("App.notifyErr", () => {
+            this.$notify.error({
+                title: "Error",
+                message: 'Transaction failed.',
+                duration: 3000,
+            });
+        });
     },
     mounted() {
         window.setTimeout(() => {
