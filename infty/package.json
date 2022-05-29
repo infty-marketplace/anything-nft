@@ -13,6 +13,7 @@
     "core-js": "^3.6.5",
     "element-ui": "^2.15.5",
     "js-conflux-sdk": "^1.7.0",
+    "lodash.debounce": "^4.0.8",
     "lodash.throttle": "^4.1.1",
     "sal.js": "^0.8.5",
     "vue": "^2.6.11",
