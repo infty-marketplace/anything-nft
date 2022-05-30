@@ -18,8 +18,12 @@ const getMarket = async (req, res) => {
     const limit = body.limit || 10;
     const offset = body.offset || 0;
 
-    const nftQuery = Nft.find({ status: constants.STATUS_SALE }, { nft_id: 1 })
-        .sort({ nft_id: "desc" })
+    const nftQuery = Nft.find(
+        { status: constants.STATUS_SALE }, 
+        { nft_id: 1 },
+        { labels: {$in: body.query.getAll('category') }},
+        )
+        .sort({ "createdAt": -1 })
         .skip(offset)
         .limit(limit);
 
