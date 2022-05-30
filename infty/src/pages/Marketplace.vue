@@ -31,7 +31,6 @@
                                     <b-form-input v-model="text" placeholder="Min" class="price-range"></b-form-input>
                                     <span>to</span>
                                     <b-form-input v-model="text" placeholder="Max" class="price-range"></b-form-input>
-                                    <b-button id="price-apply-btn" variant="outline-primary">Apply</b-button>
                                 </b-card>
                             </b-collapse>
                         </b-list-group-item>
@@ -40,24 +39,16 @@
                                 >Collections</b-button
                             >
                             <b-collapse id="collapse-3" class="mt-2">
-                                <b-card>
-                                    <b-input-group size="sm" class="mb-2">
-                                        <b-input-group-prepend is-text>
-                                            <b-icon icon="search"></b-icon> </b-input-group-prepend
-                                        ><b-form-input placeholder="Filter"></b-form-input>
-                                    </b-input-group>
-
-                                    <b-list-group id="collections-group">
-                                        <b-list-group-item>Bored Ape Yacht Club</b-list-group-item>
-                                        <b-list-group-item>CrptoPunks</b-list-group-item>
-                                        <b-list-group-item>Art Blocks Curated</b-list-group-item>
-                                        <b-list-group-item>Bored Ape Kennel Club</b-list-group-item>
-                                        <b-list-group-item>SupDucks</b-list-group-item>
-                                        <b-list-group-item>Cool Cat</b-list-group-item>
-                                        <b-list-group-item>ZED RUN</b-list-group-item>
-                                        <b-list-group-item>Famelady</b-list-group-item>
-                                    </b-list-group>
-                                </b-card>
+                                <b-form-group>
+                                    <b-form-checkbox-group id="collection-selection" v-model="filter.selectedCollection">
+                                        <b-list-group-item v-for="(item, index) in collections" :key="index">
+                                            <b-form-checkbox :value="item">
+                                            {{ collections[index] }}
+                                            </b-form-checkbox>
+                                        </b-list-group-item>
+                                    </b-form-checkbox-group>
+                                </b-form-group>
+                                
                             </b-collapse>
                         </b-list-group-item>
 
@@ -66,19 +57,21 @@
                                 >Categories</b-button
                             >
                             <b-collapse id="collapse-5" class="mt-2">
-                                <b-card>
-                                    <b-list-group>
-                                        <b-list-group-item>Art</b-list-group-item>
-                                        <b-list-group-item>Music</b-list-group-item>
-                                        <b-list-group-item>Domain Names</b-list-group-item>
-                                        <b-list-group-item>Virtual Worlds</b-list-group-item>
-                                        <b-list-group-item>Trading Cards</b-list-group-item>
-                                        <b-list-group-item>Collectibles</b-list-group-item>
-                                    </b-list-group>
-                                </b-card>
+                                <b-form-group>
+                                    <b-form-checkbox-group id="category-selection" v-model="filter.selectedCategory">
+                                        <b-list-group-item v-for="(item, index) in categories" :key="index">
+                                            <b-form-checkbox :value="item">
+                                            {{ categories[index] }}
+                                            </b-form-checkbox>
+                                        </b-list-group-item>
+                                    </b-form-checkbox-group>
+                                </b-form-group>
                             </b-collapse>
                         </b-list-group-item>
                     </b-list-group>
+                <div>
+                  <b-button id="price-apply-btn" variant="outline-primary" @click="applyFilter">Apply</b-button>
+                </div>
                 </b-card>
             </div>
 
@@ -141,8 +134,10 @@ import Navbar from "../components/Navbar.vue";
 import Footer from "../components/Footer.vue";
 import NftCard from "../components/NftCard.vue";
 import axios from "axios";
+import constant from "../constants/index.js";
 
 const throttle = require("lodash.throttle");
+var price_range;
 var handler;
 export default {
     name: "Marketplace",
@@ -154,6 +149,9 @@ export default {
 
     beforeMount() {
         this.user = this.$store.getters.getAddress;
+        let query = new URLSearchParams((new URL(window.location)).search);
+        this.selectedCategory = query.getAll('category');
+        console.log(this.selectedCategory)
         this.loadNftMarket();
     },
 
@@ -178,7 +176,13 @@ export default {
             loadingNft: false,
             noMoreNft: false,
             user: undefined,
-            filter: { notMine: false },
+            filter: {   notMine: false, 
+                        price: price_range, 
+                        selectedCollection: [],
+                        selectedCategory: [],},
+            collections: constant.COLLECTIONS,
+            categories: constant.LABELS,
+            currentQuery: new URLSearchParams(),
         };
     },
 
@@ -231,8 +235,9 @@ export default {
                 const body = {
                     offset: this.offsetNft,
                     limit: this.limit,
+                    query: this.currentQuery,
                 };
-                axios.post(this.$store.getters.getApiUrl + "/market", body).then((res) => {
+                axios.post(this.$store.getters.getApiUrl + `/market`, body).then((res) => {
                     const nft_ids = res.data.nft_ids;
                     this.proccessNft(nft_ids);
                     this.offsetNft += nft_ids.length;
@@ -248,6 +253,16 @@ export default {
             this.nftCards = [];
             this.loadNftMarket();
         },
+
+        applyFilter() {
+            this.filter.selectedCategory.forEach( cat => {
+                this.currentQuery.append('category', cat)
+            })
+
+            this.$router.push({ path: `/marketplace?${this.currentQuery}`});
+
+            this.loadNftMarket();
+        }
     },
 };
 </script>
@@ -276,6 +291,7 @@ export default {
 }
 #price-apply-btn {
     margin-top: 1em;
+    margin-bottom: 1em;
     width: 40%;
     margin-right: 30%;
     margin-left: 30%;
