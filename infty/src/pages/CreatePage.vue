@@ -115,7 +115,7 @@ export default {
     },
 
     methods: {
-        createNft() {
+        async createNft() {
             if (!this.imageData || !this.title || this.title.replace(/\s+/g, "").length === 0) {
                 Notification.closeAll();
                 this.$notify.error({
@@ -153,6 +153,35 @@ export default {
             const selectedLabels = this.labels.filter((l, i) => this.labelState[i] == true);
             fd.append("labels", JSON.stringify(selectedLabels));
 
+            // Obtain estimation
+            const estimation = (await axios.post(this.$store.getters.getApiUrl + "/mint-estimate")).data.gas;
+            // Charge User
+            const getters = this.$store.getters;
+            this.$store.dispatch("notifyLoading", { msg: "Paying commission now" });
+
+            await window.confluxJS
+                .sendTransaction({
+                    from: (await window.conflux.send("cfx_requestAccounts"))[0],
+                    to: getters.getManagerAddr,
+                    gasPrice: 1000000000,
+                    value: estimation,
+                })
+                .executed()
+                .catch((e) => {
+                    Notification.closeAll();
+                    let title = "Transaction Failed";
+                    let message = "Transaction failed, please try again";
+                    if (e.code === 4001) {
+                        message = "User denied transaction signature";
+                    }
+                    this.$notify.error({
+                        title,
+                        message,
+                        duration: 3000,
+                    });
+                });
+
+            // Create nft
             axios
                 .post(this.$store.getters.getApiUrl + "/create-nft", fd)
                 .then((res) => {
