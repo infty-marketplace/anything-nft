@@ -28,9 +28,9 @@
                     v-model="priceTypeSelected"
                     :options="priceTypeOptions"
                   ></b-form-select> -->
-                                    <b-form-input v-model="text" placeholder="Min" class="price-range"></b-form-input>
+                                    <b-form-input type="number" v-model="price_from" placeholder="Min" class="price-range"></b-form-input>
                                     <span>to</span>
-                                    <b-form-input v-model="text" placeholder="Max" class="price-range"></b-form-input>
+                                    <b-form-input type="number" v-model="price_to" placeholder="Max" class="price-range"></b-form-input>
                                 </b-card>
                             </b-collapse>
                         </b-list-group-item>
@@ -41,7 +41,7 @@
                             <b-collapse id="collapse-3" class="mt-2">
                                 <b-form-group>
                                     <b-form-checkbox-group id="collection-selection" v-model="filter.selectedCollection">
-                                        <b-list-group-item v-for="(item, index) in collections" :key="index">
+                                        <b-list-group-item v-for="(item, index) in collections" :key="'col'+index">
                                             <b-form-checkbox :value="item">
                                             {{ collections[index] }}
                                             </b-form-checkbox>
@@ -59,7 +59,7 @@
                             <b-collapse id="collapse-5" class="mt-2">
                                 <b-form-group>
                                     <b-form-checkbox-group id="category-selection" v-model="filter.selectedCategory">
-                                        <b-list-group-item v-for="(item, index) in categories" :key="index">
+                                        <b-list-group-item v-for="(item, index) in categories" :key="'cat'+index">
                                             <b-form-checkbox :value="item">
                                             {{ categories[index] }}
                                             </b-form-checkbox>
@@ -150,8 +150,10 @@ export default {
     beforeMount() {
         this.user = this.$store.getters.getAddress;
         let query = new URLSearchParams((new URL(window.location)).search);
-        this.selectedCategory = query.getAll('category');
-        console.log(this.selectedCategory)
+        this.filter.selectedCategory = query.getAll('category');
+        this.filter.selectedCategory.forEach( cat => {
+                this.currentQuery.append('category', cat)
+            })
         this.loadNftMarket();
     },
 
@@ -183,6 +185,8 @@ export default {
             collections: constant.COLLECTIONS,
             categories: constant.LABELS,
             currentQuery: new URLSearchParams(),
+            price_from: '',
+            price_to: '',
         };
     },
 
@@ -235,7 +239,9 @@ export default {
                 const body = {
                     offset: this.offsetNft,
                     limit: this.limit,
-                    query: this.currentQuery,
+                    query: this.currentQuery.toString(),
+                    price_from: this.price_from,
+                    price_to: this.price_to,
                 };
                 axios.post(this.$store.getters.getApiUrl + `/market`, body).then((res) => {
                     const nft_ids = res.data.nft_ids;
@@ -255,6 +261,15 @@ export default {
         },
 
         applyFilter() {
+            // reset when click on button
+            this.currentQuery = new URLSearchParams();
+
+            if(this.price_from) {
+                this.currentQuery.append('min', this.price_from);
+            }
+            if (this.price_to) {
+                this.currentQuery.append('max', this.price_to);
+            }
             this.filter.selectedCategory.forEach( cat => {
                 this.currentQuery.append('category', cat)
             })
