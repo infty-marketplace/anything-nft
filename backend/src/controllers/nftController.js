@@ -17,19 +17,21 @@ const getMarket = async (req, res) => {
     const selectedCategory = query.getAll('category');
 
     // build find query
-    const findQuery = {"status": constants.STATUS_SALE}
-    
-    if (price_from && price_to) {
+    const findQuery = {"status": constants.STATUS_SALE} //only display sale status
+    // apply category filter if selected
+    if (selectedCategory.length!==0) {
+        findQuery["labels"] = {};
+        findQuery["labels"]["$in"] = selectedCategory;
+    }
+    // apply price filter according to user selection
+    if (price_from!==null && price_to!==null) {
         findQuery["price"] = {$gte: Number(price_from), $lte: Number(price_to)};
-    } else if(price_from) {
+    } else if(price_from!==null) {
         findQuery["price"] = {$gte: Number(price_from)};
-    } else if(price_to) {
+    } else if(price_to!=null) {
         findQuery["price"] = {$lte: Number(price_to)};
     }
 
-    console.log("min: " + price_from);
-    console.log("max: " + price_to);
-    console.log(findQuery)
     if (!body) {
         return res.status(400).json({ error: "invalid request" });
     }
@@ -38,7 +40,7 @@ const getMarket = async (req, res) => {
     const offset = body.offset || 0;
 
     const nftQuery = Nft.find(findQuery)
-        .sort({ "createdAt": -1 })
+        .sort({ "createdAt": -1, "nft_id": -1 })
         .skip(offset)
         .limit(limit);
 
