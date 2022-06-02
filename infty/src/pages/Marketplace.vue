@@ -152,8 +152,16 @@ export default {
         let query = new URLSearchParams((new URL(window.location)).search);
         this.filter.selectedCategory = query.getAll('category');
         this.filter.selectedCategory.forEach( cat => {
-                this.currentQuery.append('category', cat)
-            })
+            this.currentQuery.append('category', cat)
+        })
+        if (query.get('min')){
+            this.price_from = query.get('min');
+            this.currentQuery.append('min', this.price_from);
+        }
+        if (query.get('max')){
+            this.price_to = query.get('max');
+            this.currentQuery.append('max', this.price_to);
+        }
         this.loadNftMarket();
     },
 
@@ -275,8 +283,7 @@ export default {
             })
 
             this.$router.push({ path: `/marketplace?${this.currentQuery}`});
-
-            this.loadNftMarket();
+            window.location.reload();
         }
     },
 };

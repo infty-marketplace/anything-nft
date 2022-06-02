@@ -11,6 +11,25 @@ const cfxUtils = require("../utils/cfxUtils");
 // return a list of on sale NFT's id from cursor position, limit amount
 const getMarket = async (req, res) => {
     const body = req.body;
+    const query = new URLSearchParams(body.query);
+    const price_from = query.get('min');
+    const price_to = query.get('max');
+    const selectedCategory = query.getAll('category');
+
+    // build find query
+    const findQuery = {"status": constants.STATUS_SALE}
+    
+    if (price_from && price_to) {
+        findQuery["price"] = {$gte: Number(price_from), $lte: Number(price_to)};
+    } else if(price_from) {
+        findQuery["price"] = {$gte: Number(price_from)};
+    } else if(price_to) {
+        findQuery["price"] = {$lte: Number(price_to)};
+    }
+
+    console.log("min: " + price_from);
+    console.log("max: " + price_to);
+    console.log(findQuery)
     if (!body) {
         return res.status(400).json({ error: "invalid request" });
     }
@@ -18,11 +37,7 @@ const getMarket = async (req, res) => {
     const limit = body.limit || 10;
     const offset = body.offset || 0;
 
-    const nftQuery = Nft.find(
-        { status: constants.STATUS_SALE }, 
-        { nft_id: 1 },
-        { labels: {$in: body.query.getAll('category') }},
-        )
+    const nftQuery = Nft.find(findQuery)
         .sort({ "createdAt": -1 })
         .skip(offset)
         .limit(limit);
