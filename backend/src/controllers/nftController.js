@@ -28,7 +28,7 @@ const getMarket = async (req, res) => {
         findQuery["price"] = {$gte: Number(price_from), $lte: Number(price_to)};
     } else if(price_from!==null) {
         findQuery["price"] = {$gte: Number(price_from)};
-    } else if(price_to!=null) {
+    } else if(price_to!==null) {
         findQuery["price"] = {$lte: Number(price_to)};
     }
 

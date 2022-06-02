@@ -34,7 +34,7 @@
                                 </b-card>
                             </b-collapse>
                         </b-list-group-item>
-                        <b-list-group-item>
+                        <!--<b-list-group-item>
                             <b-button pill v-b-toggle.collapse-3 variant="outline-secondary" class="category-button"
                                 >Collections</b-button
                             >
@@ -50,7 +50,7 @@
                                 </b-form-group>
                                 
                             </b-collapse>
-                        </b-list-group-item>
+                        </b-list-group-item>-->
 
                         <b-list-group-item>
                             <b-button pill v-b-toggle.collapse-5 variant="outline-secondary" class="category-button"
@@ -149,6 +149,7 @@ export default {
 
     beforeMount() {
         this.user = this.$store.getters.getAddress;
+        // restore current search query
         let query = new URLSearchParams((new URL(window.location)).search);
         this.filter.selectedCategory = query.getAll('category');
         this.filter.selectedCategory.forEach( cat => {
@@ -188,9 +189,7 @@ export default {
             user: undefined,
             filter: {   notMine: false, 
                         price: price_range, 
-                        selectedCollection: [],
                         selectedCategory: [],},
-            collections: constant.COLLECTIONS,
             categories: constant.LABELS,
             currentQuery: new URLSearchParams(),
             price_from: '',
@@ -283,6 +282,7 @@ export default {
             })
 
             this.$router.push({ path: `/marketplace?${this.currentQuery}`});
+            // refresh to apply filters
             window.location.reload();
         }
     },
