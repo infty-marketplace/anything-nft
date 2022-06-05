@@ -12,7 +12,7 @@
                         <router-link to="/marketplace">{{ $t('marketplace') }}</router-link>
                     </li>
                     <li v-bind:class="{ active: activeIndex == 2 }">
-                        <router-link to="/mine/create">Create</router-link>
+                        <router-link to="/mine/create">{{ $t('create') }}</router-link>
                     </li>
                     <li v-bind:class="{ active: activeIndex == 3 }">
                         <router-link to="/mine/collections">{{ $t('collections') }}</router-link>

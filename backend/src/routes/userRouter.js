@@ -10,5 +10,6 @@ router.get("/profile/:address", userController.getUser);
 router.post("/profile/update-profile", userController.updateProfile);
 router.post("/profile/update-avatar", multipartMiddleware, userController.updateAvatar);
 router.get("/transaction/:address", userController.getTransactions);
+router.post("/profile/set-avatar", userController.setAvatarToNft);
 
 module.exports = router;

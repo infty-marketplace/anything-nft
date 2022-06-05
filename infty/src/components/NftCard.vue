@@ -8,7 +8,10 @@
                     </span>
                     <el-dropdown-menu slot="dropdown">
                         <a @click="listNftClicked"
-                            ><el-dropdown-item v-if="card.status == 'private'">List Item</el-dropdown-item></a
+                            ><el-dropdown-item v-if="card.status == 'private'">Sell</el-dropdown-item></a
+                        >
+                        <a @click="setAvatar"
+                            ><el-dropdown-item>Set Avatar</el-dropdown-item></a
                         >
                         <a @click="deleteNftClicked"
                             ><el-dropdown-item v-if="card.status == 'private'">Delete It</el-dropdown-item></a
@@ -32,11 +35,11 @@
             </b-card-text>
             <template #footer>
                 <div v-if="card.status == 'sale'">
-                    <span class="text-muted-left"
+                    <!-- <span class="text-muted-left"
                         ><small class="text-muted"
                             ><b-icon icon="clock"></b-icon>&nbsp;{{ card.expirationDate }} {{ $t('daysLeft') }}</small
                         ></span
-                    >
+                    > -->
                     <span class="text-muted-right"
                         ><small class="text-muted"
                             ><b-icon icon="suit-diamond-fill"></b-icon>&nbsp;{{ $t('price') }}: {{ card.price }}</small
@@ -321,6 +324,24 @@ export default {
                 this.$router.push(`/profile/${this.card.ownerAddress}`);
             }
         },
+        setAvatar() {
+            // TODO: should get signature from wallet to verify the ownership
+            console.log(this.card.nft_id)
+            axios.post(`${this.$store.getters.getApiUrl}/profile/set-avatar`, {
+                address: this.$store.getters.getAddress,
+                nft_id: this.card.nft_id
+            }).then(data => {
+                this.$notify({
+                    title: 'Congrats',
+                    message: 'Avatar Updated',
+                    duration: 3000,
+                    position: "top-left",
+                    type: 'success',
+                });
+                this.$store.commit("setProfilePic");
+            })
+            // TODO: error checking
+        }
     },
 };
 </script>
