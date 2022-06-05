@@ -10,6 +10,7 @@ const userSchema = new Schema(
         nft_ids: { type: [{ address: String, percentage: Number }], default: [] },
         album_ids: { type: [{ address: String, percentage: Number }], default: [] },
         profile_picture: { type: String },
+        profile_picture_metadata: { type: String },
         liked_nfts: { type: [String], default: [] },
     },
     {

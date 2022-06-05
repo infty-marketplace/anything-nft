@@ -9,18 +9,6 @@
         </div>
         <div class="profile-pic-container" v-if="$store.getters.getAddress">
             <img :src="avatar" id="profile-pic" />
-            <a @click="uploadAvatar" v-if="this.isMyself">
-                <b-icon
-                    id="upload_pic_icon"
-                    icon="camera"
-                    font-scale="2"
-                    class="upload-btn p-2"
-                    v-if="$store.getters.getAddress == $route.params.address"
-                ></b-icon>
-            </a>
-            <b-form style="display:None">
-                <input type="file" ref="avatar_uploader" id="avatar_uploader" @change="onFileSelected" />
-            </b-form>
             <h2 class="mt-2">{{ first_name }} {{ last_name }}</h2>
             <a target="_blank" :href="`https://confluxscan.io/address/${this.$route.params.address}`"
                 ><p class="mt-2">{{ this.$route.params.address }}</p></a
@@ -219,6 +207,8 @@ import Footer from "../components/Footer.vue";
 import NftCard from "../components/NftCard.vue";
 import ConnectWallet from "../components/ConnectWallet.vue";
 import axios from "axios";
+import { Notification } from "element-ui";
+
 export default {
     name: "ProfilePage",
     components: {
@@ -357,49 +347,6 @@ export default {
                 })
             );
             return nfts;
-        },
-
-        uploadAvatar() {
-            this.$refs["avatar_uploader"].click();
-        },
-
-        onFileSelected(e) {
-            let image = e.target.files[0];
-            if (!image.type.match("image/*")) {
-                this.$bvToast.toast("Please Select Image to Upload", {
-                    title: "Error",
-                    autoHideDelay: 3000,
-                    appendToast: false,
-                });
-            }
-            this.updateAvatar(image);
-        },
-
-        updateAvatar(avatar) {
-            const fd = new FormData();
-            fd.append("file", avatar);
-            fd.append("address", this.$store.getters.getAddress);
-
-            axios
-                .post(this.$store.getters.getApiUrl + "/profile/update-avatar", fd)
-                .then((res) => {
-                    this.avatar = res.data.url;
-                    this.$store.commit("setProfilePic");
-                    this.$notify({
-                        title: "Congrats",
-                        message: "Avatar Updated Successfully",
-                        duration: 3000,
-                        type: "success",
-                    });
-                })
-                .catch((err) => {
-                    console.log(err);
-                    this.$bvToast.toast("Avatar Update Failed", {
-                        title: "Error",
-                        autoHideDelay: 3000,
-                        appendToast: false,
-                    });
-                });
         },
     },
     async mounted() {
