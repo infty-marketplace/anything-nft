@@ -44,6 +44,10 @@ const store = new Vuex.Store({
             const { msg } = payload;
             eventBus.$emit('App.notifyLoading', msg);
         },
+
+        notifyErr() {
+            eventBus.$emit('App.notifyErr');
+        }
     },
     mutations: {
         setAddress: (state, addr) => {

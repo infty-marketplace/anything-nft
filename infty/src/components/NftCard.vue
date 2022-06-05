@@ -7,12 +7,10 @@
                         <i class="el-icon-arrow-down el-icon--right"></i>
                     </span>
                     <el-dropdown-menu slot="dropdown">
-                        <a @click="listNftClicked"
-                            ><el-dropdown-item v-if="card.status == 'private'">Sell</el-dropdown-item></a
-                        >
+                        <a v-if="!listing_status" @click="listNftClicked"
+                            ><el-dropdown-item v-if="card.status == 'private'" >List Item</el-dropdown-item></a>
                         <a @click="setAvatar"
-                            ><el-dropdown-item>Set Avatar</el-dropdown-item></a
-                        >
+                            ><el-dropdown-item>Set Avatar</el-dropdown-item></a>
                         <a @click="deleteNftClicked"
                             ><el-dropdown-item v-if="card.status == 'private'">Delete It</el-dropdown-item></a
                         >
@@ -157,6 +155,7 @@ export default {
         deadline: null,
         fractionStatus: "no",
         currencyValue: "cfx",
+        listing_status : false,
         options: [
             {
                 label: "CFX",
@@ -222,7 +221,8 @@ export default {
         handleListNft_Validation(list_item) {
             var converted = parseFloat(list_item);
             if (
-                converted < 0.0 ||
+                converted <= 0.0 ||
+                Number.isNaN(converted) ||
                 typeof converted !== "number" ||
                 (list_item.includes(".") && list_item.split(".")[1].length > 18)
             ) {
@@ -240,27 +240,40 @@ export default {
             } else if (this.handleListNft_Validation(this.listing_commision) == false) {
                 return;
             }
+            this.listing_status = true;
             console.log('processing');
-            const tx = window.confluxJS.sendTransaction({
-                from: (await window.conflux.send('cfx_requestAccounts'))[0],
-                to: this.$store.getters.getManagerAddr,
-                gasPrice: 1,
-                value: 1e18 * this.listing_commision,
-            });
-            this.$store.dispatch("notifyLoading", { msg: "Paying commission now." });
-            await tx.executed();
-            Notification.closeAll();
+            try{
+                const tx = window.confluxJS.sendTransaction({
+                    from: (await window.conflux.send('cfx_requestAccounts'))[0],
+                    to: this.$store.getters.getManagerAddr,
+                    gasPrice: 1e9,
+                    value: 1e18 * this.listing_commision,
+                });
+                this.$store.dispatch("notifyLoading", { msg: "Paying commission now." });
+                await tx.executed();
+                Notification.closeAll();
+            }catch(error){
+                Notification.closeAll();
+                this.$store.dispatch("notifyErr");
+                this.listing_status = false;
+                return;
+            }
             const getters = this.$store.getters;
             if (this.card.owner.length == 1) {
                 this.$store.dispatch("notifyLoading", { msg: "Approving platform to operate the NFT on your behalf." });
                 const tokenId = this.card.nft_id.split("-")[1];
-
-                await getters.getMinterContract
-                    .approve(getters.getManagerAddr, tokenId)
-                    .sendTransaction({ from: getters.getAddress, to: getters.getMinterAddress, gasPrice: 1 })
-                    .executed();
+                try{
+                    await getters.getMinterContract
+                        .approve(getters.getManagerAddr, tokenId)
+                        .sendTransaction({ from: getters.getAddress, to: getters.getMinterAddress, gasPrice: 1e9 })
+                        .executed();
+                }catch(error){
+                    Notification.closeAll();
+                    this.$store.dispatch("notifyErr");
+                    this.listing_status = false;
+                    return;
+                }
             }
-
             axios
                 .post(`${this.$store.getters.getApiUrl}/list-nft`, {
                     price: this.listing_price,
@@ -288,6 +301,7 @@ export default {
                         autoHideDelay: 3000,
                         appendToast: false,
                     });
+                    this.listing_status = false;
                 });
         },
         delistNft(e) {
@@ -330,7 +344,7 @@ export default {
             axios.post(`${this.$store.getters.getApiUrl}/profile/set-avatar`, {
                 address: this.$store.getters.getAddress,
                 nft_id: this.card.nft_id
-            }).then(data => {
+            }).then(() => {
                 this.$notify({
                     title: 'Congrats',
                     message: 'Avatar Updated',
