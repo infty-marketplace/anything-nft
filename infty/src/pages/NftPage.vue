@@ -84,7 +84,7 @@
                 </el-tooltip>
                 <b-card class="transaction-info" header-tag="header" footer-tag="footer" v-if="!isOwner">
                     <template #header>
-                        <h6 class="mb-0"><b-icon icon="clock"></b-icon>&nbsp;Sale ends in 5 days</h6>
+                        <h6 class="mb-0"><b-icon icon="clock"></b-icon>&nbsp;On Sale Now</h6>
                     </template>
                     <b-card-text>Current Price</b-card-text>
                     <p>

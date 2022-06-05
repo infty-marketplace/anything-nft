@@ -1,4 +1,5 @@
 const User = require("../models/user");
+const Nft = require("../models/nft");
 const Transaction = require("../models/transaction");
 const s3Utils = require("../utils/s3Utils")
 const { makeid } = require("../utils/helpers");
@@ -104,10 +105,20 @@ const updateAvatar = async (req, res) => {
     })
     res.status(200).send({url});
 }
+
+const setAvatarToNft = async (req, res) => {
+    // TODO: validate input, return status code correspondingly
+    const url = (await Nft.findOne({nft_id: req.body.nft_id})).file;
+    await User.findOneAndUpdate({address: req.body.address}, {
+        profile_picture: url
+    })
+    res.status(200).send({url})
+}
 module.exports = {
     authUser,
     getUser,
     updateProfile,
     getTransactions,
-    updateAvatar
+    updateAvatar,
+    setAvatarToNft
 };
