@@ -101,12 +101,7 @@ const getTransactions = async (req, res) => {
 const setAvatarToNft = async (req, res) => {
     // TODO: validate input, return status code correspondingly
     const url = (await Nft.findOne({ nft_id: req.body.nft_id })).file;
-    await User.findOneAndUpdate(
-        { address: req.body.address },
-        {
-            profile_picture: url,
-        }
-    );
+    await User.findOneAndUpdate({ address: req.body.address }, { profile_picture: url });
     res.status(200).send({ url });
 };
 
