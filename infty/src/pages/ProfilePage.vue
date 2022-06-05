@@ -207,7 +207,6 @@ import Footer from "../components/Footer.vue";
 import NftCard from "../components/NftCard.vue";
 import ConnectWallet from "../components/ConnectWallet.vue";
 import axios from "axios";
-import { Notification } from "element-ui";
 
 export default {
     name: "ProfilePage",

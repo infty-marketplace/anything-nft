@@ -1,7 +1,5 @@
 const express = require("express");
 const userController = require("../controllers/userController");
-const multipart = require("connect-multiparty");
-const multipartMiddleware = multipart({ maxFilesSize: 100 * 1024 * 1024 }); // limit file size to 100 MB
 
 const router = express.Router();
 
