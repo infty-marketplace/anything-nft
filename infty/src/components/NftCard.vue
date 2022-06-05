@@ -344,7 +344,7 @@ export default {
             axios.post(`${this.$store.getters.getApiUrl}/profile/set-avatar`, {
                 address: this.$store.getters.getAddress,
                 nft_id: this.card.nft_id
-            }).then(data => {
+            }).then(() => {
                 this.$notify({
                     title: 'Congrats',
                     message: 'Avatar Updated',
