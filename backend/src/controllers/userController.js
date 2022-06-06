@@ -1,7 +1,6 @@
 const User = require("../models/user");
 const Nft = require("../models/nft");
 const Transaction = require("../models/transaction");
-const nftStorageUtils = require("../utils/nftStorageUtils");
 
 function logout(req, res, success, error) {
     try {
