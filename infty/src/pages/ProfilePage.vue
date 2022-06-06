@@ -400,9 +400,6 @@ export default {
 .main {
     background-color: #f8f8f9;
 }
-.create-btn {
-    float: right;
-}
 #profile-pic {
     border-radius: 50%;
     height: 300px;
@@ -442,18 +439,6 @@ export default {
 }
 .el-col {
     height: calc(100% - 250px);
-}
-#upload_pic_icon {
-    margin-left: 70%;
-    margin-top: -15%;
-    display: block;
-    position: absolute;
-}
-
-.upload-btn {
-    color: white;
-    border-radius: 50%;
-    background-color: rgb(95, 167, 167);
 }
 
 .card-container {
