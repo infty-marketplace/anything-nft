@@ -350,6 +350,16 @@ export default {
     },
     async mounted() {
         await this.$store.dispatch("connectWallet");
+
+        if (this.isMyself) {
+            this.selectedIndex = "3";
+            document.getElementById("account-menu").click();
+        } else {
+            this.selectedIndex = "1-1";
+            document.querySelector(".el-submenu__title").click();
+            document.querySelector(".el-menu-item").click();
+        }
+
         const profile = await this.$store.getters.getProfile(this.$route.params.address);
         this.avatar = profile.profile_picture;
         this.first_name = profile.first_name;
@@ -371,15 +381,6 @@ export default {
 
         this.nfts = await this.loadNfts(nft_ids);
         this.likedNfts = await this.loadNfts(profile.liked_nfts, true);
-
-        if (this.isMyself) {
-            this.selectedIndex = "3";
-            document.getElementById("account-menu").click();
-        } else {
-            this.selectedIndex = "1-1";
-            document.querySelector(".el-submenu__title").click();
-            document.querySelector(".el-menu-item").click();
-        }
     },
 };
 </script>
