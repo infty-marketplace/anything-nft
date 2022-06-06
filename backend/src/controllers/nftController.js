@@ -17,12 +17,24 @@ const getMarket = async (req, res) => {
 
     const limit = body.limit || 10;
     const offset = body.offset || 0;
+    let filter = { status: constants.STATUS_SALE }
 
-    const nftQuery = Nft.find({ status: constants.STATUS_SALE }, { nft_id: 1 })
+    switch(body.filtermode){
+        case "price":
+            filter = { status: constants.STATUS_SALE, price: {$gte: body.min, $lte: body.max}};
+            break;
+        case "searchText":
+            filter = {status: constants.STATUS_SALE, title: /body.text/};
+            break;
+    }
+    const nftQuery = Nft.find(filter, { nft_id: 1 })
         .sort({ nft_id: "desc" })
         .skip(offset)
         .limit(limit);
 
+    const data = {
+        nft_ids: (await nftQuery.exec()).map((n) => n.nft_id),
+    }
     res.send({
         nft_ids: (await nftQuery.exec()).map((n) => n.nft_id),
     });
