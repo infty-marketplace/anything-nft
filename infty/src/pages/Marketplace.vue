@@ -133,7 +133,7 @@
               <b-button is-text id="btn">
                 <b-icon
                   icon="search"
-                  style="cursor:pointer"
+                  style="cursor: pointer"
                   @click="instantSearch"
                 ></b-icon>
               </b-button>
@@ -167,10 +167,18 @@
               </div>
               <p
                 v-if="noMoreNft && nftCards.length != 0"
-                style="border-bottom: 1px solid grey; line-height: 0.1rem;text-align:center"
+                style="
+                  border-bottom: 1px solid grey;
+                  line-height: 0.1rem;
+                  text-align: center;
+                "
               >
                 <span
-                  style="padding: 0px 20px;background-color:white;color:grey;"
+                  style="
+                    padding: 0px 20px;
+                    background-color: white;
+                    color: grey;
+                  "
                   >End of Market</span
                 >
               </p>
@@ -323,7 +331,7 @@ export default {
       }, 200);
     },
 
-    onSearch: debounce(function() {
+    onSearch: debounce(function () {
       this.filtermode = "searchText";
       this.offsetNft = 0;
       this.nftCards = [];
