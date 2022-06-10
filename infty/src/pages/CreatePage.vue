@@ -179,6 +179,7 @@ export default {
                         message,
                         duration: 3000,
                     });
+                    return;
                 });
 
             // Create nft
@@ -218,6 +219,7 @@ export default {
                         message: message,
                         duration: 3000,
                     });
+                    return;
                 });
         },
 
