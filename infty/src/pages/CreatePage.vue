@@ -152,13 +152,14 @@ export default {
             fd.append("description", this.description);
             const selectedLabels = this.labels.filter((l, i) => this.labelState[i] == true);
             fd.append("labels", JSON.stringify(selectedLabels));
-
+            
             // Obtain estimation
             const estimation = (await axios.post(this.$store.getters.getApiUrl + "/mint-estimate")).data.gas;
             // Charge User
             const getters = this.$store.getters;
             this.$store.dispatch("notifyLoading", { msg: "Paying commission now" });
 
+            let error = false; // flag is set to true when errors occur in transaction
             await window.confluxJS
                 .sendTransaction({
                     from: (await window.conflux.send("cfx_requestAccounts"))[0],
@@ -179,8 +180,12 @@ export default {
                         message,
                         duration: 3000,
                     });
-                    return;
+                    error = true;
                 });
+
+            if (error){
+                return; // Stop to create nft if the transaction failed
+            }
 
             // Create nft
             axios
@@ -219,7 +224,6 @@ export default {
                         message: message,
                         duration: 3000,
                     });
-                    return;
                 });
         },
 
