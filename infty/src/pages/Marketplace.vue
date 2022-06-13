@@ -6,6 +6,9 @@
                 <b-card no-body class="filter-card">
                     <template #header>
                         <h4 class="mb-0"><b-icon icon="filter-circle"></b-icon>&nbsp;{{ $t('filter') }}</h4>
+                        <div id="clearAll" @click="reset" style="float:right; cursor: pointer;">
+                        <a style="text:center"><u>clear filter</u></a>
+                    </div>
                     </template>
                     <b-list-group flush>
                         <b-list-group-item>
@@ -58,7 +61,7 @@
                             >
                             <b-collapse id="collapse-5" class="mt-2">
                                 <b-form-group>
-                                    <b-form-checkbox-group id="category-selection" v-model="filter.selectedCategory">
+                                    <b-form-checkbox-group id="category-selection" v-model="selectedCategory">
                                         <b-list-group-item v-for="(item, index) in categories" :key="'cat'+index">
                                             <b-form-checkbox :value="item">
                                             {{ categories[index] }}
@@ -107,7 +110,7 @@
                                 <NftCard v-for="card in nftCards" :card="card" :key="card.url" class="mr-5 mb-4" />
                             </div>
                             <p
-                                v-if="noMoreNft && nftCards.length != 0"
+                                v-if="noMoreNft"
                                 style="border-bottom: 1px solid grey; line-height: 0.1rem;text-align:center"
                             >
                                 <span style="padding: 0px 20px;background-color:white;color:grey;">End of Market</span>
@@ -149,20 +152,6 @@ export default {
 
     beforeMount() {
         this.user = this.$store.getters.getAddress;
-        // restore current search query
-        let query = new URLSearchParams((new URL(window.location)).search);
-        this.filter.selectedCategory = query.getAll('category');
-        this.filter.selectedCategory.forEach( cat => {
-            this.currentQuery.append('category', cat)
-        })
-        if (query.get('min')){
-            this.price_from = query.get('min');
-            this.currentQuery.append('min', this.price_from);
-        }
-        if (query.get('max')){
-            this.price_to = query.get('max');
-            this.currentQuery.append('max', this.price_to);
-        }
         this.loadNftMarket();
     },
 
@@ -187,13 +176,12 @@ export default {
             loadingNft: false,
             noMoreNft: false,
             user: undefined,
-            filter: {   notMine: false, 
-                        price: price_range, 
-                        selectedCategory: [],},
+            filter: {   notMine: false, },
             categories: constant.LABELS,
-            currentQuery: new URLSearchParams(),
             price_from: '',
             price_to: '',
+            filtermode: null,
+            selectedCategory: [],
         };
     },
 
@@ -246,9 +234,10 @@ export default {
                 const body = {
                     offset: this.offsetNft,
                     limit: this.limit,
-                    query: this.currentQuery.toString(),
+                    selectedCategory: this.selectedCategory,
                     price_from: this.price_from,
                     price_to: this.price_to,
+                    filtermode: this.filtermode,
                 };
                 axios.post(this.$store.getters.getApiUrl + `/market`, body).then((res) => {
                     const nft_ids = res.data.nft_ids;
@@ -268,23 +257,26 @@ export default {
         },
 
         applyFilter() {
-            // reset when click on button
-            this.currentQuery = new URLSearchParams();
+            this.filtermode = "filter";
+            this.offsetNft = 0;
+            this.nftCards = [];
+            this.noMoreNft = false;
+            this.loadNftMarket();
+        },
 
-            if(this.price_from) {
-                this.currentQuery.append('min', this.price_from);
-            }
-            if (this.price_to) {
-                this.currentQuery.append('max', this.price_to);
-            }
-            this.filter.selectedCategory.forEach( cat => {
-                this.currentQuery.append('category', cat)
-            })
+        reset() {
+            this.offsetNft = 0;
+            this.nftCards = [];
+            this.noMoreNft = false;
+            this.min = null;
+            this.max = null;
+            this.selectedCategory = [],
+            this.filtermode = null;
+            this.searchText = "";
+            this.loadNftMarket();
+        },
 
-            this.$router.push({ path: `/marketplace?${this.currentQuery}`});
-            // refresh to apply filters
-            window.location.reload();
-        }
+        
     },
 };
 </script>
