@@ -139,9 +139,7 @@ import NftCard from "../components/NftCard.vue";
 import axios from "axios";
 import constant from "../constants/index.js";
 
-const throttle = require("lodash.throttle");
-var price_range;
-var handler;
+
 export default {
     name: "Marketplace",
     components: {
