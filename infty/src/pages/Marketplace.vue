@@ -85,7 +85,7 @@
                             <b-form-input
                                 type="search"
                                 placeholder="Search..."
-                                @keyup.enter="$store.dispatch('notifyWIP')"
+                                v-model="searchText"
                             ></b-form-input>
                             <b-input-group-prepend is-text>
                                 <b-icon
@@ -180,6 +180,7 @@ export default {
             price_to: '',
             filtermode: null,
             selectedCategory: [],
+            searchText: ""
         };
     },
 
@@ -236,6 +237,7 @@ export default {
                     price_from: this.price_from,
                     price_to: this.price_to,
                     filtermode: this.filtermode,
+                    text: this.searchText,
                 };
                 axios.post(this.$store.getters.getApiUrl + `/market`, body).then((res) => {
                     const nft_ids = res.data.nft_ids;
