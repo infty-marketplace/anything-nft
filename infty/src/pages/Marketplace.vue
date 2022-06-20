@@ -91,7 +91,7 @@
                                 <b-icon
                                     icon="search"
                                     style="cursor:pointer"
-                                    @click="$store.dispatch('notifyWIP')"
+                                    @click="instantSearch"
                                 ></b-icon>
                             </b-input-group-prepend>
                         </b-input-group>
@@ -245,6 +245,14 @@ export default {
                     this.loadingNft = false;
                 });
             }, 200);
+        },
+
+        instantSearch() {
+            this.filtermode = "searchText";
+            this.offsetNft = 0;
+            this.nftCards = [];
+            this.noMoreNft = false;
+            this.loadNftMarket();
         },
 
         filterNotMine(checked) {
