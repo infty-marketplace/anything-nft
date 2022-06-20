@@ -41,8 +41,11 @@ const getNft = async (req, res) => {
 const updateViews = async (req, res) => {
     const nftId = req.params.nft_id;
     const nft = await Nft.findOne({ nft_id: nftId });
-    await Nft.findOneAndUpdate({ nft_id: nftId }, { views: nft.views + 1 });
-    res.send({ views: nft.views + 1 });
+    if (nft) {
+        await Nft.findOneAndUpdate({ nft_id: nftId }, { views: nft.views + 1 });
+        res.send({ views: nft.views + 1 });
+    }
+    res.status(404).send();
 };
 
 const likeNft = async (req, res) => {

@@ -2,7 +2,7 @@
     <div class="marketplace flex-wrapper">
         <Navbar active-index="0" />
         <div>
-            <div id="sidebar" style="width: 25%" class="mr-2 mb-4">
+            <div id="sidebar" style="width: 25%" class="mr-2 ml-2 mb-4">
                 <b-card no-body class="filter-card">
                     <template #header>
                         <h4 class="mb-0"><b-icon icon="filter-circle"></b-icon>&nbsp;{{ $t('filter') }}</h4>
@@ -119,6 +119,11 @@
                             >
                                 <span style="padding: 0px 20px;background-color:white;color:grey;">End of Market</span>
                             </p>
+                            <div class="load-bar" v-else-if="!loadingNft">
+                              <span class='btn-bg'>
+                              <button class="load-btn" @click="getMore">Load More</button>
+                              </span>
+                            </div>
                         </b-tab>
                     </b-tabs>
                 </div>
@@ -152,15 +157,6 @@ export default {
         this.loadNftMarket();
     },
 
-    mounted() {
-        handler = throttle(this.getMore, 1000);
-        window.addEventListener("scroll", handler);
-    },
-
-    destroyed() {
-        window.removeEventListener("scroll", handler);
-    },
-
     data() {
         return {
             offsetNft: 0,
@@ -188,11 +184,7 @@ export default {
 
     methods: {
         getMore() {
-            let bottomOfWindow =
-                Math.abs(
-                    document.documentElement.scrollTop + window.innerHeight - document.documentElement.offsetHeight
-                ) < 400;
-            if (bottomOfWindow && !this.noMoreNft) {
+            if (!this.noMoreNft) {
                 this.loadNftMarket();
             }
         },
@@ -328,7 +320,8 @@ export default {
     /* justify-content:center; */
 }
 .filter-card {
-    width: 20rem;
+    width: 100%;
+    max-width: 20rem;
     float: right;
 }
 .loading {
@@ -358,6 +351,29 @@ export default {
 .main-content {
     width: 100%;
 }
-</style>
 
-<style></style>
+.load-bar {
+  display: flex;
+  justify-content: center;
+  border-bottom: 1px solid grey; line-height: 0.1rem;
+  height: 1rem;
+  margin-bottom: 2rem;
+  margin-top: 2rem;
+}
+
+.load-btn {
+  font-size: 0.8rem;
+  height: 2rem;
+  padding: 1rem;
+  background-color: black;
+  color: white;
+  border: 1px solid grey;
+  box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
+}
+
+.btn-bg {
+  padding: 0rem 1rem;
+  height: 2rem;
+  background-color: white;
+}
+</style>
