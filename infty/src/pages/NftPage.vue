@@ -253,6 +253,18 @@ export default {
 
         async purchaseNft() {
             const getters = this.$store.getters;
+            try {
+                await axios.post(`${getters.getApiUrl}/validate-nft`, { nft_id: this.card.nft_id });
+            } catch (err) {
+                this.$notify.error({
+                    title: "NFT No Longer Available for Purchase",
+                    message: "The NFT is transferred outside our platform",
+                    duration: 3000,
+                });
+
+                return;
+            }
+
             this.$store.dispatch("notifyLoading", { msg: "Paying commission now" });
             const res = await window.confluxJS
                 .sendTransaction({
