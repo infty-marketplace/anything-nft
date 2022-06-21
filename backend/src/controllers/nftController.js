@@ -318,12 +318,17 @@ async function purchaseNft(req, res) {
         return res.status(400).json({ error: "buyer is the owner" });
     }
     const tokenID = body.nft_id.split("-")[1];
-    await cfxUtils.transferOwnershipOnChain(nft.owner[0].address, body.buyer, tokenID);
+    const seller = getNftOwners(nft);
+    console.log(seller);
+    await Promise.all([
+        cfxUtils.transferOwnershipOnChain(nft.owner[0].address, body.buyer, tokenID),
+        cfxUtils.transferCfxTo(seller, parseFloat(nft.price)),
+    ]);
 
     // create a transaction record
     let txnData = {
         buyer: body.buyer,
-        seller: nft.owner[0].address,
+        seller: seller,
         transaction_type: transactionType.PURCHASE_NFT,
         price: nft.price,
         currency: nft.currency,
@@ -338,7 +343,6 @@ async function purchaseNft(req, res) {
     }
 
     res.status(200).send();
-    await cfxUtils.transferCfxTo(nft.owner[0].address, parseFloat(nft.price));
 }
 
 module.exports = {
