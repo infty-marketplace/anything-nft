@@ -151,25 +151,27 @@ async function _deleteNft(nftId) {
         users.push(user);
     }
 
-    await mongodbUtils.saveAll(users).catch((error) => {
+    try {
+        await mongodbUtils.saveAll(users);
+    } catch (error) {
         return { code: 422, message: error.message };
-    });
+    }
 
     // delete nft
-    await Nft.deleteOne({ nft_id: nftId })
-        .then(async () => {
-            // delete image from nft storage iff db is updated
-            if (nft.metadata) {
-                await nftStorageUtils.burn(nft.metadata);
-            }
-            // burn nft on chain iff db is updated
-            const tokenId = nft.nft_id.split("-")[1];
-            await cfxUtils.burn(tokenId);
-            return { code: 200, message: "nft deleted successfully" };
-        })
-        .catch((error) => {
-            return { code: 422, message: error.message };
-        });
+    try {
+        // delete from database
+        await Nft.deleteOne({ nft_id: nftId });
+        // delete image from nft storage iff db is updated
+        if (nft.metadata) {
+            await nftStorageUtils.burn(nft.metadata);
+        }
+        // burn nft on chain iff db is updated
+        const tokenId = nft.nft_id.split("-")[1];
+        await cfxUtils.burn(tokenId);
+        return { code: 200, message: "nft deleted successfully" };
+    } catch (error) {
+        return { code: 422, message: error.message };
+    }
 }
 
 // return estimated gas to mint a hard code item from manager address
@@ -284,7 +286,7 @@ async function transferOwnership(txnData, recordTransaction = true) {
         });
 }
 
-async function validateNftOwnership() {
+async function validateNftOwnership(req, res) {
     const nftId = req.body.nft_id;
     let nft = await Nft.findOne({ nft_id: nftId });
 
@@ -292,7 +294,7 @@ async function validateNftOwnership() {
         return res.status(404).json({ error: "nft not found" });
     }
     const tokenID = nftId.split("-")[1];
-    if (getNftOwner(nft) !== (await getOwnerOnChain(tokenID))) {
+    if (getNftOwner(nft) !== (await cfxUtils.getOwnerOnChain(tokenID))) {
         // delete this nft from database\
         const { code, message } = await _deleteNft(nftId);
         return res.status(410).json({ error: "the seller is not the current owner of the nft" });
