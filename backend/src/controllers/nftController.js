@@ -295,7 +295,6 @@ async function validateNftOwnership() {
     if (getNftOwner(nft) !== (await getOwnerOnChain(tokenID))) {
         // delete this nft from database\
         const { code, message } = await _deleteNft(nftId);
-
         return res.status(410).json({ error: "the seller is not the current owner of the nft" });
     }
 
