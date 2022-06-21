@@ -265,7 +265,7 @@ export default {
                 return;
             }
 
-            this.$store.dispatch("notifyLoading", { msg: "Paying commission now" });
+            this.$store.dispatch("notifyLoading", { msg: "Purchasing now" });
             const res = await window.confluxJS
                 .sendTransaction({
                     from: (await window.conflux.send("cfx_requestAccounts"))[0],
