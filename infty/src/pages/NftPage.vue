@@ -65,7 +65,7 @@
                     </div>
                     <div style="display: inline-block"><b-icon icon="eye" />&nbsp;{{ views }} views</div>
                     <div style="display: inline-block">
-                        <div class="like" @click="onClickHeart">
+                        <div class="like">
                             <heart-btn ref="heartBtn" :nftId="card.nft_id" :isLiked="card.isLiked" />
                         </div>
                         {{ card.likes }} likes
@@ -140,6 +140,7 @@ import Navbar from "../components/Navbar.vue";
 import Footer from "../components/Footer.vue";
 import HeartBtn from "../components/HeartBtn.vue";
 import { Notification } from "element-ui";
+import { eventBus } from "../main";
 
 export default {
     name: "DetailPage",
@@ -202,6 +203,10 @@ export default {
         console: () => console,
     },
     created() {
+        eventBus.$on("NftPage.reload", () => {
+            this.reload();
+        });
+
         if (!this.card) this.reload();
     },
 
@@ -216,10 +221,6 @@ export default {
             if (b.label == "Owner") {
                 this.$router.push(`/profile/${a.owner}`);
             }
-        },
-        async onClickHeart() {
-            await this.$refs.heartBtn.waitUntilUpdated();
-            this.reload();
         },
         getOwnerAddress(owners) {
             return owners.find((owner) => owner.percentage === 1).address;
@@ -252,7 +253,11 @@ export default {
         buyNowClicked(e) {
             e.preventDefault();
             if (!this.$store.getters.getLogInStatus) {
-                this.$store.dispatch("connectWallet");
+                this.$notify.info({
+                    title: "Warning",
+                    message: "Please login to continue",
+                    duration: 3000,
+                });
             } else {
                 this.$refs["buy-modal"].show();
             }

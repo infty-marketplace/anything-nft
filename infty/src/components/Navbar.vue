@@ -37,18 +37,13 @@
             <label>Last Name</label>
             <b-form-input class="mb-4" v-model="lastName" placeholder="Optional" />
         </b-modal>
-        <b-toast id="no-wallet-toast" title="No Wallet Detected">
-            <a href="https://portal.confluxnetwork.org/" target="_blank">Please install it here.</a>
-        </b-toast>
-        <b-toast id="wallet-failure-toast" title="Failed to connect wallet">
-            Failed to connect, try again later.
-        </b-toast>
     </div>
 </template>
 
 <script>
 import axios from "axios";
 import { eventBus } from "../main";
+import { Notification } from "element-ui";
 
 export default {
     name: "Navbar",
@@ -61,8 +56,15 @@ export default {
         connectWallet() {
             this.$store.dispatch("connectWallet");
         },
-        handleRegister() {
-            axios
+        async handleRegister() {
+            this.$notify({
+                title: "Pending",
+                dangerouslyUseHTMLString: true,
+                message:
+                    '<div style="display:flex; align-items: center;"> <div class="loader"></div><div style="display:inline">Creating your profile</div></div>',
+                duration: 0,
+            });
+            await axios
                 .post(`${this.$store.getters.getApiUrl}/profile/update-profile`, {
                     first_name: this.firstName,
                     last_name: this.lastName,
@@ -70,6 +72,13 @@ export default {
                 })
                 .then((res) => {
                     console.log("profile saved", res);
+                    this.connectWallet();
+                    Notification.closeAll();
+                    this.$notify({
+                        title: "Success",
+                        message: "Profiled created",
+                        duration: 3000,
+                    });
                 });
         },
         toProfile() {
@@ -82,33 +91,35 @@ export default {
         },
     },
     computed: {
-        addr: function() {
-            return this.$store.getters.getAddress;
-        },
         profilePicture: function() {
             return this.$store.getters.getProfilePic;
         },
     },
     async created() {
         eventBus.$on("Navbar.noWallet", () => {
-            this.$bvToast.show("no-wallet-toast");
+            this.$notify.info({
+                title: "Wallet not Detected",
+                dangerouslyUseHTMLString: true,
+                message: `<a href="https://portal.confluxnetwork.org/" target="_blank">Please install it here</a>`,
+                duration: 0,
+            });
+        });
+        eventBus.$on("Navbar.noProfile", () => {
+            this.$refs["reg-modal"].show();
         });
         eventBus.$on("Navbar.connectWalletSuccess", async () => {
-            axios
-                .get(
-                    `${this.$store.getters.getApiUrl}/profile/${(await window.conflux.send("cfx_requestAccounts"))[0]}`
-                )
-                .then((res) => {
-                    console.log("wallet connected", res);
-                })
-                .catch((err) => {
-                    if (!err.response || err.response.status == 404) {
-                        this.$refs["reg-modal"].show();
-                    }
-                });
+            // this.$notify({
+            //     title: "Wallet Connected",
+            //     message: "We have connected to your wallet",
+            //     duration: 3000,
+            // });
         });
         eventBus.$on("Navbar.connectWalletFailure", () => {
-            this.$bvToast.show("wallet-failure-toast");
+            this.$notify.error({
+                title: "Wallet not Connected",
+                message: "Failed to connect to your wallet, please try again",
+                duration: 3000,
+            });
         });
     },
 };

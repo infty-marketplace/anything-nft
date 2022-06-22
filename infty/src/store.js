@@ -15,22 +15,35 @@ const store = new Vuex.Store({
         stakeAddress: "cfxtest:aca4k538vsk20xg0s4cphmmjns59kr4yayeccxb602",
         raffleContract: undefined,
         raffleAddress: "cfxtest:acba17zagxykgrh2hg6uzaukdx5tgrfm5jd5btkxk4",
-        profilePic:
-            "https://ipfs.io/ipfs/QmR9aGP1cQ13sapFBfFLiuhRVSGcrMYvZPmKXNNrobwtFZ?filename=undraw_male_avatar_323b.png",
+        profilePic: undefined,
         lang: "en",
         isLoggedIn: false,
     },
     actions: {
         async connectWallet(context) {
+            console.log("here");
+            if (this.state.isLoggedIn) {
+                return;
+            }
             if (!window.conflux) {
                 eventBus.$emit("Navbar.noWallet");
                 return;
             }
             try {
-                const accounts = await window.conflux.send("cfx_requestAccounts");
-                context.commit("setAddress", accounts[0]);
-                context.commit("setProfile");
-                eventBus.$emit("Navbar.connectWalletSuccess");
+                if (!this.state.address) {
+                    const accounts = await window.conflux.send("cfx_requestAccounts");
+                    context.commit("setAddress", accounts[0]);
+                    eventBus.$emit("Navbar.connectWalletSuccess");
+                }
+                await axios
+                    .get(`${this.state.apiUrl}/profile/${this.state.address}`)
+                    .then((res) => {
+                        context.commit("setProfile", res.data);
+                    })
+                    .catch(() => {
+                        eventBus.$emit("Navbar.noProfile"); // no profile found
+                    });
+
                 if (window.location.href.includes("/mine/collections")) eventBus.$emit("Collections.loadCollections");
             } catch (err) {
                 console.log(err);
@@ -63,11 +76,9 @@ const store = new Vuex.Store({
         setRaffleContract: (state, rc) => {
             state.raffleContract = rc;
         },
-        setProfile: async (state) => {
-            await axios.get(`${state.apiUrl}/profile/${state.address}`).then((res) => {
-                state.profilePic = res.data.profile_picture;
-                state.isLoggedIn = true;
-            });
+        setProfile: async (state, profile) => {
+            state.profilePic = profile.profile_picture;
+            state.isLoggedIn = true;
         },
         setLang: (state) => {
             if (state.lang === "cn") {
