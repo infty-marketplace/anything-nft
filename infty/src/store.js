@@ -21,7 +21,6 @@ const store = new Vuex.Store({
     },
     actions: {
         async connectWallet(context) {
-            console.log("here");
             if (this.state.isLoggedIn) {
                 return;
             }
