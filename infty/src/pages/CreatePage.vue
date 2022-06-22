@@ -1,7 +1,7 @@
 <template>
     <div class="flex-wrapper main">
         <Navbar activeIndex="2" />
-        <div class="content mt-5 mb-5" v-if="$store.getters.getAddress">
+        <div class="content mt-5 mb-5" v-if="$store.getters.getLogInStatus">
             <h2>Create your own NFT</h2>
             <label class="mt-4">Title*</label>
             <b-form-input v-model="title" type="search" placeholder="Enter name of the art..." />
@@ -152,7 +152,7 @@ export default {
             fd.append("description", this.description);
             const selectedLabels = this.labels.filter((l, i) => this.labelState[i] == true);
             fd.append("labels", JSON.stringify(selectedLabels));
-            
+
             // Obtain estimation
             const estimation = (await axios.post(this.$store.getters.getApiUrl + "/mint-estimate")).data.gas;
             // Charge User
@@ -183,7 +183,7 @@ export default {
                     error = true;
                 });
 
-            if (error){
+            if (error) {
                 return; // Stop to create nft if the transaction failed
             }
 
@@ -236,7 +236,6 @@ export default {
         },
     },
     async mounted() {
-        this.$store.dispatch("connectWallet");
         eventBus.$on("CreatePage.receiveFile", (imageData) => {
             this.imageData = imageData;
         });
