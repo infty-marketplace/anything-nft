@@ -95,7 +95,11 @@
                     <b-button href="#" variant="primary" @click="buyNowClicked" v-if="!isOwner && card.status == 'sale'"
                         ><b-icon icon="wallet2"></b-icon>&nbsp;&nbsp;Buy now</b-button
                     >
-                    <b-button variant="outline-primary" class="ml-2" @click="$store.dispatch('notifyWIP')"
+                    <b-button
+                        variant="outline-primary"
+                        class="ml-2"
+                        @click="$store.dispatch('notifyWIP')"
+                        v-if="!isOwner && card.status == 'sale'"
                         ><b-icon icon="tag-fill" />&nbsp;Make offer</b-button
                     >
                     <b-modal ref="buy-modal" title="List Item" @ok="purchaseNft">
@@ -248,7 +252,11 @@ export default {
 
         buyNowClicked(e) {
             e.preventDefault();
-            this.$refs["buy-modal"].show();
+            if (!this.$store.getters.getLogInStatus) {
+                this.$store.dispatch("connectWallet");
+            } else {
+                this.$refs["buy-modal"].show();
+            }
         },
 
         async purchaseNft() {
