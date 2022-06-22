@@ -203,7 +203,6 @@ export default {
     },
     created() {
         if (!this.card) this.reload();
-        if (this.$store.getters.getAddress == undefined) this.$store.dispatch("connectWallet");
     },
 
     async mounted() {
