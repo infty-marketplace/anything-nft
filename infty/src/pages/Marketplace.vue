@@ -5,7 +5,7 @@
             <div id="sidebar" style="width: 25%" class="mr-2 ml-2 mb-4">
                 <b-card no-body class="filter-card">
                     <template #header>
-                        <h4 class="mb-0"><b-icon icon="filter-circle"></b-icon>&nbsp;{{ $t('filter') }}</h4>
+                        <h4 class="mb-0"><b-icon icon="filter-circle"></b-icon>&nbsp;{{ $t("filter") }}</h4>
                     </template>
                     <b-list-group flush>
                         <b-list-group-item>
@@ -120,9 +120,9 @@
                                 <span style="padding: 0px 20px;background-color:white;color:grey;">End of Market</span>
                             </p>
                             <div class="load-bar" v-else-if="!loadingNft">
-                              <span class='btn-bg'>
-                              <button class="load-btn" @click="getMore">Load More</button>
-                              </span>
+                                <span class="btn-bg">
+                                    <button class="load-btn" @click="getMore">Load More</button>
+                                </span>
                             </div>
                         </b-tab>
                     </b-tabs>
@@ -232,9 +232,9 @@ export default {
                     offset: this.offsetNft,
                     limit: this.limit,
                 };
-                axios.post(this.$store.getters.getApiUrl + "/market", body).then((res) => {
+                axios.post(this.$store.getters.getApiUrl + "/market", body).then(async (res) => {
                     const nft_ids = res.data.nft_ids;
-                    this.proccessNft(nft_ids);
+                    await this.proccessNft(nft_ids);
                     this.offsetNft += nft_ids.length;
                     this.noMoreNft = nft_ids.length < this.limit;
                     this.loadingNft = false;
@@ -353,27 +353,28 @@ export default {
 }
 
 .load-bar {
-  display: flex;
-  justify-content: center;
-  border-bottom: 1px solid grey; line-height: 0.1rem;
-  height: 1rem;
-  margin-bottom: 2rem;
-  margin-top: 2rem;
+    display: flex;
+    justify-content: center;
+    border-bottom: 1px solid grey;
+    line-height: 0.1rem;
+    height: 1rem;
+    margin-bottom: 2rem;
+    margin-top: 2rem;
 }
 
 .load-btn {
-  font-size: 0.8rem;
-  height: 2rem;
-  padding: 1rem;
-  background-color: black;
-  color: white;
-  border: 1px solid grey;
-  box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
+    font-size: 0.8rem;
+    height: 2rem;
+    padding: 1rem;
+    background-color: black;
+    color: white;
+    border: 1px solid grey;
+    box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
 }
 
 .btn-bg {
-  padding: 0rem 1rem;
-  height: 2rem;
-  background-color: white;
+    padding: 0rem 1rem;
+    height: 2rem;
+    background-color: white;
 }
 </style>
