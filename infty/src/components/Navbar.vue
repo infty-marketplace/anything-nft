@@ -18,7 +18,7 @@
                         <router-link to="/mine/collections">{{ $t("collections") }}</router-link>
                     </li>
                     <li v-if="$store.getters.getLogInStatus">
-                        <img :src="profile_picture" class="profile-pic" @click="toProfile" />
+                        <img :src="profilePicture" class="profile-pic" @click="toProfile" />
                     </li>
                     <li v-else>
                         <b-button pill variant="primary" class="wallet-btn" @click="connectWallet">
@@ -85,7 +85,7 @@ export default {
         addr: function() {
             return this.$store.getters.getAddress;
         },
-        profile_picture: function() {
+        profilePicture: function() {
             return this.$store.getters.getProfilePic;
         },
     },
