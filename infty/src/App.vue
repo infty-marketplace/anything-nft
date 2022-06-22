@@ -1,9 +1,6 @@
 <template>
-    <div id="app" v-loading="!testnet">
+    <div id="app">
         <router-view />
-        <h1 v-if="!testnet" id="testnet-err">
-            Please install ConfluxPortal and switch to testnet, then refresh.
-        </h1>
     </div>
 </template>
 
@@ -17,9 +14,6 @@ import { eventBus } from "./main";
 
 export default {
     name: "App",
-    data: () => ({
-        testnet: true,
-    }),
     created() {
         document.title = "Infty Marketplace";
         const minterContract = window.confluxJS.Contract({
@@ -119,13 +113,6 @@ export default {
     }
 }
 
-#testnet-err {
-    position: absolute;
-    top: 40vh;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 10000;
-}
 .back-btn {
     position: absolute;
     top: 150px;

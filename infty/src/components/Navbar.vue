@@ -33,9 +33,9 @@
                 We noticed that this is your first time connecting to our platform, so we need some info from you.
             </div>
             <label>First Name</label>
-            <b-form-input class="mb-4" v-model="first_name" placeholder="Your creative first name here..." />
+            <b-form-input class="mb-4" v-model="firstName" placeholder="Your creative first name here..." />
             <label>Last Name</label>
-            <b-form-input class="mb-4" v-model="last_name" placeholder="Optional" />
+            <b-form-input class="mb-4" v-model="lastName" placeholder="Optional" />
         </b-modal>
         <b-toast id="no-wallet-toast" title="No Wallet Detected">
             <a href="https://portal.confluxnetwork.org/" target="_blank">Please install it here.</a>
@@ -54,8 +54,8 @@ export default {
     name: "Navbar",
     props: ["activeIndex"],
     data: () => ({
-        first_name: "",
-        last_name: "",
+        firstName: "",
+        lastName: "",
     }),
     methods: {
         connectWallet() {
@@ -64,8 +64,8 @@ export default {
         handleRegister() {
             axios
                 .post(`${this.$store.getters.getApiUrl}/profile/update-profile`, {
-                    first_name: this.first_name,
-                    last_name: this.last_name,
+                    first_name: this.firstName,
+                    last_name: this.lastName,
                     address: this.$store.getters.getAddress,
                 })
                 .then((res) => {
@@ -110,13 +110,6 @@ export default {
         eventBus.$on("Navbar.connectWalletFailure", () => {
             this.$bvToast.show("wallet-failure-toast");
         });
-    },
-    mounted() {
-        window.setTimeout(() => {
-            if (window.conflux && window.conflux.selectedAddress) {
-                this.$store.dispatch("connectWallet");
-            }
-        }, 100);
     },
 };
 </script>
