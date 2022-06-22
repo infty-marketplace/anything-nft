@@ -40,11 +40,9 @@
                         <b-collapse id="collapse-2" class="mt-2">
                             <p>
                                 Contract Address:
-                                <a
-                                    target="_blank"
-                                    :href="`https://testnet.confluxscan.io/token/${$store.getters.getMinterAddress}`"
-                                    >{{ card.nft_id.split("-")[0] }}</a
-                                >
+                                <a target="_blank" :href="this.getConfluxscanUrl($store.getters.getMinterAddress)">{{
+                                    card.nft_id.split("-")[0]
+                                }}</a>
                             </p>
                             <p>Token ID {{ card.nft_id.split("-")[1] }}</p>
                         </b-collapse>
@@ -217,6 +215,11 @@ export default {
         this.reload();
     },
     methods: {
+        getConfluxscanUrl: function(address) {
+            return address.startsWith("cfxtest:")
+                ? "https://testnet.confluxscan.io/address/" + address
+                : "https://confluxscan.io/address/" + address;
+        },
         cellClicked(a, b) {
             if (b.label == "Owner") {
                 this.$router.push(`/profile/${a.owner}`);
