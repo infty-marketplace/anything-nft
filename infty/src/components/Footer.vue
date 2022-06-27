@@ -15,41 +15,42 @@
             <div class="link-boxes">
                 <ul class="box">
                     <li class="link_name">{{ $t('marketplace') }}</li>
-                    <li><a href="/marketplace">All NFTs</a></li>
-                    <li><a href="/marketplace">Art</a></li>
-                    <li><a href="/marketplace">Trading Cards</a></li>
-                    <li><a href="/marketplace">Collectibles</a></li>
+                    <li><a href="/marketplace">{{ $t('footer.allNFTs') }}</a></li>
+                    <li><a href="/marketplace">{{ $t('footer.art') }}</a></li>
+                    <li><a href="/marketplace">{{ $t('footer.tradingCards') }}</a></li>
+                    <li><a href="/marketplace">{{ $t('footer.collectibles') }}</a></li>
                 </ul>
                 <ul class="box">
                     <li class="link_name">{{ $t('account') }}</li>
-                    <li><a href="#">App design</a></li>
-                    <li><a href="#">Web design</a></li>
-                    <li><a href="#">Logo design</a></li>
-                    <li><a href="#">Banner design</a></li>
+                    <li><a href="#">{{ $t('footer.appDesign') }}</a></li>
+                    <li><a href="#">{{ $t('footer.webDesign') }}</a></li>
+                    <li><a href="#">{{ $t('footer.logoDesign') }}</a></li>
+                    <li><a href="#">{{ $t('footer.bannerDesign') }}</a></li>
                 </ul>
                 <ul class="box">
                     <li class="link_name">{{ $t('stats') }}</li>
-                    <li><a href="#">Rankings</a></li>
-                    <li><a href="#">Activity</a></li>
+                    <li><a href="#">{{ $t('footer.rankings') }}</a></li>
+                    <li><a href="#">{{ $t('footer.activity') }}</a></li>
                 </ul>
                 <ul class="box">
-                    <li class="link_name">CutoffX</li>
-                    <li><a href="#">Contact us</a></li>
-                    <li><a href="#">About us</a></li>
+                    <li class="link_name">{{ $t('cutoffx') }}</li>
+                    <li><a href="#">{{ $t('footer.contactUs') }}</a></li>
+                    <li><a href="#">{{ $t('footer.aboutUs') }}</a></li>
                 </ul>
                 <ul class="box input-box">
                     <li class="link_name">{{ $t('subscribe') }}</li>
-                    <li><input type="text" placeholder="Enter your email" /></li>
-                    <li @click="subscribe"><input type="button" value="Subscribe" /></li>
+                    <li><input type="text" v-bind:placeholder="$t('footer.enterEmail')" /></li>
+                    <li @click="subscribe"><input type="button" v-bind:value="$t('subscribe')"/></li>
                     <el-switch
                         class="mt-3"
                         style="display: block;float: right;margin-right:-55px;"
-                        v-model="lang"
+                        v-model="$i18n.locale"
                         active-color="#13ce66"
                         inactive-color="#3faac1ba"
                         active-text="CN"
                         inactive-text="EN"
-                        @change="onChange"
+                        active-value="cn"
+                        inactive-value="en"
                     >
                     </el-switch>
                 </ul>
@@ -71,18 +72,10 @@
 import i18n from '../i18n';
 export default {
     name: 'Navbar',
-    data: () => ({ lang: false }),
+    data: () => ({}),
     mounted() {
         var language = window.navigator.language;
-        //console.log(language);
-       if (language == 'zh-CN'){
-           i18n.locale = 'cn';
-           this.lang = true;
-           //console.log(this.lang);
-       } else {
-           i18n.locale = 'en';
-       }
-       this.$store.commit('setLang');
+        this.$store.commit('setLang');
     },
     methods: {
         subscribe() {
@@ -92,16 +85,7 @@ export default {
                 duration: 5000,
                 type: 'success',
             });
-        },
-        onChange(e) {
-            //console.log(e);
-            if (e) {
-                i18n.locale = 'cn';
-            } else {
-                i18n.locale = 'en';
-            }
-            this.$store.commit('setLang');
-        },
+        }
     },
 };
 </script>

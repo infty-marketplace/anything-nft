@@ -10,7 +10,7 @@
                     <b-list-group flush>
                         <b-list-group-item>
                             <b-button pill v-b-toggle.collapse-1 variant="outline-secondary" class="category-button"
-                                >Status</b-button
+                                >{{ $t("filterOption.status") }}</b-button
                             >
                             <b-collapse id="collapse-1" class="mt-2">
                                 <b-card>
@@ -20,7 +20,7 @@
                         </b-list-group-item>
                         <b-list-group-item>
                             <b-button pill v-b-toggle.collapse-2 variant="outline-secondary" class="category-button"
-                                >Price (in CFX)</b-button
+                                >{{ $t("filterOption.price") }}</b-button
                             >
                             <b-collapse id="collapse-2" class="mt-2">
                                 <b-card>
@@ -37,7 +37,7 @@
                         </b-list-group-item>
                         <b-list-group-item>
                             <b-button pill v-b-toggle.collapse-3 variant="outline-secondary" class="category-button"
-                                >Collections</b-button
+                                >{{ $t("collections") }}</b-button
                             >
                             <b-collapse id="collapse-3" class="mt-2">
                                 <b-card>
@@ -63,7 +63,7 @@
 
                         <b-list-group-item>
                             <b-button pill v-b-toggle.collapse-5 variant="outline-secondary" class="category-button"
-                                >Categories</b-button
+                                >{{ $t("categories") }}</b-button
                             >
                             <b-collapse id="collapse-5" class="mt-2">
                                 <b-card>
@@ -88,7 +88,7 @@
                         <b-input-group size="md" class="mb-2">
                             <b-form-input
                                 type="search"
-                                placeholder="Search..."
+                                v-bind:value="$t('searchBar.search')"
                                 @keyup.enter="$store.dispatch('notifyWIP')"
                             ></b-form-input>
                             <b-input-group-prepend is-text>
