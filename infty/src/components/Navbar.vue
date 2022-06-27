@@ -76,7 +76,7 @@ export default {
                     Notification.closeAll();
                     this.$notify({
                         title: "Success",
-                        message: "Profiled created",
+                        message: "Profile created",
                         duration: 3000,
                     });
                 });

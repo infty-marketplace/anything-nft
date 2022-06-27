@@ -7,7 +7,7 @@
             <el-button type="primary">关注</el-button>
             <el-button type="primary">站内信</el-button>
         </div>
-        <div class="profile-pic-container" v-if="$store.getters.getAddress">
+        <div class="profile-pic-container" v-if="$store.getters.getLogInStatus">
             <img :src="avatar" id="profile-pic" />
             <h2 class="mt-2">{{ first_name }} {{ last_name }}</h2>
             <a target="_blank" :href="this.getConfluxscanUrl(this.$route.params.address)"
@@ -15,7 +15,7 @@
             >
         </div>
 
-        <div class="content" v-if="$store.getters.getAddress">
+        <div class="content" v-if="$store.getters.getLogInStatus">
             <div class="padding-border"></div>
             <el-row class="tac">
                 <el-col :span="5">
@@ -218,7 +218,8 @@ export default {
         NftCard,
     },
     data: () => ({
-        avatar: null,
+        avatar:
+            "https://bafybeiasgari2dccg4fcgrkbluberhlhmaq4noxhndz4ktn7pfdiakpp5m.ipfs.nftstorage.link/undraw_profile_pic_ic5t.png",
         selectedIndex: 0,
         modeSwitch: true,
         nftTransactions: [],
@@ -226,8 +227,8 @@ export default {
         displayBio: "",
         new_first: "",
         new_last: "",
-        first_name: "",
-        last_name: "",
+        first_name: "Unregistered",
+        last_name: "User",
         editModes: false,
         nfts: [],
         likedNfts: [],
@@ -354,8 +355,6 @@ export default {
         },
     },
     async mounted() {
-        await this.$store.dispatch("connectWallet");
-
         if (this.isMyself) {
             this.selectedIndex = "3";
             document.getElementById("account-menu").click();

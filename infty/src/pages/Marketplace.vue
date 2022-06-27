@@ -203,8 +203,16 @@ export default {
             nfts = await Promise.all(
                 nfts.map(async (nft) => {
                     const ownerAddress = this.getOwnerAddress(nft.owner);
-                    const owner = (await axios.get(`${this.$store.getters.getApiUrl}/profile/${ownerAddress}`)).data;
-                    nft.ownerName = owner.first_name + " " + owner.last_name;
+
+                    await axios
+                        .get(`${this.$store.getters.getApiUrl}/profile/${ownerAddress}`)
+                        .then((res) => {
+                            nft.ownerName = res.data.first_name + " " + res.data.last_name;
+                        })
+                        .catch(() => {
+                            nft.ownerName = "Unregistered User";
+                        });
+
                     nft.ownerAddress = ownerAddress;
                     nft.url = nft.file;
                     nft.isLiked = nft.liked_users.includes(this.user);
