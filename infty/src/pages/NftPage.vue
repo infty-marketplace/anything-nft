@@ -204,15 +204,13 @@ export default {
         eventBus.$on("NftPage.reload", () => {
             this.reload();
         });
-
-        if (!this.card) this.reload();
     },
 
     async mounted() {
         // fetch and update the views with api to backend
         const res = await axios.post(`${this.$store.getters.getApiUrl}/update-views/${this.$route.params.id}`);
         this.views = res.data.views;
-        this.reload();
+        if (!this.card) this.reload();
     },
     methods: {
         getConfluxscanUrl: function(address) {
@@ -235,24 +233,31 @@ export default {
 
             this.fractionProg = card.owner.slice(1).reduce((pv, cv) => pv + cv.percentage, 0) * 100;
 
-            const author = (await axios.get(`${this.$store.getters.getApiUrl}/profile/${card.author}`)).data;
-            card.author_name = author.first_name + " " + author.last_name;
+            await axios
+                .get(`${this.$store.getters.getApiUrl}/profile/${card.author}`)
+                .then((res) => {
+                    card.author_name = res.data.first_name + " " + res.data.last_name;
+                })
+                .catch(() => {
+                    card.author_name = "Unregistered User";
+                });
 
             this.isOwner = this.$store.getters.getAddress === this.getOwnerAddress(card.owner);
 
-            const owner = (
-                await axios.get(`${this.$store.getters.getApiUrl}/profile/${this.getOwnerAddress(card.owner)}`)
-            ).data;
-            card.owner_name = owner.first_name + " " + owner.last_name;
+            await axios
+                .get(`${this.$store.getters.getApiUrl}/profile/${this.getOwnerAddress(card.owner)}`)
+                .then((res) => {
+                    card.owner_name = res.data.first_name + " " + res.data.last_name;
+                })
+                .catch(() => {
+                    card.owner_name = "Unregistered User";
+                });
+
             card.url = card.file;
             card.likes = card.liked_users.length;
             card.isLiked = card.liked_users.includes(this.$store.getters.getAddress);
             this.card = card;
         },
-        rand(min, max) {
-            return Math.floor(Math.random() * (max - min)) + min;
-        },
-
         buyNowClicked(e) {
             e.preventDefault();
             if (!this.$store.getters.getLogInStatus) {
