@@ -16,6 +16,8 @@ export default {
     name: "App",
     created() {
         document.title = "Infty Marketplace";
+        console.log("crested");
+        this.$store.dispatch("loadFromSessionStorage");
         const minterContract = window.confluxJS.Contract({
             abi: inftyNftAbi,
             address: this.$store.getters.getMinterAddress,

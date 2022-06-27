@@ -57,14 +57,23 @@ const store = new Vuex.Store({
             const { msg } = payload;
             eventBus.$emit("App.notifyLoading", msg);
         },
-
         notifyErr() {
             eventBus.$emit("App.notifyErr");
+        },
+        loadFromSessionStorage(state) {
+            Object.keys(sessionStorage).forEach((key) => {
+                if (key.startsWith("infty-marketplace:")) {
+                    const value = window.sessionStorage.getItem(key);
+                    const stateKey = key.split(":")[1];
+                    state.state[stateKey] = value;
+                }
+            });
         },
     },
     mutations: {
         setAddress: (state, addr) => {
             state.address = addr;
+            window.sessionStorage.setItem("infty-marketplace:address", addr);
         },
         setMinterContract: (state, mc) => {
             state.minterContract = mc;
@@ -78,6 +87,8 @@ const store = new Vuex.Store({
         setProfile: async (state, profile) => {
             state.profilePic = profile.profile_picture;
             state.isLoggedIn = true;
+            window.sessionStorage.setItem("infty-marketplace:profilePic", profile.profile_picture);
+            window.sessionStorage.setItem("infty-marketplace:isLoggedIn", true);
         },
         setLang: (state) => {
             if (state.lang === "cn") {
