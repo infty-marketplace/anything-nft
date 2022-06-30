@@ -336,15 +336,14 @@ export default {
             return owners.find((owner) => owner.percentage === 1).address;
         },
         async loadNfts(nftIds, enableLike = false) {
-            const nftPromises = nftIds.map((nftId) => axios.get(`${this.$store.getters.getApiUrl}/nft/${nftId}`));
-            const results = await Promise.allSettled(nftPromises);
-            let nfts = results.filter((result) => result.status === "fulfilled").map((result) => result.value.data);
-            nfts = await Promise.all(
-                nfts.map(async (nft) => {
+            const nftPromises = nftIds.map((nftId) => {
+                return axios.get(`${this.$store.getters.getApiUrl}/nft/${nftId}`).then(async (res) => {
+                    const nft = res.data;
                     nft.url = nft.file;
                     nft.enableLike = enableLike;
                     nft.isLiked = nft.liked_users.includes(this.$store.getters.getAddress);
                     const ownerAddress = this.getOwnerAddress(nft.owner);
+                    nft.ownerAddress = ownerAddress;
                     await axios
                         .get(`${this.$store.getters.getApiUrl}/profile/${ownerAddress}`)
                         .then((res) => {
@@ -353,10 +352,11 @@ export default {
                         .catch(() => {
                             nft.ownerName = "Unregistered User";
                         });
-                    nft.ownerAddress = ownerAddress;
                     return nft;
-                })
-            );
+                });
+            });
+            const results = await Promise.allSettled(nftPromises);
+            let nfts = results.filter((result) => result.status === "fulfilled").map((result) => result.value);
             return nfts;
         },
     },
