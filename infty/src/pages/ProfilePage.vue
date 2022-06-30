@@ -345,8 +345,14 @@ export default {
                     nft.enableLike = enableLike;
                     nft.isLiked = nft.liked_users.includes(this.$store.getters.getAddress);
                     const ownerAddress = this.getOwnerAddress(nft.owner);
-                    const owner = (await axios.get(`${this.$store.getters.getApiUrl}/profile/${ownerAddress}`)).data;
-                    nft.ownerName = owner.first_name + " " + owner.last_name;
+                    await axios
+                        .get(`${this.$store.getters.getApiUrl}/profile/${ownerAddress}`)
+                        .then((res) => {
+                            nft.ownerName = res.data.first_name + " " + res.data.last_name;
+                        })
+                        .catch(() => {
+                            nft.ownerName = "Unregistered User";
+                        });
                     nft.ownerAddress = ownerAddress;
                     return nft;
                 })
@@ -371,7 +377,6 @@ export default {
         this.new_first = profile.first_name;
         this.new_last = profile.last_name;
         this.bio = profile.description;
-        this.loadTransactions();
 
         // new database schema
         const nft_ids = profile.nft_ids.map((id) => {
@@ -383,8 +388,11 @@ export default {
                 .join("");
         });
 
-        this.nfts = await this.loadNfts(nft_ids);
-        this.likedNfts = await this.loadNfts(profile.liked_nfts, true);
+        [this.likedNfts, this.nfts, _] = await Promise.all([
+            this.loadNfts(profile.liked_nfts, true),
+            this.loadNfts(nft_ids),
+            this.loadTransactions(),
+        ]);
     },
 };
 </script>
