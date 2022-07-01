@@ -106,7 +106,7 @@
                         <b-tab title="NFT">
                             <div class="nft-container">
                                 <transition name="fade">
-                                    <div class="loading" v-show="loadingNft">
+                                    <div :class="isFirstLoad ? 'loading' : 'load_more_loading'" v-show="loadingNft">
                                         <span class="fa fa-spinner fa-spin"></span> Loading
                                     </div>
                                 </transition>
@@ -179,11 +179,13 @@ export default {
             noMoreNft: false,
             user: undefined,
             filter: { notMine: false },
+            isFirstLoad: true,
         };
     },
 
     methods: {
         getMore() {
+            this.isFirstLoad = false;
             if (!this.noMoreNft) {
                 this.loadNftMarket();
             }
@@ -342,6 +344,17 @@ export default {
     border-radius: 5px;
     left: calc(50% - 45px);
     top: calc(50% - 18px);
+}
+.load_more_loading{
+    text-align: center;
+    position: absolute;
+    color: #fff;
+    z-index: 9;
+    background: rgb(0, 0, 0);
+    padding: 8px 18px;
+    border-radius: 5px;
+    left: calc(50% - 45px);
+    top: calc(50vh - 18px);
 }
 
 .alb-card {
