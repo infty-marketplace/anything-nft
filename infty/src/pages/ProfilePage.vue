@@ -388,7 +388,7 @@ export default {
                 .join("");
         });
 
-        [this.likedNfts, this.nfts, _] = await Promise.all([
+        [this.likedNfts, this.nfts,] = await Promise.all([
             this.loadNfts(profile.liked_nfts, true),
             this.loadNfts(nft_ids),
             this.loadTransactions(),
