@@ -174,24 +174,23 @@
                                 </el-col>
                             </el-row>
                         </el-card>
-                        <!-- <b-modal ref="confirm" title='Confirm Update' @ok="update">
-                        <label>First Name</label>
-                        <b-form-input class='mb-4' v-model='new_first' readonly/>
-                        <label>Last Name</label>
-                        <b-form-input class='mb-4' v-model='new_last' readonly/>
-                        <label>Description</label>
-                        <b-form-input class='mb-4' v-model='bio' readonly/>
-                        </b-modal> -->
-                        <el-switch
+                        
+                        <!-- TODO: Night mode support <el-switch
                             class="ml-5"
-                            style="display: block"
+                            style="display: inline-block"
                             v-model="modeSwitch"
                             active-color="#ef8e38"
                             inactive-color="rgb(80,80,46)"
                             active-text="Day Mode"
                             inactive-text="Night Mode"
                         >
-                        </el-switch>
+                        </el-switch> -->
+                        <el-button 
+                            class="mr-5"
+                            style="display:inline; float:right;"
+                            type="danger"
+                            @click="logout"
+                        >Log Out</el-button>
                     </div>
                 </el-col>
             </el-row>
@@ -353,6 +352,10 @@ export default {
             );
             return nfts;
         },
+
+        logout() {
+            this.$store.commit("setLogin", false);
+        }
     },
     async mounted() {
         if (this.isMyself) {

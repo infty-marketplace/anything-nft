@@ -2,12 +2,14 @@ import Vue from "vue";
 import Vuex from "vuex";
 import { eventBus } from "./main";
 import axios from "axios";
+import { PersonalMessage } from "js-conflux-sdk"
+
 Vue.use(Vuex);
 
 const store = new Vuex.Store({
     state: {
         address: undefined,
-        apiUrl: "http://localhost:3001/api",
+        apiUrl: "/api",
         managerAddr: "cfxtest:aar3amuxs8fg2u7h1tsngukey8vm2h6vgujhf413e6",
         minterContract: undefined,
         minterAddress: "cfxtest:ace5gcmv1x118ts2tta4k83asp7sxrz566w4defuhr",
@@ -32,6 +34,21 @@ const store = new Vuex.Store({
                 if (!this.state.address) {
                     const accounts = await window.conflux.send("cfx_requestAccounts");
                     context.commit("setAddress", accounts[0]);
+                    // format: Infty: <unix timestamp>
+                    const timestamp = Date.now();
+                    const msg = "0x496e6674793a" + timestamp;
+                    window.confluxJS.provider.sendAsync({method: "personal_sign", params:[msg, this.state.address], from: this.state.address}, 
+                        (e, res) => {
+                            console.log(res.result)
+                            const pub = PersonalMessage.recoverPortalPersonalSign(res.result, msg)
+                            console.log(pub)
+                            axios.post(`${this.state.apiUrl}/auth`, {
+                                sig: res.result,
+                                pub: pub,
+                                timestamp: timestamp
+                            })
+                        })
+                    // ;
                     eventBus.$emit("Navbar.connectWalletSuccess");
                 }
                 await axios
@@ -63,6 +80,9 @@ const store = new Vuex.Store({
         },
     },
     mutations: {
+        setLogin(state, payload) {
+            state.isLoggedIn = payload;
+        },
         setAddress: (state, addr) => {
             state.address = addr;
         },
@@ -78,6 +98,10 @@ const store = new Vuex.Store({
         setProfile: async (state, profile) => {
             state.profilePic = profile.profile_picture;
             state.isLoggedIn = true;
+        },
+        setProfilePic: async (state) => {
+            const res = await axios.get(`${state.apiUrl}/profile/${state.address}`);
+            state.profilePic = res.data.profile_picture
         },
         setLang: (state) => {
             if (state.lang === "cn") {

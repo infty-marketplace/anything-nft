@@ -1,6 +1,7 @@
 const User = require("../models/user");
 const Nft = require("../models/nft");
 const Transaction = require("../models/transaction");
+const { PersonalMessage  } = require('js-conflux-sdk');
 
 function logout(req, res, success, error) {
     try {
@@ -12,29 +13,28 @@ function logout(req, res, success, error) {
 }
 
 const authUser = async (req, res) => {
+    // TODO: this is not 100% secure, need to figure out how to convert pub to address
     const body = req.body;
+    console.log(body)
     if (!body) {
         return res.status(400).json({ error: "invalid request" });
     }
+    let pub;
+    try {
+        pub = PersonalMessage.recoverPortalPersonalSign(body.sig, `0x496e6674793a${body.timestamp}`);
+    } catch {
+        res.status(500).send();
+    }
 
-    const address = req.body.address;
-    const user = await User.findOne({ address });
-
-    if (!!user) {
-        onSuccessLogin();
+    if (body.pub == pub) {
+        req.loggedIn = true;
+        res.status(200).json({success: true}).send();
+        console.log('suc')
     } else {
-        onErrorLogin();
+        res.status(500).send();
+        console.log('fail')
     }
 
-    function onSuccessLogin() {
-        req.session.username = address;
-        req.session.loggedInCode = 5;
-        res.json({ success: true });
-    }
-
-    function onErrorLogin() {
-        res.json({ success: false, error: "Invalid address" });
-    }
 };
 
 const getUser = async (req, res) => {
