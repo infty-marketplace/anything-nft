@@ -40,9 +40,11 @@
                         <b-collapse id="collapse-2" class="mt-2">
                             <p>
                                 Contract Address:
-                                <a target="_blank" :href="this.getConfluxscanUrl($store.getters.getMinterAddress)">{{
-                                    card.nft_id.split("-")[0]
-                                }}</a>
+                                <a
+                                    target="_blank"
+                                    :href="`${this.confluxScanUrl}/address/${$store.getters.getMinterAddress}`"
+                                    >{{ card.nft_id.split("-")[0] }}
+                                </a>
                             </p>
                             <p>Token ID {{ card.nft_id.split("-")[1] }}</p>
                         </b-collapse>
@@ -116,13 +118,38 @@
                 </b-card>
                 <b-card class="transaction-info" header-tag="header" footer-tag="footer">
                     <template #header>
-                        Offers
+                        Transaction History
                     </template>
-                    <el-table :data="offersData" style="width: 100%" height="200" empty-text="Nothing">
-                        <el-table-column prop="unit_price" label="Unit Price" width="180"> </el-table-column>
-                        <el-table-column prop="usd" label="USD" width="180"> </el-table-column>
-                        <el-table-column prop="exp" label="Expiration"> </el-table-column>
-                        <el-table-column prop="from" label="From"> </el-table-column>
+                    <el-table :data="transactions" style="width: 100%" stripe empty-text="Nothing">
+                        <el-table-column type="expand">
+                            <template #default="props">
+                                <p v-for="(value, key) in props.row.details" :key="key">
+                                    {{ key + ": " + (typeof value === "object" ? JSON.stringify(value) : value) }}
+                                </p>
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="txnHash" label="Txn Hash" width="180">
+                            <template slot-scope="scope">
+                                <a target="_blank" :href="scope.row.txnHashUrl">{{ scope.row.txnHash }}</a>
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="from" label="From" width="180">
+                            <template slot-scope="scope">
+                                <a target="_blank" :href="scope.row.fromUrl">{{ scope.row.from }}</a>
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="to" label="To" width="180">
+                            <template slot-scope="scope">
+                                <a target="_blank" :href="scope.row.toUrl">{{ scope.row.to }}</a>
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="time" label="Time" width="180"> </el-table-column>
+                        <el-table-column prop="age" label="Age" width="180"> </el-table-column>
+                        <el-table-column prop="epoch" label="Epoch" width="180">
+                            <template slot-scope="scope">
+                                <a target="_blank" :href="scope.row.epochUrl">{{ scope.row.epoch }}</a>
+                            </template>
+                        </el-table-column>
                     </el-table>
                 </b-card>
             </b-card-group>
@@ -157,32 +184,7 @@ export default {
             fractionProg: 0,
             listing_commision: "",
             sharesTable: [],
-            offersData: [
-                {
-                    unit_price: 30,
-                    usd: 9,
-                    exp: "2 days",
-                    from: "William M",
-                },
-                {
-                    unit_price: 1,
-                    usd: 0.3,
-                    exp: "1 days",
-                    from: "User M",
-                },
-                {
-                    unit_price: 1,
-                    usd: 0.3,
-                    exp: "1 days",
-                    from: "User A",
-                },
-                {
-                    unit_price: 1,
-                    usd: 0.3,
-                    exp: "1 days",
-                    from: "User B",
-                },
-            ],
+            transactions: [],
         };
     },
     computed: {
@@ -193,31 +195,33 @@ export default {
                 if (i == -1) return "";
                 return this.card.owner[i].percentage * 100;
             } catch (e) {
-                console.log(e);
                 return "";
             }
+        },
+        confluxScanUrl() {
+            return this.$route.params.id.startsWith("cfxtest:")
+                ? "https://testnet.confluxscan.io"
+                : "https://confluxscan.io";
         },
         window: () => window,
         console: () => console,
     },
     created() {
         eventBus.$on("NftPage.reload", () => {
-            this.reload();
+            this.fetchNftData();
+            this.fetchTransactionHistory();
         });
     },
-
     async mounted() {
         // fetch and update the views with api to backend
         const res = await axios.post(`${this.$store.getters.getApiUrl}/update-views/${this.$route.params.id}`);
         this.views = res.data.views;
-        if (!this.card) this.reload();
+        if (!this.card) {
+            this.fetchNftData();
+            this.fetchTransactionHistory();
+        }
     },
     methods: {
-        getConfluxscanUrl: function(address) {
-            return address.startsWith("cfxtest:")
-                ? "https://testnet.confluxscan.io/address/" + address
-                : "https://confluxscan.io/address/" + address;
-        },
         cellClicked(a, b) {
             if (b.label == "Owner") {
                 this.$router.push(`/profile/${a.owner}`);
@@ -226,7 +230,7 @@ export default {
         getOwnerAddress(owners) {
             return owners.find((owner) => owner.percentage === 1).address;
         },
-        async reload() {
+        async fetchNftData() {
             const getters = this.$store.getters;
 
             const card = (await axios.get(`${getters.getApiUrl}/nft/${this.$route.params.id}`)).data;
@@ -257,6 +261,74 @@ export default {
             card.likes = card.liked_users.length;
             card.isLiked = card.liked_users.includes(this.$store.getters.getAddress);
             this.card = card;
+        },
+        truncate(fullStr, strLen, separator = "...") {
+            fullStr = fullStr.toString();
+            if (fullStr.length <= strLen) {
+                return fullStr;
+            }
+
+            const sepLen = separator.length,
+                charsToShow = strLen - sepLen,
+                frontChars = Math.ceil(charsToShow / 2),
+                backChars = Math.floor(charsToShow / 2);
+
+            return fullStr.substr(0, frontChars) + separator + fullStr.substr(fullStr.length - backChars);
+        },
+        msToTime(ms) {
+            const days = Math.floor(ms / (24 * 60 * 60 * 1000));
+            const daysms = ms % (24 * 60 * 60 * 1000);
+            const hours = Math.floor(daysms / (60 * 60 * 1000));
+            const hoursms = ms % (60 * 60 * 1000);
+            const minutes = Math.floor(hoursms / (60 * 1000));
+            const minutesms = ms % (60 * 1000);
+            const seconds = Math.floor(minutesms / 1000);
+            return [days, hours, minutes, seconds];
+        },
+        padToTwoDigits(s) {
+            s = s.toString();
+            if (s.length >= 2) {
+                return s;
+            } else {
+                return this.padToTwoDigits("0" + s);
+            }
+        },
+        async fetchTransactionHistory() {
+            const [contractAddress, tokenId] = this.$route.params.id.split("-");
+            const transferUrl = `${this.confluxScanUrl}/v1/transfer?address=${contractAddress}&limit=100&skip=0&tokenId=${tokenId}&transferType=ERC721`;
+
+            await axios.get(transferUrl).then((res) => {
+                this.transactions = res.data.list.map((data) => {
+                    const txnDate = new Date(parseInt(data.timestamp) * 1000);
+                    const taxDateString = `${this.padToTwoDigits(txnDate.getFullYear())}/${this.padToTwoDigits(
+                        txnDate.getMonth() + 1
+                    )}/${this.padToTwoDigits(txnDate.getDate())} ${this.padToTwoDigits(
+                        txnDate.getHours()
+                    )}:${this.padToTwoDigits(txnDate.getMinutes())}:${this.padToTwoDigits(txnDate.getSeconds())}`;
+
+                    const [days, hours, minutes, seconds] = this.msToTime(new Date() - txnDate);
+                    const strLength = 22;
+
+                    const transaction = {
+                        details: {
+                            ...data,
+                            age: `${days} days ${hours} hours ${minutes} minutes ${seconds} seconds ago`,
+                            time: txnDate.toString(),
+                        },
+                        txnHash: this.truncate(data.transactionHash, strLength),
+                        txnHashUrl: `${this.confluxScanUrl}/transaction/${data.transactionHash}`,
+                        from: this.truncate(data.from, strLength),
+                        fromUrl: `${this.confluxScanUrl}/address/${data.from}`,
+                        to: this.truncate(data.to, strLength),
+                        toUrl: `${this.confluxScanUrl}/address/${data.to}`,
+                        epoch: this.truncate(data.epochNumber, strLength),
+                        epochUrl: `${this.confluxScanUrl}/epoch/${data.epochNumber}`,
+                        time: this.truncate(taxDateString, strLength),
+                        age: this.truncate(`${days} days ${hours} hours ago`, strLength),
+                    };
+                    return transaction;
+                });
+            });
         },
         buyNowClicked(e) {
             e.preventDefault();
@@ -337,7 +409,6 @@ export default {
                     }
                 })
                 .catch((err) => {
-                    console.log(err);
                     this.$bvToast.toast("Purchase Failed", {
                         title: "Error",
                         autoHideDelay: 3000,
@@ -366,7 +437,6 @@ export default {
                     percentage: parseFloat(this.shares) * 0.01,
                 })
                 .then((res) => {
-                    console.log(res);
                     Notification.closeAll();
                     this.$bvToast.toast("NFT Shares Purchased Successfully", {
                         title: "Notification",
