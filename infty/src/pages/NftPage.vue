@@ -408,7 +408,7 @@ export default {
                         });
                     }
                 })
-                .catch((err) => {
+                .catch(() => {
                     this.$bvToast.toast("Purchase Failed", {
                         title: "Error",
                         autoHideDelay: 3000,
@@ -436,7 +436,7 @@ export default {
                     buyer: addr,
                     percentage: parseFloat(this.shares) * 0.01,
                 })
-                .then((res) => {
+                .then(() => {
                     Notification.closeAll();
                     this.$bvToast.toast("NFT Shares Purchased Successfully", {
                         title: "Notification",
