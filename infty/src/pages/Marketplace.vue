@@ -5,12 +5,12 @@
             <div id="sidebar" style="width: 25%" class="mr-2 ml-2 mb-4">
                 <b-card no-body class="filter-card">
                     <template #header>
-                        <h4 class="mb-0"><b-icon icon="filter-circle"></b-icon>&nbsp;{{ $t('filter') }}</h4>
+                        <h4 class="mb-0"><b-icon icon="filter-circle"></b-icon>&nbsp;{{ $t("filter") }}</h4>
                     </template>
                     <b-list-group flush>
                         <b-list-group-item>
                             <b-button pill v-b-toggle.collapse-1 variant="outline-secondary" class="category-button"
-                                >Status</b-button
+                                >{{ $t("filterOption.status") }}</b-button
                             >
                             <b-collapse id="collapse-1" class="mt-2">
                                 <b-card>
@@ -20,7 +20,7 @@
                         </b-list-group-item>
                         <b-list-group-item>
                             <b-button pill v-b-toggle.collapse-2 variant="outline-secondary" class="category-button"
-                                >Price (in CFX)</b-button
+                                >{{ $t("filterOption.price") }}</b-button
                             >
                             <b-collapse id="collapse-2" class="mt-2">
                                 <b-card>
@@ -37,7 +37,7 @@
                         </b-list-group-item>
                         <b-list-group-item>
                             <b-button pill v-b-toggle.collapse-3 variant="outline-secondary" class="category-button"
-                                >Collections</b-button
+                                >{{ $t("collections") }}</b-button
                             >
                             <b-collapse id="collapse-3" class="mt-2">
                                 <b-card>
@@ -63,7 +63,7 @@
 
                         <b-list-group-item>
                             <b-button pill v-b-toggle.collapse-5 variant="outline-secondary" class="category-button"
-                                >Categories</b-button
+                                >{{ $t("categories") }}</b-button
                             >
                             <b-collapse id="collapse-5" class="mt-2">
                                 <b-card>
@@ -88,7 +88,7 @@
                         <b-input-group size="md" class="mb-2">
                             <b-form-input
                                 type="search"
-                                placeholder="Search..."
+                                v-bind:value="$t('searchBar.search')"
                                 @keyup.enter="$store.dispatch('notifyWIP')"
                             ></b-form-input>
                             <b-input-group-prepend is-text>
@@ -120,9 +120,9 @@
                                 <span style="padding: 0px 20px;background-color:white;color:grey;">End of Market</span>
                             </p>
                             <div class="load-bar" v-else-if="!loadingNft">
-                              <span class='btn-bg'>
-                              <button class="load-btn" @click="getMore">Load More</button>
-                              </span>
+                                <span class="btn-bg">
+                                    <button class="load-btn" @click="getMore">Load More</button>
+                                </span>
                             </div>
                         </b-tab>
                     </b-tabs>
@@ -203,8 +203,16 @@ export default {
             nfts = await Promise.all(
                 nfts.map(async (nft) => {
                     const ownerAddress = this.getOwnerAddress(nft.owner);
-                    const owner = (await axios.get(`${this.$store.getters.getApiUrl}/profile/${ownerAddress}`)).data;
-                    nft.ownerName = owner.first_name + " " + owner.last_name;
+
+                    await axios
+                        .get(`${this.$store.getters.getApiUrl}/profile/${ownerAddress}`)
+                        .then((res) => {
+                            nft.ownerName = res.data.first_name + " " + res.data.last_name;
+                        })
+                        .catch(() => {
+                            nft.ownerName = "Unregistered User";
+                        });
+
                     nft.ownerAddress = ownerAddress;
                     nft.url = nft.file;
                     nft.isLiked = nft.liked_users.includes(this.user);
@@ -232,9 +240,9 @@ export default {
                     offset: this.offsetNft,
                     limit: this.limit,
                 };
-                axios.post(this.$store.getters.getApiUrl + "/market", body).then((res) => {
+                axios.post(this.$store.getters.getApiUrl + "/market", body).then(async (res) => {
                     const nft_ids = res.data.nft_ids;
-                    this.proccessNft(nft_ids);
+                    await this.proccessNft(nft_ids);
                     this.offsetNft += nft_ids.length;
                     this.noMoreNft = nft_ids.length < this.limit;
                     this.loadingNft = false;
@@ -353,27 +361,28 @@ export default {
 }
 
 .load-bar {
-  display: flex;
-  justify-content: center;
-  border-bottom: 1px solid grey; line-height: 0.1rem;
-  height: 1rem;
-  margin-bottom: 2rem;
-  margin-top: 2rem;
+    display: flex;
+    justify-content: center;
+    border-bottom: 1px solid grey;
+    line-height: 0.1rem;
+    height: 1rem;
+    margin-bottom: 2rem;
+    margin-top: 2rem;
 }
 
 .load-btn {
-  font-size: 0.8rem;
-  height: 2rem;
-  padding: 1rem;
-  background-color: black;
-  color: white;
-  border: 1px solid grey;
-  box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
+    font-size: 0.8rem;
+    height: 2rem;
+    padding: 1rem;
+    background-color: black;
+    color: white;
+    border: 1px solid grey;
+    box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
 }
 
 .btn-bg {
-  padding: 0rem 1rem;
-  height: 2rem;
-  background-color: white;
+    padding: 0rem 1rem;
+    height: 2rem;
+    background-color: white;
 }
 </style>

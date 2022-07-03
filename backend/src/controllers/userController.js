@@ -59,7 +59,7 @@ const updateProfile = async (req, res) => {
             address: req.body.address,
             description: req.body.description,
             profile_picture:
-                "https://ipfs.io/ipfs/QmR9aGP1cQ13sapFBfFLiuhRVSGcrMYvZPmKXNNrobwtFZ?filename=undraw_male_avatar_323b.png",
+                "https://bafybeiasgari2dccg4fcgrkbluberhlhmaq4noxhndz4ktn7pfdiakpp5m.ipfs.nftstorage.link/undraw_profile_pic_ic5t.png",
         });
         newUser.save((err) => {
             if (err) {

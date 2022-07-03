@@ -7,15 +7,15 @@
             <el-button type="primary">关注</el-button>
             <el-button type="primary">站内信</el-button>
         </div>
-        <div class="profile-pic-container" v-if="$store.getters.getAddress">
+        <div class="profile-pic-container" v-if="$store.getters.getLogInStatus">
             <img :src="avatar" id="profile-pic" />
             <h2 class="mt-2">{{ first_name }} {{ last_name }}</h2>
-            <a target="_blank" :href="`https://confluxscan.io/address/${this.$route.params.address}`"
+            <a target="_blank" :href="this.getConfluxscanUrl(this.$route.params.address)"
                 ><p class="mt-2">{{ this.$route.params.address }}</p></a
             >
         </div>
 
-        <div class="content" v-if="$store.getters.getAddress">
+        <div class="content" v-if="$store.getters.getLogInStatus">
             <div class="padding-border"></div>
             <el-row class="tac">
                 <el-col :span="5">
@@ -218,7 +218,8 @@ export default {
         NftCard,
     },
     data: () => ({
-        avatar: null,
+        avatar:
+            "https://bafybeiasgari2dccg4fcgrkbluberhlhmaq4noxhndz4ktn7pfdiakpp5m.ipfs.nftstorage.link/undraw_profile_pic_ic5t.png",
         selectedIndex: 0,
         modeSwitch: true,
         nftTransactions: [],
@@ -226,8 +227,8 @@ export default {
         displayBio: "",
         new_first: "",
         new_last: "",
-        first_name: "",
-        last_name: "",
+        first_name: "Unregistered",
+        last_name: "User",
         editModes: false,
         nfts: [],
         likedNfts: [],
@@ -250,6 +251,11 @@ export default {
         },
     },
     methods: {
+        getConfluxscanUrl: function(address) {
+            return address.startsWith("cfxtest:")
+                ? "https://testnet.confluxscan.io/address/" + address
+                : "https://confluxscan.io/address/" + address;
+        },
         handleSelect(i) {
             if (i == 5) {
                 this.$store.dispatch("notifyWIP");
@@ -330,27 +336,31 @@ export default {
             return owners.find((owner) => owner.percentage === 1).address;
         },
         async loadNfts(nftIds, enableLike = false) {
-            const nftPromises = nftIds.map((nftId) => axios.get(`${this.$store.getters.getApiUrl}/nft/${nftId}`));
-            const results = await Promise.allSettled(nftPromises);
-            let nfts = results.filter((result) => result.status === "fulfilled").map((result) => result.value.data);
-            nfts = await Promise.all(
-                nfts.map(async (nft) => {
+            const nftPromises = nftIds.map((nftId) => {
+                return axios.get(`${this.$store.getters.getApiUrl}/nft/${nftId}`).then(async (res) => {
+                    const nft = res.data;
                     nft.url = nft.file;
                     nft.enableLike = enableLike;
                     nft.isLiked = nft.liked_users.includes(this.$store.getters.getAddress);
                     const ownerAddress = this.getOwnerAddress(nft.owner);
-                    const owner = (await axios.get(`${this.$store.getters.getApiUrl}/profile/${ownerAddress}`)).data;
-                    nft.ownerName = owner.first_name + " " + owner.last_name;
                     nft.ownerAddress = ownerAddress;
+                    await axios
+                        .get(`${this.$store.getters.getApiUrl}/profile/${ownerAddress}`)
+                        .then((res) => {
+                            nft.ownerName = res.data.first_name + " " + res.data.last_name;
+                        })
+                        .catch(() => {
+                            nft.ownerName = "Unregistered User";
+                        });
                     return nft;
-                })
-            );
+                });
+            });
+            const results = await Promise.allSettled(nftPromises);
+            let nfts = results.filter((result) => result.status === "fulfilled").map((result) => result.value);
             return nfts;
         },
     },
     async mounted() {
-        await this.$store.dispatch("connectWallet");
-
         if (this.isMyself) {
             this.selectedIndex = "3";
             document.getElementById("account-menu").click();
@@ -367,7 +377,6 @@ export default {
         this.new_first = profile.first_name;
         this.new_last = profile.last_name;
         this.bio = profile.description;
-        this.loadTransactions();
 
         // new database schema
         const nft_ids = profile.nft_ids.map((id) => {
@@ -379,8 +388,11 @@ export default {
                 .join("");
         });
 
-        this.nfts = await this.loadNfts(nft_ids);
-        this.likedNfts = await this.loadNfts(profile.liked_nfts, true);
+        [this.likedNfts, this.nfts] = await Promise.all([
+            this.loadNfts(profile.liked_nfts, true),
+            this.loadNfts(nft_ids),
+            this.loadTransactions(),
+        ]);
     },
 };
 </script>
