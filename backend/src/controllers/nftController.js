@@ -14,13 +14,17 @@ const getMarket = async (req, res) => {
     const body = req.body;
 
     // build find query
-    const findQuery = {"status": constants.STATUS_SALE} //only display sale status
+    const findQuery = {"status": nftStatus.SALE} //only display sale status
 
     switch (body.filtermode) {
       case "filter":
         if (body.selectedCategory.length!==0) {
           findQuery["labels"] = {};
           findQuery["labels"]["$in"] = body.selectedCategory;
+        }
+        // if filter on search, keep search result
+        if (body.text != "") {
+            findQuery["title"] = new RegExp(body.text);
         }
         // apply price filter according to user selection
         if (body.price_from && body.price_to) {
