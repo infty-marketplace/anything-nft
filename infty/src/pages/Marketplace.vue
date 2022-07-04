@@ -5,10 +5,10 @@
             <div id="sidebar" style="width: 25%" class="mr-2 ml-2 mb-4">
                 <b-card no-body class="filter-card">
                     <template #header>
-                        <h4 class="mb-0"><b-icon icon="filter-circle"></b-icon>&nbsp;{{ $t('filter') }}</h4>
-                        <div id="clearAll" @click="reset" style="float:right; cursor: pointer;">
-                        <a style="text:center"><u>clear filter</u></a>
-                    </div>
+                        <h4 class="m-0" style="width: 50%; float:left"><b-icon icon="filter-circle"></b-icon>&nbsp;{{ $t('filter') }}</h4>
+                        <div id="clearAll" @click="reset" style="float:right; cursor: pointer; margin-top: 5px;">
+                            <a style="text:center"><u>clear filter</u></a>
+                        </div>
                     </template>
                     <b-list-group flush>
                         <b-list-group-item>
