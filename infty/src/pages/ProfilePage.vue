@@ -2,10 +2,16 @@
     <div class="flex-wrapper main">
         <Navbar />
         <button @click="$router.go(-1)" class="back-btn"><i class="el-icon-back" style="color:white" /></button>
-        <div class="actions" v-if="!this.isMyself" @click="$store.dispatch('notifyWIP')">
-            <el-button type="primary">打赏</el-button>
-            <el-button type="primary">关注</el-button>
-            <el-button type="primary">站内信</el-button>
+        <div class="actions" v-if="!this.isMyself">
+            <el-button type="primary" @click="openSupportModal">打赏</el-button>
+            <b-modal ref="support-modal" title="Support Creator" @ok="supportCreator">
+                <label>Please enter the amount in CFX</label>
+                <b-form-input class="mb-4" v-model="supportAmount" placeholder="" />
+                <label>(Optioal) Leave a message to the creator</label>
+                <b-form-input class="mb-4" v-model="supportMessage" placeholder="" />
+            </b-modal>
+            <el-button type="primary" @click="$store.dispatch('notifyWIP')">关注</el-button>
+            <el-button type="primary" @click="$store.dispatch('notifyWIP')">站内信</el-button>
         </div>
         <div class="profile-pic-container" v-if="$store.getters.getLogInStatus">
             <img :src="avatar" id="profile-pic" />
@@ -207,6 +213,7 @@ import Footer from "../components/Footer.vue";
 import NftCard from "../components/NftCard.vue";
 import ConnectWallet from "../components/ConnectWallet.vue";
 import axios from "axios";
+import { Notification } from "element-ui";
 
 export default {
     name: "ProfilePage",
@@ -232,6 +239,8 @@ export default {
         editModes: false,
         nfts: [],
         likedNfts: [],
+        supportAmount: "",
+        supportMessage: "",
     }),
     computed: {
         isMyself: function() {
@@ -358,6 +367,61 @@ export default {
             const results = await Promise.allSettled(nftPromises);
             let nfts = results.filter((result) => result.status === "fulfilled").map((result) => result.value);
             return nfts;
+        },
+        openSupportModal(e) {
+            e.preventDefault();
+            if (!this.$store.getters.getLogInStatus) {
+                this.$notify.info({
+                    title: "Warning",
+                    message: "Please login to continue",
+                    duration: 3000,
+                });
+            } else {
+                this.$refs["support-modal"].show();
+            }
+        },
+        async supportCreator() {
+            try {
+                this.$store.dispatch("notifyLoading", { msg: "Sending transaction" });
+                await window.confluxJS
+                    .sendTransaction({
+                        from: (await window.conflux.send("cfx_requestAccounts"))[0],
+                        to: this.$route.params.address,
+                        gasPrice: 1e9,
+                        value: 1e18 * parseFloat(this.supportAmount),
+                    })
+                    .executed();
+                Notification.closeAll();
+                this.$notify({
+                    title: "Notification",
+                    message: "The creator has received your support, thank you",
+                    duration: 3000,
+                });
+            } catch (e) {
+                Notification.closeAll();
+                let title = "Transaction Failed";
+                let message = "Transaction failed, please try again";
+                if (e.code === 4001) {
+                    message = "User denied transaction signature";
+                }
+                this.$notify.error({
+                    title,
+                    message,
+                    duration: 3000,
+                });
+                return;
+            }
+
+            // record in database
+            let data = {
+                from: (await window.conflux.send("cfx_requestAccounts"))[0],
+                to: this.$route.params.address,
+                amount: parseFloat(this.supportAmount),
+            };
+            if (this.supportMessage) {
+                data.message = this.supportMessage;
+            }
+            await axios.post(`${this.$store.getters.getApiUrl}/support-user`, data);
         },
     },
     async mounted() {

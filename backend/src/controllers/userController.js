@@ -1,6 +1,7 @@
 const User = require("../models/user");
 const Nft = require("../models/nft");
 const Transaction = require("../models/transaction");
+const Support = require("../models/support");
 
 function logout(req, res, success, error) {
     try {
@@ -104,10 +105,20 @@ const setAvatarToNft = async (req, res) => {
     res.status(200).send({ url });
 };
 
+const supportUser = async (req, res) => {
+    new Support(req.body).save((err) => {
+        if (err) {
+            return res.status(500).send(err);
+        }
+        return res.status(200).send();
+    });
+};
+
 module.exports = {
     authUser,
     getUser,
     updateProfile,
     getTransactions,
     setAvatarToNft,
+    supportUser,
 };
