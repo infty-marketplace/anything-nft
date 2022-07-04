@@ -2,7 +2,8 @@ const Nft = require("../models/nft");
 
 const Transaction = require("../models/transaction");
 const User = require("../models/user");
-const constants = require("../constants");
+const nftStatus = require("../constants/nftStatus");
+const transactionType = require("../constants/transactionType");
 const imageUtils = require("../utils/imageUtils");
 const mongodbUtils = require("../utils/mongodbUtils");
 const nftStorageUtils = require("../utils/nftStorageUtils");
@@ -65,8 +66,11 @@ const getNft = async (req, res) => {
 const updateViews = async (req, res) => {
     const nftId = req.params.nft_id;
     const nft = await Nft.findOne({ nft_id: nftId });
-    await Nft.findOneAndUpdate({ nft_id: nftId }, { views: nft.views + 1 });
-    res.send({ views: nft.views + 1 });
+    if (nft) {
+        await Nft.findOneAndUpdate({ nft_id: nftId }, { views: nft.views + 1 });
+        res.send({ views: nft.views + 1 });
+    }
+    res.status(404).send();
 };
 
 const likeNft = async (req, res) => {
@@ -126,7 +130,7 @@ async function createNft(req, res) {
         file: imageUrl,
         metadata: metadataUrl,
         file_hash: fileHash,
-        status: constants.STATUS_PRIVATE,
+        status: nftStatus.PRIVATE,
         author: address,
         owner: [{ address: address, percentage: 1 }],
         labels: JSON.parse(req.body.labels),
@@ -146,9 +150,14 @@ async function createNft(req, res) {
 }
 
 async function deleteNft(req, res) {
-    const nft = await Nft.findOne({ nft_id: req.body.nft_id });
+    const { code, message } = await _deleteNft(req.body.nft_id);
+    return res.status(code).send(message);
+}
+
+async function _deleteNft(nftId) {
+    const nft = await Nft.findOne({ nft_id: nftId });
     if (!nft) {
-        return res.status(404).json({ error: "nft not found" });
+        return { code: 404, message: "nft not found" };
     }
 
     // delete nft from all owners
@@ -166,25 +175,27 @@ async function deleteNft(req, res) {
         users.push(user);
     }
 
-    await mongodbUtils.saveAll(users).catch((error) => {
-        return res.status(422).json({ error: error.message });
-    });
+    try {
+        await mongodbUtils.saveAll(users);
+    } catch (error) {
+        return { code: 422, message: error.message };
+    }
 
     // delete nft
-    await Nft.deleteOne({ nft_id: req.body.nft_id })
-        .then(async () => {
-            // delete image from nft storage iff db is updated
-            if (nft.metadata) {
-                await nftStorageUtils.burn(nft.metadata);
-            }
-            // burn nft on chain iff db is updated
-            const tokenId = nft.nft_id.split("-")[1];
-            await cfxUtils.burn(tokenId);
-            return res.send("nft deleted successfully");
-        })
-        .catch((error) => {
-            return res.status(422).json({ error: error.message });
-        });
+    try {
+        // delete from database
+        await Nft.deleteOne({ nft_id: nftId });
+        // delete image from nft storage iff db is updated
+        if (nft.metadata) {
+            await nftStorageUtils.burn(nft.metadata);
+        }
+        // burn nft on chain iff db is updated
+        const tokenId = nft.nft_id.split("-")[1];
+        await cfxUtils.burn(tokenId);
+        return { code: 200, message: "nft deleted successfully" };
+    } catch (error) {
+        return { code: 422, message: error.message };
+    }
 }
 
 // return estimated gas to mint a hard code item from manager address
@@ -203,12 +214,12 @@ async function listNft(req, res) {
     const nftId = req.body.nft_id;
     const nft = await Nft.findOne({ nft_id: nftId });
     // if this nft has more owners, then it's fragmented
-    await Nft.findOneAndUpdate({ nft_id: nftId }, { status: constants.STATUS_SALE });
+    await Nft.findOneAndUpdate({ nft_id: nftId }, { status: nftStatus.SALE });
 
     Nft.findOneAndUpdate(
         { nft_id: nftId },
         {
-            status: constants.STATUS_SALE,
+            status: nftStatus.SALE,
             price: req.body.price,
             currency: req.body.currency,
             fractional: req.body.fractional,
@@ -227,7 +238,7 @@ async function delistNft(req, res) {
     const nftId = req.body.nft_id;
     const nft = await Nft.findOne({ nft_id: nftId });
 
-    Nft.findOneAndUpdate({ nft_id: nftId }, { status: constants.STATUS_PRIVATE }, (err) => {
+    Nft.findOneAndUpdate({ nft_id: nftId }, { status: nftStatus.PRIVATE }, (err) => {
         if (err) {
             return res.status(400).send(err);
         }
@@ -236,16 +247,12 @@ async function delistNft(req, res) {
 }
 
 // return a list of owners given nft and an optional boolean parameter {addressOnly}
-function getNftOwners(nft, addressOnly = true) {
-    const owners = nft.owner.filter((element) => {
-        return element.percentage === 1;
-    });
+function getNftOwner(nft, addressOnly = true) {
+    const owner = nft.owner.find((o) => o.percentage === 1);
     if (addressOnly) {
-        return owners.map((element) => {
-            return element.address;
-        });
+        return owner.address;
     }
-    return owners;
+    return owner;
 }
 
 // transferOwnership according to transferOwnership, {recordTransaction} is true by default
@@ -260,7 +267,7 @@ async function transferOwnership(txnData, recordTransaction = true) {
 
     let collectionType = "";
     // TODO: if type not match, throw error
-    if (txnData.transaction_type === "purchase-nft") {
+    if (txnData.transaction_type === transactionType.PURCHASE_NFT) {
         collectionType = "nft";
     }
 
@@ -277,7 +284,7 @@ async function transferOwnership(txnData, recordTransaction = true) {
     // get collection and update collection's owner
     let collection = null;
     // TODO: if type not match, throw error
-    if (txnData.transaction_type === "purchase-nft") {
+    if (txnData.transaction_type === transactionType.PURCHASE_NFT) {
         collection = await Nft.findOne({
             nft_id: txnData.collection_id,
         });
@@ -285,7 +292,7 @@ async function transferOwnership(txnData, recordTransaction = true) {
     }
 
     // update collection's status
-    collection.status = constants.STATUS_PRIVATE;
+    collection.status = nftStatus.PRIVATE;
 
     // save document changes
     let documents = [collection, buyer, seller];
@@ -303,6 +310,23 @@ async function transferOwnership(txnData, recordTransaction = true) {
         });
 }
 
+async function validateNftOwnership(req, res) {
+    const nftId = req.body.nft_id;
+    let nft = await Nft.findOne({ nft_id: nftId });
+
+    if (!nft) {
+        return res.status(404).json({ error: "nft not found" });
+    }
+    const tokenID = nftId.split("-")[1];
+    if (getNftOwner(nft) !== (await cfxUtils.getOwnerOnChain(tokenID))) {
+        // delete this nft from database\
+        const { code, message } = await _deleteNft(nftId);
+        return res.status(410).json({ error: "the seller is not the current owner of the nft" });
+    }
+
+    return res.status(200).send();
+}
+
 // purchase nft by specifying nft_id in request body
 async function purchaseNft(req, res) {
     const body = req.body;
@@ -311,13 +335,12 @@ async function purchaseNft(req, res) {
     if (!nft) {
         return res.status(404).json({ error: "nft not found" });
     }
-    if (nft.status !== constants.STATUS_SALE) {
+    if (nft.status !== nftStatus.SALE) {
         return res.status(400).json({ error: "ntf is not for sale" });
     }
-    if (getNftOwners(nft).includes(body.buyer)) {
+    if (getNftOwner(nft) === body.buyer) {
         return res.status(400).json({ error: "buyer is the owner" });
     }
-
     const tokenID = body.nft_id.split("-")[1];
     await cfxUtils.transferOwnershipOnChain(nft.owner[0].address, body.buyer, tokenID);
 
@@ -325,7 +348,7 @@ async function purchaseNft(req, res) {
     let txnData = {
         buyer: body.buyer,
         seller: nft.owner[0].address,
-        transaction_type: "purchase-nft",
+        transaction_type: transactionType.PURCHASE_NFT,
         price: nft.price,
         currency: nft.currency,
         commission: body.commission,
@@ -354,4 +377,5 @@ module.exports = {
     getMintEstimate,
     likeNft,
     unlikeNft,
+    validateNftOwnership,
 };

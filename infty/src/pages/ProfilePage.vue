@@ -7,27 +7,15 @@
             <el-button type="primary">关注</el-button>
             <el-button type="primary">站内信</el-button>
         </div>
-        <div class="profile-pic-container" v-if="$store.getters.getAddress">
+        <div class="profile-pic-container" v-if="$store.getters.getLogInStatus">
             <img :src="avatar" id="profile-pic" />
-            <a @click="uploadAvatar" v-if="this.isMyself">
-                <b-icon
-                    id="upload_pic_icon"
-                    icon="camera"
-                    font-scale="2"
-                    class="upload-btn p-2"
-                    v-if="$store.getters.getAddress == $route.params.address"
-                ></b-icon>
-            </a>
-            <b-form style="display:None">
-                <input type="file" ref="avatar_uploader" id="avatar_uploader" @change="onFileSelected" />
-            </b-form>
             <h2 class="mt-2">{{ first_name }} {{ last_name }}</h2>
-            <a target="_blank" :href="`https://confluxscan.io/address/${this.$route.params.address}`"
+            <a target="_blank" :href="this.getConfluxscanUrl(this.$route.params.address)"
                 ><p class="mt-2">{{ this.$route.params.address }}</p></a
             >
         </div>
 
-        <div class="content" v-if="$store.getters.getAddress">
+        <div class="content" v-if="$store.getters.getLogInStatus">
             <div class="padding-border"></div>
             <el-row class="tac">
                 <el-col :span="5">
@@ -219,6 +207,7 @@ import Footer from "../components/Footer.vue";
 import NftCard from "../components/NftCard.vue";
 import ConnectWallet from "../components/ConnectWallet.vue";
 import axios from "axios";
+
 export default {
     name: "ProfilePage",
     components: {
@@ -229,7 +218,8 @@ export default {
         NftCard,
     },
     data: () => ({
-        avatar: null,
+        avatar:
+            "https://bafybeiasgari2dccg4fcgrkbluberhlhmaq4noxhndz4ktn7pfdiakpp5m.ipfs.nftstorage.link/undraw_profile_pic_ic5t.png",
         selectedIndex: 0,
         modeSwitch: true,
         nftTransactions: [],
@@ -237,8 +227,8 @@ export default {
         displayBio: "",
         new_first: "",
         new_last: "",
-        first_name: "",
-        last_name: "",
+        first_name: "Unregistered",
+        last_name: "User",
         editModes: false,
         nfts: [],
         likedNfts: [],
@@ -261,6 +251,11 @@ export default {
         },
     },
     methods: {
+        getConfluxscanUrl: function(address) {
+            return address.startsWith("cfxtest:")
+                ? "https://testnet.confluxscan.io/address/" + address
+                : "https://confluxscan.io/address/" + address;
+        },
         handleSelect(i) {
             if (i == 5) {
                 this.$store.dispatch("notifyWIP");
@@ -341,69 +336,40 @@ export default {
             return owners.find((owner) => owner.percentage === 1).address;
         },
         async loadNfts(nftIds, enableLike = false) {
-            const nftPromises = nftIds.map((nftId) => axios.get(`${this.$store.getters.getApiUrl}/nft/${nftId}`));
-            const results = await Promise.allSettled(nftPromises);
-            let nfts = results.filter((result) => result.status === "fulfilled").map((result) => result.value.data);
-            nfts = await Promise.all(
-                nfts.map(async (nft) => {
+            const nftPromises = nftIds.map((nftId) => {
+                return axios.get(`${this.$store.getters.getApiUrl}/nft/${nftId}`).then(async (res) => {
+                    const nft = res.data;
                     nft.url = nft.file;
                     nft.enableLike = enableLike;
                     nft.isLiked = nft.liked_users.includes(this.$store.getters.getAddress);
                     const ownerAddress = this.getOwnerAddress(nft.owner);
-                    const owner = (await axios.get(`${this.$store.getters.getApiUrl}/profile/${ownerAddress}`)).data;
-                    nft.ownerName = owner.first_name + " " + owner.last_name;
                     nft.ownerAddress = ownerAddress;
+                    await axios
+                        .get(`${this.$store.getters.getApiUrl}/profile/${ownerAddress}`)
+                        .then((res) => {
+                            nft.ownerName = res.data.first_name + " " + res.data.last_name;
+                        })
+                        .catch(() => {
+                            nft.ownerName = "Unregistered User";
+                        });
                     return nft;
-                })
-            );
+                });
+            });
+            const results = await Promise.allSettled(nftPromises);
+            let nfts = results.filter((result) => result.status === "fulfilled").map((result) => result.value);
             return nfts;
-        },
-
-        uploadAvatar() {
-            this.$refs["avatar_uploader"].click();
-        },
-
-        onFileSelected(e) {
-            let image = e.target.files[0];
-            if (!image.type.match("image/*")) {
-                this.$bvToast.toast("Please Select Image to Upload", {
-                    title: "Error",
-                    autoHideDelay: 3000,
-                    appendToast: false,
-                });
-            }
-            this.updateAvatar(image);
-        },
-
-        updateAvatar(avatar) {
-            const fd = new FormData();
-            fd.append("file", avatar);
-            fd.append("address", this.$store.getters.getAddress);
-
-            axios
-                .post(this.$store.getters.getApiUrl + "/profile/update-avatar", fd)
-                .then((res) => {
-                    this.avatar = res.data.url;
-                    this.$store.commit("setProfilePic");
-                    this.$notify({
-                        title: "Congrats",
-                        message: "Avatar Updated Successfully",
-                        duration: 3000,
-                        type: "success",
-                    });
-                })
-                .catch((err) => {
-                    console.log(err);
-                    this.$bvToast.toast("Avatar Update Failed", {
-                        title: "Error",
-                        autoHideDelay: 3000,
-                        appendToast: false,
-                    });
-                });
         },
     },
     async mounted() {
-        await this.$store.dispatch("connectWallet");
+        if (this.isMyself) {
+            this.selectedIndex = "3";
+            document.getElementById("account-menu").click();
+        } else {
+            this.selectedIndex = "1-1";
+            document.querySelector(".el-submenu__title").click();
+            document.querySelector(".el-menu-item").click();
+        }
+
         const profile = await this.$store.getters.getProfile(this.$route.params.address);
         this.avatar = profile.profile_picture;
         this.first_name = profile.first_name;
@@ -411,7 +377,6 @@ export default {
         this.new_first = profile.first_name;
         this.new_last = profile.last_name;
         this.bio = profile.description;
-        this.loadTransactions();
 
         // new database schema
         const nft_ids = profile.nft_ids.map((id) => {
@@ -423,17 +388,11 @@ export default {
                 .join("");
         });
 
-        this.nfts = await this.loadNfts(nft_ids);
-        this.likedNfts = await this.loadNfts(profile.liked_nfts, true);
-
-        if (this.isMyself) {
-            this.selectedIndex = "3";
-            document.getElementById("account-menu").click();
-        } else {
-            this.selectedIndex = "1-1";
-            document.querySelector(".el-submenu__title").click();
-            document.querySelector(".el-menu-item").click();
-        }
+        [this.likedNfts, this.nfts] = await Promise.all([
+            this.loadNfts(profile.liked_nfts, true),
+            this.loadNfts(nft_ids),
+            this.loadTransactions(),
+        ]);
     },
 };
 </script>
@@ -453,9 +412,6 @@ export default {
 }
 .main {
     background-color: #f8f8f9;
-}
-.create-btn {
-    float: right;
 }
 #profile-pic {
     border-radius: 50%;
@@ -496,18 +452,6 @@ export default {
 }
 .el-col {
     height: calc(100% - 250px);
-}
-#upload_pic_icon {
-    margin-left: 70%;
-    margin-top: -15%;
-    display: block;
-    position: absolute;
-}
-
-.upload-btn {
-    color: white;
-    border-radius: 50%;
-    background-color: rgb(95, 167, 167);
 }
 
 .card-container {

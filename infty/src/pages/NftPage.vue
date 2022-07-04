@@ -42,9 +42,9 @@
                                 Contract Address:
                                 <a
                                     target="_blank"
-                                    :href="`https://testnet.confluxscan.io/token/${$store.getters.getMinterAddress}`"
-                                    >{{ card.nft_id.split("-")[0] }}</a
-                                >
+                                    :href="`${this.confluxScanUrl}/address/${$store.getters.getMinterAddress}`"
+                                    >{{ card.nft_id.split("-")[0] }}
+                                </a>
                             </p>
                             <p>Token ID {{ card.nft_id.split("-")[1] }}</p>
                         </b-collapse>
@@ -65,7 +65,7 @@
                     </div>
                     <div style="display: inline-block"><b-icon icon="eye" />&nbsp;{{ views }} views</div>
                     <div style="display: inline-block">
-                        <div class="like" @click="onClickHeart">
+                        <div class="like">
                             <heart-btn ref="heartBtn" :nftId="card.nft_id" :isLiked="card.isLiked" />
                         </div>
                         {{ card.likes }} likes
@@ -84,7 +84,7 @@
                 </el-tooltip>
                 <b-card class="transaction-info" header-tag="header" footer-tag="footer" v-if="!isOwner">
                     <template #header>
-                        <h6 class="mb-0"><b-icon icon="clock"></b-icon>&nbsp;Sale ends in 5 days</h6>
+                        <h6 class="mb-0"><b-icon icon="clock"></b-icon>&nbsp;On Sale Now</h6>
                     </template>
                     <b-card-text>Current Price</b-card-text>
                     <p>
@@ -95,7 +95,11 @@
                     <b-button href="#" variant="primary" @click="buyNowClicked" v-if="!isOwner && card.status == 'sale'"
                         ><b-icon icon="wallet2"></b-icon>&nbsp;&nbsp;Buy now</b-button
                     >
-                    <b-button variant="outline-primary" class="ml-2" @click="$store.dispatch('notifyWIP')"
+                    <b-button
+                        variant="outline-primary"
+                        class="ml-2"
+                        @click="$store.dispatch('notifyWIP')"
+                        v-if="!isOwner && card.status == 'sale'"
                         ><b-icon icon="tag-fill" />&nbsp;Make offer</b-button
                     >
                     <b-modal ref="buy-modal" title="List Item" @ok="purchaseNft">
@@ -114,13 +118,38 @@
                 </b-card>
                 <b-card class="transaction-info" header-tag="header" footer-tag="footer">
                     <template #header>
-                        Offers
+                        Transaction History
                     </template>
-                    <el-table :data="offersData" style="width: 100%" height="200" empty-text="Nothing">
-                        <el-table-column prop="unit_price" label="Unit Price" width="180"> </el-table-column>
-                        <el-table-column prop="usd" label="USD" width="180"> </el-table-column>
-                        <el-table-column prop="exp" label="Expiration"> </el-table-column>
-                        <el-table-column prop="from" label="From"> </el-table-column>
+                    <el-table :data="transactions" style="width: 100%" stripe empty-text="Nothing">
+                        <el-table-column type="expand">
+                            <template #default="props">
+                                <p v-for="(value, key) in props.row.details" :key="key">
+                                    {{ key + ": " + (typeof value === "object" ? JSON.stringify(value) : value) }}
+                                </p>
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="txnHash" label="Txn Hash" width="180">
+                            <template slot-scope="scope">
+                                <a target="_blank" :href="scope.row.txnHashUrl">{{ scope.row.txnHash }}</a>
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="from" label="From" width="180">
+                            <template slot-scope="scope">
+                                <a target="_blank" :href="scope.row.fromUrl">{{ scope.row.from }}</a>
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="to" label="To" width="180">
+                            <template slot-scope="scope">
+                                <a target="_blank" :href="scope.row.toUrl">{{ scope.row.to }}</a>
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="time" label="Time" width="180"> </el-table-column>
+                        <el-table-column prop="age" label="Age" width="180"> </el-table-column>
+                        <el-table-column prop="epoch" label="Epoch" width="180">
+                            <template slot-scope="scope">
+                                <a target="_blank" :href="scope.row.epochUrl">{{ scope.row.epoch }}</a>
+                            </template>
+                        </el-table-column>
                     </el-table>
                 </b-card>
             </b-card-group>
@@ -136,6 +165,7 @@ import Navbar from "../components/Navbar.vue";
 import Footer from "../components/Footer.vue";
 import HeartBtn from "../components/HeartBtn.vue";
 import { Notification } from "element-ui";
+import { eventBus } from "../main";
 
 export default {
     name: "DetailPage",
@@ -154,32 +184,7 @@ export default {
             fractionProg: 0,
             listing_commision: "",
             sharesTable: [],
-            offersData: [
-                {
-                    unit_price: 30,
-                    usd: 9,
-                    exp: "2 days",
-                    from: "William M",
-                },
-                {
-                    unit_price: 1,
-                    usd: 0.3,
-                    exp: "1 days",
-                    from: "User M",
-                },
-                {
-                    unit_price: 1,
-                    usd: 0.3,
-                    exp: "1 days",
-                    from: "User A",
-                },
-                {
-                    unit_price: 1,
-                    usd: 0.3,
-                    exp: "1 days",
-                    from: "User B",
-                },
-            ],
+            transactions: [],
         };
     },
     computed: {
@@ -190,23 +195,31 @@ export default {
                 if (i == -1) return "";
                 return this.card.owner[i].percentage * 100;
             } catch (e) {
-                console.log(e);
                 return "";
             }
+        },
+        confluxScanUrl() {
+            return this.$route.params.id.startsWith("cfxtest:")
+                ? "https://testnet.confluxscan.io"
+                : "https://confluxscan.io";
         },
         window: () => window,
         console: () => console,
     },
     created() {
-        if (!this.card) this.reload();
-        if (this.$store.getters.getAddress == undefined) this.$store.dispatch("connectWallet");
+        eventBus.$on("NftPage.reload", () => {
+            this.fetchNftData();
+            this.fetchTransactionHistory();
+        });
     },
-
     async mounted() {
         // fetch and update the views with api to backend
         const res = await axios.post(`${this.$store.getters.getApiUrl}/update-views/${this.$route.params.id}`);
         this.views = res.data.views;
-        this.reload();
+        if (!this.card) {
+            this.fetchNftData();
+            this.fetchTransactionHistory();
+        }
     },
     methods: {
         cellClicked(a, b) {
@@ -214,45 +227,136 @@ export default {
                 this.$router.push(`/profile/${a.owner}`);
             }
         },
-        async onClickHeart() {
-            await this.$refs.heartBtn.waitUntilUpdated();
-            this.reload();
-        },
         getOwnerAddress(owners) {
             return owners.find((owner) => owner.percentage === 1).address;
         },
-        async reload() {
+        async fetchNftData() {
             const getters = this.$store.getters;
 
             const card = (await axios.get(`${getters.getApiUrl}/nft/${this.$route.params.id}`)).data;
 
             this.fractionProg = card.owner.slice(1).reduce((pv, cv) => pv + cv.percentage, 0) * 100;
 
-            const author = (await axios.get(`${this.$store.getters.getApiUrl}/profile/${card.author}`)).data;
-            card.author_name = author.first_name + " " + author.last_name;
+            await axios
+                .get(`${this.$store.getters.getApiUrl}/profile/${card.author}`)
+                .then((res) => {
+                    card.author_name = res.data.first_name + " " + res.data.last_name;
+                })
+                .catch(() => {
+                    card.author_name = "Unregistered User";
+                });
 
             this.isOwner = this.$store.getters.getAddress === this.getOwnerAddress(card.owner);
 
-            const owner = (
-                await axios.get(`${this.$store.getters.getApiUrl}/profile/${this.getOwnerAddress(card.owner)}`)
-            ).data;
-            card.owner_name = owner.first_name + " " + owner.last_name;
+            await axios
+                .get(`${this.$store.getters.getApiUrl}/profile/${this.getOwnerAddress(card.owner)}`)
+                .then((res) => {
+                    card.owner_name = res.data.first_name + " " + res.data.last_name;
+                })
+                .catch(() => {
+                    card.owner_name = "Unregistered User";
+                });
+
             card.url = card.file;
             card.likes = card.liked_users.length;
             card.isLiked = card.liked_users.includes(this.$store.getters.getAddress);
             this.card = card;
         },
-        rand(min, max) {
-            return Math.floor(Math.random() * (max - min)) + min;
-        },
+        truncate(fullStr, strLen, separator = "...") {
+            fullStr = fullStr.toString();
+            if (fullStr.length <= strLen) {
+                return fullStr;
+            }
 
+            const sepLen = separator.length,
+                charsToShow = strLen - sepLen,
+                frontChars = Math.ceil(charsToShow / 2),
+                backChars = Math.floor(charsToShow / 2);
+
+            return fullStr.substr(0, frontChars) + separator + fullStr.substr(fullStr.length - backChars);
+        },
+        msToTime(ms) {
+            const days = Math.floor(ms / (24 * 60 * 60 * 1000));
+            const daysms = ms % (24 * 60 * 60 * 1000);
+            const hours = Math.floor(daysms / (60 * 60 * 1000));
+            const hoursms = ms % (60 * 60 * 1000);
+            const minutes = Math.floor(hoursms / (60 * 1000));
+            const minutesms = ms % (60 * 1000);
+            const seconds = Math.floor(minutesms / 1000);
+            return [days, hours, minutes, seconds];
+        },
+        padToTwoDigits(s) {
+            s = s.toString();
+            if (s.length >= 2) {
+                return s;
+            } else {
+                return this.padToTwoDigits("0" + s);
+            }
+        },
+        async fetchTransactionHistory() {
+            const [contractAddress, tokenId] = this.$route.params.id.split("-");
+            const transferUrl = `${this.confluxScanUrl}/v1/transfer?address=${contractAddress}&limit=100&skip=0&tokenId=${tokenId}&transferType=ERC721`;
+
+            await axios.get(transferUrl).then((res) => {
+                this.transactions = res.data.list.map((data) => {
+                    const txnDate = new Date(parseInt(data.timestamp) * 1000);
+                    const taxDateString = `${this.padToTwoDigits(txnDate.getFullYear())}/${this.padToTwoDigits(
+                        txnDate.getMonth() + 1
+                    )}/${this.padToTwoDigits(txnDate.getDate())} ${this.padToTwoDigits(
+                        txnDate.getHours()
+                    )}:${this.padToTwoDigits(txnDate.getMinutes())}:${this.padToTwoDigits(txnDate.getSeconds())}`;
+
+                    const [days, hours, minutes, seconds] = this.msToTime(new Date() - txnDate);
+                    const strLength = 22;
+
+                    const transaction = {
+                        details: {
+                            ...data,
+                            age: `${days} days ${hours} hours ${minutes} minutes ${seconds} seconds ago`,
+                            time: txnDate.toString(),
+                        },
+                        txnHash: this.truncate(data.transactionHash, strLength),
+                        txnHashUrl: `${this.confluxScanUrl}/transaction/${data.transactionHash}`,
+                        from: this.truncate(data.from, strLength),
+                        fromUrl: `${this.confluxScanUrl}/address/${data.from}`,
+                        to: this.truncate(data.to, strLength),
+                        toUrl: `${this.confluxScanUrl}/address/${data.to}`,
+                        epoch: this.truncate(data.epochNumber, strLength),
+                        epochUrl: `${this.confluxScanUrl}/epoch/${data.epochNumber}`,
+                        time: this.truncate(taxDateString, strLength),
+                        age: this.truncate(`${days} days ${hours} hours ago`, strLength),
+                    };
+                    return transaction;
+                });
+            });
+        },
         buyNowClicked(e) {
             e.preventDefault();
-            this.$refs["buy-modal"].show();
+            if (!this.$store.getters.getLogInStatus) {
+                this.$notify.info({
+                    title: "Warning",
+                    message: "Please login to continue",
+                    duration: 3000,
+                });
+            } else {
+                this.$refs["buy-modal"].show();
+            }
         },
 
         async purchaseNft() {
             const getters = this.$store.getters;
+            try {
+                await axios.post(`${getters.getApiUrl}/validate-nft`, { nft_id: this.card.nft_id });
+            } catch (err) {
+                this.$notify.error({
+                    title: "NFT No Longer Available for Purchase",
+                    message: "The NFT is transferred outside our platform",
+                    duration: 3000,
+                });
+
+                return;
+            }
+
             this.$store.dispatch("notifyLoading", { msg: "Paying commission now" });
             const res = await window.confluxJS
                 .sendTransaction({
@@ -304,8 +408,7 @@ export default {
                         });
                     }
                 })
-                .catch((err) => {
-                    console.log(err);
+                .catch(() => {
                     this.$bvToast.toast("Purchase Failed", {
                         title: "Error",
                         autoHideDelay: 3000,
@@ -333,8 +436,7 @@ export default {
                     buyer: addr,
                     percentage: parseFloat(this.shares) * 0.01,
                 })
-                .then((res) => {
-                    console.log(res);
+                .then(() => {
                     Notification.closeAll();
                     this.$bvToast.toast("NFT Shares Purchased Successfully", {
                         title: "Notification",

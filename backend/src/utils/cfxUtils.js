@@ -1,5 +1,4 @@
 require("dotenv").config();
-const { makeid } = require("./helpers");
 const { Conflux } = require("js-conflux-sdk");
 const s3 = require("../database/s3");
 

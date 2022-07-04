@@ -1,25 +1,25 @@
 <template>
     <div class="flex-wrapper main">
         <Navbar activeIndex="2" />
-        <div class="content mt-5 mb-5" v-if="$store.getters.getAddress">
-            <h2>Create your own NFT</h2>
-            <label class="mt-4">Title*</label>
-            <b-form-input v-model="title" type="search" placeholder="Enter name of the art..." />
-            <label class="mt-5">Image*</label>
+        <div class="content mt-5 mb-5" v-if="$store.getters.getLogInStatus">
+            <h2>{{ $t("createNft.createNft") }}</h2>
+            <label class="mt-4">{{ $t("createNft.title") }}</label>
+            <b-form-input v-model="title" type="search" v-bind:placeholder="$t('createNft.name')" />
+            <label class="mt-5">{{ $t("createNft.image") }}</label>
             <div style="display:flex;min-width:100%;justify-content:space-around;">
                 <FileUploader class="file-uploader" pass-file-to-event="CreatePage.receiveFile" />
             </div>
-            <label class="mt-5">Description</label>
+            <label class="mt-5">{{ $t("createNft.description") }}</label>
             <div class="form-group">
                 <b-form-textarea
                     id="description"
-                    placeholder="Enter a detailed description..."
+                    v-bind:placeholder="$t('createNft.descriptionInput')"
                     v-model="description"
                     rows="3"
                 />
                 <b-icon v-if="description" font-scale="1.5" class="icon" icon="x" @click="clearTextArea"></b-icon>
             </div>
-            <label class="mt-5">Labels</label>
+            <label class="mt-5">{{ $t("createNft.labels") }}</label>
             <div style="width:100%">
                 <div style="display:inline-block" v-for="(item, index) in labels" :key="index">
                     <button
@@ -33,9 +33,9 @@
             </div>
             <div class="mt-5">
                 <b-badge pill variant="info" class="ml-2">Decentralized Image Storage on IPFS</b-badge>
-                <b-button variant="primary" class="create-btn" @click="createNft">Create</b-button>
+                <b-button variant="primary" class="create-btn" @click="createNft">{{ $t("createNft.create") }}</b-button>
                 <b-button variant="outline-primary" class="create-btn mr-2" @click="ucVisible = true"
-                    >Add unlockable content</b-button
+                    >{{ $t("createNft.unlockableContent") }}</b-button
                 >
             </div>
             <el-dialog title="Unlockable Content" :visible.sync="ucVisible" width="60%" :before-close="(d) => d()">
@@ -115,7 +115,7 @@ export default {
     },
 
     methods: {
-        createNft() {
+        async createNft() {
             if (!this.imageData || !this.title || this.title.replace(/\s+/g, "").length === 0) {
                 Notification.closeAll();
                 this.$notify.error({
@@ -153,6 +153,41 @@ export default {
             const selectedLabels = this.labels.filter((l, i) => this.labelState[i] == true);
             fd.append("labels", JSON.stringify(selectedLabels));
 
+            // Obtain estimation
+            const estimation = (await axios.post(this.$store.getters.getApiUrl + "/mint-estimate")).data.gas;
+            // Charge User
+            const getters = this.$store.getters;
+            this.$store.dispatch("notifyLoading", { msg: "Paying commission now" });
+
+            let error = false; // flag is set to true when errors occur in transaction
+            await window.confluxJS
+                .sendTransaction({
+                    from: (await window.conflux.send("cfx_requestAccounts"))[0],
+                    to: getters.getManagerAddr,
+                    gasPrice: 1000000000,
+                    value: estimation,
+                })
+                .executed()
+                .catch((e) => {
+                    Notification.closeAll();
+                    let title = "Transaction Failed";
+                    let message = "Transaction failed, please try again";
+                    if (e.code === 4001) {
+                        message = "User denied transaction signature";
+                    }
+                    this.$notify.error({
+                        title,
+                        message,
+                        duration: 3000,
+                    });
+                    error = true;
+                });
+
+            if (error) {
+                return; // Stop to create nft if the transaction failed
+            }
+
+            // Create nft
             axios
                 .post(this.$store.getters.getApiUrl + "/create-nft", fd)
                 .then((res) => {
@@ -201,7 +236,6 @@ export default {
         },
     },
     async mounted() {
-        this.$store.dispatch("connectWallet");
         eventBus.$on("CreatePage.receiveFile", (imageData) => {
             this.imageData = imageData;
         });
