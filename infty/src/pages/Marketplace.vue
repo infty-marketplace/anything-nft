@@ -12,16 +12,6 @@
                     </template>
                     <b-list-group flush>
                         <b-list-group-item>
-                            <b-button pill v-b-toggle.collapse-1 variant="outline-secondary" class="category-button"
-                                >{{ $t("filterOption.status") }}</b-button
-                            >
-                            <b-collapse id="collapse-1" class="mt-2">
-                                <b-card>
-                                    <b-form-checkbox @change="filterNotMine">Not Mine</b-form-checkbox>
-                                </b-card>
-                            </b-collapse>
-                        </b-list-group-item>
-                        <b-list-group-item>
                             <b-button pill v-b-toggle.collapse-2 variant="outline-secondary" class="category-button"
                                 >{{ $t("filterOption.price") }}</b-button
                             >
