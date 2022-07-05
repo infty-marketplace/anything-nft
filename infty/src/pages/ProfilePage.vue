@@ -44,6 +44,14 @@
                             <i class="el-icon-star-off"></i>
                             <span slot="title">My liked NFTs</span>
                         </el-menu-item>
+                        <el-submenu index="6" v-if="this.isMyself">
+                            <template slot="title">
+                                <i class="el-icon-goods"></i>
+                                <span>Supprots</span>
+                            </template>
+                            <el-menu-item index="6-1">Received</el-menu-item>
+                            <el-menu-item index="6-2">Given</el-menu-item>
+                        </el-submenu>
                         <el-menu-item index="3" v-if="this.isMyself" id="account-menu">
                             <i class="el-icon-setting"></i>
                             <span slot="title">My Account</span>
@@ -79,10 +87,19 @@
                     </div>
 
                     <div v-if="selectedIndex == '2'">
-                        <el-card class="box-card m-5 transaction-card">
-                            <el-table :data="transactions" empty-text="Nothing" height="calc(100vh - 250px)">
-                                <el-table-column prop="time" label="Time" align="center"> </el-table-column>
+                        <el-card class="box-card m-5">
+                            <el-table :data="transactions" empty-text="Nothing" height="calc(100vh - 250px)" stripe>
+                                <el-table-column type="expand">
+                                    <template #default="props">
+                                        <p v-for="(value, key) in props.row.details" :key="key">
+                                            {{
+                                                key + ": " + (typeof value === "object" ? JSON.stringify(value) : value)
+                                            }}
+                                        </p>
+                                    </template>
+                                </el-table-column>
 
+                                <el-table-column prop="time" label="Time" align="center"> </el-table-column>
                                 <el-table-column label="Title" align="center">
                                     <template slot-scope="scope">
                                         <el-link target="_blank" :href="`/nft/${scope.row.nft_id}`">
@@ -96,7 +113,14 @@
                                 </el-table-column>
                                 <el-table-column prop="commission_currency" label="Commission Currency" align="center">
                                 </el-table-column>
-                                <el-table-column prop="from" label="From" align="center"> </el-table-column>
+                                <el-table-column label="From" align="center">
+                                    <template slot-scope="scope">
+                                        <el-link :href="`/profile/${scope.row.fromAddress}`">
+                                            {{ scope.row.from }}
+                                        </el-link>
+                                    </template>
+                                </el-table-column>
+
                                 <el-table-column prop="type" label="Transaction Type" align="center"> </el-table-column>
                             </el-table>
                         </el-card>
@@ -111,6 +135,44 @@
                             </div>
                         </el-card>
                     </div>
+
+                    <div v-if="selectedIndex == '6-1' || selectedIndex == '6-2'">
+                        <el-card class="box-card m-5">
+                            <el-table
+                                :data="selectedIndex == '6-1' ? receivedSupports : givenSupports"
+                                empty-text="Nothing"
+                                height="calc(100vh - 250px)"
+                                stripe
+                            >
+                                <el-table-column type="expand">
+                                    <template #default="props">
+                                        <p>
+                                            {{ "Message: " + (props.row.message ? props.row.message : "N/A") }}
+                                        </p>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column prop="time" label="Time" align="center"> </el-table-column>
+
+                                <el-table-column label="From" align="center">
+                                    <template slot-scope="scope">
+                                        <el-link :href="`/profile/${scope.row.fromAddress}`">
+                                            {{ scope.row.from }}
+                                        </el-link>
+                                    </template>
+                                </el-table-column>
+
+                                <el-table-column label="To" align="center">
+                                    <template slot-scope="scope">
+                                        <el-link :href="`/profile/${scope.row.toAddress}`">
+                                            {{ scope.row.to }}
+                                        </el-link>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column prop="amount" label="Amount" align="center"></el-table-column>
+                            </el-table>
+                        </el-card>
+                    </div>
+
                     <div v-if="selectedIndex == 5">
                         <el-card class="box-card m-5 card-container">
                             <el-empty description="Nothing"></el-empty>
@@ -241,6 +303,8 @@ export default {
         likedNfts: [],
         supportAmount: "",
         supportMessage: "",
+        receivedSupports: [],
+        givenSupports: [],
     }),
     computed: {
         isMyself: function() {
@@ -298,7 +362,6 @@ export default {
                     });
                 })
                 .catch((err) => {
-                    console.log(err);
                     this.$bvToast.toast("Update Failed", {
                         title: "Error",
                         autoHideDelay: 3000,
@@ -309,37 +372,43 @@ export default {
         },
 
         loadTransactions() {
-            axios
-                .get(`${this.$store.getters.getApiUrl}/transaction/${this.$route.params.address}`)
-                .then((res) => {
-                    res.data.map((record) => {
-                        const date = Date.parse(record.created_at);
-                        let current = {
-                            time: new Date(date).toString(),
-                            nft_id: record.collection_id,
-                            currency: record.currency,
-                            from: record.seller,
-                            price: record.price,
-                            type: record.transaction_type,
-                            commission: record.commission,
-                            commission_currency: record.commission_currency,
-                        };
-                        axios.get(`${this.$store.getters.getApiUrl}/profile/${record.seller}`).then((r) => {
-                            current.from = r.data.first_name + " " + r.data.last_name;
-                        });
-                        axios.get(`${this.$store.getters.getApiUrl}/nft/${current.nft_id}`).then((r) => {
-                            current.title = r.data.title;
-                        });
-                        if (current.type.includes("draw")) {
-                            this.drawTransactions.push(current);
-                        } else if (current.type.includes("nft")) {
-                            this.nftTransactions.push(current);
-                        }
+            axios.get(`${this.$store.getters.getApiUrl}/transaction/${this.$route.params.address}`).then((res) => {
+                res.data.map((record) => {
+                    const details = Object.keys(record)
+                        .filter((key) => !["_id", "__v", "created_at", "updated_at"].includes(key))
+                        .reduce((obj, key) => {
+                            obj[key] = record[key];
+                            return obj;
+                        }, {});
+                    const date = new Date(Date.parse(record.created_at));
+                    let current = {
+                        details: { ...details, time: date.toString() },
+                        time: `${this.padToTwoDigits(date.getFullYear())}/${this.padToTwoDigits(
+                            date.getMonth() + 1
+                        )}/${this.padToTwoDigits(date.getDate())} ${this.padToTwoDigits(
+                            date.getHours()
+                        )}:${this.padToTwoDigits(date.getMinutes())}:${this.padToTwoDigits(date.getSeconds())}`,
+                        nft_id: record.collection_id,
+                        currency: record.currency,
+                        fromAddress: record.seller,
+                        price: record.price,
+                        type: record.transaction_type,
+                        commission: record.commission,
+                        commission_currency: record.commission_currency,
+                    };
+                    axios.get(`${this.$store.getters.getApiUrl}/profile/${record.seller}`).then((r) => {
+                        current.from = r.data.first_name + " " + r.data.last_name;
                     });
-                })
-                .catch((err) => {
-                    console.log(err);
+                    axios.get(`${this.$store.getters.getApiUrl}/nft/${current.nft_id}`).then((r) => {
+                        current.title = r.data.title;
+                    });
+                    if (current.type.includes("draw")) {
+                        this.drawTransactions.push(current);
+                    } else if (current.type.includes("nft")) {
+                        this.nftTransactions.push(current);
+                    }
                 });
+            });
         },
         getOwnerAddress(owners) {
             return owners.find((owner) => owner.percentage === 1).address;
@@ -367,6 +436,57 @@ export default {
             const results = await Promise.allSettled(nftPromises);
             let nfts = results.filter((result) => result.status === "fulfilled").map((result) => result.value);
             return nfts;
+        },
+        padToTwoDigits(s) {
+            s = s.toString();
+            if (s.length >= 2) {
+                return s;
+            } else {
+                return this.padToTwoDigits("0" + s);
+            }
+        },
+        async loadSupports() {
+            const directions = ["from", "to"];
+            for (const direction of directions) {
+                await axios
+                    .get(`${this.$store.getters.getApiUrl}/support/${direction}/${this.$route.params.address}`)
+                    .then(async (res) => {
+                        let supports = res.data;
+                        supports = supports.map((support) => {
+                            support[direction] = this.first_name + " " + this.last_name;
+
+                            const date = new Date(Date.parse(support.created_at));
+                            support.time = `${this.padToTwoDigits(date.getFullYear())}/${this.padToTwoDigits(
+                                date.getMonth() + 1
+                            )}/${this.padToTwoDigits(date.getDate())} ${this.padToTwoDigits(
+                                date.getHours()
+                            )}:${this.padToTwoDigits(date.getMinutes())}:${this.padToTwoDigits(date.getSeconds())}`;
+
+                            return support;
+                        });
+
+                        const oppositeDirection = directions.find((d) => d !== direction);
+                        const promises = supports.map((support) => {
+                            return axios
+                                .get(
+                                    `${this.$store.getters.getApiUrl}/profile/${support[oppositeDirection + "Address"]}`
+                                )
+                                .then((res) => {
+                                    support[oppositeDirection] = res.data.first_name + " " + res.data.last_name;
+                                })
+                                .catch(() => {
+                                    support[oppositeDirection] = "Unregistered User";
+                                });
+                        });
+
+                        await Promise.all(promises);
+                        if (direction === "from") {
+                            this.givenSupports = supports;
+                        } else if (direction === "to") {
+                            this.receivedSupports = supports;
+                        }
+                    });
+            }
         },
         openSupportModal(e) {
             e.preventDefault();
@@ -414,8 +534,8 @@ export default {
 
             // record in database
             let data = {
-                from: (await window.conflux.send("cfx_requestAccounts"))[0],
-                to: this.$route.params.address,
+                fromAddress: (await window.conflux.send("cfx_requestAccounts"))[0],
+                toAddress: this.$route.params.address,
                 amount: parseFloat(this.supportAmount),
             };
             if (this.supportMessage) {
@@ -456,6 +576,7 @@ export default {
             this.loadNfts(profile.liked_nfts, true),
             this.loadNfts(nft_ids),
             this.loadTransactions(),
+            this.loadSupports(),
         ]);
     },
 };

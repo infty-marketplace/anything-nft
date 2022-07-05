@@ -3,8 +3,8 @@ const Schema = mongoose.Schema;
 
 const supportSchema = new Schema(
     {
-        from: { type: String, required: true },
-        to: { type: String, required: true },
+        fromAddress: { type: String, required: true },
+        toAddress: { type: String, required: true },
         amount: { type: Number, required: true },
         message: { type: String },
     },

@@ -93,8 +93,7 @@ const getTransactions = async (req, res) => {
     if (!req.params.address) {
         return res.status(400).json({ error: "Invalid request" });
     }
-
-    const transactions = await Transaction.find({ buyer: req.params.address });
+    const transactions = await Transaction.find({ buyer: req.params.address }).sort({ created_at: "desc" });
     res.send(transactions);
 };
 
@@ -114,6 +113,17 @@ const supportUser = async (req, res) => {
     });
 };
 
+const getSupports = async (req, res) => {
+    const [direction, address] = [req.params.direction, req.params.address];
+    if (!direction || !address) {
+        return res.status(400).json({ error: "Invalid request" });
+    }
+    let query = {};
+    query[direction + "Address"] = address;
+    const data = await Support.find(query).sort({ created_at: "desc" });
+    return res.send(data);
+};
+
 module.exports = {
     authUser,
     getUser,
@@ -121,4 +131,5 @@ module.exports = {
     getTransactions,
     setAvatarToNft,
     supportUser,
+    getSupports,
 };
