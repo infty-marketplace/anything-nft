@@ -512,8 +512,8 @@ export default {
                     })
                     .executed();
                 Notification.closeAll();
-                this.$notify({
-                    title: "Notification",
+                this.$notify.success({
+                    title: "Congrats",
                     message: "The creator has received your support, thank you",
                     duration: 3000,
                 });

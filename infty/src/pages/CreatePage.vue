@@ -33,10 +33,12 @@
             </div>
             <div class="mt-5">
                 <b-badge pill variant="info" class="ml-2">Decentralized Image Storage on IPFS</b-badge>
-                <b-button variant="primary" class="create-btn" @click="createNft">{{ $t("createNft.create") }}</b-button>
-                <b-button variant="outline-primary" class="create-btn mr-2" @click="ucVisible = true"
-                    >{{ $t("createNft.unlockableContent") }}</b-button
-                >
+                <b-button variant="primary" class="create-btn" @click="createNft">{{
+                    $t("createNft.create")
+                }}</b-button>
+                <b-button variant="outline-primary" class="create-btn mr-2" @click="ucVisible = true">{{
+                    $t("createNft.unlockableContent")
+                }}</b-button>
             </div>
             <el-dialog title="Unlockable Content" :visible.sync="ucVisible" width="60%" :before-close="(d) => d()">
                 <label>Image</label>
