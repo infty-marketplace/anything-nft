@@ -16,7 +16,7 @@
         <div class="profile-pic-container" v-if="$store.getters.getLogInStatus">
             <img :src="avatar" id="profile-pic" />
             <h2 class="mt-2">{{ first_name }} {{ last_name }}</h2>
-            <a target="_blank" :href="this.getConfluxscanUrl(this.$route.params.address)"
+            <a target="_blank" :href="`${confluxScanUrl}/address/${$route.params.address}`"
                 ><p class="mt-2">{{ this.$route.params.address }}</p></a
             >
         </div>
@@ -322,13 +322,13 @@ export default {
             }
             return [];
         },
+        confluxScanUrl() {
+            return this.$route.params.address.startsWith("cfxtest:")
+                ? "https://testnet.confluxscan.io"
+                : "https://confluxscan.io";
+        },
     },
     methods: {
-        getConfluxscanUrl: function(address) {
-            return address.startsWith("cfxtest:")
-                ? "https://testnet.confluxscan.io/address/" + address
-                : "https://confluxscan.io/address/" + address;
-        },
         handleSelect(i) {
             if (i == 5) {
                 this.$store.dispatch("notifyWIP");
@@ -361,7 +361,7 @@ export default {
                         type: "success",
                     });
                 })
-                .catch((err) => {
+                .catch(() => {
                     this.$bvToast.toast("Update Failed", {
                         title: "Error",
                         autoHideDelay: 3000,
