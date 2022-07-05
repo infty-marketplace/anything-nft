@@ -47,7 +47,7 @@
                         <el-submenu index="6" v-if="this.isMyself">
                             <template slot="title">
                                 <i class="el-icon-goods"></i>
-                                <span>Supprots</span>
+                                <span>Supports</span>
                             </template>
                             <el-menu-item index="6-1">Received</el-menu-item>
                             <el-menu-item index="6-2">Given</el-menu-item>
