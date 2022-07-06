@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const constants = require("../constants");
+const nftStatus = require("../constants/nftStatus");
 
 const nftSchema = new Schema(
     {
@@ -8,12 +8,13 @@ const nftSchema = new Schema(
         nft_id: { type: String, required: true },
         description: { type: String, default: "" },
         file: { type: String, required: true },
+        metadata: { type: String, required: true },
         file_hash: { type: String, required: true },
 
         status: {
             type: String,
             required: true,
-            enum: [constants.STATUS_PRIVATE, constants.STATUS_SALE, constants.STATUS_DRAW],
+            enum: [nftStatus.PRIVATE, nftStatus.SALE, nftStatus.RAFFLE],
         },
 
         price: { type: Number },
@@ -26,7 +27,10 @@ const nftSchema = new Schema(
         draw_smart_contract_address: { type: String },
         share_smart_contract_address: { type: String },
         fractional: { type: Boolean, default: false },
-        fragmented: { type: Boolean }
+        fragmented: { type: Boolean },
+        views: { type: Number, required: true, default: 0 },
+        labels: { type: [String], default: [] },
+        liked_users: { type: [String], default: [] },
     },
     {
         timestamps: {

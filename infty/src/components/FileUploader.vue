@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="drag-area">
-      <input ref='input' type="file" @change="onUpload" hidden />
+      <input ref='input' type="file" accept=".jpg,.jpeg,.png" @change="onUpload" hidden />
       <img style="object-fit: contain" ref='image' v-if="fileLoaded"/>
       <div class='drag-area-inner mt-5' v-else>
       <svg
@@ -21,13 +21,13 @@
           d="M7.646 4.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V14.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3z"
         />
       </svg>
-      <header>Drag & Drop to Upload File</header>
-      <span>OR</span>
-      <button v-if="!fileLoaded" @click="btnClicked">Browse File</button>
+      <header>{{ $t('fileUploader.upload') }}</header>
+      <span>{{ $t('fileUploader.or') }}</span>
+      <button v-if="!fileLoaded" @click="btnClicked">{{ $t('fileUploader.browseFile') }}</button>
       </div>
     </div>
     <button v-if="fileLoaded" @click="btnClicked" style="float: right">
-      Change File
+      {{ $t('fileUploader.changeFile') }}
     </button>
   </div>
 </template>

@@ -1,0 +1,59 @@
+{
+    "marketplace": "市场",
+    "collections": "收藏",
+    "account": "账户",
+    "stats": "统计",
+    "cutoffx" : "CutoffX",
+    "subscribe": "订阅",
+    "price": "价格",
+    "endOfMarket": "已经到底了哦",
+    "album": "相册",
+    "filter": "筛选器",
+    "status": "状态",
+    "categories": "类别",
+    "banner": "以 NFT 的形式创建、收集和交易图片。",
+    "explore": "探索更多",
+    "create": "创建NFT",
+    "aboutUsContent": "在 Infty，我们致力于开发维护这个由开源社区所驱动的 NFT 交易平台。 我们的核心成员来自计算机科学的各个领域，例如大型科技公司的软件工程师和顶尖大学的研究生。 我们相识是因为我们都是多伦多大学的毕业生，但更重要的是，我们是一群区块链爱好者。",
+    "footer": {
+        "allNFTs": "All NFTs",
+        "art": "Art",
+        "tradingCards": "Trading Cards",
+        "collectibles": "Collectibles",
+        "appDesign": "App Design",
+        "webDesign": "Web Design",
+        "logoDesign": "Logo Design",
+        "bannerDesign": "Banner Design",
+        "rankings": "Ranking",
+        "activity": "Activity",
+        "contactUs": "联系我们",
+        "aboutUs": "关于我们",
+        "enterEmail": "请输入您的邮件"
+    },
+    "filterOption" : {
+       "status": "状态",
+       "price": "价格(CFX)"
+    },
+    "searchBar": {
+        "search": "搜索..."
+    },
+    "createNft": {
+        "createNft": "制作自己的NFT",
+        "title": "标题",
+        "name": "请输入标题...",
+        "image": "图片*",
+        "description": "描述",
+        "descriptionInput": "请输入详细描述",
+        "labels": "标签",
+        "unlockableContent": "Add unlockable content",
+        "create": "创建"
+    },
+    "fileUploader": {
+        "upload": "拖拽/丢入文件",
+        "or": "或者",
+        "browseFile": "预览文件",
+        "changeFile": "更改文件"
+    }
+    
+
+}

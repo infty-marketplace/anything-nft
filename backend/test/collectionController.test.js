@@ -1,3 +1,4 @@
+// This file is no longer up to date.
 let chai = require("chai");
 const chaiHttp = require("chai-http");
 const server = require("../src/index");
@@ -6,7 +7,7 @@ const Nft = require("../src/models/nft");
 const Transaction = require("../src/models/transaction");
 const Album = require("../src/models/album");
 const Draw = require("../src/models/draw");
-const constants = require("../src/constants");
+const nftStatus = require("../src/constants/nftStatus");
 const expect = chai.expect;
 chai.use(chaiHttp);
 
@@ -22,7 +23,7 @@ function getMockData() {
     const album1 = {
         title: "album1",
         album_id: "album_id1",
-        status: constants.STATUS_SALE,
+        status: nftStatus.SALE,
         file: "file1",
         price: 100,
         currency: "cfx",
@@ -32,7 +33,7 @@ function getMockData() {
     const album2 = {
         title: "album2",
         album_id: "album_id2",
-        status: constants.STATUS_PRIVATE,
+        status: nftStatus.PRIVATE,
         file: "file2",
         price: 100,
         currency: "cfx",
@@ -42,7 +43,7 @@ function getMockData() {
     const album3 = {
         title: "album3",
         album_id: "album_id3",
-        status: constants.STATUS_SALE,
+        status: nftStatus.SALE,
         file: "file3",
         price: 100,
         currency: "cfx",
@@ -52,7 +53,7 @@ function getMockData() {
     const album4 = {
         title: "album4",
         album_id: "album_id4",
-        status: constants.STATUS_SALE,
+        status: nftStatus.SALE,
         file: "file4",
         price: 100,
         currency: "cfx",
@@ -62,7 +63,7 @@ function getMockData() {
     const album5 = {
         title: "album5",
         album_id: "album_id5",
-        status: constants.STATUS_SALE,
+        status: nftStatus.SALE,
         file: "file5",
         price: 100,
         currency: "cfx",
@@ -73,7 +74,7 @@ function getMockData() {
         title: "nft1",
         nft_id: "nft_id1",
         album_id: "album_id1",
-        status: constants.STATUS_SALE,
+        status: nftStatus.SALE,
         file: "file1",
         price: 100,
         currency: "cfx",
@@ -85,7 +86,7 @@ function getMockData() {
         title: "nft2",
         nft_id: "nft_id2",
         album_id: "album_id3",
-        status: constants.STATUS_SALE,
+        status: nftStatus.SALE,
         file: "file3",
         price: 100,
         currency: "cfx",
@@ -100,7 +101,7 @@ function getMockData() {
         title: "nft3",
         nft_id: "nft_id3",
         album_id: "album_id1",
-        status: constants.STATUS_SALE,
+        status: nftStatus.SALE,
         file: "file3",
         price: 100,
         currency: "cfx",
@@ -112,7 +113,7 @@ function getMockData() {
         title: "nft4",
         nft_id: "nft_id4",
         album_id: "",
-        status: constants.STATUS_PRIVATE,
+        status: nftStatus.PRIVATE,
         file: "file4",
         price: 100,
         currency: "cfx",
@@ -125,7 +126,7 @@ function getMockData() {
         title: "nft5",
         nft_id: "nft_id5",
         album_id: "",
-        status: constants.STATUS_SALE,
+        status: nftStatus.SALE,
         file: "file5",
         price: 100,
         currency: "cfx",
@@ -141,7 +142,7 @@ function getMockData() {
         title: "nft6",
         nft_id: "nft_id6",
         album_id: "album_id5",
-        status: constants.STATUS_SALE,
+        status: nftStatus.SALE,
         file: "file6",
         price: 100,
         currency: "cfx",
@@ -156,7 +157,7 @@ function getMockData() {
         title: "nft7",
         nft_id: "nft_id7",
         album_id: "album_id5",
-        status: constants.STATUS_SALE,
+        status: nftStatus.SALE,
         file: "file7",
         price: 100,
         currency: "cfx",
@@ -167,7 +168,7 @@ function getMockData() {
     const nft8 = {
         title: "nft8",
         nft_id: "nft_id8",
-        status: constants.STATUS_DRAW,
+        status: nftStatus.RAFFLE,
         file: "file8",
         price: 100,
         currency: "cfx",
@@ -178,7 +179,7 @@ function getMockData() {
     const nft9 = {
         title: "nft9",
         nft_id: "nft_id9",
-        status: constants.STATUS_DRAW,
+        status: nftStatus.RAFFLE,
         file: "file9",
         price: 100,
         currency: "cfx",

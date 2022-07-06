@@ -1,0 +1,57 @@
+{
+    "marketplace": "Marketplace",
+    "collections": "Collections",
+    "account": "Account",
+    "stats": "Stats",
+    "cutoffx" : "CutoffX",
+    "subscribe": "Subscribe",
+    "price": "Price",
+    "endOfMarket": "End Of Market",
+    "album": "Album",
+    "filter": "Filter",
+    "status": "Status",
+    "categories": "Categories",
+    "banner": "Create, collect, and trade any craft as NFT.",
+    "explore": "Explore",
+    "create": "Create NFT",
+    "aboutUsContent": "At Infty, we work on this open-source community-driven NFT trading platform. Our core members come from a variety of fields in computer science, such as software engineers at giant tech comapnies, and graduate students at top universities. We came to know each other because we are all graduates of University of Toronto, but more importantly, we are a group of blockchain enthusiasts.",
+    "footer": {
+        "allNFTs": "All NFTs",
+        "art": "Art",
+        "tradingCards": "Trading Cards",
+        "collectibles": "Collectibles",
+        "appDesign": "App Design",
+        "webDesign": "Web Design",
+        "logoDesign": "Logo Design",
+        "bannerDesign": "Banner Design",
+        "rankings": "Ranking",
+        "activity": "Activity",
+        "contactUs": "Contact Us",
+        "aboutUs": "About Us",
+        "enterEmail": "Enter your email"
+    },
+    "filterOption" : {
+       "status": "Status",
+       "price": "Price(CFX)"
+    },
+    "searchBar": {
+        "search": "Search..."
+    },
+    "createNft": {
+        "createNft": "Create your own NFT",
+        "title": "Title",
+        "name": "Enter name of the art...",
+        "image": "Image*",
+        "description": "Description",
+        "descriptionInput": "Enter a detailed description",
+        "labels": "Labels",
+        "unlockableContent": "Add unlockable content",
+        "create": "Create"
+    },
+    "fileUploader": {
+        "upload": "Drag & Drop to Upload File",
+        "or": "Or",
+        "browseFile": "Browse File",
+        "changeFile": "Change File"
+    }
+}
