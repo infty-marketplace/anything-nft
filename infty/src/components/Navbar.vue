@@ -36,6 +36,13 @@
             <b-form-input class="mb-4" v-model="firstName" placeholder="Your creative first name here..." />
             <label>Last Name</label>
             <b-form-input class="mb-4" v-model="lastName" placeholder="Optional" />
+            <label>Terms & Conditions</label>
+            <div class="scrollable-div">
+               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut laoreet risus quis neque vestibulum mollis. Duis placerat dignissim enim et dapibus. Ut velit ex, aliquet et quam at, tincidunt varius nulla. Quisque dictum ex id vestibulum semper. In nibh urna, iaculis elementum eros sit amet, dignissim imperdiet tellus. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. In varius at urna id sodales. Nulla ut porta sem. Sed purus justo, pulvinar sit amet felis sed, eleifend dignissim augue. Aenean fermentum, nibh sed condimentum facilisis, quam magna dignissim nisi, eget vulputate odio risus vel quam.
+            </div>
+            <input type="checkbox" id="terms" v-model="checkedTerms">
+            <label for="terms" class="termsLabel">I have read and agreed to the above Terms & Conditions.</label>
+
         </b-modal>
     </div>
 </template>
@@ -51,35 +58,46 @@ export default {
     data: () => ({
         firstName: "",
         lastName: "",
+        checkedTerms: false
     }),
     methods: {
         connectWallet() {
             this.$store.dispatch("connectWallet");
         },
         async handleRegister() {
-            this.$notify({
-                title: "Pending",
-                dangerouslyUseHTMLString: true,
-                message:
-                    '<div style="display:flex; align-items: center;"> <div class="loader"></div><div style="display:inline">Creating your profile</div></div>',
-                duration: 0,
-            });
-            await axios
-                .post(`${this.$store.getters.getApiUrl}/profile/update-profile`, {
-                    first_name: this.firstName,
-                    last_name: this.lastName,
-                    address: this.$store.getters.getAddress,
-                })
-                .then((res) => {
-                    console.log("profile saved", res);
-                    this.connectWallet();
-                    Notification.closeAll();
-                    this.$notify({
-                        title: "Success",
-                        message: "Profile created",
-                        duration: 3000,
-                    });
+            if (this.firstName && this.checkedTerms) {
+                this.$notify({
+                    title: "Pending",
+                    dangerouslyUseHTMLString: true,
+                    message:
+                        '<div style="display:flex; align-items: center;"> <div class="loader"></div><div style="display:inline">Creating your profile</div></div>',
+                    duration: 0,
                 });
+                await axios
+                    .post(`${this.$store.getters.getApiUrl}/profile/update-profile`, {
+                        first_name: this.firstName,
+                        last_name: this.lastName,
+                        address: this.$store.getters.getAddress,
+                    })
+                    .then((res) => {
+                        console.log("profile saved", res);
+                        this.connectWallet();
+                        Notification.closeAll();
+                        this.$notify({
+                            title: "Success",
+                            message: "Profile created",
+                            duration: 3000,
+                        });
+                    });
+            } else {
+                this.$notify.error({
+                    title: "Error",
+                    dangerouslyUseHTMLString: true,
+                    message:
+                        'You must fill in your first name and accept our Terms & Conditions.',
+                    duration: 3000,
+                });
+            }
         },
         toProfile() {
             const path = this.$route.path;
@@ -196,4 +214,23 @@ header {
 .profile-pic:hover {
     transform: scale(1.1);
 }
+
+.scrollable-div {
+    height: 100px;
+    overflow-y: scroll;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    padding-left: 0.75rem;
+    font-weight: 400;
+    line-height: 1.2;
+    font-size: 1rem;
+    text-align: justify;
+    color: #495057;
+}
+
+.termsLabel {
+    padding: 0.375rem 0.75rem;
+}
+
 </style>
