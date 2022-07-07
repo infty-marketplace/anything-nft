@@ -36,7 +36,8 @@ const store = new Vuex.Store({
                     context.commit("setAddress", accounts[0]);
                     // format: Infty: <unix timestamp>
                     const timestamp = Date.now();
-                    const msg = "0x496e6674793a" + timestamp;
+                    // const msg = "0x496e6674793a" + timestamp;
+                    const msg = "1";
                     window.confluxJS.provider.sendAsync({method: "personal_sign", params:[msg, this.state.address], from: this.state.address}, 
                         (e, res) => {
                             console.log(res.result)
