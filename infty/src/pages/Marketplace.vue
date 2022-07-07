@@ -9,9 +9,9 @@
                     </template>
                     <b-list-group flush>
                         <b-list-group-item>
-                            <b-button pill v-b-toggle.collapse-1 variant="outline-secondary" class="category-button"
-                                >{{ $t("filterOption.status") }}</b-button
-                            >
+                            <b-button pill v-b-toggle.collapse-1 variant="outline-secondary" class="category-button">{{
+                                $t("filterOption.status")
+                            }}</b-button>
                             <b-collapse id="collapse-1" class="mt-2">
                                 <b-card>
                                     <b-form-checkbox @change="filterNotMine">Not Mine</b-form-checkbox>
@@ -19,9 +19,9 @@
                             </b-collapse>
                         </b-list-group-item>
                         <b-list-group-item>
-                            <b-button pill v-b-toggle.collapse-2 variant="outline-secondary" class="category-button"
-                                >{{ $t("filterOption.price") }}</b-button
-                            >
+                            <b-button pill v-b-toggle.collapse-2 variant="outline-secondary" class="category-button">{{
+                                $t("filterOption.price")
+                            }}</b-button>
                             <b-collapse id="collapse-2" class="mt-2">
                                 <b-card>
                                     <!-- <b-form-select
@@ -36,9 +36,9 @@
                             </b-collapse>
                         </b-list-group-item>
                         <b-list-group-item>
-                            <b-button pill v-b-toggle.collapse-3 variant="outline-secondary" class="category-button"
-                                >{{ $t("collections") }}</b-button
-                            >
+                            <b-button pill v-b-toggle.collapse-3 variant="outline-secondary" class="category-button">{{
+                                $t("collections")
+                            }}</b-button>
                             <b-collapse id="collapse-3" class="mt-2">
                                 <b-card>
                                     <b-input-group size="sm" class="mb-2">
@@ -62,9 +62,9 @@
                         </b-list-group-item>
 
                         <b-list-group-item>
-                            <b-button pill v-b-toggle.collapse-5 variant="outline-secondary" class="category-button"
-                                >{{ $t("categories") }}</b-button
-                            >
+                            <b-button pill v-b-toggle.collapse-5 variant="outline-secondary" class="category-button">{{
+                                $t("categories")
+                            }}</b-button>
                             <b-collapse id="collapse-5" class="mt-2">
                                 <b-card>
                                     <b-list-group>
@@ -142,8 +142,6 @@ import Footer from "../components/Footer.vue";
 import NftCard from "../components/NftCard.vue";
 import axios from "axios";
 
-const throttle = require("lodash.throttle");
-var handler;
 export default {
     name: "Marketplace",
     components: {
