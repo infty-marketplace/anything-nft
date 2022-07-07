@@ -501,12 +501,13 @@ export default {
             }
         },
         async supportCreator() {
+            const to = this.$route.params.address;
             try {
                 this.$store.dispatch("notifyLoading", { msg: "Sending transaction" });
                 await window.confluxJS
                     .sendTransaction({
                         from: (await window.conflux.send("cfx_requestAccounts"))[0],
-                        to: this.$route.params.address,
+                        to: to,
                         gasPrice: 1e9,
                         value: 1e18 * parseFloat(this.supportAmount),
                     })
@@ -535,7 +536,7 @@ export default {
             // record in database
             let data = {
                 fromAddress: (await window.conflux.send("cfx_requestAccounts"))[0],
-                toAddress: this.$route.params.address,
+                toAddress: to,
                 amount: parseFloat(this.supportAmount),
             };
             if (this.supportMessage) {
