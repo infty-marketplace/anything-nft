@@ -298,6 +298,7 @@ export default {
         selectedIndex: 0,
         modeSwitch: true,
         nftTransactions: [],
+        drawTransactions: [],
         bio: "",
         displayBio: "",
         new_first: "",
@@ -594,12 +595,16 @@ export default {
                 .join("");
         });
 
-        [this.likedNfts, this.nfts] = await Promise.all([
-            this.loadNfts(profile.liked_nfts, true),
-            this.loadNfts(nft_ids),
-            this.loadTransactions(),
-            this.loadSupports(),
-        ]);
+        const promises = [];
+        // only load what we display
+        if (this.isMyself) {
+            promises.push((async () => (this.likedNfts = await this.loadNfts(profile.liked_nfts, true)))());
+            promises.push(this.loadTransactions());
+            promises.push(this.loadSupports());
+        } else {
+            promises.push((async () => (this.nfts = await this.loadNfts(nft_ids)))());
+        }
+        await Promise.all(promises);
     },
 };
 </script>
