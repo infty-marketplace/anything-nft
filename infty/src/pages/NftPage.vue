@@ -357,12 +357,12 @@ export default {
                 return;
             }
 
-            this.$store.dispatch("notifyLoading", { msg: "Paying commission now" });
+            this.$store.dispatch("notifyLoading", { msg: "Purchasing now" });
             const res = await window.confluxJS
                 .sendTransaction({
                     from: (await window.conflux.send("cfx_requestAccounts"))[0],
                     to: getters.getManagerAddr,
-                    gasPrice: 1,
+                    gasPrice: 1000000000,
                     value: 1e18 * (parseFloat(this.listing_commision) + parseFloat(this.card.price)),
                 })
                 .executed()
