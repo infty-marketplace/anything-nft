@@ -207,11 +207,12 @@ export default {
     },
     async mounted() {
         // fetch and update the views with api to backend
-        const res = await axios.post(`${this.$store.getters.getApiUrl}/update-views/${this.$route.params.id}`);
-        this.views = res.data.views;
+        await axios
+            .post(`${this.$store.getters.getApiUrl}/update-views/${this.$route.params.id}`)
+            .then((res) => (this.views = res.data.views))
+            .catch(() => (this.views = 1));
         if (!this.card) {
-            this.fetchNftData();
-            this.fetchTransactionHistory();
+            await Promise.add([this.fetchNftData(), this.fetchTransactionHistory()]);
         }
     },
     methods: {
@@ -226,8 +227,19 @@ export default {
         async fetchNftData() {
             const getters = this.$store.getters;
 
-            const card = (await axios.get(`${getters.getApiUrl}/nft/${this.$route.params.id}`)).data;
-
+            let card;
+            try {
+                card = (await axios.get(`${getters.getApiUrl}/nft/${this.$route.params.id}`)).data;
+            } catch (error) {
+                // if nft not found, redirect to marketplace
+                this.$router.push({ path: "/marketplace" });
+                this.$notify.error({
+                    title: "Error",
+                    message: "NFT not found",
+                    duration: 3000,
+                });
+                return;
+            }
             this.fractionProg = card.owner.slice(1).reduce((pv, cv) => pv + cv.percentage, 0) * 100;
 
             await axios
