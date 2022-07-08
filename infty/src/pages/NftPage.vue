@@ -82,12 +82,7 @@
                 >
                     <div class="unlock"><i class="el-icon-lock"></i>&nbsp;&nbsp;Contains Unlockable Content</div>
                 </el-tooltip>
-                <b-card
-                    class="transaction-info"
-                    header-tag="header"
-                    footer-tag="footer"
-                    v-if="!isOwner && card.status == 'sale'"
-                >
+                <b-card class="transaction-info" header-tag="header" footer-tag="footer" v-if="card.status == 'sale'">
                     <template #header>
                         <h6 class="mb-0"><b-icon icon="clock"></b-icon>&nbsp;On Sale Now</h6>
                     </template>
