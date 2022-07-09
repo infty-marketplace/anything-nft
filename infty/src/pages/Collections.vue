@@ -1,7 +1,7 @@
 <template>
     <div class="flex-wrapper" id="collections-page">
         <Navbar active-index="3" />
-        <div class="flex-wrapper-row mt-3" v-if="$store.getters.getAddress">
+        <div class="flex-wrapper-row mt-3" v-if="$store.getters.getLogInStatus">
             <el-tabs class="main-content">
                 <el-tab-pane label="NFT">
                     <p>Unlisted</p>

@@ -2,20 +2,26 @@
     <div class="flex-wrapper main">
         <Navbar />
         <button @click="$router.go(-1)" class="back-btn"><i class="el-icon-back" style="color:white" /></button>
-        <div class="actions" v-if="!this.isMyself" @click="$store.dispatch('notifyWIP')">
-            <el-button type="primary">打赏</el-button>
-            <el-button type="primary">关注</el-button>
-            <el-button type="primary">站内信</el-button>
+        <div class="actions" v-if="!this.isMyself">
+            <el-button type="primary" @click="openSupportModal">打赏</el-button>
+            <b-modal ref="support-modal" title="Support Creator" @ok="supportCreator">
+                <label>Please enter the amount in CFX</label>
+                <b-form-input class="mb-4" v-model="supportAmount" placeholder="" />
+                <label>(Optioal) Leave a message to the creator</label>
+                <b-form-input class="mb-4" v-model="supportMessage" placeholder="" />
+            </b-modal>
+            <el-button type="primary" @click="$store.dispatch('notifyWIP')">关注</el-button>
+            <el-button type="primary" @click="$store.dispatch('notifyWIP')">站内信</el-button>
         </div>
-        <div class="profile-pic-container" v-if="$store.getters.getAddress">
+        <div class="profile-pic-container" v-if="$store.getters.getLogInStatus">
             <img :src="avatar" id="profile-pic" />
             <h2 class="mt-2">{{ first_name }} {{ last_name }}</h2>
-            <a target="_blank" :href="`https://confluxscan.io/address/${this.$route.params.address}`"
+            <a target="_blank" :href="`${confluxScanUrl}/address/${$route.params.address}`"
                 ><p class="mt-2">{{ this.$route.params.address }}</p></a
             >
         </div>
 
-        <div class="content" v-if="$store.getters.getAddress">
+        <div class="content" v-if="$store.getters.getLogInStatus">
             <div class="padding-border"></div>
             <el-row class="tac">
                 <el-col :span="5">
@@ -38,6 +44,14 @@
                             <i class="el-icon-star-off"></i>
                             <span slot="title">My liked NFTs</span>
                         </el-menu-item>
+                        <el-submenu index="6" v-if="this.isMyself">
+                            <template slot="title">
+                                <i class="el-icon-goods"></i>
+                                <span>Supports</span>
+                            </template>
+                            <el-menu-item index="6-1">Received</el-menu-item>
+                            <el-menu-item index="6-2">Given</el-menu-item>
+                        </el-submenu>
                         <el-menu-item index="3" v-if="this.isMyself" id="account-menu">
                             <i class="el-icon-setting"></i>
                             <span slot="title">My Account</span>
@@ -73,10 +87,19 @@
                     </div>
 
                     <div v-if="selectedIndex == '2'">
-                        <el-card class="box-card m-5 transaction-card">
-                            <el-table :data="transactions" empty-text="Nothing" height="calc(100vh - 250px)">
-                                <el-table-column prop="time" label="Time" align="center"> </el-table-column>
+                        <el-card class="box-card m-5">
+                            <el-table :data="transactions" empty-text="Nothing" height="calc(100vh - 250px)" stripe>
+                                <el-table-column type="expand">
+                                    <template #default="props">
+                                        <p v-for="(value, key) in props.row.details" :key="key">
+                                            {{
+                                                key + ": " + (typeof value === "object" ? JSON.stringify(value) : value)
+                                            }}
+                                        </p>
+                                    </template>
+                                </el-table-column>
 
+                                <el-table-column prop="time" label="Time" align="center"> </el-table-column>
                                 <el-table-column label="Title" align="center">
                                     <template slot-scope="scope">
                                         <el-link target="_blank" :href="`/nft/${scope.row.nft_id}`">
@@ -90,7 +113,14 @@
                                 </el-table-column>
                                 <el-table-column prop="commission_currency" label="Commission Currency" align="center">
                                 </el-table-column>
-                                <el-table-column prop="from" label="From" align="center"> </el-table-column>
+                                <el-table-column label="From" align="center">
+                                    <template slot-scope="scope">
+                                        <el-link :href="`/profile/${scope.row.fromAddress}`">
+                                            {{ scope.row.from }}
+                                        </el-link>
+                                    </template>
+                                </el-table-column>
+
                                 <el-table-column prop="type" label="Transaction Type" align="center"> </el-table-column>
                             </el-table>
                         </el-card>
@@ -105,6 +135,44 @@
                             </div>
                         </el-card>
                     </div>
+
+                    <div v-if="selectedIndex == '6-1' || selectedIndex == '6-2'">
+                        <el-card class="box-card m-5">
+                            <el-table
+                                :data="selectedIndex == '6-1' ? receivedSupports : givenSupports"
+                                empty-text="Nothing"
+                                height="calc(100vh - 250px)"
+                                stripe
+                            >
+                                <el-table-column type="expand">
+                                    <template #default="props">
+                                        <p>
+                                            {{ "Message: " + (props.row.message ? props.row.message : "N/A") }}
+                                        </p>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column prop="time" label="Time" align="center"> </el-table-column>
+
+                                <el-table-column label="From" align="center">
+                                    <template slot-scope="scope">
+                                        <el-link :href="`/profile/${scope.row.fromAddress}`">
+                                            {{ scope.row.from }}
+                                        </el-link>
+                                    </template>
+                                </el-table-column>
+
+                                <el-table-column label="To" align="center">
+                                    <template slot-scope="scope">
+                                        <el-link :href="`/profile/${scope.row.toAddress}`">
+                                            {{ scope.row.to }}
+                                        </el-link>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column prop="amount" label="Amount" align="center"></el-table-column>
+                            </el-table>
+                        </el-card>
+                    </div>
+
                     <div v-if="selectedIndex == 5">
                         <el-card class="box-card m-5 card-container">
                             <el-empty description="Nothing"></el-empty>
@@ -207,6 +275,7 @@ import Footer from "../components/Footer.vue";
 import NftCard from "../components/NftCard.vue";
 import ConnectWallet from "../components/ConnectWallet.vue";
 import axios from "axios";
+import { Notification } from "element-ui";
 
 export default {
     name: "ProfilePage",
@@ -218,7 +287,8 @@ export default {
         NftCard,
     },
     data: () => ({
-        avatar: null,
+        avatar:
+            "https://bafybeiasgari2dccg4fcgrkbluberhlhmaq4noxhndz4ktn7pfdiakpp5m.ipfs.nftstorage.link/undraw_profile_pic_ic5t.png",
         selectedIndex: 0,
         modeSwitch: true,
         nftTransactions: [],
@@ -226,11 +296,15 @@ export default {
         displayBio: "",
         new_first: "",
         new_last: "",
-        first_name: "",
-        last_name: "",
+        first_name: "Unregistered",
+        last_name: "User",
         editModes: false,
         nfts: [],
         likedNfts: [],
+        supportAmount: "",
+        supportMessage: "",
+        receivedSupports: [],
+        givenSupports: [],
     }),
     computed: {
         isMyself: function() {
@@ -247,6 +321,11 @@ export default {
                 return this.nftTransactions;
             }
             return [];
+        },
+        confluxScanUrl() {
+            return this.$route.params.address.startsWith("cfxtest:")
+                ? "https://testnet.confluxscan.io"
+                : "https://confluxscan.io";
         },
     },
     methods: {
@@ -282,8 +361,7 @@ export default {
                         type: "success",
                     });
                 })
-                .catch((err) => {
-                    console.log(err);
+                .catch(() => {
                     this.$bvToast.toast("Update Failed", {
                         title: "Error",
                         autoHideDelay: 3000,
@@ -294,63 +372,180 @@ export default {
         },
 
         loadTransactions() {
-            axios
-                .get(`${this.$store.getters.getApiUrl}/transaction/${this.$route.params.address}`)
-                .then((res) => {
-                    res.data.map((record) => {
-                        const date = Date.parse(record.created_at);
-                        let current = {
-                            time: new Date(date).toString(),
-                            nft_id: record.collection_id,
-                            currency: record.currency,
-                            from: record.seller,
-                            price: record.price,
-                            type: record.transaction_type,
-                            commission: record.commission,
-                            commission_currency: record.commission_currency,
-                        };
-                        axios.get(`${this.$store.getters.getApiUrl}/profile/${record.seller}`).then((r) => {
-                            current.from = r.data.first_name + " " + r.data.last_name;
-                        });
-                        axios.get(`${this.$store.getters.getApiUrl}/nft/${current.nft_id}`).then((r) => {
-                            current.title = r.data.title;
-                        });
-                        if (current.type.includes("draw")) {
-                            this.drawTransactions.push(current);
-                        } else if (current.type.includes("nft")) {
-                            this.nftTransactions.push(current);
-                        }
+            axios.get(`${this.$store.getters.getApiUrl}/transaction/${this.$route.params.address}`).then((res) => {
+                res.data.map((record) => {
+                    const details = Object.keys(record)
+                        .filter((key) => !["_id", "__v", "created_at", "updated_at"].includes(key))
+                        .reduce((obj, key) => {
+                            obj[key] = record[key];
+                            return obj;
+                        }, {});
+                    const date = new Date(Date.parse(record.created_at));
+                    let current = {
+                        details: { ...details, time: date.toString() },
+                        time: `${this.padToTwoDigits(date.getFullYear())}/${this.padToTwoDigits(
+                            date.getMonth() + 1
+                        )}/${this.padToTwoDigits(date.getDate())} ${this.padToTwoDigits(
+                            date.getHours()
+                        )}:${this.padToTwoDigits(date.getMinutes())}:${this.padToTwoDigits(date.getSeconds())}`,
+                        nft_id: record.collection_id,
+                        currency: record.currency,
+                        fromAddress: record.seller,
+                        price: record.price,
+                        type: record.transaction_type,
+                        commission: record.commission,
+                        commission_currency: record.commission_currency,
+                    };
+                    axios.get(`${this.$store.getters.getApiUrl}/profile/${record.seller}`).then((r) => {
+                        current.from = r.data.first_name + " " + r.data.last_name;
                     });
-                })
-                .catch((err) => {
-                    console.log(err);
+                    axios.get(`${this.$store.getters.getApiUrl}/nft/${current.nft_id}`).then((r) => {
+                        current.title = r.data.title;
+                    });
+                    if (current.type.includes("draw")) {
+                        this.drawTransactions.push(current);
+                    } else if (current.type.includes("nft")) {
+                        this.nftTransactions.push(current);
+                    }
                 });
+            });
         },
         getOwnerAddress(owners) {
             return owners.find((owner) => owner.percentage === 1).address;
         },
         async loadNfts(nftIds, enableLike = false) {
-            const nftPromises = nftIds.map((nftId) => axios.get(`${this.$store.getters.getApiUrl}/nft/${nftId}`));
-            const results = await Promise.allSettled(nftPromises);
-            let nfts = results.filter((result) => result.status === "fulfilled").map((result) => result.value.data);
-            nfts = await Promise.all(
-                nfts.map(async (nft) => {
+            const nftPromises = nftIds.map((nftId) => {
+                return axios.get(`${this.$store.getters.getApiUrl}/nft/${nftId}`).then(async (res) => {
+                    const nft = res.data;
                     nft.url = nft.file;
                     nft.enableLike = enableLike;
                     nft.isLiked = nft.liked_users.includes(this.$store.getters.getAddress);
                     const ownerAddress = this.getOwnerAddress(nft.owner);
-                    const owner = (await axios.get(`${this.$store.getters.getApiUrl}/profile/${ownerAddress}`)).data;
-                    nft.ownerName = owner.first_name + " " + owner.last_name;
                     nft.ownerAddress = ownerAddress;
+                    await axios
+                        .get(`${this.$store.getters.getApiUrl}/profile/${ownerAddress}`)
+                        .then((res) => {
+                            nft.ownerName = res.data.first_name + " " + res.data.last_name;
+                        })
+                        .catch(() => {
+                            nft.ownerName = "Unregistered User";
+                        });
                     return nft;
-                })
-            );
+                });
+            });
+            const results = await Promise.allSettled(nftPromises);
+            let nfts = results.filter((result) => result.status === "fulfilled").map((result) => result.value);
             return nfts;
+        },
+        padToTwoDigits(s) {
+            s = s.toString();
+            if (s.length >= 2) {
+                return s;
+            } else {
+                return this.padToTwoDigits("0" + s);
+            }
+        },
+        async loadSupports() {
+            const directions = ["from", "to"];
+            for (const direction of directions) {
+                await axios
+                    .get(`${this.$store.getters.getApiUrl}/support/${direction}/${this.$route.params.address}`)
+                    .then(async (res) => {
+                        let supports = res.data;
+                        supports = supports.map((support) => {
+                            support[direction] = this.first_name + " " + this.last_name;
+
+                            const date = new Date(Date.parse(support.created_at));
+                            support.time = `${this.padToTwoDigits(date.getFullYear())}/${this.padToTwoDigits(
+                                date.getMonth() + 1
+                            )}/${this.padToTwoDigits(date.getDate())} ${this.padToTwoDigits(
+                                date.getHours()
+                            )}:${this.padToTwoDigits(date.getMinutes())}:${this.padToTwoDigits(date.getSeconds())}`;
+
+                            return support;
+                        });
+
+                        const oppositeDirection = directions.find((d) => d !== direction);
+                        const promises = supports.map((support) => {
+                            return axios
+                                .get(
+                                    `${this.$store.getters.getApiUrl}/profile/${support[oppositeDirection + "Address"]}`
+                                )
+                                .then((res) => {
+                                    support[oppositeDirection] = res.data.first_name + " " + res.data.last_name;
+                                })
+                                .catch(() => {
+                                    support[oppositeDirection] = "Unregistered User";
+                                });
+                        });
+
+                        await Promise.all(promises);
+                        if (direction === "from") {
+                            this.givenSupports = supports;
+                        } else if (direction === "to") {
+                            this.receivedSupports = supports;
+                        }
+                    });
+            }
+        },
+        openSupportModal(e) {
+            e.preventDefault();
+            if (!this.$store.getters.getLogInStatus) {
+                this.$notify.info({
+                    title: "Warning",
+                    message: "Please login to continue",
+                    duration: 3000,
+                });
+            } else {
+                this.$refs["support-modal"].show();
+            }
+        },
+        async supportCreator() {
+            const to = this.$route.params.address;
+            try {
+                this.$store.dispatch("notifyLoading", { msg: "Sending transaction" });
+                await window.confluxJS
+                    .sendTransaction({
+                        from: (await window.conflux.send("cfx_requestAccounts"))[0],
+                        to: to,
+                        gasPrice: 1e9,
+                        value: 1e18 * parseFloat(this.supportAmount),
+                    })
+                    .executed();
+                Notification.closeAll();
+                this.$notify.success({
+                    title: "Congrats",
+                    message: "The creator has received your support, thank you",
+                    duration: 3000,
+                });
+            } catch (e) {
+                Notification.closeAll();
+                let title = "Transaction Failed";
+                let message = "Transaction failed, please try again";
+                if (e.code === 4001) {
+                    message = "User denied transaction signature";
+                }
+                this.$notify.error({
+                    title,
+                    message,
+                    duration: 3000,
+                });
+                return;
+            }
+
+            // record in database
+            let data = {
+                fromAddress: (await window.conflux.send("cfx_requestAccounts"))[0],
+                toAddress: to,
+                amount: parseFloat(this.supportAmount),
+            };
+            if (this.supportMessage) {
+                data.message = this.supportMessage;
+            }
+            await axios.post(`${this.$store.getters.getApiUrl}/support-user`, data);
         },
     },
     async mounted() {
-        await this.$store.dispatch("connectWallet");
-
         if (this.isMyself) {
             this.selectedIndex = "3";
             document.getElementById("account-menu").click();
@@ -367,7 +562,6 @@ export default {
         this.new_first = profile.first_name;
         this.new_last = profile.last_name;
         this.bio = profile.description;
-        this.loadTransactions();
 
         // new database schema
         const nft_ids = profile.nft_ids.map((id) => {
@@ -379,8 +573,12 @@ export default {
                 .join("");
         });
 
-        this.nfts = await this.loadNfts(nft_ids);
-        this.likedNfts = await this.loadNfts(profile.liked_nfts, true);
+        [this.likedNfts, this.nfts] = await Promise.all([
+            this.loadNfts(profile.liked_nfts, true),
+            this.loadNfts(nft_ids),
+            this.loadTransactions(),
+            this.loadSupports(),
+        ]);
     },
 };
 </script>
