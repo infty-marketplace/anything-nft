@@ -125,45 +125,53 @@ async function createNft(req, res) {
 }
 
 async function deleteNft(req, res) {
-    const nft = await Nft.findOne({ nft_id: req.body.nft_id });
-    if (!nft) {
-        return res.status(404).json({ error: "nft not found" });
-    }
+  const nft = await Nft.findOne({ nft_id: req.body.nft_id });
 
-    // delete nft from all owners
-    const users = [];
-    for (let owner of nft.owner) {
-        const user = await User.findOne({ address: owner.address });
-        user.nft_ids = user.nft_ids.filter((nft_id) => nft_id.address !== nft.nft_id);
-        users.push(user);
-    }
+  if (!nft) {
+    return res.status(404).json({ error: "nft not found" });
+  }
 
-    // delete nft from all likers
-    for (let likedUser of nft.liked_users) {
-        const user = await User.findOne({ address: likedUser });
-        user.liked_nfts = user.liked_nfts.filter((nft_id) => nft_id !== nft.nft_id);
-        users.push(user);
-    }
+  // delete nft from all owners
+  const users = [];
+  for (let owner of nft.owner) {
+    const user = await User.findOne({ address: owner.address });
+    user.nft_ids = user.nft_ids.filter(
+      (nft_id) => nft_id.address !== nft.nft_id
+    );
+    users.push(user);
+  }
 
-    await mongodbUtils.saveAll(users).catch((error) => {
-        return res.status(422).json({ error: error.message });
+  // delete nft from all likers
+  for (let likedUser of nft.liked_users) {
+    const user = await User.findOne({ address: likedUser });
+    user.liked_nfts = user.liked_nfts.filter((nft_id) => nft_id !== nft.nft_id);
+    users.push(user);
+  }
+
+  const tokenId = nft.nft_id.split("-")[1];
+  await cfxUtils.burn(tokenId).catch((err) => {
+    console.log("error burning tokenId: ", tokenId);
+    return res.status(422).json({ error: err.message });
+  });
+
+  await mongodbUtils.saveAll(users).catch((error) => {
+    return res.status(422).json({ error: error.message });
+  });
+
+  // delete nft
+  await Nft.deleteOne({ nft_id: req.body.nft_id })
+    .then(async () => {
+      // delete image from nft storage iff db is updated
+      if (nft.metadata) {
+        await nftStorageUtils.burn(nft.metadata);
+      }
+      // burn nft on chain iff db is updated
+
+      return res.send("nft deleted successfully");
+    })
+    .catch((error) => {
+      return res.status(422).json({ error: error.message });
     });
-
-    // delete nft
-    await Nft.deleteOne({ nft_id: req.body.nft_id })
-        .then(async () => {
-            // delete image from nft storage iff db is updated
-            if (nft.metadata) {
-                await nftStorageUtils.burn(nft.metadata);
-            }
-            // burn nft on chain iff db is updated
-            const tokenId = nft.nft_id.split("-")[1];
-            await cfxUtils.burn(tokenId);
-            return res.send("nft deleted successfully");
-        })
-        .catch((error) => {
-            return res.status(422).json({ error: error.message });
-        });
 }
 
 // return estimated gas to mint a hard code item from manager address
