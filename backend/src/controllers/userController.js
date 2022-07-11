@@ -93,7 +93,9 @@ const getTransactions = async (req, res) => {
     if (!req.params.address) {
         return res.status(400).json({ error: "Invalid request" });
     }
-    const transactions = await Transaction.find({ buyer: req.params.address }).sort({ created_at: "desc" });
+    const transactions = await Transaction.find({
+        $or: [{ buyer: req.params.address }, { seller: req.params.address }],
+    }).sort({ created_at: "desc" });
     res.send(transactions);
 };
 
