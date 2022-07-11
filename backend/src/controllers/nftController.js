@@ -40,12 +40,9 @@ const getMarket = async (req, res) => {
         break;
     }
 
-    console.log(body.text)
-
     if (!body) {
         return res.status(400).json({ error: "invalid request" });
     }
-    console.log(findQuery);
     const limit = body.limit || 10;
     const offset = body.offset || 0;
 
