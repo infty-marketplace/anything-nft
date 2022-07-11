@@ -36,7 +36,7 @@
                             <el-menu-item index="1-1">NFT</el-menu-item>
                             <el-menu-item index="1-2">Raffle</el-menu-item>
                         </el-submenu>
-                        <el-menu-item index="2">
+                        <el-menu-item index="2" v-if="this.isMyself">
                             <i class="el-icon-notebook-2"></i>
                             <span slot="title">Transaction History</span>
                         </el-menu-item>
@@ -602,8 +602,6 @@ export default {
             promises.push(this.loadTransactions());
             promises.push(this.loadSupports());
         } else {
-            promises.push(this.loadTransactions());
-
             promises.push((async () => (this.nfts = await this.loadNfts(nft_ids)))());
         }
         await Promise.all(promises);
