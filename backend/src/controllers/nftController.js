@@ -237,10 +237,7 @@ async function transferOwnership(txnData, recordTransaction = true) {
 
     // add collection to buyer if collection not already exist
     if (buyer[`${collectionType}_ids`].every((c) => c.address !== txnData.collection_id)) {
-        buyer[`${collectionType}_ids`].push({
-            address: txnData.collection_id,
-            percentage: 1,
-        });
+        buyer[`${collectionType}_ids`].push({ address: txnData.collection_id, percentage: 1 });
     }
     // remove collection from seller if exist
     const index = seller[`${collectionType}_ids`].findIndex((c) => c.address === txnData.collection_id);
