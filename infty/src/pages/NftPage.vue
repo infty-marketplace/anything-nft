@@ -84,7 +84,7 @@
                 </el-tooltip>
                 <b-card class="transaction-info" header-tag="header" footer-tag="footer" v-if="card.status == 'sale'">
                     <template #header>
-                        <h6 class="mb-0"><b-icon icon="clock"></b-icon>&nbsp;On Sale Now</h6>
+                        <h6 class="mb-0"><b-icon icon="clock"></b-icon>&nbsp;For Sale Now</h6>
                     </template>
                     <b-card-text>Current Price</b-card-text>
                     <p>
@@ -94,13 +94,6 @@
 
                     <b-button href="#" variant="primary" @click="buyNowClicked" v-if="!isOwner && card.status == 'sale'"
                         ><b-icon icon="wallet2"></b-icon>&nbsp;&nbsp;Buy now</b-button
-                    >
-                    <b-button
-                        variant="outline-primary"
-                        class="ml-2"
-                        @click="$store.dispatch('notifyWIP')"
-                        v-if="!isOwner && card.status == 'sale'"
-                        ><b-icon icon="tag-fill" />&nbsp;Make offer</b-button
                     >
                     <b-modal ref="buy-modal" title="List Item" @ok="purchaseNft">
                         <label>Price</label>
