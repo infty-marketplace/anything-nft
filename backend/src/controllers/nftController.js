@@ -36,7 +36,7 @@ const getMarket = async (req, res) => {
         }
         break;
       case "searchText":
-        findQuery = { "status": nftStatus.SALE, "title": new RegExp(body.text) };
+        findQuery = { "status": nftStatus.SALE, "title": { $regex: new RegExp(body.text) }};
         break;
     }
 
