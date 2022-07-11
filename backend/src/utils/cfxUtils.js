@@ -22,10 +22,7 @@ async function mint(addr, uri) {
 
 //TODO: the burn function is currently internal in our nft contract, make it public, redeploy it so we can use it here
 async function burn(tokenId) {
-  return await minterContract
-    .burn(tokenId)
-    .sendTransaction({ from: process.env.MANAGER_ADDRESS })
-    .executed();
+    return await minterContract.burn(tokenId).sendTransaction({ from: process.env.MANAGER_ADDRESS }).executed();
 }
 
 // Estimate how much gas will cost if mint
