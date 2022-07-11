@@ -248,6 +248,9 @@ export default {
         },
 
         instantSearch() {
+            this.price_from = "";
+            this.price_to = "";
+            this.selectedCategory = [],
             this.filtermode = "searchText";
             this.offsetNft = 0;
             this.nftCards = [];
