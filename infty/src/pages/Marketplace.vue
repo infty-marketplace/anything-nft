@@ -74,8 +74,8 @@
                         <b-input-group size="md" class="mb-2">
                             <b-form-input
                                 type="search"
-                                v-bind:value="$t('searchBar.search')"
-                                @keyup.enter="$store.dispatch('notifyWIP')"
+                                v-model="searchText"
+                                placeholder="Search..."
                             ></b-form-input>
                             <b-input-group-prepend is-text>
                                 <b-icon
@@ -274,11 +274,12 @@ export default {
             this.offsetNft = 0;
             this.nftCards = [];
             this.noMoreNft = false;
-            this.min = null;
-            this.max = null;
+            this.price_from = "";
+            this.price_to = "";
             this.selectedCategory = [],
             this.filtermode = null;
             this.searchText = "";
+            document.getElementsByClassName("price-range")
             this.loadNftMarket();
         },
 

@@ -14,7 +14,7 @@ const getMarket = async (req, res) => {
     const body = req.body;
 
     // build find query
-    const findQuery = {"status": nftStatus.SALE} //only display sale status
+    let findQuery = {"status": nftStatus.SALE} //only display sale status
 
     switch (body.filtermode) {
       case "filter":
@@ -36,14 +36,16 @@ const getMarket = async (req, res) => {
         }
         break;
       case "searchText":
-        findQuery = { status: constants.STATUS_SALE, title: new RegExp(body.text) };
+        findQuery = { "status": nftStatus.SALE, "title": new RegExp(body.text) };
         break;
     }
+
+    console.log(body.text)
 
     if (!body) {
         return res.status(400).json({ error: "invalid request" });
     }
-
+    console.log(findQuery);
     const limit = body.limit || 10;
     const offset = body.offset || 0;
 
