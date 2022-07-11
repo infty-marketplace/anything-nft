@@ -3,8 +3,8 @@
         <Navbar />
         <button @click="$router.go(-1)" class="back-btn"><i class="el-icon-back" style="color:white" /></button>
         <div class="actions" v-if="!this.isMyself" @click="$store.dispatch('notifyWIP')">
-            <el-button type="primary">打赏</el-button>
-            <!-- <el-button type="primary">关注</el-button>
+            <!-- <el-button type="primary">打赏</el-button>
+            <el-button type="primary">关注</el-button>
             <el-button type="primary">站内信</el-button> -->
         </div>
         <div class="profile-pic-container" v-if="$store.getters.getLogInStatus">
