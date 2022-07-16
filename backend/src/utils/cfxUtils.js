@@ -27,9 +27,10 @@ async function burn(tokenId) {
 }
 
 // Estimate how much gas will cost if mint
+// Multiply by 1.2 to avoid failing frequently
 async function mintEstimate(addr, uri) {
     const estimate = await minterContract.mint(addr, uri).estimateGasAndCollateral();
-    return estimate.gasLimit + estimate.storageCollateralized;
+    return (estimate.gasLimit + estimate.storageCollateralized) * 1.2;
 }
 
 async function createRaffle(details) {
