@@ -75,6 +75,7 @@
                             <b-form-input
                                 type="search"
                                 v-model="searchText"
+                                @keyup.enter="instantSearch"
                                 placeholder="Search..."
                             ></b-form-input>
                             <b-input-group-prepend is-text>
