@@ -1,6 +1,7 @@
 const User = require("../models/user");
 const Nft = require("../models/nft");
 const Transaction = require("../models/transaction");
+const Support = require("../models/support");
 
 function logout(req, res, success, error) {
     try {
@@ -92,8 +93,9 @@ const getTransactions = async (req, res) => {
     if (!req.params.address) {
         return res.status(400).json({ error: "Invalid request" });
     }
-
-    const transactions = await Transaction.find({ buyer: req.params.address });
+    const transactions = await Transaction.find({
+        $or: [{ buyer: req.params.address }, { seller: req.params.address }],
+    }).sort({ created_at: "desc" });
     res.send(transactions);
 };
 
@@ -104,10 +106,32 @@ const setAvatarToNft = async (req, res) => {
     res.status(200).send({ url });
 };
 
+const supportUser = async (req, res) => {
+    new Support(req.body).save((err) => {
+        if (err) {
+            return res.status(500).send(err);
+        }
+        return res.status(200).send();
+    });
+};
+
+const getSupports = async (req, res) => {
+    const [direction, address] = [req.params.direction, req.params.address];
+    if (!direction || !address) {
+        return res.status(400).json({ error: "Invalid request" });
+    }
+    let query = {};
+    query[direction + "Address"] = address;
+    const data = await Support.find(query).sort({ created_at: "desc" });
+    return res.send(data);
+};
+
 module.exports = {
     authUser,
     getUser,
     updateProfile,
     getTransactions,
     setAvatarToNft,
+    supportUser,
+    getSupports,
 };

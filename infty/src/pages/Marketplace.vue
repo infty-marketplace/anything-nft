@@ -46,9 +46,9 @@
                         </b-list-group-item>-->
 
                         <b-list-group-item>
-                            <b-button pill v-b-toggle.collapse-5 variant="outline-secondary" class="category-button"
-                                >{{ $t("categories") }}</b-button
-                            >
+                            <b-button pill v-b-toggle.collapse-5 variant="outline-secondary" class="category-button">{{
+                                $t("categories")
+                            }}</b-button>
                             <b-collapse id="collapse-5" class="mt-2">
                                 <b-form-group>
                                     <b-form-checkbox-group id="category-selection" v-model="selectedCategory">

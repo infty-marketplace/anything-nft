@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const nftStatus = require("../constants/nftStatus");
+const { NFT_STATUS } = require("../constants");
 
 const nftSchema = new Schema(
     {
@@ -14,7 +14,7 @@ const nftSchema = new Schema(
         status: {
             type: String,
             required: true,
-            enum: [nftStatus.PRIVATE, nftStatus.SALE, nftStatus.RAFFLE],
+            enum: [NFT_STATUS.PRIVATE, NFT_STATUS.SALE, NFT_STATUS.RAFFLE],
         },
 
         price: { type: Number },
