@@ -12,7 +12,7 @@ const getMarket = async (req, res) => {
     const body = req.body;
 
     // build find query
-    let findQuery = {"status": nftStatus.SALE} //only display sale status
+    let findQuery = {"status": NFT_STATUS.SALE} //only display sale status
 
     switch (body.filtermode) {
       case "filter":
@@ -34,7 +34,7 @@ const getMarket = async (req, res) => {
         }
         break;
       case "searchText":
-        findQuery = { "status": nftStatus.SALE, "title": { $regex: new RegExp(body.text) }};
+        findQuery = { "status": NFT_STATUS.SALE, "title": { $regex: new RegExp(body.text) }};
         break;
     }
 
