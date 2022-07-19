@@ -10,8 +10,8 @@
                 <label>(Optioal) Leave a message to the creator</label>
                 <b-form-input class="mb-4" v-model="supportMessage" placeholder="" />
             </b-modal>
-            <el-button type="primary" @click="$store.dispatch('notifyWIP')">关注</el-button>
-            <el-button type="primary" @click="$store.dispatch('notifyWIP')">站内信</el-button>
+            <!-- <el-button type="primary" @click="$store.dispatch('notifyWIP')">关注</el-button>
+            <el-button type="primary" @click="$store.dispatch('notifyWIP')">站内信</el-button> -->
         </div>
         <div class="profile-pic-container" v-if="$store.getters.getLogInStatus">
             <img :src="avatar" id="profile-pic" />
