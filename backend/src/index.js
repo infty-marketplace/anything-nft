@@ -10,7 +10,7 @@ require("dotenv").config();
 
 const app = express();
 
-app.use(helmet());
+app.use(helmet({ crossOriginEmbedderPolicy: false, contentSecurityPolicy: false}));
 
 const apiPort = process.env.PORT || 3001;
 
