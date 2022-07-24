@@ -10,8 +10,8 @@
                 <label>(Optioal) Leave a message to the creator</label>
                 <b-form-input class="mb-4" v-model="supportMessage" placeholder="" />
             </b-modal>
-            <el-button type="primary" @click="$store.dispatch('notifyWIP')">关注</el-button>
-            <el-button type="primary" @click="$store.dispatch('notifyWIP')">站内信</el-button>
+            <!-- <el-button type="primary" @click="$store.dispatch('notifyWIP')">关注</el-button>
+            <el-button type="primary" @click="$store.dispatch('notifyWIP')">站内信</el-button> -->
         </div>
         <div class="profile-pic-container" v-if="$store.getters.getLogInStatus">
             <img :src="avatar" id="profile-pic" />
@@ -22,12 +22,14 @@
         </div>
 
         <div class="content" v-if="$store.getters.getLogInStatus">
-            <div class="padding-border"></div>
+            <div class="content"></div>
+                <div class="flex-container">
+           <!--  <div class="padding-border"></div>
             <el-row class="tac">
                 <el-col :span="5">
                     <el-menu @select="handleSelect" default-active="0" class="el-menu-vertical-demo">
-                        <!-- @open="handleOpen" -->
-                        <!-- @close="handleClose" -->
+                         @open="handleOpen" 
+                         @close="handleClose" 
                         <el-submenu index="1" v-if="!this.isMyself">
                             <template slot="title">
                                 <i class="el-icon-menu"></i>
@@ -62,7 +64,7 @@
                         </el-menu-item>
                     </el-menu>
                 </el-col>
-                <el-col :span="19">
+                <el-col :span="19"> -->
                     <div v-if="selectedIndex == '0'"></div>
                     <div v-if="selectedIndex == '1-1'">
                         <el-card class="box-card m-5 card-container">
@@ -267,8 +269,9 @@
                         >
                         </el-switch>
                     </div>
-                </el-col>
-            </el-row>
+                </div>
+                <!-- </el-col>
+            </el-row> -->
         </div>
         <ConnectWallet v-else />
         <Footer />
