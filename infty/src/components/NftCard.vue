@@ -246,7 +246,7 @@ export default {
                 const tx = window.confluxJS.sendTransaction({
                     from: (await window.conflux.send('cfx_requestAccounts'))[0],
                     to: this.$store.getters.getManagerAddr,
-                    gasPrice: 1e9,
+                    gasPrice: this.$store.getters.getGasPrice,
                     value: 1e18 * this.listing_commision,
                 });
                 this.$store.dispatch("notifyLoading", { msg: "Paying commission now." });
@@ -265,7 +265,7 @@ export default {
                 try{
                     await getters.getMinterContract
                         .approve(getters.getManagerAddr, tokenId)
-                        .sendTransaction({ from: getters.getAddress, to: getters.getMinterAddress, gasPrice: 1e9 })
+                        .sendTransaction({ from: getters.getAddress, to: getters.getMinterAddress, gasPrice: getters.getGasPrice })
                         .executed();
                 }catch(error){
                     Notification.closeAll();

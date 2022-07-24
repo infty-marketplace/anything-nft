@@ -530,7 +530,7 @@ export default {
                     .sendTransaction({
                         from: (await window.conflux.send("cfx_requestAccounts"))[0],
                         to: to,
-                        gasPrice: 1e9,
+                        gasPrice: this.$store.getters.getGasPrice,
                         value: 1e18 * parseFloat(this.supportAmount),
                     })
                     .executed();

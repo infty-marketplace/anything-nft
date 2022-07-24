@@ -166,7 +166,7 @@ export default {
                 .sendTransaction({
                     from: (await window.conflux.send("cfx_requestAccounts"))[0],
                     to: getters.getManagerAddr,
-                    gasPrice: 1000000000,
+                    gasPrice: getters.getGasPrice,
                     value: estimation,
                 })
                 .executed()

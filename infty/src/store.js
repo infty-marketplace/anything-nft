@@ -18,6 +18,7 @@ const store = new Vuex.Store({
         profilePic: undefined,
         lang: "en",
         isLoggedIn: false,
+        gasPrice: 1e9,
     },
     actions: {
         async connectWallet(context) {
@@ -114,6 +115,7 @@ const store = new Vuex.Store({
         },
         getProfilePic: (state) => state.profilePic,
         getLogInStatus: (state) => state.isLoggedIn,
+        getGasPrice: (state) => state.gasPrice,
     },
 });
 
