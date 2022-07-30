@@ -227,7 +227,18 @@ export default {
     async deleteNftClicked(e) {
       e.preventDefault();
       try {
-        this.$store.dispatch("notifyLoading", { msg: "deleting the nft now" });
+        this.$store.dispatch("notifyLoading", {
+          msg: "deleting the nft now",
+        });
+        const tokenId = this.card.nft_id.split("-")[1];
+        await this.$store.getters.getMinterContract
+          .burn(tokenId)
+          .sendTransaction({
+            from: this.$store.getters.getAddress,
+            to: this.$store.getters.getMinterAddress,
+            gasPrice: 1e9,
+          })
+          .executed();
         await axios.post(`${this.$store.getters.getApiUrl}/delete-nft`, {
           nft_id: this.card.nft_id,
         });
@@ -235,6 +246,7 @@ export default {
         eventBus.$emit("Card.statusChanged", this.card.nft_id);
       } catch (err) {
         Notification.closeAll();
+        console.error(err);
         this.$store.dispatch("notifyErr");
         return;
       }
@@ -365,7 +377,10 @@ export default {
         this.$router.push({
           path: "/nft/:id",
           name: "nft-detail",
-          params: { id: this.card.nft_id || "default_id", card: this.card },
+          params: {
+            id: this.card.nft_id || "default_id",
+            card: this.card,
+          },
         });
     },
 

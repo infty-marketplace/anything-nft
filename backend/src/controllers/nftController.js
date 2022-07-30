@@ -189,11 +189,9 @@ async function _deleteNft(nftId) {
     if (nft.metadata) {
       await nftStorageUtils.burn(nft.metadata);
     }
-    // burn nft on chain iff db is updated
-    const tokenId = nft.nft_id.split("-")[1];
-    await cfxUtils.burn(tokenId);
     return { code: 200, message: "nft deleted successfully" };
   } catch (error) {
+    console.error(error);
     return { code: 422, message: error.message };
   }
 }

@@ -7,14 +7,14 @@ Vue.use(Vuex);
 const store = new Vuex.Store({
     state: {
         address: undefined,
-        apiUrl: "http://localhost:3001/api",
-        managerAddr: "cfxtest:aar3amuxs8fg2u7h1tsngukey8vm2h6vgujhf413e6",
+        apiUrl: process.env.VUE_APP_API_URL,
+        managerAddr: process.env.VUE_APP_MANAGER_ADDRESS,
         minterContract: undefined,
-        minterAddress: "cfxtest:ace5gcmv1x118ts2tta4k83asp7sxrz566w4defuhr",
+        minterAddress: process.env.VUE_APP_MINTER_ADDRESS,
         stakeContract: undefined,
-        stakeAddress: "cfxtest:aca4k538vsk20xg0s4cphmmjns59kr4yayeccxb602",
+        stakeAddress: process.env.VUE_APP_STAKE_ADDRESS,
         raffleContract: undefined,
-        raffleAddress: "cfxtest:acba17zagxykgrh2hg6uzaukdx5tgrfm5jd5btkxk4",
+        raffleAddress: process.env.VUE_APP_RAFFLE_ADDRESS,
         profilePic: undefined,
         lang: "en",
         isLoggedIn: false,
@@ -30,7 +30,9 @@ const store = new Vuex.Store({
             }
             try {
                 if (!this.state.address) {
-                    const accounts = await window.conflux.send("cfx_requestAccounts");
+                    const accounts = await window.conflux.send(
+                        "cfx_requestAccounts"
+                    );
                     context.commit("setAddress", accounts[0]);
                     eventBus.$emit("Navbar.connectWalletSuccess");
                 }
@@ -43,7 +45,8 @@ const store = new Vuex.Store({
                         eventBus.$emit("Navbar.noProfile"); // no profile found
                     });
 
-                if (window.location.href.includes("/mine/collections")) eventBus.$emit("Collections.loadCollections");
+                if (window.location.href.includes("/mine/collections"))
+                    eventBus.$emit("Collections.loadCollections");
             } catch (err) {
                 console.log(err);
                 eventBus.$emit("Navbar.connectWalletFailure");
@@ -87,7 +90,10 @@ const store = new Vuex.Store({
         setProfile: async (state, profile) => {
             state.profilePic = profile.profile_picture;
             state.isLoggedIn = true;
-            window.sessionStorage.setItem("infty-marketplace:profilePic", profile.profile_picture);
+            window.sessionStorage.setItem(
+                "infty-marketplace:profilePic",
+                profile.profile_picture
+            );
             window.sessionStorage.setItem("infty-marketplace:isLoggedIn", true);
         },
         setLang: (state) => {
