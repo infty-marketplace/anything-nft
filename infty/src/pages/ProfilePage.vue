@@ -120,7 +120,13 @@
                                         </el-link>
                                     </template>
                                 </el-table-column>
-
+                                <el-table-column label="To" align="center">
+                                    <template slot-scope="scope">
+                                        <el-link :href="`/profile/${scope.row.toAddress}`">
+                                            {{ scope.row.to }}
+                                        </el-link>
+                                    </template>
+                                </el-table-column>
                                 <el-table-column prop="type" label="Transaction Type" align="center"> </el-table-column>
                             </el-table>
                         </el-card>
@@ -292,6 +298,7 @@ export default {
         selectedIndex: 0,
         modeSwitch: true,
         nftTransactions: [],
+        drawTransactions: [],
         bio: "",
         displayBio: "",
         new_first: "",
@@ -305,6 +312,7 @@ export default {
         supportMessage: "",
         receivedSupports: [],
         givenSupports: [],
+        addressToName: {},
     }),
     computed: {
         isMyself: function() {
@@ -370,44 +378,72 @@ export default {
                 });
             this.editModes = false;
         },
+        async getNameByAddress(address) {
+            if (this.addressToName[address]) {
+                return this.addressToName[address];
+            }
 
-        loadTransactions() {
-            axios.get(`${this.$store.getters.getApiUrl}/transaction/${this.$route.params.address}`).then((res) => {
-                res.data.map((record) => {
-                    const details = Object.keys(record)
-                        .filter((key) => !["_id", "__v", "created_at", "updated_at"].includes(key))
-                        .reduce((obj, key) => {
-                            obj[key] = record[key];
-                            return obj;
-                        }, {});
-                    const date = new Date(Date.parse(record.created_at));
-                    let current = {
-                        details: { ...details, time: date.toString() },
-                        time: `${this.padToTwoDigits(date.getFullYear())}/${this.padToTwoDigits(
-                            date.getMonth() + 1
-                        )}/${this.padToTwoDigits(date.getDate())} ${this.padToTwoDigits(
-                            date.getHours()
-                        )}:${this.padToTwoDigits(date.getMinutes())}:${this.padToTwoDigits(date.getSeconds())}`,
-                        nft_id: record.collection_id,
-                        currency: record.currency,
-                        fromAddress: record.seller,
-                        price: record.price,
-                        type: record.transaction_type,
-                        commission: record.commission,
-                        commission_currency: record.commission_currency,
-                    };
-                    axios.get(`${this.$store.getters.getApiUrl}/profile/${record.seller}`).then((r) => {
-                        current.from = r.data.first_name + " " + r.data.last_name;
+            let name;
+            try {
+                const response = await axios.get(`${this.$store.getters.getApiUrl}/profile/${address}`);
+                name = response.data.first_name + " " + response.data.last_name;
+            } catch (ignored) {
+                name = "Unregistered User";
+            }
+
+            this.addressToName[address] = name;
+            return name;
+        },
+
+        async loadTransactions() {
+            const res = await axios.get(`${this.$store.getters.getApiUrl}/transaction/${this.$route.params.address}`);
+            let transactions = res.data.map((transaction) => {
+                const details = Object.keys(transaction)
+                    .filter((key) => !["_id", "__v", "created_at", "updated_at"].includes(key)) // exclude these fields from db
+                    .reduce((obj, key) => {
+                        obj[key] = transaction[key];
+                        return obj;
+                    }, {});
+                const date = new Date(Date.parse(transaction.created_at));
+
+                return {
+                    details: { ...details, time: date.toString() },
+                    time: `${this.padToTwoDigits(date.getFullYear())}/${this.padToTwoDigits(
+                        date.getMonth() + 1
+                    )}/${this.padToTwoDigits(date.getDate())} ${this.padToTwoDigits(
+                        date.getHours()
+                    )}:${this.padToTwoDigits(date.getMinutes())}:${this.padToTwoDigits(date.getSeconds())}`,
+                    nft_id: transaction.collection_id,
+                    currency: transaction.currency,
+                    fromAddress: transaction.seller,
+                    toAddress: transaction.buyer,
+                    price: transaction.price,
+                    type: transaction.seller === this.$route.params.address ? "sell nft" : transaction.transaction_type,
+                    commission: transaction.commission,
+                    commission_currency: transaction.commission_currency,
+                };
+            });
+
+            const promises = transactions.map(async (transaction) => {
+                transaction.from = await this.getNameByAddress(transaction.fromAddress);
+                transaction.to = await this.getNameByAddress(transaction.toAddress);
+                await axios
+                    .get(`${this.$store.getters.getApiUrl}/nft/${transaction.nft_id}`)
+                    .then((r) => {
+                        transaction.title = r.data.title;
+                    })
+                    .catch(() => {
+                        transaction.title = "Unknown Title";
                     });
-                    axios.get(`${this.$store.getters.getApiUrl}/nft/${current.nft_id}`).then((r) => {
-                        current.title = r.data.title;
-                    });
-                    if (current.type.includes("draw")) {
-                        this.drawTransactions.push(current);
-                    } else if (current.type.includes("nft")) {
-                        this.nftTransactions.push(current);
-                    }
-                });
+            });
+            await Promise.all(promises);
+
+            transactions.forEach((transaction) => {
+                if (transaction.type.includes("draw")) {
+                    this.drawTransactions.push(transaction);
+                } else if (transaction.type.includes("nft")) {
+                    this.nftTransactions.push(transaction);
+                }
             });
         },
         getOwnerAddress(owners) {
@@ -422,14 +458,7 @@ export default {
                     nft.isLiked = nft.liked_users.includes(this.$store.getters.getAddress);
                     const ownerAddress = this.getOwnerAddress(nft.owner);
                     nft.ownerAddress = ownerAddress;
-                    await axios
-                        .get(`${this.$store.getters.getApiUrl}/profile/${ownerAddress}`)
-                        .then((res) => {
-                            nft.ownerName = res.data.first_name + " " + res.data.last_name;
-                        })
-                        .catch(() => {
-                            nft.ownerName = "Unregistered User";
-                        });
+                    nft.ownerName = await this.getNameByAddress(ownerAddress);
                     return nft;
                 });
             });
@@ -466,17 +495,10 @@ export default {
                         });
 
                         const oppositeDirection = directions.find((d) => d !== direction);
-                        const promises = supports.map((support) => {
-                            return axios
-                                .get(
-                                    `${this.$store.getters.getApiUrl}/profile/${support[oppositeDirection + "Address"]}`
-                                )
-                                .then((res) => {
-                                    support[oppositeDirection] = res.data.first_name + " " + res.data.last_name;
-                                })
-                                .catch(() => {
-                                    support[oppositeDirection] = "Unregistered User";
-                                });
+                        const promises = supports.map(async (support) => {
+                            return (support[oppositeDirection] = await this.getNameByAddress(
+                                support[oppositeDirection + "Address"]
+                            ));
                         });
 
                         await Promise.all(promises);
@@ -573,12 +595,16 @@ export default {
                 .join("");
         });
 
-        [this.likedNfts, this.nfts] = await Promise.all([
-            this.loadNfts(profile.liked_nfts, true),
-            this.loadNfts(nft_ids),
-            this.loadTransactions(),
-            this.loadSupports(),
-        ]);
+        const promises = [];
+        // only load what we display
+        if (this.isMyself) {
+            promises.push((async () => (this.likedNfts = await this.loadNfts(profile.liked_nfts, true)))());
+            promises.push(this.loadTransactions());
+            promises.push(this.loadSupports());
+        } else {
+            promises.push((async () => (this.nfts = await this.loadNfts(nft_ids)))());
+        }
+        await Promise.all(promises);
     },
 };
 </script>
