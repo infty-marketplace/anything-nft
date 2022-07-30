@@ -12,24 +12,29 @@ const managerAccount = cfx.wallet.addPrivateKey(process.env.MANAGER_KEY);
 const { abi: minterAbi } = require("../assets/InftyNft.json");
 const { abi: raffleAbi } = require("../assets/Raffle.json");
 
-const minterContract = cfx.Contract({ abi: minterAbi, address: process.env.MINTER_ADDRESS });
-const raffleContract = cfx.Contract({ abi: raffleAbi, address: process.env.RAFFLE_ADDRESS });
+const minterContract = cfx.Contract({
+    abi: minterAbi,
+    address: process.env.MINTER_ADDRESS,
+});
+const raffleContract = cfx.Contract({
+    abi: raffleAbi,
+    address: process.env.RAFFLE_ADDRESS,
+});
 
 // Mint NFT on chain.
 async function mint(addr, uri) {
-    return await minterContract.mint(addr, uri).sendTransaction({ from: process.env.MANAGER_ADDRESS }).executed();
-}
-
-//TODO: the burn function is currently internal in our nft contract, make it public, redeploy it so we can use it here
-async function burn(tokenId) {
-    return;
-    // return await minterContract.burn(tokenId).sendTransaction({ from: process.env.MANAGER_ADDRESS }).executed();
+    return await minterContract
+        .mint(addr, uri)
+        .sendTransaction({ from: process.env.MANAGER_ADDRESS })
+        .executed();
 }
 
 // Estimate how much gas will cost if mint
 // Multiply by 1.2 to avoid transaction failing due to potential underestimation
 async function mintEstimate(addr, uri) {
-    const estimate = await minterContract.mint(addr, uri).estimateGasAndCollateral();
+    const estimate = await minterContract
+        .mint(addr, uri)
+        .estimateGasAndCollateral();
     return (estimate.gasLimit + estimate.storageCollateralized) * 1.2;
 }
 
@@ -47,7 +52,10 @@ async function createRaffle(details) {
 }
 
 async function drawRaffle(minter, tokenId) {
-    return await raffleContract.draw(minter, tokenId).sendTransaction({ from: process.env.MANAGER_ADDRESS }).executed();
+    return await raffleContract
+        .draw(minter, tokenId)
+        .sendTransaction({ from: process.env.MANAGER_ADDRESS })
+        .executed();
 }
 
 function decodeRaffleLog(log) {
@@ -96,7 +104,10 @@ async function generateUri(req, imageUri, sha) {
 async function actualTokenId(ownerAddr, uri) {
     const ownerBalance = await minterContract.balanceOf(ownerAddr);
     for (let i = ownerBalance - 1n; i >= 0; i--) {
-        const currTokenId = await minterContract.tokenOfOwnerByIndex(ownerAddr, i);
+        const currTokenId = await minterContract.tokenOfOwnerByIndex(
+            ownerAddr,
+            i
+        );
         // if the metadata matches given uri, then return currTokenId
         if ((await minterContract.tokenURI(currTokenId)) == uri) {
             return currTokenId;
@@ -107,7 +118,6 @@ async function actualTokenId(ownerAddr, uri) {
 
 module.exports = {
     mint,
-    burn,
     mintEstimate,
     actualTokenId,
     generateUri,

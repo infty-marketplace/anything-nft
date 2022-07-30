@@ -1,7 +1,12 @@
 const Nft = require("../models/nft");
 const Transaction = require("../models/transaction");
 const User = require("../models/user");
-const { NFT_STATUS, TRANSACTION_TYPE, COLLECTION_TYPE, TRANSACTION_TYPE_TO_COLLECTION_TYPE } = require("../constants");
+const {
+    NFT_STATUS,
+    TRANSACTION_TYPE,
+    COLLECTION_TYPE,
+    TRANSACTION_TYPE_TO_COLLECTION_TYPE,
+} = require("../constants");
 const imageUtils = require("../utils/imageUtils");
 const mongodbUtils = require("../utils/mongodbUtils");
 const nftStorageUtils = require("../utils/nftStorageUtils");
@@ -50,16 +55,28 @@ const updateViews = async (req, res) => {
 const likeNft = async (req, res) => {
     const nftId = req.body.nft_id;
     const address = req.body.address;
-    await User.findOneAndUpdate({ address: address }, { $push: { liked_nfts: nftId } });
-    await Nft.findOneAndUpdate({ nft_id: nftId }, { $push: { liked_users: address } });
+    await User.findOneAndUpdate(
+        { address: address },
+        { $push: { liked_nfts: nftId } }
+    );
+    await Nft.findOneAndUpdate(
+        { nft_id: nftId },
+        { $push: { liked_users: address } }
+    );
     return res.status(200).send();
 };
 
 const unlikeNft = async (req, res) => {
     const nftId = req.body.nft_id;
     const address = req.body.address;
-    await User.findOneAndUpdate({ address: address }, { $pull: { liked_nfts: nftId } });
-    await Nft.findOneAndUpdate({ nft_id: nftId }, { $pull: { liked_users: address } });
+    await User.findOneAndUpdate(
+        { address: address },
+        { $pull: { liked_nfts: nftId } }
+    );
+    await Nft.findOneAndUpdate(
+        { nft_id: nftId },
+        { $pull: { liked_users: address } }
+    );
     return res.status(200).send();
 };
 
@@ -76,13 +93,20 @@ async function createNft(req, res) {
     const fileHash = await imageUtils.hash(filePath);
     const nfts = await Nft.find({}, { file_hash: 1, _id: 0 });
     for (const nft of nfts) {
-        if (imageUtils.calculateSimilarity(nft.file_hash, fileHash) >= process.env.IMAGE_SIMILARITY_THRESHOLD) {
+        if (
+            imageUtils.calculateSimilarity(nft.file_hash, fileHash) >=
+            process.env.IMAGE_SIMILARITY_THRESHOLD
+        ) {
             return res.status(400).json({ error: "file already exists" });
         }
     }
 
     // upload image to nft storage
-    const metadataUrl = await nftStorageUtils.upload(filePath, req.body.title, req.body.description);
+    const metadataUrl = await nftStorageUtils.upload(
+        filePath,
+        req.body.title,
+        req.body.description
+    );
 
     // create nft on chain
     let [_, imageUrl] = await Promise.all([
@@ -138,14 +162,18 @@ async function _deleteNft(nftId) {
     const users = [];
     for (let owner of nft.owner) {
         const user = await User.findOne({ address: owner.address });
-        user.nft_ids = user.nft_ids.filter((nft_id) => nft_id.address !== nft.nft_id);
+        user.nft_ids = user.nft_ids.filter(
+            (nft_id) => nft_id.address !== nft.nft_id
+        );
         users.push(user);
     }
 
     // delete nft from all likers
     for (let likedUser of nft.liked_users) {
         const user = await User.findOne({ address: likedUser });
-        user.liked_nfts = user.liked_nfts.filter((nft_id) => nft_id !== nft.nft_id);
+        user.liked_nfts = user.liked_nfts.filter(
+            (nft_id) => nft_id !== nft.nft_id
+        );
         users.push(user);
     }
 
@@ -175,8 +203,12 @@ async function _deleteNft(nftId) {
 // return estimated gas to mint a hard code item from manager address
 async function getMintEstimate(req, res) {
     try {
-        const uri = "https://ipfs.io/ipfs/00000000000000000000000000000000000000000000000000000000000";
-        const cost = await cfxUtils.mintEstimate(process.env.MANAGER_ADDRESS, uri);
+        const uri =
+            "https://ipfs.io/ipfs/00000000000000000000000000000000000000000000000000000000000";
+        const cost = await cfxUtils.mintEstimate(
+            process.env.MANAGER_ADDRESS,
+            uri
+        );
         return res.json({ gas: cost.toString() });
     } catch (error) {
         return res.status(500).send(error);
@@ -204,12 +236,16 @@ async function listNft(req, res) {
 
 // delist the nft to change the status to private
 async function delistNft(req, res) {
-    await Nft.findOneAndUpdate({ nft_id: req.body.nft_id }, { status: NFT_STATUS.PRIVATE }, (err) => {
-        if (err) {
-            return res.status(400).send(err);
+    await Nft.findOneAndUpdate(
+        { nft_id: req.body.nft_id },
+        { status: NFT_STATUS.PRIVATE },
+        (err) => {
+            if (err) {
+                return res.status(400).send(err);
+            }
+            return res.send("Status changed to pivate");
         }
-        return res.send("Status changed to pivate");
-    });
+    );
 }
 
 // return a list of owners given nft and an optional boolean parameter {addressOnly}
@@ -230,17 +266,29 @@ async function transferOwnership(txnData, recordTransaction = true) {
         throw new Error("user not found");
     }
 
-    const collectionType = TRANSACTION_TYPE_TO_COLLECTION_TYPE[txnData.transaction_type];
+    const collectionType =
+        TRANSACTION_TYPE_TO_COLLECTION_TYPE[txnData.transaction_type];
     if (!collectionType) {
-        throw new Error(`${txnData.transaction_type} is not a valid transaction type`);
+        throw new Error(
+            `${txnData.transaction_type} is not a valid transaction type`
+        );
     }
 
     // add collection to buyer if collection not already exist
-    if (buyer[`${collectionType}_ids`].every((c) => c.address !== txnData.collection_id)) {
-        buyer[`${collectionType}_ids`].push({ address: txnData.collection_id, percentage: 1 });
+    if (
+        buyer[`${collectionType}_ids`].every(
+            (c) => c.address !== txnData.collection_id
+        )
+    ) {
+        buyer[`${collectionType}_ids`].push({
+            address: txnData.collection_id,
+            percentage: 1,
+        });
     }
     // remove collection from seller if exist
-    const index = seller[`${collectionType}_ids`].findIndex((c) => c.address === txnData.collection_id);
+    const index = seller[`${collectionType}_ids`].findIndex(
+        (c) => c.address === txnData.collection_id
+    );
     if (index !== -1) {
         seller[`${collectionType}_ids`].splice(index, 1);
     }
@@ -278,7 +326,9 @@ async function validateNftOwnership(req, res) {
     if (getNftOwner(nft) !== (await cfxUtils.getOwnerOnChain(tokenID))) {
         // delete this nft from database
         const { code, message } = await _deleteNft(nftId);
-        return res.status(410).json({ error: "the seller is not the current owner of the nft" });
+        return res
+            .status(410)
+            .json({ error: "the seller is not the current owner of the nft" });
     }
 
     return res.status(200).send();
