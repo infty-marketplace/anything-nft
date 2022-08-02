@@ -6,7 +6,7 @@
                 <b-card no-body class="filter-card">
                     <template #header>
                         <h4 class="m-0" style="width: 50%; float:left"><b-icon icon="filter-circle"></b-icon>&nbsp;{{ $t('filter') }}</h4>
-                        <div id="clearAll" @click="reset" style="float:right; cursor: pointer; margin-top: 5px;">
+                        <div id="clearAll" @click="reset" style="display:none; float:right; cursor: pointer; margin-top: 5px;">
                             <a style="text:center"><u>clear filter</u></a>
                         </div>
                     </template>
@@ -256,6 +256,7 @@ export default {
             this.offsetNft = 0;
             this.nftCards = [];
             this.noMoreNft = false;
+            document.getElementById('clearAll').style.display = 'block';
             this.loadNftMarket();
         },
 
@@ -271,6 +272,7 @@ export default {
             this.offsetNft = 0;
             this.nftCards = [];
             this.noMoreNft = false;
+            document.getElementById('clearAll').style.display = 'block';
             this.loadNftMarket();
         },
 
@@ -283,7 +285,8 @@ export default {
             this.selectedCategory = [],
             this.filtermode = null;
             this.searchText = "";
-            document.getElementsByClassName("price-range")
+            document.getElementsByClassName("price-range");
+            document.getElementById('clearAll').style.display = 'none';
             this.loadNftMarket();
         },
 
