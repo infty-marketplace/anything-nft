@@ -31,6 +31,7 @@ const nftSchema = new Schema(
         views: { type: Number, required: true, default: 0 },
         labels: { type: [String], default: [] },
         liked_users: { type: [String], default: [] },
+        unlockable_content: {image: { type: String}, text: { type: String }}
     },
     {
         timestamps: {
