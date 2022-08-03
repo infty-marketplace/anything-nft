@@ -30,7 +30,11 @@ async function burn(tokenId) {
 // Multiply by 1.2 to avoid transaction failing due to potential underestimation
 async function mintEstimate(addr, uri) {
     const estimate = await minterContract.mint(addr, uri).estimateGasAndCollateral();
-    return (estimate.gasLimit + estimate.storageCollateralized) * 1.2;
+    const estimated_gas = estimate.gasLimit + estimate.storageCollateralized
+    return estimated_gas / 5n + estimated_gas;
+    // both estimate.gasLimit and esitmate.storageCollateralized are bigInt which can't be multiplied by a float directly
+    // also, since bigInt is an integer, we use integer division instead of division in the formula below
+    // value * 1.2 is approximated by  value / 5 + value
 }
 
 async function createRaffle(details) {
