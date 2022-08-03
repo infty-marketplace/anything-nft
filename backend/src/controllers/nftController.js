@@ -178,7 +178,6 @@ async function getMintEstimate(req, res) {
     try {
         const uri = "https://ipfs.io/ipfs/00000000000000000000000000000000000000000000000000000000000";
         const cost = await cfxUtils.mintEstimate(process.env.MANAGER_ADDRESS, uri);
-
         return res.json({ gas: cost.toString() });
     } catch (error) {
         return res.status(500).send(error);
