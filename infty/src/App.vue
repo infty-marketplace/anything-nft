@@ -6,8 +6,6 @@
 
 <script>
 const { abi: inftyNftAbi } = require("./assets/InftyNft.json");
-const { abi: stakeAbi } = require("./assets/StakingForINFT.json");
-const { abi: raffleAbi } = require("./assets/Raffle.json");
 
 import { eventBus } from "./main";
 // const { Conflux } = require('js-conflux-sdk')
@@ -22,18 +20,6 @@ export default {
             address: this.$store.getters.getMinterAddress,
         });
         this.$store.commit("setMinterContract", minterContract);
-
-        const stakeContract = window.confluxJS.Contract({
-            abi: stakeAbi,
-            address: this.$store.getters.getStakeAddress,
-        });
-        this.$store.commit("setStakeContract", stakeContract);
-
-        const raffleContract = window.confluxJS.Contract({
-            abi: raffleAbi,
-            address: this.$store.getters.getRaffleAddress,
-        });
-        this.$store.commit("setRaffleContract", raffleContract);
 
         eventBus.$on("App.notifyWIP", () => {
             this.$notify.info({

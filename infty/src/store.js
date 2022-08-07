@@ -8,13 +8,9 @@ const store = new Vuex.Store({
     state: {
         address: undefined,
         apiUrl: process.env.VUE_APP_API_URL,
-        managerAddr: process.env.VUE_APP_MANAGER_ADDRESS,
+        managerAddr: "cfxtest:aar3amuxs8fg2u7h1tsngukey8vm2h6vgujhf413e6",
         minterContract: undefined,
-        minterAddress: process.env.VUE_APP_MINTER_ADDRESS,
-        stakeContract: undefined,
-        stakeAddress: process.env.VUE_APP_STAKE_ADDRESS,
-        raffleContract: undefined,
-        raffleAddress: process.env.VUE_APP_RAFFLE_ADDRESS,
+        minterAddress: "cfxtest:accynm6yctn61a11m1ub81rrye6hx3kybyz419j0jk",
         profilePic: undefined,
         lang: "en",
         isLoggedIn: false,
@@ -81,12 +77,6 @@ const store = new Vuex.Store({
         setMinterContract: (state, mc) => {
             state.minterContract = mc;
         },
-        setStakeContract: (state, sc) => {
-            state.stakeContract = sc;
-        },
-        setRaffleContract: (state, rc) => {
-            state.raffleContract = rc;
-        },
         setProfile: async (state, profile) => {
             state.profilePic = profile.profile_picture;
             state.isLoggedIn = true;
@@ -110,10 +100,6 @@ const store = new Vuex.Store({
         getManagerAddr: (state) => state.managerAddr,
         getMinterContract: (state) => state.minterContract,
         getMinterAddress: (state) => state.minterAddress,
-        getStakeContract: (state) => state.stakeContract,
-        getStakeAddress: (state) => state.stakeAddress,
-        getRaffleContract: (state) => state.raffleContract,
-        getRaffleAddress: (state) => state.raffleAddress,
         getProfile: (state) => async (addr) => {
             const res = await axios.get(`${state.apiUrl}/profile/${addr}`);
             return res.data;
