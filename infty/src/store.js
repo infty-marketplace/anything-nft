@@ -3,11 +3,12 @@ import Vuex from "vuex";
 import { eventBus } from "./main";
 import axios from "axios";
 import { PersonalMessage } from "js-conflux-sdk"
-
+import { Conflux } from "js-conflux-sdk" 
 Vue.use(Vuex);
 
 const store = new Vuex.Store({
     state: {
+        cfx: undefined,
         address: undefined,
         apiUrl: "/api",
         managerAddr: "cfxtest:aar3amuxs8fg2u7h1tsngukey8vm2h6vgujhf413e6",
@@ -23,33 +24,30 @@ const store = new Vuex.Store({
     },
     actions: {
         async connectWallet(context) {
+            console.log(1)
             if (this.state.isLoggedIn) {
                 return;
             }
+            console.log(2)
             if (!window.conflux) {
                 eventBus.$emit("Navbar.noWallet");
                 return;
             }
+            console.log(3)
             try {
                 if (!this.state.address) {
-                    const accounts = await window.conflux.send("cfx_requestAccounts");
+                    const accounts = await window.conflux.request({method:"cfx_accounts"});
+                    
                     context.commit("setAddress", accounts[0]);
                     // format: Infty: <unix timestamp>
                     const timestamp = Date.now();
                     // const msg = "0x496e6674793a" + timestamp;
-                    const msg = "1";
-                    window.confluxJS.provider.sendAsync({method: "personal_sign", params:[msg, this.state.address], from: this.state.address}, 
-                        (e, res) => {
-                            console.log(res.result)
-                            const pub = PersonalMessage.recoverPortalPersonalSign(res.result, msg)
-                            console.log(pub)
-                            axios.post(`${this.state.apiUrl}/auth`, {
-                                sig: res.result,
-                                pub: pub,
-                                timestamp: timestamp
-                            })
-                        })
-                    // ;
+                    const msg = "Hello World12";
+                    const b = await this.state.cfx.request({method: "personal_sign", params:[msg, this.state.address], from: this.state.address})
+                    const a = await window.conflux.request({method: "personal_sign", params:[msg, this.state.address], from: this.state.address})
+                    console.log(a)
+                        
+                    ;
                     eventBus.$emit("Navbar.connectWalletSuccess");
                 }
                 await axios
@@ -81,6 +79,9 @@ const store = new Vuex.Store({
         },
     },
     mutations: {
+        setCfx(state, payload) {
+            state.cfx = payload;
+        },
         setLogin(state, payload) {
             state.isLoggedIn = payload;
         },

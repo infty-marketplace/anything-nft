@@ -244,7 +244,7 @@ export default {
             console.log('processing');
             try{
                 const tx = window.confluxJS.sendTransaction({
-                    from: (await window.conflux.send('cfx_requestAccounts'))[0],
+                    from: (await window.conflux.request('cfx_requestAccounts'))[0],
                     to: this.$store.getters.getManagerAddr,
                     gasPrice: 1e9,
                     value: 1e18 * this.listing_commision,

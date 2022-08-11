@@ -162,7 +162,7 @@ export default {
             let error = false; // flag is set to true when errors occur in transaction
             await window.confluxJS
                 .sendTransaction({
-                    from: (await window.conflux.send("cfx_requestAccounts"))[0],
+                    from: (await window.conflux.request("cfx_requestAccounts"))[0],
                     to: getters.getManagerAddr,
                     gasPrice: 1000000000,
                     value: estimation,
