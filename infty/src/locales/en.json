@@ -15,6 +15,11 @@
     "explore": "Explore",
     "create": "Create NFT",
     "aboutUsContent": "At Infty, we work on this open-source community-driven NFT trading platform. Our core members come from a variety of fields in computer science, such as software engineers at giant tech comapnies, and graduate students at top universities. We came to know each other because we are all graduates of University of Toronto, but more importantly, we are a group of blockchain enthusiasts.",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "terms": "Terms & Conditions",
+    "notice": "We noticed that this is your first time connecting to our platform, so we need some info from you.",
+    "agree": "I have read and agreed to the above Terms & Conditions.",
     "footer": {
         "allNFTs": "All NFTs",
         "art": "Art",
