@@ -1,7 +1,7 @@
 const User = require("../models/user");
 const Nft = require("../models/nft");
 const Transaction = require("../models/transaction");
-const { PersonalMessage  } = require('js-conflux-sdk');
+const { format, sign, PersonalMessage } = require('js-conflux-sdk');
 
 function logout(req, res, success, error) {
     try {
@@ -13,28 +13,23 @@ function logout(req, res, success, error) {
 }
 
 const authUser = async (req, res) => {
-    // TODO: this is not 100% secure, need to figure out how to convert pub to address
     const body = req.body;
-    console.log(body)
+
     if (!body) {
         return res.status(400).json({ error: "invalid request" });
     }
-    let pub;
-    try {
-        pub = PersonalMessage.recoverPortalPersonalSign(body.sig, `0x496e6674793a${body.timestamp}`);
-    } catch {
-        res.status(500).send();
+    const publicKey = PersonalMessage.recover(
+        body.sig,
+        body.msg,
+        )
+    // TODO: verify msg number after Infty: is within 60 seconds of current time 
+    const testnet = format.address(sign.publicKeyToAddress(publicKey), 1)
+    const mainnet = format.address(sign.publicKeyToAddress(publicKey), 1029)
+    if (body.address != testnet && body.address != mainnet) {
+        return res.status(500).send("recovered address doens't match");
     }
-
-    if (body.pub == pub) {
-        req.loggedIn = true;
-        res.status(200).json({success: true}).send();
-        console.log('suc')
-    } else {
-        res.status(500).send();
-        console.log('fail')
-    }
-
+    req.session.address = mainnet;
+    res.status(200).send();
 };
 
 const getUser = async (req, res) => {

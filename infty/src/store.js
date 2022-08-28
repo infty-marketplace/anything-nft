@@ -36,18 +36,22 @@ const store = new Vuex.Store({
             console.log(3)
             try {
                 if (!this.state.address) {
-                    const accounts = await window.conflux.request({method:"cfx_accounts"});
-                    
-                    context.commit("setAddress", accounts[0]);
+                    await window.conflux.request({method:"cfx_requestAccounts"}); // connect wallet
+                    const accounts = await window.conflux.request({method:"cfx_accounts"}); // get accounts
+                    console.log(accounts)
+                    const address = accounts[0];
                     // format: Infty: <unix timestamp>
                     const timestamp = Date.now();
                     // const msg = "0x496e6674793a" + timestamp;
-                    const msg = "Hello World12";
-                    const b = await this.state.cfx.request({method: "personal_sign", params:[msg, this.state.address], from: this.state.address})
-                    const a = await window.conflux.request({method: "personal_sign", params:[msg, this.state.address], from: this.state.address})
-                    console.log(a)
-                        
-                    ;
+                    const msg = "Infty:"+timestamp;
+                    const sig = await this.state.cfx.request({method: "personal_sign", params: [msg, address], from: address})
+                    // const a = await window.conflux.request({method: "personal_sign", params:[msg], from: this.state.address})
+                    await axios.post(`${this.state.apiUrl}/auth`, {
+                        msg,
+                        sig,
+                        address: address
+                    })
+                    context.commit("setAddress", address); // needs to be last to do
                     eventBus.$emit("Navbar.connectWalletSuccess");
                 }
                 await axios

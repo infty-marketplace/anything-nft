@@ -11,7 +11,6 @@ const cfxUtils = require("../utils/cfxUtils");
 
 // return a list of on sale NFT's id from cursor position, limit amount
 const getMarket = async (req, res) => {
-    console.log(req.sessionID)
     const body = req.body;
 
     if (!body) {
