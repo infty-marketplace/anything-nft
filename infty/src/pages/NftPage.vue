@@ -251,8 +251,7 @@ export default {
                     duration: 3000,
                 });
                 return;
-            }
-            
+            }            
             this.fractionProg = card.owner.slice(1).reduce((pv, cv) => pv + cv.percentage, 0) * 100;
 
             await axios
@@ -265,6 +264,7 @@ export default {
                 });
 
             this.isOwner = this.$store.getters.getAddress === this.getOwnerAddress(card.owner);
+            
             await axios
                 .get(`${this.$store.getters.getApiUrl}/profile/${this.getOwnerAddress(card.owner)}`)
                 .then((res) => {
@@ -273,7 +273,6 @@ export default {
                 .catch(() => {
                     card.owner_name = "Unregistered User";
                 });
-
 
             card.url = card.file;
             card.likes = card.liked_users.length;
