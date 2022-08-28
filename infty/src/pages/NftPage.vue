@@ -80,8 +80,19 @@
                     content="You'll see the content once you purchase the NFT."
                     placement="top"
                 >
-                    <div class="unlock"><i class="el-icon-lock"></i>&nbsp;&nbsp;Contains Unlockable Content</div>
+                    <div class="unlock" @click="showUContent"><i class="el-icon-lock"></i>&nbsp;&nbsp;Contains Unlockable Content</div>
                 </el-tooltip>
+                <el-dialog title="Unlockable Content" :visible.sync="ucVisible" width="60%" :before-close="(d) => d()">
+                <label>Image</label>
+                <div v-if="!card.unlockable_content.image.length">No Unlockable Image</div>
+                <img style="display:flex;width:50%;justify-content:space-around;" :src="card.unlockable_content.image">
+                <label class="mt-4">Text</label>
+                <div v-if="!card.unlockable_content.text.length">No Unlockable Text</div>
+                <p>{{ card.unlockable_content.text }}</p>
+                <span slot="footer" class="dialog-footer">
+                    <el-button @click="ucVisible = false">Close</el-button>
+                </span>
+            </el-dialog>
                 <b-card class="transaction-info" header-tag="header" footer-tag="footer" v-if="card.status == 'sale'">
                     <template #header>
                         <h6 class="mb-0"><b-icon icon="clock"></b-icon>&nbsp;For Sale Now</h6>
@@ -178,6 +189,7 @@ export default {
             listing_commision: "",
             sharesTable: [],
             transactions: [],
+            ucVisible: false,
         };
     },
     computed: {
@@ -240,6 +252,7 @@ export default {
                 });
                 return;
             }
+            
             this.fractionProg = card.owner.slice(1).reduce((pv, cv) => pv + cv.percentage, 0) * 100;
 
             await axios
@@ -252,7 +265,6 @@ export default {
                 });
 
             this.isOwner = this.$store.getters.getAddress === this.getOwnerAddress(card.owner);
-
             await axios
                 .get(`${this.$store.getters.getApiUrl}/profile/${this.getOwnerAddress(card.owner)}`)
                 .then((res) => {
@@ -261,6 +273,7 @@ export default {
                 .catch(() => {
                     card.owner_name = "Unregistered User";
                 });
+
 
             card.url = card.file;
             card.likes = card.liked_users.length;
@@ -483,6 +496,11 @@ export default {
                 path: "/profile/" + address,
             });
         },
+        showUContent(){
+            if (this.isOwner){
+                this.ucVisible = true;
+            }
+        }
     },
 };
 </script>
