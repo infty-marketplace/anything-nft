@@ -251,8 +251,9 @@ export default {
                     duration: 3000,
                 });
                 return;
-            }            
+            }
             this.fractionProg = card.owner.slice(1).reduce((pv, cv) => pv + cv.percentage, 0) * 100;
+
             await axios
                 .get(`${this.$store.getters.getApiUrl}/profile/${card.author}`)
                 .then((res) => {
@@ -493,7 +494,7 @@ export default {
             this.$router.push({
                 path: "/profile/" + address,
             });
-        }
+        },
     },
 };
 </script>
