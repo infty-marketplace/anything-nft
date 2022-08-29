@@ -80,7 +80,7 @@
                     content="You'll see the content once you purchase the NFT."
                     placement="top"
                 >
-                    <div class="unlock" @click="showUContent"><i class="el-icon-lock"></i>&nbsp;&nbsp;Contains Unlockable Content</div>
+                    <div class="unlock" @click="ucVisible = isOwner"><i class="el-icon-lock"></i>&nbsp;&nbsp;Contains Unlockable Content</div>
                 </el-tooltip>
                 <el-dialog title="Unlockable Content" :visible.sync="ucVisible" width="60%" :before-close="(d) => d()">
                 <label>Image</label>
@@ -253,7 +253,6 @@ export default {
                 return;
             }            
             this.fractionProg = card.owner.slice(1).reduce((pv, cv) => pv + cv.percentage, 0) * 100;
-
             await axios
                 .get(`${this.$store.getters.getApiUrl}/profile/${card.author}`)
                 .then((res) => {
@@ -419,7 +418,7 @@ export default {
                         const ownerAddress = getters.getAddress;
                         axios.get(`${this.$store.getters.getApiUrl}/profile/${ownerAddress}`).then((resp) => {
                             this.card.owner_name = resp.data.first_name + " " + resp.data.last_name;
-                            this.isOwner = ownerAddress == this.card.author;
+                            this.isOwner = getters.getAddress === this.getOwnerAddress(card.owner);
                             this.card.status = "private";
                             this.$forceUpdate();
                         });
@@ -494,11 +493,6 @@ export default {
             this.$router.push({
                 path: "/profile/" + address,
             });
-        },
-        showUContent(){
-            if (this.isOwner){
-                this.ucVisible = true;
-            }
         }
     },
 };

@@ -201,8 +201,8 @@ export default {
                     eventBus.$emit("CreatePage.nftCreated");
                     this.title = "";
                     this.description = "";
-                    this.ucDescription = undefined
-                    this.ucImageData = undefined
+                    this.ucDescription = undefined;
+                    this.ucImageData = undefined;
                 })
                 .catch((err) => {
                     Notification.closeAll();
@@ -254,7 +254,7 @@ export default {
                 });})
             } else {
                 // since no image is uploaded, base64 representation of the image is set to undefined
-                this.ucImageStr = undefined
+                this.ucImageStr = undefined;
             }
             this.$refs.Dialog.hide();
         }
