@@ -85,7 +85,7 @@
                 <el-dialog title="Unlockable Content" :visible.sync="ucVisible" width="60%" :before-close="(d) => d()">
                 <label>Image</label>
                 <div v-if="!card.unlockable_content.image.length">No Unlockable Image</div>
-                <img style="display:flex;width:50%;justify-content:space-around;" :src="card.unlockable_content.image">
+                <img style="display:flex;margin-left:auto;margin-right:auto;justify-content:space-around;max-height:50vh;" :src="card.unlockable_content.image">
                 <label class="mt-4">Text</label>
                 <div v-if="!card.unlockable_content.text.length">No Unlockable Text</div>
                 <p>{{ card.unlockable_content.text }}</p>
