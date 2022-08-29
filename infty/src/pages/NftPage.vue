@@ -264,7 +264,7 @@ export default {
                 });
 
             this.isOwner = this.$store.getters.getAddress === this.getOwnerAddress(card.owner);
-            
+
             await axios
                 .get(`${this.$store.getters.getApiUrl}/profile/${this.getOwnerAddress(card.owner)}`)
                 .then((res) => {
