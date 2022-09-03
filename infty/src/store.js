@@ -21,6 +21,7 @@ const store = new Vuex.Store({
         profilePic: undefined,
         lang: "en",
         isLoggedIn: false,
+        gasPrice: 1e9,
     },
     actions: {
         async connectWallet(context) {
@@ -77,9 +78,17 @@ const store = new Vuex.Store({
             const { msg } = payload;
             eventBus.$emit("App.notifyLoading", msg);
         },
-
         notifyErr() {
             eventBus.$emit("App.notifyErr");
+        },
+        loadFromSessionStorage(state) {
+            Object.keys(sessionStorage).forEach((key) => {
+                if (key.startsWith("infty-marketplace:")) {
+                    const value = window.sessionStorage.getItem(key);
+                    const stateKey = key.split(":")[1];
+                    state.state[stateKey] = value;
+                }
+            });
         },
     },
     mutations: {
@@ -91,6 +100,7 @@ const store = new Vuex.Store({
         },
         setAddress: (state, addr) => {
             state.address = addr;
+            window.sessionStorage.setItem("infty-marketplace:address", addr);
         },
         setMinterContract: (state, mc) => {
             state.minterContract = mc;
@@ -104,6 +114,8 @@ const store = new Vuex.Store({
         setProfile: async (state, profile) => {
             state.profilePic = profile.profile_picture;
             state.isLoggedIn = true;
+            window.sessionStorage.setItem("infty-marketplace:profilePic", profile.profile_picture);
+            window.sessionStorage.setItem("infty-marketplace:isLoggedIn", true);
         },
         setProfilePic: async (state) => {
             const res = await axios.get(`${state.apiUrl}/profile/${state.address}`);
@@ -133,6 +145,7 @@ const store = new Vuex.Store({
         },
         getProfilePic: (state) => state.profilePic,
         getLogInStatus: (state) => state.isLoggedIn,
+        getGasPrice: (state) => state.gasPrice,
     },
 });
 

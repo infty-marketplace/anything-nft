@@ -1,5 +1,5 @@
 require("dotenv").config();
-const { Conflux } = require("js-conflux-sdk");
+const { Conflux, Drip } = require("js-conflux-sdk");
 const s3 = require("../database/s3");
 
 // cfx init
@@ -7,6 +7,7 @@ const cfx = new Conflux({
     url: "https://test.confluxrpc.com",
     networkId: 1,
 });
+
 const managerAccount = cfx.wallet.addPrivateKey(process.env.MANAGER_KEY);
 const { abi: minterAbi } = require("../assets/InftyNft.json");
 const { abi: raffleAbi } = require("../assets/Raffle.json");
@@ -26,9 +27,10 @@ async function burn(tokenId) {
 }
 
 // Estimate how much gas will cost if mint
+// Multiply by 1.2 to avoid transaction failing due to potential underestimation
 async function mintEstimate(addr, uri) {
     const estimate = await minterContract.mint(addr, uri).estimateGasAndCollateral();
-    return estimate.gasLimit + estimate.storageCollateralized;
+    return (estimate.gasLimit + estimate.storageCollateralized) * 1.2;
 }
 
 async function createRaffle(details) {
@@ -65,9 +67,9 @@ async function transferOwnershipOnChain(fromAddr, toAddr, tokenID) {
 
 async function transferCfxTo(toAddr, price) {
     const tx = {
-        from: process.env.MANAGER_ADDRESS,
+        from: managerAccount.address,
         to: toAddr,
-        value: 1e18 * price,
+        value: Drip.fromCFX(price),
         chainId: 1,
     };
     const hash = await cfx.sendTransaction(tx).executed();

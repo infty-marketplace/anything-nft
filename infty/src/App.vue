@@ -22,7 +22,8 @@ export default {
         cfx.provider = window.conflux;
         window.conflux.on("chainChanged", cfx.updateNetworkId);
         this.$store.commit("setCfx", cfx);
-        const minterContract = cfx.Contract({
+        this.$store.dispatch("loadFromSessionStorage");
+        const minterContract = window.confluxJS.Contract({
             abi: inftyNftAbi,
             address: this.$store.getters.getMinterAddress,
         });

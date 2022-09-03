@@ -1,9 +1,7 @@
 const Nft = require("../models/nft");
-
 const Transaction = require("../models/transaction");
 const User = require("../models/user");
-const nftStatus = require("../constants/nftStatus");
-const transactionType = require("../constants/transactionType");
+const { NFT_STATUS, TRANSACTION_TYPE, COLLECTION_TYPE, TRANSACTION_TYPE_TO_COLLECTION_TYPE } = require("../constants");
 const imageUtils = require("../utils/imageUtils");
 const mongodbUtils = require("../utils/mongodbUtils");
 const nftStorageUtils = require("../utils/nftStorageUtils");
@@ -20,7 +18,7 @@ const getMarket = async (req, res) => {
     const limit = body.limit || 10;
     const offset = body.offset || 0;
 
-    const nftQuery = Nft.find({ status: nftStatus.SALE }, { nft_id: 1 })
+    const nftQuery = Nft.find({ status: NFT_STATUS.SALE }, { nft_id: 1 })
         .sort({ nft_id: "desc" })
         .skip(offset)
         .limit(limit);
@@ -107,7 +105,7 @@ async function createNft(req, res) {
         file: imageUrl,
         metadata: metadataUrl,
         file_hash: fileHash,
-        status: nftStatus.PRIVATE,
+        status: NFT_STATUS.PRIVATE,
         author: address,
         owner: [{ address: address, percentage: 1 }],
         labels: JSON.parse(req.body.labels),
@@ -188,15 +186,10 @@ async function getMintEstimate(req, res) {
 
 // list NFT to change status to sale
 async function listNft(req, res) {
-    const nftId = req.body.nft_id;
-    const nft = await Nft.findOne({ nft_id: nftId });
-    // if this nft has more owners, then it's fragmented
-    await Nft.findOneAndUpdate({ nft_id: nftId }, { status: nftStatus.SALE });
-
-    Nft.findOneAndUpdate(
-        { nft_id: nftId },
+    await Nft.findOneAndUpdate(
+        { nft_id: req.body.nft_id },
         {
-            status: nftStatus.SALE,
+            status: NFT_STATUS.SALE,
             price: req.body.price,
             currency: req.body.currency,
             fractional: req.body.fractional,
@@ -212,10 +205,7 @@ async function listNft(req, res) {
 
 // delist the nft to change the status to private
 async function delistNft(req, res) {
-    const nftId = req.body.nft_id;
-    const nft = await Nft.findOne({ nft_id: nftId });
-
-    Nft.findOneAndUpdate({ nft_id: nftId }, { status: nftStatus.PRIVATE }, (err) => {
+    await Nft.findOneAndUpdate({ nft_id: req.body.nft_id }, { status: NFT_STATUS.PRIVATE }, (err) => {
         if (err) {
             return res.status(400).send(err);
         }
@@ -237,15 +227,13 @@ async function transferOwnership(txnData, recordTransaction = true) {
     // get buyer/seller
     let buyer = await User.findOne({ address: txnData.buyer });
     let seller = await User.findOne({ address: txnData.seller });
-
     if (!buyer || !seller) {
         throw new Error("user not found");
     }
 
-    let collectionType = "";
-    // TODO: if type not match, throw error
-    if (txnData.transaction_type === transactionType.PURCHASE_NFT) {
-        collectionType = "nft";
+    const collectionType = TRANSACTION_TYPE_TO_COLLECTION_TYPE[txnData.transaction_type];
+    if (!collectionType) {
+        throw new Error(`${txnData.transaction_type} is not a valid transaction type`);
     }
 
     // add collection to buyer if collection not already exist
@@ -260,43 +248,36 @@ async function transferOwnership(txnData, recordTransaction = true) {
 
     // get collection and update collection's owner
     let collection = null;
-    // TODO: if type not match, throw error
-    if (txnData.transaction_type === transactionType.PURCHASE_NFT) {
-        collection = await Nft.findOne({
-            nft_id: txnData.collection_id,
-        });
-        collection.owner = [{ address: txnData.buyer, percentage: 1 }];
+    if (collectionType === COLLECTION_TYPE.NFT) {
+        collection = await Nft.findOne({ nft_id: txnData.collection_id });
+    } else {
+        throw new Error(`${collectionType} is not a valid collection type`);
     }
 
-    // update collection's status
-    collection.status = nftStatus.PRIVATE;
+    // update collection's owner and status
+    collection.owner = [{ address: txnData.buyer, percentage: 1 }];
+    collection.status = NFT_STATUS.PRIVATE;
 
     // save document changes
     let documents = [collection, buyer, seller];
     if (recordTransaction) {
-        const transaction = new Transaction(txnData);
-        documents.push(transaction);
+        documents.push(new Transaction(txnData));
     }
-    await mongodbUtils
-        .saveAll(documents)
-        .then(() => {
-            return;
-        })
-        .catch((error) => {
-            throw error;
-        });
+    await mongodbUtils.saveAll(documents).catch((error) => {
+        throw error;
+    });
 }
 
 async function validateNftOwnership(req, res) {
     const nftId = req.body.nft_id;
     let nft = await Nft.findOne({ nft_id: nftId });
-
     if (!nft) {
         return res.status(404).json({ error: "nft not found" });
     }
+
     const tokenID = nftId.split("-")[1];
     if (getNftOwner(nft) !== (await cfxUtils.getOwnerOnChain(tokenID))) {
-        // delete this nft from database\
+        // delete this nft from database
         const { code, message } = await _deleteNft(nftId);
         return res.status(410).json({ error: "the seller is not the current owner of the nft" });
     }
@@ -312,20 +293,24 @@ async function purchaseNft(req, res) {
     if (!nft) {
         return res.status(404).json({ error: "nft not found" });
     }
-    if (nft.status !== nftStatus.SALE) {
+    if (nft.status !== NFT_STATUS.SALE) {
         return res.status(400).json({ error: "ntf is not for sale" });
     }
     if (getNftOwner(nft) === body.buyer) {
         return res.status(400).json({ error: "buyer is the owner" });
     }
     const tokenID = body.nft_id.split("-")[1];
-    await cfxUtils.transferOwnershipOnChain(nft.owner[0].address, body.buyer, tokenID);
+    const seller = getNftOwner(nft);
+
+    // do not use Promise.all(), it two transactions get sent at the same time, they will have same nonce, and one will fail
+    await cfxUtils.transferOwnershipOnChain(seller, body.buyer, tokenID);
+    await cfxUtils.transferCfxTo(seller, parseFloat(nft.price));
 
     // create a transaction record
     let txnData = {
         buyer: body.buyer,
-        seller: nft.owner[0].address,
-        transaction_type: transactionType.PURCHASE_NFT,
+        seller: seller,
+        transaction_type: TRANSACTION_TYPE.PURCHASE_NFT,
         price: nft.price,
         currency: nft.currency,
         commission: body.commission,
@@ -339,7 +324,6 @@ async function purchaseNft(req, res) {
     }
 
     res.status(200).send();
-    await cfxUtils.transferCfxTo(nft.owner[0].address, parseFloat(nft.price));
 }
 
 module.exports = {
