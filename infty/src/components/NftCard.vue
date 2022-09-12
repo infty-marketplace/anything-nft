@@ -161,14 +161,14 @@ export default {
                 label: "CFX",
                 value: "cfx",
             },
-            {
+            /* {
                 label: "INFT",
                 value: "inft",
             },
             {
                 label: "USDT",
                 value: "usdt",
-            },
+            }, */
         ],
     }),
     computed: {
