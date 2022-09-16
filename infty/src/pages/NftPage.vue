@@ -367,7 +367,7 @@ export default {
                 .sendTransaction({
                     from: (await window.conflux.send("cfx_requestAccounts"))[0],
                     to: getters.getManagerAddr,
-                    gasPrice: 1000000000,
+                    gasPrice: getters.getGasPrice,
                     value: 1e18 * (parseFloat(this.listing_commision) + parseFloat(this.card.price)),
                 })
                 .executed()
@@ -429,7 +429,7 @@ export default {
             const tx = window.confluxJS.sendTransaction({
                 from: addr,
                 to: getters.getManagerAddr,
-                gasPrice: 1,
+                gasPrice: getters.getGasPrice,
                 value: 1e18 * ((parseFloat(this.card.price) / 100) * this.shares),
             });
 
@@ -458,7 +458,7 @@ export default {
             const tx = window.confluxJS.sendTransaction({
                 from: addr,
                 to: getters.getManagerAddr,
-                gasPrice: 1,
+                gasPrice: getters.getGasPrice,
                 value: 1e18 * parseFloat(obj.price),
             });
 

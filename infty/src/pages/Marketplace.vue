@@ -332,14 +332,14 @@ export default {
 }
 .loading {
     text-align: center;
-    position: absolute;
+    position: fixed;
     color: #fff;
     z-index: 9;
     background: rgb(0, 0, 0);
     padding: 8px 18px;
     border-radius: 5px;
-    left: calc(50% - 45px);
-    top: calc(50% - 18px);
+    left: 55vw;
+    top: 40vh;
 }
 
 .alb-card {
