@@ -58,10 +58,10 @@
         </div>
         <div class="bottom-details">
             <div class="bottom_text">
-                <span class="copyright_text">Copyright 2021 by CutoffX &nbsp; &nbsp; All rights reserved</span>
+                <span class="copyright_text">{{ $t('copyright') }} &nbsp; &nbsp; {{ $t('rights') }}</span>
                 <span class="policy_terms">
-                    <a href="#">Privacy policy</a>
-                    <a href="#">Terms & condition</a>
+                    <a href="#">{{ $t('privacy') }}</a>
+                    <a href="#">{{ $t('terms') }}</a>
                 </span>
             </div>
         </div>
@@ -69,14 +69,9 @@
 </template>
 
 <script>
-import i18n from '../i18n';
 export default {
     name: 'Navbar',
     data: () => ({}),
-    mounted() {
-        var language = window.navigator.language;
-        this.$store.commit('setLang');
-    },
     methods: {
         subscribe() {
             this.$notify({

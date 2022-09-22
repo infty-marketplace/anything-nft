@@ -91,13 +91,6 @@ const store = new Vuex.Store({
             window.sessionStorage.setItem("infty-marketplace:profilePic", profile.profile_picture);
             window.sessionStorage.setItem("infty-marketplace:isLoggedIn", true);
         },
-        setLang: (state) => {
-            if (state.lang === "cn") {
-                state.lang = "en";
-            } else {
-                state.lang = "cn";
-            }
-        },
     },
     getters: {
         getAddress: (state) => state.address,
