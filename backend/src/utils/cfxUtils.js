@@ -30,7 +30,8 @@ async function burn(tokenId) {
 // Multiply by 1.2 to avoid transaction failing due to potential underestimation
 async function mintEstimate(addr, uri) {
     const estimate = await minterContract.mint(addr, uri).estimateGasAndCollateral();
-    return (estimate.gasLimit + estimate.storageCollateralized) * 1.2;
+    const estimated_gas = estimate.gasLimit + estimate.storageCollateralized;
+    return estimated_gas / 5n + estimated_gas;
 }
 
 async function createRaffle(details) {

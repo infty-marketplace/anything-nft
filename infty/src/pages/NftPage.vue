@@ -363,9 +363,9 @@ export default {
             }
 
             this.$store.dispatch("notifyLoading", { msg: "Purchasing now" });
-            const res = await window.confluxJS
+            const res = await this.$store.getters.getCfx
                 .sendTransaction({
-                    from: (await window.conflux.request("cfx_requestAccounts"))[0],
+                    from: (await window.conflux.request({method:"cfx_requestAccounts"}))[0],
                     to: getters.getManagerAddr,
                     gasPrice: getters.getGasPrice,
                     value: 1e18 * (parseFloat(this.listing_commision) + parseFloat(this.card.price)),
@@ -423,10 +423,10 @@ export default {
         },
 
         async purchaseShares() {
-            const addr = (await window.conflux.request("cfx_requestAccounts"))[0];
+            const addr = (await window.conflux.request({method:"cfx_requestAccounts"}))[0];
             this.$store.dispatch("notifyLoading", { msg: "Paying commission now." });
             const getters = this.$store.getters;
-            const tx = window.confluxJS.sendTransaction({
+            const tx = this.$store.getters.getCfx.sendTransaction({
                 from: addr,
                 to: getters.getManagerAddr,
                 gasPrice: getters.getGasPrice,
@@ -453,9 +453,9 @@ export default {
 
         async transferShares(obj) {
             const getters = this.$store.getters;
-            const addr = (await window.conflux.request("cfx_requestAccounts"))[0];
+            const addr = (await window.conflux.request({method:"cfx_requestAccounts"}))[0];
             this.$store.dispatch("notifyLoading", { msg: "Paying commission now." });
-            const tx = window.confluxJS.sendTransaction({
+            const tx = this.$store.getters.getCfx.sendTransaction({
                 from: addr,
                 to: getters.getManagerAddr,
                 gasPrice: getters.getGasPrice,

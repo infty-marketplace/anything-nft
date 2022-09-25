@@ -529,9 +529,9 @@ export default {
             const to = this.$route.params.address;
             try {
                 this.$store.dispatch("notifyLoading", { msg: "Sending transaction" });
-                await window.confluxJS
+                await this.$store.getters.getCfx
                     .sendTransaction({
-                        from: (await window.conflux.send("cfx_requestAccounts"))[0],
+                        from: (await window.conflux.request({method:"cfx_requestAccounts"}))[0],
                         to: to,
                         gasPrice: this.$store.getters.getGasPrice,
                         value: 1e18 * parseFloat(this.supportAmount),

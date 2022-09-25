@@ -180,6 +180,7 @@ async function getMintEstimate(req, res) {
         const cost = await cfxUtils.mintEstimate(process.env.MANAGER_ADDRESS, uri);
         return res.json({ gas: cost.toString() });
     } catch (error) {
+        console.log(error)
         return res.status(500).send(error);
     }
 }
