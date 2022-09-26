@@ -419,7 +419,7 @@ export default {
                         const ownerAddress = getters.getAddress;
                         axios.get(`${this.$store.getters.getApiUrl}/profile/${ownerAddress}`).then((resp) => {
                             this.card.owner_name = resp.data.first_name + " " + resp.data.last_name;
-                            this.isOwner = getters.getAddress === this.getOwnerAddress(card.owner);
+                            this.isOwner = true;
                             this.card.status = "private";
                             this.$forceUpdate();
                         });
