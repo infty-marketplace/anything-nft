@@ -15,11 +15,14 @@ app.use(helmet({ crossOriginEmbedderPolicy: false, contentSecurityPolicy: false}
 const apiPort = process.env.PORT || 3001;
 
 let session = require("express-session")({
-    secret: "HeyWhatIsC",
+    secret: "InftySecret",
     resave: true,
     saveUninitialized: true,
     cookie: {
-        maxAge: 60 * 60 * 24,
+        httpOnly: true,
+        secure: false, //testing
+        // maxAge: 1000 * 60 * 60 * 24 * 30, // one month
+        maxAge: 1000 * 60 * 3, // testing: 3 minute
     },
 });
 app.use(session);
@@ -27,6 +30,7 @@ app.use(session);
 if (!process.env.PORT) {
     app.use(cors());
 }
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 

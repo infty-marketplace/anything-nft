@@ -10,6 +10,7 @@ const cfxUtils = require("../utils/cfxUtils");
 // return a list of on sale NFT's id from cursor position, limit amount
 const getMarket = async (req, res) => {
     const body = req.body;
+
     if (!body) {
         return res.status(400).json({ error: "invalid request" });
     }
@@ -180,6 +181,7 @@ async function getMintEstimate(req, res) {
         const cost = await cfxUtils.mintEstimate(process.env.MANAGER_ADDRESS, uri);
         return res.json({ gas: cost.toString() });
     } catch (error) {
+        console.log(error)
         return res.status(500).send(error);
     }
 }

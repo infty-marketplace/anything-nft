@@ -1,6 +1,7 @@
 const User = require("../models/user");
 const Nft = require("../models/nft");
 const Transaction = require("../models/transaction");
+const { format, sign, PersonalMessage } = require('js-conflux-sdk');
 const Support = require("../models/support");
 
 function logout(req, res, success, error) {
@@ -14,28 +15,22 @@ function logout(req, res, success, error) {
 
 const authUser = async (req, res) => {
     const body = req.body;
+
     if (!body) {
         return res.status(400).json({ error: "invalid request" });
     }
-
-    const address = req.body.address;
-    const user = await User.findOne({ address });
-
-    if (!!user) {
-        onSuccessLogin();
-    } else {
-        onErrorLogin();
+    const publicKey = PersonalMessage.recover(
+        body.sig,
+        body.msg,
+        )
+    // TODO: verify msg number after Infty: is within 60 seconds of current time 
+    const testnet = format.address(sign.publicKeyToAddress(publicKey), 1)
+    const mainnet = format.address(sign.publicKeyToAddress(publicKey), 1029)
+    if (body.address != testnet && body.address != mainnet) {
+        return res.status(500).send("recovered address doens't match");
     }
-
-    function onSuccessLogin() {
-        req.session.username = address;
-        req.session.loggedInCode = 5;
-        res.json({ success: true });
-    }
-
-    function onErrorLogin() {
-        res.json({ success: false, error: "Invalid address" });
-    }
+    req.session.address = mainnet;
+    res.status(200).send();
 };
 
 const getUser = async (req, res) => {

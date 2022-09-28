@@ -248,24 +248,23 @@
                                 </el-col>
                             </el-row>
                         </el-card>
-                        <!-- <b-modal ref="confirm" title='Confirm Update' @ok="update">
-                        <label>First Name</label>
-                        <b-form-input class='mb-4' v-model='new_first' readonly/>
-                        <label>Last Name</label>
-                        <b-form-input class='mb-4' v-model='new_last' readonly/>
-                        <label>Description</label>
-                        <b-form-input class='mb-4' v-model='bio' readonly/>
-                        </b-modal> -->
-                        <el-switch
+                        
+                        <!-- TODO: Night mode support <el-switch
                             class="ml-5"
-                            style="display: block"
+                            style="display: inline-block"
                             v-model="modeSwitch"
                             active-color="#ef8e38"
                             inactive-color="rgb(80,80,46)"
                             active-text="Day Mode"
                             inactive-text="Night Mode"
                         >
-                        </el-switch>
+                        </el-switch> -->
+                        <el-button 
+                            class="mr-5"
+                            style="display:inline; float:right;"
+                            type="danger"
+                            @click="logout"
+                        >Log Out</el-button>
                     </div>
                 </el-col>
             </el-row>
@@ -466,6 +465,10 @@ export default {
             let nfts = results.filter((result) => result.status === "fulfilled").map((result) => result.value);
             return nfts;
         },
+
+        logout() {
+            this.$store.commit("setLogin", false);
+        },
         padToTwoDigits(s) {
             s = s.toString();
             if (s.length >= 2) {
@@ -526,9 +529,9 @@ export default {
             const to = this.$route.params.address;
             try {
                 this.$store.dispatch("notifyLoading", { msg: "Sending transaction" });
-                await window.confluxJS
+                await this.$store.getters.getCfx
                     .sendTransaction({
-                        from: (await window.conflux.send("cfx_requestAccounts"))[0],
+                        from: (await window.conflux.request({method:"cfx_requestAccounts"}))[0],
                         to: to,
                         gasPrice: this.$store.getters.getGasPrice,
                         value: 1e18 * parseFloat(this.supportAmount),

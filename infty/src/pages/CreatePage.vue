@@ -158,9 +158,9 @@ export default {
             this.$store.dispatch("notifyLoading", { msg: "Paying commission now" });
 
             let error = false; // flag is set to true when errors occur in transaction
-            await window.confluxJS
+            await this.$store.getters.getCfx
                 .sendTransaction({
-                    from: (await window.conflux.send("cfx_requestAccounts"))[0],
+                    from: (await window.conflux.request({method:"cfx_requestAccounts"}))[0],
                     to: getters.getManagerAddr,
                     gasPrice: getters.getGasPrice,
                     value: estimation,

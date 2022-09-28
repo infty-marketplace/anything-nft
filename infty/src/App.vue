@@ -6,35 +6,24 @@
 
 <script>
 const { abi: inftyNftAbi } = require("./assets/InftyNft.json");
-const { abi: stakeAbi } = require("./assets/StakingForINFT.json");
-const { abi: raffleAbi } = require("./assets/Raffle.json");
-
 import { eventBus } from "./main";
-// const { Conflux } = require('js-conflux-sdk')
 
 export default {
     name: "App",
     created() {
         document.title = "Infty Marketplace";
         this.$store.dispatch("loadFromSessionStorage");
-        const minterContract = window.confluxJS.Contract({
+    },
+    mounted() {
+        const cfx = this.$store.getters.getCfx
+        cfx.provider = window.conflux;
+        window.conflux.on("chainChanged", cfx.updateNetworkId);
+
+        const minterContract = cfx.Contract({
             abi: inftyNftAbi,
             address: this.$store.getters.getMinterAddress,
         });
         this.$store.commit("setMinterContract", minterContract);
-
-        const stakeContract = window.confluxJS.Contract({
-            abi: stakeAbi,
-            address: this.$store.getters.getStakeAddress,
-        });
-        this.$store.commit("setStakeContract", stakeContract);
-
-        const raffleContract = window.confluxJS.Contract({
-            abi: raffleAbi,
-            address: this.$store.getters.getRaffleAddress,
-        });
-        this.$store.commit("setRaffleContract", raffleContract);
-
         eventBus.$on("App.notifyWIP", () => {
             this.$notify.info({
                 title: "Info",
