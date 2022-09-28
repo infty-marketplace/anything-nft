@@ -412,9 +412,10 @@ export default {
                 .then((res) => {
                     Notification.closeAll();
                     if (res.status == 200) {
-                        this.$bvToast.toast("NFT Purchased Successfully", {
-                            title: "Notification",
-                            autoHideDelay: 3000,
+                        this.$notify.success({
+                            title: "Congrats",
+                            message: "NFT Purchased Successfully",
+                            duration: 3000,
                         });
                         const ownerAddress = getters.getAddress;
                         axios.get(`${this.$store.getters.getApiUrl}/profile/${ownerAddress}`).then((resp) => {
@@ -434,62 +435,6 @@ export default {
                 });
         },
 
-        async purchaseShares() {
-            const addr = (await window.conflux.request({method:"cfx_requestAccounts"}))[0];
-            this.$store.dispatch("notifyLoading", { msg: "Paying commission now." });
-            const getters = this.$store.getters;
-            const tx = this.$store.getters.getCfx.sendTransaction({
-                from: addr,
-                to: getters.getManagerAddr,
-                gasPrice: getters.getGasPrice,
-                value: 1e18 * ((parseFloat(this.card.price) / 100) * this.shares),
-            });
-
-            await tx.executed();
-
-            axios
-                .post(`${getters.getApiUrl}/fund-nft`, {
-                    nft_id: this.$route.params.id,
-                    buyer: addr,
-                    percentage: parseFloat(this.shares) * 0.01,
-                })
-                .then(() => {
-                    Notification.closeAll();
-                    this.$bvToast.toast("NFT Shares Purchased Successfully", {
-                        title: "Notification",
-                        autoHideDelay: 3000,
-                    });
-                    this.$router.go();
-                });
-        },
-
-        async transferShares(obj) {
-            const getters = this.$store.getters;
-            const addr = (await window.conflux.request({method:"cfx_requestAccounts"}))[0];
-            this.$store.dispatch("notifyLoading", { msg: "Paying commission now." });
-            const tx = this.$store.getters.getCfx.sendTransaction({
-                from: addr,
-                to: getters.getManagerAddr,
-                gasPrice: getters.getGasPrice,
-                value: 1e18 * parseFloat(obj.price),
-            });
-
-            await tx.executed();
-            axios
-                .post(`${getters.getApiUrl}/purchase-fragment`, {
-                    owner: obj.owner,
-                    nft_id: obj.nft_id,
-                    buyer: getters.getAddress,
-                })
-                .then(() => {
-                    Notification.closeAll();
-                    this.$bvToast.toast("NFT Shares Purchased Successfully", {
-                        title: "Notification",
-                        autoHideDelay: 3000,
-                    });
-                    this.$router.go();
-                });
-        },
         handleRedirectToProfile(address) {
             this.$router.push({
                 path: "/profile/" + address,
