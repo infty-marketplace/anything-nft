@@ -110,13 +110,6 @@ const store = new Vuex.Store({
             const res = await axios.get(`${state.apiUrl}/profile/${state.address}`);
             state.profilePic = res.data.profile_picture
         },
-        setLang: (state) => {
-            if (state.lang === "cn") {
-                state.lang = "en";
-            } else {
-                state.lang = "cn";
-            }
-        },
     },
     getters: {
         getCfx: (state) => state.cfx,

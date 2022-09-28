@@ -107,7 +107,7 @@
                             <div class="nft-container">
                                 <transition name="fade">
                                     <div class="loading" v-show="loadingNft">
-                                        <span class="fa fa-spinner fa-spin"></span> Loading
+                                        <span class="fa fa-spinner fa-spin"></span> {{ $t("loading") }}
                                     </div>
                                 </transition>
                                 <el-empty class="flex-wrapper-row" v-if="nftCards.length == 0" description="Nothing" />
@@ -117,11 +117,11 @@
                                 v-if="noMoreNft && nftCards.length != 0"
                                 style="border-bottom: 1px solid grey; line-height: 0.1rem;text-align:center"
                             >
-                                <span style="padding: 0px 20px;background-color:white;color:grey;">End of Market</span>
+                                <span style="padding: 0px 20px;background-color:white;color:grey;">{{ $t("endOfMarket") }}</span>
                             </p>
                             <div class="load-bar" v-else-if="!loadingNft">
                                 <span class="btn-bg">
-                                    <button class="load-btn" @click="getMore">Load More</button>
+                                    <button class="load-btn" @click="getMore">{{ $t("loadmore") }}</button>
                                 </span>
                             </div>
                         </b-tab>

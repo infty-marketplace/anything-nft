@@ -1,20 +1,40 @@
 {
-    "marketplace": "Marketplace",
-    "collections": "Collections",
-    "account": "Account",
-    "stats": "Stats",
-    "cutoffx" : "CutoffX",
-    "subscribe": "Subscribe",
-    "price": "Price",
-    "endOfMarket": "End Of Market",
-    "album": "Album",
-    "filter": "Filter",
-    "status": "Status",
-    "categories": "Categories",
-    "banner": "Create, collect, and trade any craft as NFT.",
-    "explore": "Explore",
-    "create": "Create NFT",
+    "about": "About",
     "aboutUsContent": "At Infty, we work on this open-source community-driven NFT trading platform. Our core members come from a variety of fields in computer science, such as software engineers at giant tech comapnies, and graduate students at top universities. We came to know each other because we are all graduates of University of Toronto, but more importantly, we are a group of blockchain enthusiasts.",
+    "account": "Account",
+    "agree": "I have read and agreed to the above Terms & Conditions.",
+    "album": "Album",
+    "banner": "Create, collect, and trade any craft as NFT.",
+    "categories": "Categories",
+    "collections": "Collections",
+    "copyright": "Copyright 2021 by CutoffX",
+    "create": "Create NFT",
+    "createNft": {
+        "createNft": "Create your own NFT",
+        "title": "Title",
+        "name": "Enter name of the art...",
+        "image": "Image*",
+        "description": "Description",
+        "descriptionInput": "Enter a detailed description",
+        "labels": "Labels",
+        "unlockableContent": "Add unlockable content",
+        "create": "Create"
+    },
+    "cutoffx": "CutoffX",
+    "endOfMarket": "End Of Market",
+    "explore": "Explore",
+    "fileUploader": {
+        "upload": "Drag & Drop to Upload File",
+        "or": "Or",
+        "browseFile": "Browse File",
+        "changeFile": "Change File"
+    },
+    "filter": "Filter",
+    "filterOption": {
+        "status": "Status",
+        "price": "Price(CFX)"
+    },
+    "firstName": "First Name",
     "footer": {
         "allNFTs": "All NFTs",
         "art": "Art",
@@ -30,28 +50,20 @@
         "aboutUs": "About Us",
         "enterEmail": "Enter your email"
     },
-    "filterOption" : {
-       "status": "Status",
-       "price": "Price(CFX)"
-    },
+    "lastName": "Last Name",
+    "loading": "Loading...",
+    "loadmore": "Load More",
+    "marketplace": "Marketplace",
+    "notice": "We noticed that this is your first time connecting to our platform, so we need some info from you.",
+    "our_team": "Our Team",
+    "price": "Price",
+    "privacy": "Privacy Policy",
+    "rights": "All rights reserved",
     "searchBar": {
         "search": "Search..."
     },
-    "createNft": {
-        "createNft": "Create your own NFT",
-        "title": "Title",
-        "name": "Enter name of the art...",
-        "image": "Image*",
-        "description": "Description",
-        "descriptionInput": "Enter a detailed description",
-        "labels": "Labels",
-        "unlockableContent": "Add unlockable content",
-        "create": "Create"
-    },
-    "fileUploader": {
-        "upload": "Drag & Drop to Upload File",
-        "or": "Or",
-        "browseFile": "Browse File",
-        "changeFile": "Change File"
-    }
+    "stats": "Stats",
+    "status": "Status",
+    "subscribe": "Subscribe",
+    "terms": "Terms & Conditions"
 }
