@@ -20,8 +20,7 @@
                         >
                         <b-collapse id="collapse-1" class="mt-2">
                             <p>
-                                Pixelglyphs are a set of 10,000 unique on-chain avatar NFTs created using a cellular
-                                automaton on the Conflux blockchain.
+                                This is supposed to be the description of the album
                             </p>
                             <span
                                 class="badge badge-pill badge-info"
