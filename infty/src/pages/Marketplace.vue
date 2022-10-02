@@ -268,6 +268,12 @@ export default {
         },
 
         applyFilter() {
+            // if the user doesn't select any filter category or price range, do not reload the market page
+            if (!this.selectedCategory.length && !this.price_to && !this.price_from){
+                return
+            }
+
+            // otherwise, reload the market page
             this.filtermode = "filter";
             this.offsetNft = 0;
             this.nftCards = [];
