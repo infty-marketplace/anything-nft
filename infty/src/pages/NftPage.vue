@@ -185,7 +185,6 @@ export default {
             isOwner: true,
             views: "",
             shares: 1,
-            fractionProg: 0,
             listing_commision: "",
             sharesTable: [],
             transactions: [],
@@ -193,16 +192,6 @@ export default {
         };
     },
     computed: {
-        sharesOwned: function() {
-            if (!this.card) return "";
-            try {
-                const i = this.card.owner.findIndex((o) => o.address == this.$store.getters.getAddress);
-                if (i == -1) return "";
-                return this.card.owner[i].percentage * 100;
-            } catch (e) {
-                return "";
-            }
-        },
         confluxScanUrl() {
             return this.$route.params.id.startsWith("cfxtest:")
                 ? "https://testnet.confluxscan.io"
@@ -224,7 +213,7 @@ export default {
             .then((res) => (this.views = res.data.views))
             .catch(() => (this.views = 1));
         if (!this.card) {
-            await Promise.add([this.fetchNftData(), this.fetchTransactionHistory()]);
+            await Promise.all([this.fetchNftData(), this.fetchTransactionHistory()]);
         }
     },
     methods: {
@@ -252,7 +241,6 @@ export default {
                 });
                 return;
             }
-            this.fractionProg = card.owner.slice(1).reduce((pv, cv) => pv + cv.percentage, 0) * 100;
 
             await axios
                 .get(`${this.$store.getters.getApiUrl}/profile/${card.author}`)
@@ -277,6 +265,10 @@ export default {
             card.url = card.file;
             card.likes = card.liked_users.length;
             card.isLiked = card.liked_users.includes(this.$store.getters.getAddress);
+            if (!card.unlockable_content) {
+                card.unlockable_content = {image:"", text:""}
+            }
+
             this.card = card;
         },
         truncate(fullStr, strLen, separator = "...") {
