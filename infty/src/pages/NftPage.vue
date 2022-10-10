@@ -74,7 +74,7 @@
             </div>
 
             <b-card-group deck class="transaction">
-                <div id="lockable-content" v-show="card.unlockable_content.text && card.unlockable_content.text">
+                <div id="lockable-content" v-show="card.unlockable_content.text && card.unlockable_content.text" style="width: 100%">
                     <el-tooltip
                     style="cursor:pointer"
                     effect="dark"

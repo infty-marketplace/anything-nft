@@ -2,8 +2,7 @@ import Vue from "vue";
 import Vuex from "vuex";
 import { eventBus } from "./main";
 import axios from "axios";
-import { PersonalMessage } from "js-conflux-sdk"
-import { Conflux } from "js-conflux-sdk" 
+import { Conflux } from "js-conflux-sdk" ;
 Vue.use(Vuex);
 
 const store = new Vuex.Store({
