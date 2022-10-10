@@ -73,14 +73,27 @@
             </div>
 
             <b-card-group deck class="transaction">
-                <el-tooltip
+                <div id="lockable-content" v-show="card.unlockable_content.text && card.unlockable_content.text" style="width: 100%">
+                    <el-tooltip
                     style="cursor:pointer"
                     effect="dark"
                     content="You'll see the content once you purchase the NFT."
                     placement="top"
                 >
-                    <div class="unlock"><i class="el-icon-lock"></i>&nbsp;&nbsp;Contains Unlockable Content</div>
-                </el-tooltip>
+                        <div class="unlock" @click="ucVisible = isOwner" style="width: 100%"><i class="el-icon-lock"></i>&nbsp;&nbsp;Contains Unlockable Content</div>
+                    </el-tooltip>
+                    <el-dialog title="Unlockable Content" :visible.sync="ucVisible" width="60%" :before-close="(d) => d()">
+                        <label>Image</label>
+                        <div v-if="!card.unlockable_content.image.length">No Unlockable Image</div>
+                        <img style="display:flex;margin-left:auto;margin-right:auto;justify-content:space-around;max-height:50vh;" :src="card.unlockable_content.image">
+                        <label class="mt-4">Text</label>
+                        <div v-if="!card.unlockable_content.text.length">No Unlockable Text</div>
+                        <p>{{ card.unlockable_content.text }}</p>
+                        <span slot="footer" class="dialog-footer">
+                            <el-button @click="ucVisible = false">Close</el-button>
+                        </span>
+                    </el-dialog>
+                </div>
                 <b-card class="transaction-info" header-tag="header" footer-tag="footer" v-if="card.status == 'sale'">
                     <template #header>
                         <h6 class="mb-0"><b-icon icon="clock"></b-icon>&nbsp;For Sale Now</h6>
@@ -173,23 +186,13 @@ export default {
             isOwner: true,
             views: "",
             shares: 1,
-            fractionProg: 0,
             listing_commision: "",
             sharesTable: [],
             transactions: [],
+            ucVisible: false,
         };
     },
     computed: {
-        sharesOwned: function() {
-            if (!this.card) return "";
-            try {
-                const i = this.card.owner.findIndex((o) => o.address == this.$store.getters.getAddress);
-                if (i == -1) return "";
-                return this.card.owner[i].percentage * 100;
-            } catch (e) {
-                return "";
-            }
-        },
         confluxScanUrl() {
             return this.$route.params.id.startsWith("cfxtest:")
                 ? "https://testnet.confluxscan.io"
@@ -211,7 +214,7 @@ export default {
             .then((res) => (this.views = res.data.views))
             .catch(() => (this.views = 1));
         if (!this.card) {
-            await Promise.add([this.fetchNftData(), this.fetchTransactionHistory()]);
+            await Promise.all([this.fetchNftData(), this.fetchTransactionHistory()]);
         }
     },
     methods: {
@@ -239,7 +242,6 @@ export default {
                 });
                 return;
             }
-            this.fractionProg = card.owner.slice(1).reduce((pv, cv) => pv + cv.percentage, 0) * 100;
 
             await axios
                 .get(`${this.$store.getters.getApiUrl}/profile/${card.author}`)
@@ -264,6 +266,10 @@ export default {
             card.url = card.file;
             card.likes = card.liked_users.length;
             card.isLiked = card.liked_users.includes(this.$store.getters.getAddress);
+            if (!card.unlockable_content) {
+                card.unlockable_content = {image:"", text:""}
+            }
+
             this.card = card;
         },
         truncate(fullStr, strLen, separator = "...") {
@@ -362,11 +368,11 @@ export default {
             }
 
             this.$store.dispatch("notifyLoading", { msg: "Purchasing now" });
-            const res = await window.confluxJS
+            const res = await this.$store.getters.getCfx
                 .sendTransaction({
-                    from: (await window.conflux.send("cfx_requestAccounts"))[0],
+                    from: (await window.conflux.request({method:"cfx_requestAccounts"}))[0],
                     to: getters.getManagerAddr,
-                    gasPrice: 1000000000,
+                    gasPrice: getters.getGasPrice,
                     value: 1e18 * (parseFloat(this.listing_commision) + parseFloat(this.card.price)),
                 })
                 .executed()
@@ -399,14 +405,15 @@ export default {
                 .then((res) => {
                     Notification.closeAll();
                     if (res.status == 200) {
-                        this.$bvToast.toast("NFT Purchased Successfully", {
-                            title: "Notification",
-                            autoHideDelay: 3000,
+                        this.$notify.success({
+                            title: "Congrats",
+                            message: "NFT Purchased Successfully",
+                            duration: 3000,
                         });
                         const ownerAddress = getters.getAddress;
                         axios.get(`${this.$store.getters.getApiUrl}/profile/${ownerAddress}`).then((resp) => {
                             this.card.owner_name = resp.data.first_name + " " + resp.data.last_name;
-                            this.isOwner = ownerAddress == this.card.author;
+                            this.isOwner = true;
                             this.card.status = "private";
                             this.$forceUpdate();
                         });
@@ -421,62 +428,6 @@ export default {
                 });
         },
 
-        async purchaseShares() {
-            const addr = (await window.conflux.send("cfx_requestAccounts"))[0];
-            this.$store.dispatch("notifyLoading", { msg: "Paying commission now." });
-            const getters = this.$store.getters;
-            const tx = window.confluxJS.sendTransaction({
-                from: addr,
-                to: getters.getManagerAddr,
-                gasPrice: 1,
-                value: 1e18 * ((parseFloat(this.card.price) / 100) * this.shares),
-            });
-
-            await tx.executed();
-
-            axios
-                .post(`${getters.getApiUrl}/fund-nft`, {
-                    nft_id: this.$route.params.id,
-                    buyer: addr,
-                    percentage: parseFloat(this.shares) * 0.01,
-                })
-                .then(() => {
-                    Notification.closeAll();
-                    this.$bvToast.toast("NFT Shares Purchased Successfully", {
-                        title: "Notification",
-                        autoHideDelay: 3000,
-                    });
-                    this.$router.go();
-                });
-        },
-
-        async transferShares(obj) {
-            const getters = this.$store.getters;
-            const addr = (await window.conflux.send("cfx_requestAccounts"))[0];
-            this.$store.dispatch("notifyLoading", { msg: "Paying commission now." });
-            const tx = window.confluxJS.sendTransaction({
-                from: addr,
-                to: getters.getManagerAddr,
-                gasPrice: 1,
-                value: 1e18 * parseFloat(obj.price),
-            });
-
-            await tx.executed();
-            axios
-                .post(`${getters.getApiUrl}/purchase-fragment`, {
-                    owner: obj.owner,
-                    nft_id: obj.nft_id,
-                    buyer: getters.getAddress,
-                })
-                .then(() => {
-                    Notification.closeAll();
-                    this.$bvToast.toast("NFT Shares Purchased Successfully", {
-                        title: "Notification",
-                        autoHideDelay: 3000,
-                    });
-                    this.$router.go();
-                });
-        },
         handleRedirectToProfile(address) {
             this.$router.push({
                 path: "/profile/" + address,

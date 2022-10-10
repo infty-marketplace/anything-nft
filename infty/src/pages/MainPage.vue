@@ -26,7 +26,7 @@
                 <span class="about-shape"></span>
                 <div class="sm:w-2/3 sm:mr-10">
                     <div class="about-text">
-                        <h2 class="font-bold stress">About <span class="font-bold stress">Our Team</span></h2>
+                        <h2 class="font-bold stress">{{ $t('about') }} <span class="font-bold stress">{{ $t('our_team') }}</span></h2>
                         <p class="text-gray-700">
                             {{ $t('aboutUsContent') }}
                         </p>

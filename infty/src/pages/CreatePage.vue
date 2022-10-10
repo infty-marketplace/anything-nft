@@ -40,7 +40,7 @@
                     $t("createNft.unlockableContent")
                 }}</b-button>
             </div>
-            <el-dialog title="Unlockable Content" :visible.sync="ucVisible" width="60%" :before-close="(d) => d()">
+            <el-dialog title="Unlockable Content" :visible.sync="ucVisible" width="60%" :before-close="(d) => d()" ref="Dialog">
                 <label>Image</label>
                 <div style="display:flex;min-width:100%;justify-content:space-around;">
                     <FileUploader
@@ -67,14 +67,7 @@
                 </div>
                 <span slot="footer" class="dialog-footer">
                     <el-button @click="ucVisible = false">Cancel</el-button>
-                    <el-button
-                        type="primary"
-                        @click="
-                            $store.dispatch('notifyWIP');
-                            ucVisible = false;
-                        "
-                        >Confirm</el-button
-                    >
+                    <el-button type="primary" @click="convertImage">Confirm</el-button>
                 </span>
             </el-dialog>
         </div>
@@ -108,6 +101,7 @@ export default {
         imageData: undefined,
         ucVisible: false,
         ucImageData: undefined,
+        ucImageStr: undefined,
         labels: constant.LABELS,
         labelState: [],
     }),
@@ -154,6 +148,8 @@ export default {
             fd.append("description", this.description);
             const selectedLabels = this.labels.filter((l, i) => this.labelState[i] == true);
             fd.append("labels", JSON.stringify(selectedLabels));
+            fd.append("unlockable_image", this.ucImageStr? this.ucImageStr: "");
+            fd.append("unlockable_text", this.ucDescription? this.ucDescription: "");
 
             // Obtain estimation
             const estimation = (await axios.post(this.$store.getters.getApiUrl + "/mint-estimate")).data.gas;
@@ -162,11 +158,11 @@ export default {
             this.$store.dispatch("notifyLoading", { msg: "Paying commission now" });
 
             let error = false; // flag is set to true when errors occur in transaction
-            await window.confluxJS
+            await this.$store.getters.getCfx
                 .sendTransaction({
-                    from: (await window.conflux.send("cfx_requestAccounts"))[0],
+                    from: (await window.conflux.request({method:"cfx_requestAccounts"}))[0],
                     to: getters.getManagerAddr,
-                    gasPrice: 1000000000,
+                    gasPrice: getters.getGasPrice,
                     value: estimation,
                 })
                 .executed()
@@ -205,6 +201,8 @@ export default {
                     eventBus.$emit("CreatePage.nftCreated");
                     this.title = "";
                     this.description = "";
+                    this.ucDescription = undefined;
+                    this.ucImageData = undefined;
                 })
                 .catch((err) => {
                     Notification.closeAll();
@@ -236,6 +234,30 @@ export default {
         clicked(index) {
             this.$set(this.labelState, index, !this.labelState[index]); // change label state on click
         },
+
+        toBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(this.ucImageStr = reader.result);
+                reader.onerror = error => reject(error);
+            });
+        },
+
+        async convertImage() {
+            if (this.ucImageData){
+                await this.toBase64(this.ucImageData).catch((error) => {
+                    this.$notify.error({
+                    title: "Error occurs when converting the input image file",
+                    message: error,
+                    duration: 3000,
+                });})
+            } else {
+                // since no image is uploaded, base64 representation of the image is set to undefined
+                this.ucImageStr = undefined;
+            }
+            this.$refs.Dialog.hide();
+        }
     },
     async mounted() {
         eventBus.$on("CreatePage.receiveFile", (imageData) => {

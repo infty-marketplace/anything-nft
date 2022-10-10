@@ -161,14 +161,14 @@ export default {
                 label: "CFX",
                 value: "cfx",
             },
-            {
+            /* {
                 label: "INFT",
                 value: "inft",
             },
             {
                 label: "USDT",
                 value: "usdt",
-            },
+            }, */
         ],
     }),
     computed: {
@@ -243,16 +243,31 @@ export default {
             this.listing_status = true;
             console.log('processing');
             try{
-                const tx = window.confluxJS.sendTransaction({
-                    from: (await window.conflux.send('cfx_requestAccounts'))[0],
+                // const params = [{
+                //     from: (await window.conflux.request({method:"cfx_requestAccounts"}))[0],
+                //     to: this.$store.getters.getManagerAddr,
+                //     gasPrice: '0x'+this.$store.getters.getGasPrice.toString(16),
+                //     value: '0x'+(1e18 * this.listing_commision).toString(16),
+                // }]
+                // this.$store.dispatch("notifyLoading", { msg: "Paying commission now." });
+                // const tx = await window.conflux.request({
+                //     method: 'cfx_sendTransaction',
+                //     params
+                // })
+                // // TODO: wait the transaction with hash tx to finish
+                // console.dir(tx)
+                const tx = this.$store.getters.getCfx.sendTransaction({
+                    from: (await window.conflux.request({method:"cfx_requestAccounts"}))[0],
                     to: this.$store.getters.getManagerAddr,
-                    gasPrice: 1e9,
+                    gasPrice: this.$store.getters.getGasPrice,
                     value: 1e18 * this.listing_commision,
                 });
                 this.$store.dispatch("notifyLoading", { msg: "Paying commission now." });
                 await tx.executed();
                 Notification.closeAll();
             }catch(error){
+                console.log(1)
+                console.log(error)
                 Notification.closeAll();
                 this.$store.dispatch("notifyErr");
                 this.listing_status = false;
@@ -265,9 +280,10 @@ export default {
                 try{
                     await getters.getMinterContract
                         .approve(getters.getManagerAddr, tokenId)
-                        .sendTransaction({ from: getters.getAddress, to: getters.getMinterAddress, gasPrice: 1e9 })
+                        .sendTransaction({ from: getters.getAddress, to: getters.getMinterAddress, gasPrice: getters.getGasPrice })
                         .executed();
                 }catch(error){
+                    console.log(error)
                     Notification.closeAll();
                     this.$store.dispatch("notifyErr");
                     this.listing_status = false;

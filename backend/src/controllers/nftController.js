@@ -135,6 +135,7 @@ async function createNft(req, res) {
         author: address,
         owner: [{ address: address, percentage: 1 }],
         labels: JSON.parse(req.body.labels),
+        unlockable_content: {text: req.body.unlockable_text, image: req.body.unlockable_image }
     };
     const newNft = new Nft(params);
     const user = await User.findOne({ address: address });
@@ -206,6 +207,7 @@ async function getMintEstimate(req, res) {
         const cost = await cfxUtils.mintEstimate(process.env.MANAGER_ADDRESS, uri);
         return res.json({ gas: cost.toString() });
     } catch (error) {
+        console.log(error)
         return res.status(500).send(error);
     }
 }
