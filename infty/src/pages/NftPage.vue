@@ -74,25 +74,27 @@
             </div>
 
             <b-card-group deck class="transaction">
-                <el-tooltip
+                <div id="lockable-content" v-show="card.unlockable_content.text && card.unlockable_content.text" style="width: 100%">
+                    <el-tooltip
                     style="cursor:pointer"
                     effect="dark"
                     content="You'll see the content once you purchase the NFT."
                     placement="top"
                 >
-                    <div class="unlock" @click="ucVisible = isOwner"><i class="el-icon-lock"></i>&nbsp;&nbsp;Contains Unlockable Content</div>
-                </el-tooltip>
-                <el-dialog title="Unlockable Content" :visible.sync="ucVisible" width="60%" :before-close="(d) => d()">
-                <label>Image</label>
-                <div v-if="!card.unlockable_content.image.length">No Unlockable Image</div>
-                <img style="display:flex;margin-left:auto;margin-right:auto;justify-content:space-around;max-height:50vh;" :src="card.unlockable_content.image">
-                <label class="mt-4">Text</label>
-                <div v-if="!card.unlockable_content.text.length">No Unlockable Text</div>
-                <p>{{ card.unlockable_content.text }}</p>
-                <span slot="footer" class="dialog-footer">
-                    <el-button @click="ucVisible = false">Close</el-button>
-                </span>
-            </el-dialog>
+                        <div class="unlock" @click="ucVisible = isOwner" style="width: 100%"><i class="el-icon-lock"></i>&nbsp;&nbsp;Contains Unlockable Content</div>
+                    </el-tooltip>
+                    <el-dialog title="Unlockable Content" :visible.sync="ucVisible" width="60%" :before-close="(d) => d()">
+                        <label>Image</label>
+                        <div v-if="!card.unlockable_content.image.length">No Unlockable Image</div>
+                        <img style="display:flex;margin-left:auto;margin-right:auto;justify-content:space-around;max-height:50vh;" :src="card.unlockable_content.image">
+                        <label class="mt-4">Text</label>
+                        <div v-if="!card.unlockable_content.text.length">No Unlockable Text</div>
+                        <p>{{ card.unlockable_content.text }}</p>
+                        <span slot="footer" class="dialog-footer">
+                            <el-button @click="ucVisible = false">Close</el-button>
+                        </span>
+                    </el-dialog>
+                </div>
                 <b-card class="transaction-info" header-tag="header" footer-tag="footer" v-if="card.status == 'sale'">
                     <template #header>
                         <h6 class="mb-0"><b-icon icon="clock"></b-icon>&nbsp;For Sale Now</h6>
