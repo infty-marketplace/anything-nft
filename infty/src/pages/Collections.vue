@@ -168,4 +168,8 @@ export default {
 #collections-page .el-tabs__item.is-top {
     font-size: 28px;
 }
+
+#collections-page {
+    background-color: #f8f8f9;
+}
 </style>
