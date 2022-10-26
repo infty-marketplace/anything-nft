@@ -11,15 +11,41 @@ const cfxUtils = require("../utils/cfxUtils");
 const getMarket = async (req, res) => {
     const body = req.body;
 
+    // build find query
+    let findQuery = {"status": NFT_STATUS.SALE} //only display sale status
+
+    switch (body.filtermode) {
+      case "filter":
+        if (body.selectedCategory.length!==0) {
+          findQuery["labels"] = {};
+          findQuery["labels"]["$in"] = body.selectedCategory;
+        }
+        // if filter on search, keep search result
+        if (body.text != "") {
+            findQuery["title"] = new RegExp(body.text);
+        }
+        // apply price filter according to user selection
+        if (body.price_from && body.price_to) {
+            findQuery["price"] = {$gte: Number(body.price_from), $lte: Number(body.price_to)};
+        } else if(body.price_from) {
+            findQuery["price"] = {$gte: Number(body.price_from)};
+        } else if(body.price_to) {
+            findQuery["price"] = {$lte: Number(body.price_to)};
+        }
+        break;
+      case "searchText":
+        findQuery = { "status": NFT_STATUS.SALE, "title": { $regex: new RegExp(body.text) }};
+        break;
+    }
+
     if (!body) {
         return res.status(400).json({ error: "invalid request" });
     }
-
     const limit = body.limit || 10;
     const offset = body.offset || 0;
 
-    const nftQuery = Nft.find({ status: NFT_STATUS.SALE }, { nft_id: 1 })
-        .sort({ nft_id: "desc" })
+    const nftQuery = Nft.find(findQuery, { nft_id: 1 })
+        .sort({ "createdAt": -1, "nft_id": -1 })
         .skip(offset)
         .limit(limit);
 

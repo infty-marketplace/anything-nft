@@ -5,80 +5,66 @@
             <div id="sidebar" style="width: 25%" class="mr-2 ml-2 mb-4">
                 <b-card no-body class="filter-card">
                     <template #header>
-                        <h4 class="mb-0"><b-icon icon="filter-circle"></b-icon>&nbsp;{{ $t("filter") }}</h4>
+                        <h4 class="m-0" style="width: 50%; float:left"><b-icon icon="filter-circle"></b-icon>&nbsp;{{ $t('filter') }}</h4>
+                        <div id="clearAll" @click="reset" style="display:none; float:right; cursor: pointer; margin-top: 5px;">
+                            <a style="text:center"><u>clear filter</u></a>
+                        </div>
                     </template>
                     <b-list-group flush>
                         <b-list-group-item>
-                            <b-button pill v-b-toggle.collapse-1 variant="outline-secondary" class="category-button">{{
-                                $t("filterOption.status")
-                            }}</b-button>
-                            <b-collapse id="collapse-1" class="mt-2">
-                                <b-card>
-                                    <b-form-checkbox @change="filterNotMine">Not Mine</b-form-checkbox>
-                                </b-card>
-                            </b-collapse>
-                        </b-list-group-item>
-                        <b-list-group-item>
-                            <b-button pill v-b-toggle.collapse-2 variant="outline-secondary" class="category-button">{{
-                                $t("filterOption.price")
-                            }}</b-button>
+                            <b-button pill v-b-toggle.collapse-2 variant="outline-secondary" class="category-button"
+                                >{{ $t("filterOption.price") }}</b-button
+                            >
                             <b-collapse id="collapse-2" class="mt-2">
                                 <b-card>
                                     <!-- <b-form-select
                     v-model="priceTypeSelected"
                     :options="priceTypeOptions"
                   ></b-form-select> -->
-                                    <b-form-input v-model="text" placeholder="Min" class="price-range"></b-form-input>
+                                    <b-form-input type="number" v-model="price_from" placeholder="Min" class="price-range"></b-form-input>
                                     <span>to</span>
-                                    <b-form-input v-model="text" placeholder="Max" class="price-range"></b-form-input>
-                                    <b-button id="price-apply-btn" variant="outline-primary">Apply</b-button>
+                                    <b-form-input type="number" v-model="price_to" placeholder="Max" class="price-range"></b-form-input>
                                 </b-card>
                             </b-collapse>
                         </b-list-group-item>
-                        <b-list-group-item>
-                            <b-button pill v-b-toggle.collapse-3 variant="outline-secondary" class="category-button">{{
-                                $t("collections")
-                            }}</b-button>
+                        <!--<b-list-group-item>
+                            <b-button pill v-b-toggle.collapse-3 variant="outline-secondary" class="category-button"
+                                >{{ $t("collections") }}</b-button
+                            >
                             <b-collapse id="collapse-3" class="mt-2">
-                                <b-card>
-                                    <b-input-group size="sm" class="mb-2">
-                                        <b-input-group-prepend is-text>
-                                            <b-icon icon="search"></b-icon> </b-input-group-prepend
-                                        ><b-form-input placeholder="Filter"></b-form-input>
-                                    </b-input-group>
-
-                                    <b-list-group id="collections-group">
-                                        <b-list-group-item>Bored Ape Yacht Club</b-list-group-item>
-                                        <b-list-group-item>CrptoPunks</b-list-group-item>
-                                        <b-list-group-item>Art Blocks Curated</b-list-group-item>
-                                        <b-list-group-item>Bored Ape Kennel Club</b-list-group-item>
-                                        <b-list-group-item>SupDucks</b-list-group-item>
-                                        <b-list-group-item>Cool Cat</b-list-group-item>
-                                        <b-list-group-item>ZED RUN</b-list-group-item>
-                                        <b-list-group-item>Famelady</b-list-group-item>
-                                    </b-list-group>
-                                </b-card>
+                                <b-form-group>
+                                    <b-form-checkbox-group id="collection-selection" v-model="filter.selectedCollection">
+                                        <b-list-group-item v-for="(item, index) in collections" :key="'col'+index">
+                                            <b-form-checkbox :value="item">
+                                            {{ collections[index] }}
+                                            </b-form-checkbox>
+                                        </b-list-group-item>
+                                    </b-form-checkbox-group>
+                                </b-form-group>
+                                
                             </b-collapse>
-                        </b-list-group-item>
+                        </b-list-group-item>-->
 
                         <b-list-group-item>
                             <b-button pill v-b-toggle.collapse-5 variant="outline-secondary" class="category-button">{{
                                 $t("categories")
                             }}</b-button>
                             <b-collapse id="collapse-5" class="mt-2">
-                                <b-card>
-                                    <b-list-group>
-                                        <b-list-group-item>Art</b-list-group-item>
-                                        <b-list-group-item>Music</b-list-group-item>
-                                        <b-list-group-item>Domain Names</b-list-group-item>
-                                        <b-list-group-item>Virtual Worlds</b-list-group-item>
-                                        <b-list-group-item>Trading Cards</b-list-group-item>
-                                        <b-list-group-item>Collectibles</b-list-group-item>
-                                    </b-list-group>
-                                </b-card>
+                                <b-form-group>
+                                    <b-form-checkbox-group id="category-selection" v-model="selectedCategory">
+                                        <b-list-group-item v-for="(item, index) in categories" :key="'cat'+index">
+                                            <b-form-checkbox :value="item">
+                                            {{ categories[index] }}
+                                            </b-form-checkbox>
+                                        </b-list-group-item>
+                                    </b-form-checkbox-group>
+                                </b-form-group>
                             </b-collapse>
                         </b-list-group-item>
                     </b-list-group>
+                <div>
+                  <b-button id="price-apply-btn" variant="outline-primary" @click="applyFilter">Apply</b-button>
+                </div>
                 </b-card>
             </div>
 
@@ -88,14 +74,15 @@
                         <b-input-group size="md" class="mb-2">
                             <b-form-input
                                 type="search"
-                                v-bind:value="$t('searchBar.search')"
-                                @keyup.enter="$store.dispatch('notifyWIP')"
+                                v-model="searchText"
+                                @keyup.enter="instantSearch"
+                                placeholder="Search..."
                             ></b-form-input>
                             <b-input-group-prepend is-text>
                                 <b-icon
                                     icon="search"
                                     style="cursor:pointer"
-                                    @click="$store.dispatch('notifyWIP')"
+                                    @click="instantSearch"
                                 ></b-icon>
                             </b-input-group-prepend>
                         </b-input-group>
@@ -114,7 +101,7 @@
                                 <NftCard v-for="card in nftCards" :card="card" :key="card.url" class="mr-5 mb-4" />
                             </div>
                             <p
-                                v-if="noMoreNft && nftCards.length != 0"
+                                v-if="noMoreNft"
                                 style="border-bottom: 1px solid grey; line-height: 0.1rem;text-align:center"
                             >
                                 <span style="padding: 0px 20px;background-color:white;color:grey;">{{ $t("endOfMarket") }}</span>
@@ -141,6 +128,8 @@ import Navbar from "../components/Navbar.vue";
 import Footer from "../components/Footer.vue";
 import NftCard from "../components/NftCard.vue";
 import axios from "axios";
+import constant from "../constants/index.js";
+
 
 export default {
     name: "Marketplace",
@@ -176,7 +165,13 @@ export default {
             loadingNft: false,
             noMoreNft: false,
             user: undefined,
-            filter: { notMine: false },
+            filter: {   notMine: false, },
+            categories: constant.LABELS,
+            price_from: '',
+            price_to: '',
+            filtermode: null,
+            selectedCategory: [],
+            searchText: ""
         };
     },
 
@@ -237,6 +232,11 @@ export default {
                 const body = {
                     offset: this.offsetNft,
                     limit: this.limit,
+                    selectedCategory: this.selectedCategory,
+                    price_from: this.price_from,
+                    price_to: this.price_to,
+                    filtermode: this.filtermode,
+                    text: this.searchText,
                 };
                 axios.post(this.$store.getters.getApiUrl + "/market", body).then(async (res) => {
                     const nft_ids = res.data.nft_ids;
@@ -248,12 +248,55 @@ export default {
             }, 200);
         },
 
+        instantSearch() {
+            this.price_from = "";
+            this.price_to = "";
+            this.selectedCategory = [],
+            this.filtermode = "searchText";
+            this.offsetNft = 0;
+            this.nftCards = [];
+            this.noMoreNft = false;
+            document.getElementById('clearAll').style.display = 'block';
+            this.loadNftMarket();
+        },
+
         filterNotMine(checked) {
             this.filter.notMine = checked;
             this.offsetNft = 0;
             this.nftCards = [];
             this.loadNftMarket();
         },
+
+        applyFilter() {
+            // if the user doesn't select any filter category or price range, do not reload the market page
+            if (!this.selectedCategory.length && !this.price_to && !this.price_from){
+                return
+            }
+
+            // otherwise, reload the market page
+            this.filtermode = "filter";
+            this.offsetNft = 0;
+            this.nftCards = [];
+            this.noMoreNft = false;
+            document.getElementById('clearAll').style.display = 'block';
+            this.loadNftMarket();
+        },
+
+        reset() {
+            this.offsetNft = 0;
+            this.nftCards = [];
+            this.noMoreNft = false;
+            this.price_from = "";
+            this.price_to = "";
+            this.selectedCategory = [],
+            this.filtermode = null;
+            this.searchText = "";
+            document.getElementsByClassName("price-range");
+            document.getElementById('clearAll').style.display = 'none';
+            this.loadNftMarket();
+        },
+
+        
     },
 };
 </script>
@@ -282,6 +325,7 @@ export default {
 }
 #price-apply-btn {
     margin-top: 1em;
+    margin-bottom: 1em;
     width: 40%;
     margin-right: 30%;
     margin-left: 30%;
