@@ -23,7 +23,12 @@ const authUser = async (req, res) => {
         body.sig,
         body.msg,
         )
-    // TODO: verify msg number after Infty: is within 60 seconds of current time 
+    
+    const timestamp = body.msg.substring(body.msg.search(/[0-9]/));
+    if (timestamp > Date.now()){
+        return res.status(425).json({ error: "possible replay attack"});
+    }
+
     const testnet = format.address(sign.publicKeyToAddress(publicKey), 1)
     const mainnet = format.address(sign.publicKeyToAddress(publicKey), 1029)
     if (body.address != testnet && body.address != mainnet) {
