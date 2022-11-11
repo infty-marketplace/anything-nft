@@ -15,15 +15,13 @@ function logout(req, res, success, error) {
 
 const authUser = async (req, res) => {
     const body = req.body
-    console.log(body.sig)
-    console.log(body.msg)
 
     try{
         toHex(body.sig)
     } catch(e){
         return res.status(401).json({ error: "invalid request" });
     }
-    
+
     if (!body.sig || !body.msg) {
         return res.status(400).json({ error: "invalid request" });
     }
