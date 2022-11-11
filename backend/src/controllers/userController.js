@@ -14,16 +14,27 @@ function logout(req, res, success, error) {
 }
 
 const authUser = async (req, res) => {
-    const body = req.body;
+    const body = req.body
+    console.log(body.sig)
+    console.log(body.msg)
 
-    if (!body) {
+    try{
+        toHex(body.sig)
+    } catch(e){
+        return res.status(401).json({ error: "invalid request" });
+    }
+    
+    if (!body.sig || !body.msg) {
         return res.status(400).json({ error: "invalid request" });
     }
     const publicKey = PersonalMessage.recover(
         body.sig,
         body.msg,
-        )
-    
+    )
+
+    if(!re.match(body.sig)) {
+        alert('valid hex');
+    } 
     const timestamp = body.msg.substring(body.msg.search(/[0-9]/));
     if (timestamp > Date.now()){
         return res.status(425).json({ error: "possible replay attack"});
