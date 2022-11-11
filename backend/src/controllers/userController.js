@@ -14,7 +14,7 @@ function logout(req, res, success, error) {
 }
 
 const authUser = async (req, res) => {
-    const body = req.body
+    const body = req.body;
 
     try{
         toHex(body.sig)
@@ -30,9 +30,6 @@ const authUser = async (req, res) => {
         body.msg,
     )
 
-    if(!re.match(body.sig)) {
-        alert('valid hex');
-    } 
     const timestamp = body.msg.substring(body.msg.search(/[0-9]/));
     if (timestamp > Date.now()){
         return res.status(425).json({ error: "possible replay attack"});
