@@ -377,7 +377,7 @@ export default {
 .loading {
     text-align: center;
     position: fixed;
-    color: #fff;
+    color: #f8f8f9;
     z-index: 9;
     background: rgb(0, 0, 0);
     padding: 8px 18px;
