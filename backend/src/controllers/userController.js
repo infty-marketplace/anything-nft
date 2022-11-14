@@ -16,14 +16,26 @@ function logout(req, res, success, error) {
 const authUser = async (req, res) => {
     const body = req.body;
 
-    if (!body) {
+    if (!body.sig || !body.msg) {
         return res.status(400).json({ error: "invalid request" });
     }
-    const publicKey = PersonalMessage.recover(
-        body.sig,
-        body.msg,
+
+    let publicKey; 
+    try{
+        publicKey = PersonalMessage.recover(
+            body.sig,
+            body.msg,
         )
-    // TODO: verify msg number after Infty: is within 60 seconds of current time 
+    } catch(e){
+        return res.status(401).json({ error: "invalid request" });
+    }
+
+    const timestamp = parseInt(body.msg.substring(body.msg.search(/[0-9]/)));
+
+    if (Date.now() - timestamp > 60000){
+        return res.status(425).json({ error: "possible replay attack"});
+    }
+
     const testnet = format.address(sign.publicKeyToAddress(publicKey), 1)
     const mainnet = format.address(sign.publicKeyToAddress(publicKey), 1029)
     if (body.address != testnet && body.address != mainnet) {
