@@ -16,22 +16,23 @@ function logout(req, res, success, error) {
 const authUser = async (req, res) => {
     const body = req.body;
 
+    if (!body.sig || !body.msg) {
+        return res.status(400).json({ error: "invalid request" });
+    }
+
+    let publicKey; 
     try{
-        toHex(body.sig)
+        publicKey = PersonalMessage.recover(
+            body.sig,
+            body.msg,
+        )
     } catch(e){
         return res.status(401).json({ error: "invalid request" });
     }
 
-    if (!body.sig || !body.msg) {
-        return res.status(400).json({ error: "invalid request" });
-    }
-    const publicKey = PersonalMessage.recover(
-        body.sig,
-        body.msg,
-    )
+    const timestamp = parseInt(body.msg.substring(body.msg.search(/[0-9]/)));
 
-    const timestamp = body.msg.substring(body.msg.search(/[0-9]/));
-    if (timestamp > Date.now()){
+    if (Date.now() - timestamp > 60000){
         return res.status(425).json({ error: "possible replay attack"});
     }
 
