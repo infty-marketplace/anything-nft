@@ -13,25 +13,15 @@
                         {{ (card && card.description) || "No description." }}
                     </p>
                 </b-card-text>
-                <b-list-group flush>
-                    <b-list-group-item>
-                        <b-button v-b-toggle.collapse-1 variant="outline-secondary" class="category-button"
-                            ><b-icon icon="file-earmark-richtext"></b-icon>About</b-button
+                <span
+                            class="badge badge-pill badge-info"
+                            style="display:inline-block;margin-right:5px;"
+                            v-for="(item, index) in card.labels"
+                            :key="index"
                         >
-                        <b-collapse id="collapse-1" class="mt-2">
-                            <p>
-                                This is supposed to be the description of the album
-                            </p>
-                            <span
-                                class="badge badge-pill badge-info"
-                                style="display:inline-block;margin-right:5px;"
-                                v-for="(item, index) in card.labels"
-                                :key="index"
-                            >
-                                {{ item }}
-                            </span>
-                        </b-collapse>
-                    </b-list-group-item>
+                            {{ item }}
+                </span>
+                <b-list-group flush>
                     <b-list-group-item>
                         <b-button v-b-toggle.collapse-2 variant="outline-secondary" class="category-button"
                             ><b-icon icon="file-earmark-text"></b-icon>Details</b-button
@@ -451,6 +441,7 @@ export default {
     }
 }
 .category-button {
+    margin-top: 2rem;
     width: 100%;
 }
 .heart {
