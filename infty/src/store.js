@@ -31,6 +31,7 @@ const store = new Vuex.Store({
             }
             try {
                 if (!this.state.address) {
+                    eventBus.$emit("Navbar.connectWalletLoading");
                     await window.conflux.request({method:"cfx_requestAccounts"}); // connect wallet
                     const accounts = await window.conflux.request({method:"cfx_accounts"}); // get accounts
                     console.log(accounts)

@@ -564,6 +564,7 @@ export default {
             this.$refs["reg-modal"].show();
         });
         eventBus.$on("Navbar.connectWalletSuccess", async () => {
+            Notification.closeAll();
             // this.$notify({
             //     title: "Wallet Connected",
             //     message: "We have connected to your wallet",
@@ -576,6 +577,9 @@ export default {
                 message: "Failed to connect to your wallet, please try again",
                 duration: 3000,
             });
+        });
+        eventBus.$on("Navbar.connectWalletLoading", () => {
+            this.$store.dispatch("notifyLoading", { msg: "Connecting your wallet!" });
         });
     },
 };
