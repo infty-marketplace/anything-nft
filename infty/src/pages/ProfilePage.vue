@@ -10,8 +10,8 @@
                 <label>(Optioal) Leave a message to the creator</label>
                 <b-form-input class="mb-4" v-model="supportMessage" placeholder="" />
             </b-modal>
-            <el-button type="primary" @click="$store.dispatch('notifyWIP')">关注</el-button>
-            <el-button type="primary" @click="$store.dispatch('notifyWIP')">站内信</el-button>
+            <!-- <el-button type="primary" @click="$store.dispatch('notifyWIP')">关注</el-button>
+            <el-button type="primary" @click="$store.dispatch('notifyWIP')">站内信</el-button> -->
         </div>
         <div class="profile-pic-container" v-if="$store.getters.getLogInStatus">
             <img :src="avatar" id="profile-pic" />
@@ -34,7 +34,7 @@
                                 <span>Listing</span>
                             </template>
                             <el-menu-item index="1-1">NFT</el-menu-item>
-                            <el-menu-item index="1-2">Raffle</el-menu-item>
+                            <!-- <el-menu-item index="1-2">Raffle</el-menu-item> -->
                         </el-submenu>
                         <el-menu-item index="2" v-if="this.isMyself">
                             <i class="el-icon-notebook-2"></i>
@@ -56,10 +56,10 @@
                             <i class="el-icon-setting"></i>
                             <span slot="title">My Account</span>
                         </el-menu-item>
-                        <el-menu-item index="5" v-if="!this.isMyself" id="bang">
+                        <!-- <el-menu-item index="5" v-if="!this.isMyself" id="bang">
                             <i class="el-icon-coin"></i>
                             <span slot="title">粉丝打榜</span>
-                        </el-menu-item>
+                        </el-menu-item> -->
                     </el-menu>
                 </el-col>
                 <el-col :span="19">
