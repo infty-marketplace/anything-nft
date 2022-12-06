@@ -2,14 +2,14 @@
     <div class="flex-wrapper main">
         <Navbar activeIndex="2" />
         <div class="content mt-5 mb-5" v-if="$store.getters.getLogInStatus">
-            <h2>{{ $t("createNft.createNft") }}</h2>
-            <label class="mt-4">{{ $t("createNft.title") }}</label>
+            <h2>{{ $t('createNft.createNft') }}</h2>
+            <label class="mt-4">{{ $t('createNft.title') }}</label>
             <b-form-input v-model="title" type="search" v-bind:placeholder="$t('createNft.name')" />
-            <label class="mt-5">{{ $t("createNft.image") }}</label>
+            <label class="mt-5">{{ $t('createNft.image') }}</label>
             <div style="display:flex;min-width:100%;justify-content:space-around;">
                 <FileUploader class="file-uploader" pass-file-to-event="CreatePage.receiveFile" />
             </div>
-            <label class="mt-5">{{ $t("createNft.description") }}</label>
+            <label class="mt-5">{{ $t('createNft.description') }}</label>
             <div class="form-group">
                 <b-form-textarea
                     id="description"
@@ -19,7 +19,7 @@
                 />
                 <b-icon v-if="description" font-scale="1.5" class="icon" icon="x" @click="clearTextArea"></b-icon>
             </div>
-            <label class="mt-5">{{ $t("createNft.labels") }}</label>
+            <label class="mt-5">{{ $t('createNft.labels') }}</label>
             <div style="width:100%">
                 <div style="display:inline-block" v-for="(item, index) in labels" :key="index">
                     <button
@@ -34,13 +34,19 @@
             <div class="mt-5">
                 <b-badge pill variant="info" class="ml-2">Decentralized Image Storage on IPFS</b-badge>
                 <b-button variant="primary" class="create-btn" @click="createNft">{{
-                    $t("createNft.create")
+                    $t('createNft.create')
                 }}</b-button>
                 <b-button variant="outline-primary" class="create-btn mr-2" @click="ucVisible = true">{{
-                    $t("createNft.unlockableContent")
+                    $t('createNft.unlockableContent')
                 }}</b-button>
             </div>
-            <el-dialog title="Unlockable Content" :visible.sync="ucVisible" width="60%" :before-close="(d) => d()" ref="Dialog">
+            <el-dialog
+                title="Unlockable Content"
+                :visible.sync="ucVisible"
+                width="60%"
+                :before-close="(d) => d()"
+                ref="Dialog"
+            >
                 <label>Image</label>
                 <div style="display:flex;min-width:100%;justify-content:space-around;">
                     <FileUploader
@@ -77,17 +83,17 @@
 </template>
 
 <script>
-import { eventBus } from "../main";
-import axios from "axios";
-import { Notification } from "element-ui";
+import { eventBus } from '../main';
+import axios from 'axios';
+import { Notification } from 'element-ui';
 
-import Navbar from "../components/Navbar.vue";
-import Footer from "../components/Footer.vue";
-import FileUploader from "../components/FileUploader.vue";
-import ConnectWallet from "../components/ConnectWallet.vue";
-import constant from "../constants/index.js";
+import Navbar from '../components/Navbar.vue';
+import Footer from '../components/Footer.vue';
+import FileUploader from '../components/FileUploader.vue';
+import ConnectWallet from '../components/ConnectWallet.vue';
+import constant from '../constants/index.js';
 export default {
-    name: "CreatePage",
+    name: 'CreatePage',
     components: {
         Navbar,
         Footer,
@@ -95,9 +101,9 @@ export default {
         ConnectWallet,
     },
     data: () => ({
-        title: "",
-        description: "",
-        ucDescription: "",
+        title: '',
+        description: '',
+        ucDescription: '',
         imageData: undefined,
         ucVisible: false,
         ucImageData: undefined,
@@ -112,11 +118,11 @@ export default {
 
     methods: {
         async createNft() {
-            if (!this.imageData || !this.title || this.title.replace(/\s+/g, "").length === 0) {
+            if (!this.imageData || !this.title || this.title.replace(/\s+/g, '').length === 0) {
                 Notification.closeAll();
                 this.$notify.error({
-                    title: "Missing Required Information",
-                    message: "Please fill in all fields marked *",
+                    title: 'Missing Required Information',
+                    message: 'Please fill in all fields marked *',
                     duration: 3000,
                 });
                 return;
@@ -126,15 +132,15 @@ export default {
             if (this.imageData.size > 100 * 1024 * 1024) {
                 Notification.closeAll();
                 this.$notify.error({
-                    title: "File Too Large",
-                    message: "Please ensure the file size is no larger than 100 MB",
+                    title: 'File Too Large',
+                    message: 'Please ensure the file size is no larger than 100 MB',
                     duration: 3000,
                 });
                 return;
             }
 
             this.$notify({
-                title: "Pending",
+                title: 'Pending',
                 dangerouslyUseHTMLString: true,
                 message:
                     '<div style="display:flex; align-items: center;"> <div class="loader"></div><div style="display:inline">NFT minting in progress</div></div>',
@@ -142,25 +148,26 @@ export default {
             });
 
             const fd = new FormData();
-            fd.append("file", this.imageData);
-            fd.append("address", this.$store.getters.getAddress);
-            fd.append("title", this.title);
-            fd.append("description", this.description);
+            fd.append('file', this.imageData);
+            fd.append('address', this.$store.getters.getAddress);
+            fd.append('title', this.title);
+            fd.append('description', this.description);
             const selectedLabels = this.labels.filter((l, i) => this.labelState[i] == true);
-            fd.append("labels", JSON.stringify(selectedLabels));
-            fd.append("unlockable_image", this.ucImageStr? this.ucImageStr: "");
-            fd.append("unlockable_text", this.ucDescription? this.ucDescription: "");
+            fd.append('labels', JSON.stringify(selectedLabels));
+            fd.append('unlockable_image', this.ucImageStr ? this.ucImageStr : '');
+            fd.append('unlockable_text', this.ucDescription ? this.ucDescription : '');
 
             // Obtain estimation
-            const estimation = (await axios.post(this.$store.getters.getApiUrl + "/mint-estimate")).data.gas;
+            const estimation = (await axios.post(this.$store.getters.getApiUrl + '/mint-estimate')).data.gas;
             // Charge User
             const getters = this.$store.getters;
-            this.$store.dispatch("notifyLoading", { msg: "Paying commission now" });
+            Notification.closeAll();
+            this.$store.dispatch('notifyLoading', { msg: 'Paying commission now' });
 
             let error = false; // flag is set to true when errors occur in transaction
             await this.$store.getters.getCfx
                 .sendTransaction({
-                    from: (await window.conflux.request({method:"cfx_requestAccounts"}))[0],
+                    from: (await window.conflux.request({ method: 'cfx_requestAccounts' }))[0],
                     to: getters.getManagerAddr,
                     gasPrice: getters.getGasPrice,
                     value: estimation,
@@ -168,10 +175,10 @@ export default {
                 .executed()
                 .catch((e) => {
                     Notification.closeAll();
-                    let title = "Transaction Failed";
-                    let message = "Transaction failed, please try again";
+                    let title = 'Transaction Failed';
+                    let message = 'Transaction failed, please try again';
                     if (e.code === 4001) {
-                        message = "User denied transaction signature";
+                        message = 'User denied transaction signature';
                     }
                     this.$notify.error({
                         title,
@@ -187,37 +194,37 @@ export default {
 
             // Create nft
             axios
-                .post(this.$store.getters.getApiUrl + "/create-nft", fd)
+                .post(this.$store.getters.getApiUrl + '/create-nft', fd)
                 .then((res) => {
                     if (res.status == 200) {
                         Notification.closeAll();
                         this.$notify({
-                            title: "Congrats",
-                            message: "NFT created successfully",
+                            title: 'Congrats',
+                            message: 'NFT created successfully',
                             duration: 3000,
-                            type: "success",
+                            type: 'success',
                         });
                     }
-                    eventBus.$emit("CreatePage.nftCreated");
-                    this.title = "";
-                    this.description = "";
+                    eventBus.$emit('CreatePage.nftCreated');
+                    this.title = '';
+                    this.description = '';
                     this.ucDescription = undefined;
                     this.ucImageData = undefined;
                 })
                 .catch((err) => {
                     Notification.closeAll();
-                    let title = "Error";
-                    let message = "NFT creation failed";
+                    let title = 'Error';
+                    let message = 'NFT creation failed';
 
                     if (err.response.status == 409) {
-                        title = "Conflicting Title";
-                        message = "Please try another title for your NFT";
+                        title = 'Conflicting Title';
+                        message = 'Please try another title for your NFT';
                     } else if (err.response.status == 429) {
-                        title = "Daily Creation Limit Reached";
+                        title = 'Daily Creation Limit Reached';
                         message = "If you'd like to create more NFTs, please contact us at contacts@infty.market";
                     } else if (err.response.status == 413) {
-                        title = "File Too Large";
-                        message = "Please ensure the file size is no larger than 100 MB";
+                        title = 'File Too Large';
+                        message = 'Please ensure the file size is no larger than 100 MB';
                     }
                     this.$notify.error({
                         title: title,
@@ -228,7 +235,7 @@ export default {
         },
 
         clearTextArea() {
-            this.description = "";
+            this.description = '';
         },
 
         clicked(index) {
@@ -239,36 +246,37 @@ export default {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
-                reader.onload = () => resolve(this.ucImageStr = reader.result);
-                reader.onerror = error => reject(error);
+                reader.onload = () => resolve((this.ucImageStr = reader.result));
+                reader.onerror = (error) => reject(error);
             });
         },
 
         async convertImage() {
-            if (this.ucImageData){
+            if (this.ucImageData) {
                 await this.toBase64(this.ucImageData).catch((error) => {
                     this.$notify.error({
-                    title: "Error occurs when converting the input image file",
-                    message: error,
-                    duration: 3000,
-                });})
+                        title: 'Error occurs when converting the input image file',
+                        message: error,
+                        duration: 3000,
+                    });
+                });
             } else {
                 // since no image is uploaded, base64 representation of the image is set to undefined
                 this.ucImageStr = undefined;
             }
             this.$refs.Dialog.hide();
-        }
+        },
     },
     async mounted() {
-        eventBus.$on("CreatePage.receiveFile", (imageData) => {
+        eventBus.$on('CreatePage.receiveFile', (imageData) => {
             this.imageData = imageData;
         });
-        eventBus.$on("CreatePage.receiveUCFile", (imageData) => {
+        eventBus.$on('CreatePage.receiveUCFile', (imageData) => {
             this.ucImageData = imageData;
         });
     },
     beforeDestroy() {
-        eventBus.$off("CreatePage.receiveFile");
+        eventBus.$off('CreatePage.receiveFile');
     },
 };
 </script>

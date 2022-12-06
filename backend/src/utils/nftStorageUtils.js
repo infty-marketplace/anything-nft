@@ -1,15 +1,15 @@
-const fs = require("fs");
-const mime = require("mime");
-const path = require("path");
-const axios = require("axios");
-const { NFTStorage, File } = require("nft.storage");
+const fs = require('fs');
+const mime = require('mime');
+const path = require('path');
+const axios = require('axios');
+const { NFTStorage, File } = require('nft.storage');
 
 function ipfsToHttps(url) {
-    return url.replace("ipfs://", "https://ipfs.io/ipfs/");
+    return url.replace('ipfs://', 'https://ipfs.io/ipfs/');
 }
 
 function urlToCid(url) {
-    const regex = new RegExp("https://ipfs.io/ipfs/([a-z0-9]+)/", "g");
+    const regex = new RegExp('https://ipfs.io/ipfs/([a-z0-9]+)/', 'g');
     const matches = regex.exec(url);
     return matches[1];
 }
@@ -29,13 +29,18 @@ async function burn(url) {
     const nftstorage = new NFTStorage({ token: process.env.NFT_STORAGE_KEY });
     await nftstorage.delete(urlToCid(url)).catch((e) => {
         // if it does not exist, we can ignore the error and move on
-        if (e.message === "NFT not found") return;
+        if (e.message === 'NFT not found') return;
         throw e;
     });
 }
 
 async function getImageUrl(metadataUrl) {
-    const res = await axios.get(metadataUrl);
-    return ipfsToHttps(res.data.image);
+    for (let i = 0; i < 10; i++) {
+        const res = await axios.get(metadataUrl);
+        if (res && res.data.image) {
+            return ipfsToHttps(res.data.image);
+        }
+    }
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 }
 module.exports = { upload, getImageUrl, burn };
