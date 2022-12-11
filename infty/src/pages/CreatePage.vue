@@ -175,17 +175,16 @@ export default {
             if (error) {
                 return; // Stop to create nft if the transaction failed
             }
-            await axios.post(this.$store.getters.getApiUrl + "/send-receipt", {receipt, estimation})
-            .catch( e => {
-                console.log("error in sending receipt" + e)
-                Notification.closeAll();
-                this.$notify.error({
+            const receiptSent = await axios.post(this.$store.getters.getApiUrl + "/send-receipt", {receipt, estimation})
+            console.log(receiptSent)
+            if (receiptSent.status == 400){
+                 Notification.closeAll();
+                 this.$notify.error({
                         title: "Fail to send commision receipt to the backend",
-                        message: e,
+                        message: receiptSent.data.error,
                         duration: 3000,
                     });
-                return;
-            })
+            }
             console.log("finish sending receipt")
             // Create nft
             const fd = new FormData();
