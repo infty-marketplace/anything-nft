@@ -184,6 +184,7 @@ export default {
                         message: e,
                         duration: 3000,
                     });
+                return;
             })
             console.log("finish sending receipt")
             // Create nft
