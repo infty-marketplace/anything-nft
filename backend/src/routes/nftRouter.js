@@ -27,5 +27,6 @@ router.post("/update-views/:nft_id", nftController.updateViews);
 router.post("/like-nft", nftController.likeNft);
 router.post("/unlike-nft", nftController.unlikeNft);
 router.post("/validate-nft", nftController.validateNftOwnership);
+router.post("/send-receipt", nftController.sendReceipt);
 
 module.exports = router;

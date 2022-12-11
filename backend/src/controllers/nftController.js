@@ -91,7 +91,22 @@ const unlikeNft = async (req, res) => {
 };
 
 async function createNft(req, res) {
+    // check the databse to see if the user paid the commision for this creation of nft
     const address = req.body.address;
+    const mint_estimation = req.body.estimation;
+
+    const updateRes = await User.findOneAndUpdate(
+        { address }, 
+        { $pull: { paid_commisions: mint_estimation } },
+        { rawResult: true, new: true } );
+    console.log(updateRes);
+    
+    // lastErrorObject.updatedExisting is `true` if MongoDB updated an existing object.
+    // https://mongoosejs.com/docs/tutorials/findoneandupdate.html
+    if (!updateRes.lastErrorObject.updatedExisting){
+        return res.status(400).json({error: "user didn't pay commission before creating this nft"});
+    }
+
     const titleExists = await Nft.exists({ title: req.body.title });
     if (titleExists) {
         return res.status(409).send();
@@ -354,6 +369,21 @@ async function purchaseNft(req, res) {
     res.status(200).send();
 }
 
+async function sendReceipt(req, res){
+    const body = req.body;
+    try {
+        const result = await User.findOneAndUpdate(
+            { address: body.receipt.from },
+            { $push: {paid_commisions: body.estimation} },
+            { new: true } )
+        console.log("receipt")
+        console.log(result)
+    } catch (error) {
+        return res.status(400).json({error: error.message });
+    }
+    return res.status(200).send();
+}
+
 module.exports = {
     getMarket,
     getNft,
@@ -367,4 +397,5 @@ module.exports = {
     likeNft,
     unlikeNft,
     validateNftOwnership,
+    sendReceipt,
 };
