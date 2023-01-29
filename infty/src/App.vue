@@ -52,7 +52,7 @@ export default {
             this.$notify.info({
                 title: "Wallet not Detected",
                 dangerouslyUseHTMLString: true,
-                message: `<a href="https://portal.confluxnetwork.org/" target="_blank">Please install it here</a>`,
+                message: `<a href="https://fluentwallet.com/" target="_blank">Please install it here</a>`,
                 duration: 0,
             });
         });
