@@ -557,6 +557,14 @@ export default {
         eventBus.$on("Navbar.noProfile", () => {
             this.$refs["reg-modal"].show();
         });
+        eventBus.$on("Navbar.noWallet", () => {
+            this.$notify.info({
+                title: "Wallet not Detected",
+                dangerouslyUseHTMLString: true,
+                message: `<a href="https://fluentwallet.com/" target="_blank">Please install it here</a>`,
+                duration: 0,
+            });
+        });
     },
 };
 </script>
