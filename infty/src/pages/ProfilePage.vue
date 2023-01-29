@@ -281,7 +281,6 @@ import NftCard from "../components/NftCard.vue";
 import ConnectWallet from "../components/ConnectWallet.vue";
 import axios from "axios";
 import { Notification } from "element-ui";
-import { eventBus } from "../main";
 
 export default {
     name: "ProfilePage",
