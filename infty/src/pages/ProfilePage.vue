@@ -2,7 +2,7 @@
     <div class="flex-wrapper main">
         <Navbar />
         <button @click="$router.go(-1)" class="back-btn"><i class="el-icon-back" style="color:white" /></button>
-        <div class="actions" v-if="!this.isMyself">
+        <div class="actions" v-if="!this.isMyself && $store.getters.getLogInStatus">
             <el-button type="primary" @click="openSupportModal">打赏</el-button>
             <b-modal ref="support-modal" title="Support Creator" @ok="supportCreator">
                 <label>Please enter the amount in CFX</label>
@@ -281,6 +281,7 @@ import NftCard from "../components/NftCard.vue";
 import ConnectWallet from "../components/ConnectWallet.vue";
 import axios from "axios";
 import { Notification } from "element-ui";
+import { eventBus } from "../main";
 
 export default {
     name: "ProfilePage",
@@ -468,6 +469,10 @@ export default {
 
         logout() {
             this.$store.commit("setLogin", false);
+            this.$store.commit("setAddress", undefined);
+            window.sessionStorage.removeItem("infty-marketplace:isLoggedIn");
+            window.sessionStorage.removeItem("infty-marketplace:address");
+            window.sessionStorage.removeItem("infty-marketplace:profilePic");
         },
         padToTwoDigits(s) {
             s = s.toString();

@@ -13,10 +13,11 @@ export default {
     },
     computed: {
         message: function() {
-            if (!this.$store.getters.getAddress) {
-                return "Connect Wallet";
-            }
-            return "Register";
+            return "Connect Wallet";
+            // if (!this.$store.getters.getAddress) {
+            //     return "Connect Wallet";
+            // }
+            // return "Register";
         },
     },
 };
