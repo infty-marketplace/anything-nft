@@ -146,6 +146,7 @@ export default {
             // Charge User
             const getters = this.$store.getters;
             this.$store.dispatch("notifyLoading", { msg: "Paying commission now" });
+            
             let error = false; // flag is set to true when errors occur in transaction
             const receipt = 
                 await this.$store.getters.getCfx
