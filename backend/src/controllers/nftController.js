@@ -95,14 +95,16 @@ async function createNft(req, res) {
     const mintEstimation = req.body.estimation;
     const transactionHash = req.body.receipt;
     const hashExpireTime = 600;
-
-    const transaction = await cfxUtils.getTransaction(transactionHash);
+    try{
+        const transaction = await cfxUtils.getTransaction(transactionHash);
+    } catch(e){
+        res.status(400).json({error: "given transaction is not valid"});
+    }
+    if (transaction == null){
+        res.status(400).json({error: "given transaction is not valid"});
+    }
     const nftEpoch = await cfxUtils.getEpochNumebr(transaction.blockHash);
     const currentEpoch = await cfxUtils.getCurrentEpochNumber();
-
-    // try catch getTransaction
-    // check if transaction == null
-
 
     // check if the transaction is happend within 60 epochs of the last mined nft
     if (currentEpoch - nftEpoch >= hashExpireTime){
@@ -386,30 +388,6 @@ async function purchaseNft(req, res) {
     res.status(200).send();
 }
 
-async function sendReceipt(req, res){
-    const body = req.body;
-    console.log("hash sent");
-    console.log(body.receipt);
-    const transaction = await cfxUtils.getTransaction(body.receipt);
-    console.log("transaction");
-    console.log(transaction);
-    
-    if (transcation.to != process.env.MANAGER_ADDRESS){
-        return res.status(400).json({error: "the commission fee is not paid properly" }); 
-    }
-    try {
-        const result = await User.findOneAndUpdate(
-            { address: transaction.from },
-            { $push: {paid_commisions: body.estimation} },
-            { new: true } )
-        console.log("receipt")
-        console.log(body.receipt)
-    } catch (error) {
-        return res.status(400).json({error: error.message });
-    }
-    return res.status(200).send();
-}
-
 module.exports = {
     getMarket,
     getNft,
@@ -423,5 +401,4 @@ module.exports = {
     likeNft,
     unlikeNft,
     validateNftOwnership,
-    sendReceipt,
 };
