@@ -109,6 +109,19 @@ async function actualTokenId(ownerAddr, uri) {
     return -1;
 }
 
+async function getTransaction(hash){
+    return await cfx.getTransactionByHash(hash);
+}
+
+async function getEpochNumebr(hash){
+    const block = await cfx.getBlockByHash(hash)
+    return block.epochNumber;
+}
+
+async function getCurrentEpochNumber(){
+    return await cfx.getEpochNumber('latest_mined');
+}
+
 module.exports = {
     mint,
     burn,
@@ -121,4 +134,7 @@ module.exports = {
     getOwnerOnChain,
     drawRaffle,
     decodeRaffleLog,
+    getTransaction,
+    getEpochNumebr,
+    getCurrentEpochNumber,
 };

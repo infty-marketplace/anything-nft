@@ -91,21 +91,38 @@ const unlikeNft = async (req, res) => {
 };
 
 async function createNft(req, res) {
-    // check the databse to see if the user paid the commision for this creation of nft
     const address = req.body.address;
-    const mint_estimation = req.body.estimation;
+    const mintEstimation = req.body.estimation;
+    const transactionHash = req.body.receipt;
+    const hashExpireTime = 600;
 
-    const updateRes = await User.findOneAndUpdate(
-        { address }, 
-        { $pull: { paid_commisions: mint_estimation } },
-        { rawResult: true, new: true } );
-    console.log(updateRes);
-    
-    // lastErrorObject.updatedExisting is `true` if MongoDB updated an existing object.
-    // https://mongoosejs.com/docs/tutorials/findoneandupdate.html
-    if (!updateRes.lastErrorObject.updatedExisting){
+    const transaction = await cfxUtils.getTransaction(transactionHash);
+    const nftEpoch = await cfxUtils.getEpochNumebr(transaction.blockHash);
+    const currentEpoch = await cfxUtils.getCurrentEpochNumber();
+
+    // try catch getTransaction
+    // check if transaction == null
+
+
+    // check if the transaction is happend within 60 epochs of the last mined nft
+    if (currentEpoch - nftEpoch >= hashExpireTime){
         return res.status(400).json({error: "user didn't pay commission before creating this nft"});
     }
+
+    // check if the database contains the given transaction hash (hash stored in the database are all used ones)
+    const found = await User.findOne({
+        address: transaction.from,
+        "used_commission_hash.hash": {$eq: transactionHash}
+    });
+    if (found != null){
+        return res.status(400).json({error: "user didn't pay commission before creating this nft"});
+    }
+    
+    // store the transaction hash to the database
+    const updateRes = await User.findOneAndUpdate(
+            { address }, 
+            { $push: { used_commission_hash: {epochNumber: nftEpoch, hash: transactionHash}}},
+            { rawResult: true, new: true } );
 
     const titleExists = await Nft.exists({ title: req.body.title });
     if (titleExists) {
@@ -371,13 +388,22 @@ async function purchaseNft(req, res) {
 
 async function sendReceipt(req, res){
     const body = req.body;
+    console.log("hash sent");
+    console.log(body.receipt);
+    const transaction = await cfxUtils.getTransaction(body.receipt);
+    console.log("transaction");
+    console.log(transaction);
+    
+    if (transcation.to != process.env.MANAGER_ADDRESS){
+        return res.status(400).json({error: "the commission fee is not paid properly" }); 
+    }
     try {
         const result = await User.findOneAndUpdate(
-            { address: body.receipt.from },
+            { address: transaction.from },
             { $push: {paid_commisions: body.estimation} },
             { new: true } )
         console.log("receipt")
-        console.log(result)
+        console.log(body.receipt)
     } catch (error) {
         return res.status(400).json({error: error.message });
     }

@@ -175,17 +175,7 @@ export default {
             if (error) {
                 return; // Stop to create nft if the transaction failed
             }
-            const receiptSent = await axios.post(this.$store.getters.getApiUrl + "/send-receipt", {receipt, estimation})
-            console.log(receiptSent)
-            if (receiptSent.status == 400){
-                 Notification.closeAll();
-                 this.$notify.error({
-                        title: "Fail to send commision receipt to the backend",
-                        message: receiptSent.data.error,
-                        duration: 3000,
-                    });
-            }
-            console.log("finish sending receipt")
+            
             // Create nft
             const fd = new FormData();
             fd.append("file", this.imageData);
@@ -197,6 +187,7 @@ export default {
             fd.append("unlockable_image", this.ucImageStr? this.ucImageStr: "");
             fd.append("unlockable_text", this.ucDescription? this.ucDescription: "");
             fd.append("estimation", estimation);
+            fd.append("receipt", receipt.transactionHash);
 
             axios
                 .post(this.$store.getters.getApiUrl + "/create-nft", fd)
