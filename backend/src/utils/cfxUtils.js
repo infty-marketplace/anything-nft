@@ -113,7 +113,7 @@ async function getTransaction(hash){
     return await cfx.getTransactionByHash(hash);
 }
 
-async function getEpochNumebr(hash){
+async function getEpochNumber(hash){
     const block = await cfx.getBlockByHash(hash)
     return block.epochNumber;
 }
@@ -135,6 +135,6 @@ module.exports = {
     drawRaffle,
     decodeRaffleLog,
     getTransaction,
-    getEpochNumebr,
+    getEpochNumber,
     getCurrentEpochNumber,
 };

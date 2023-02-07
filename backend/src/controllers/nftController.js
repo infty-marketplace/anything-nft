@@ -103,7 +103,7 @@ async function createNft(req, res) {
     if (transaction == null){
         res.status(400).json({error: "given transaction is not valid"});
     }
-    const nftEpoch = await cfxUtils.getEpochNumebr(transaction.blockHash);
+    const nftEpoch = await cfxUtils.getEpochNumber(transaction.blockHash);
     const currentEpoch = await cfxUtils.getCurrentEpochNumber();
 
     // check if the transaction is happend within 60 epochs of the last mined nft
