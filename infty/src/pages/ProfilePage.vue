@@ -25,7 +25,7 @@
             <div class="padding-border"></div>
             <el-row class="tac">
                 <el-col :span="5">
-                    <el-menu @select="handleSelect" default-active="0" class="el-menu-vertical-demo">
+                    <el-menu @select="handleSelect" default-active="0" class="el-menu-vertical-demo" @open="loadSupports">
                         <!-- @open="handleOpen" -->
                         <!-- @close="handleClose" -->
                         <el-submenu index="1" v-if="!this.isMyself">
@@ -564,7 +564,7 @@ export default {
 
             // record in database
             let data = {
-                fromAddress: (await window.conflux.send("cfx_requestAccounts"))[0],
+                fromAddress: (await window.conflux.send("cfx_requestAccounts")).result[0],
                 toAddress: to,
                 amount: parseFloat(this.supportAmount),
             };
@@ -638,18 +638,6 @@ export default {
     width: 300px;
     border: 5px solid rgb(190, 234, 255);
     object-fit: cover;
-}
-#profile-pic ~ a {
-    opacity: 0;
-    cursor: pointer;
-}
-#profile-pic ~ a:hover {
-    opacity: 1;
-    cursor: pointer;
-}
-#profile-pic:hover ~ a {
-    opacity: 1;
-    cursor: pointer;
 }
 
 .profile-pic-container {
