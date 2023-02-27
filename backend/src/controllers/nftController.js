@@ -97,11 +97,11 @@ async function createNft(req, res) {
     const hashExpireTime = 600;
     try{
         const transaction = await cfxUtils.getTransaction(transactionHash);
+        if (transaction == null){
+            return res.status(400).json({error: "given transaction is not valid"});
+        }
     } catch(e){
-        res.status(400).json({error: "given transaction is not valid"});
-    }
-    if (transaction == null){
-        res.status(400).json({error: "given transaction is not valid"});
+        return res.status(400).json({error: "given transaction is not valid"});
     }
     const nftEpoch = await cfxUtils.getEpochNumber(transaction.blockHash);
     const currentEpoch = await cfxUtils.getCurrentEpochNumber();
