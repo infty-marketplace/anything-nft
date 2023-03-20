@@ -152,7 +152,7 @@
                             >
                                 <el-table-column type="expand">
                                     <template #default="props">
-                                        <p>
+                                        <p class="support-message">
                                             {{ "Message: " + (props.row.message ? props.row.message : "N/A") }}
                                         </p>
                                     </template>
@@ -561,10 +561,9 @@ export default {
                 });
                 return;
             }
-
             // record in database
             let data = {
-                fromAddress: (await window.conflux.send("cfx_requestAccounts")).result[0],
+                fromAddress: (await window.conflux.request({method:"cfx_requestAccounts"}))[0],
                 toAddress: to,
                 amount: parseFloat(this.supportAmount),
             };
@@ -673,6 +672,10 @@ export default {
 .card {
     width: 250px;
     height: 100%;
+}
+
+.support-message {
+    padding-left: 10%;
 }
 
 /deep/.el-dropdown {
