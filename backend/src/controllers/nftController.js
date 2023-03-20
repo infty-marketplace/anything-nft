@@ -97,18 +97,15 @@ async function createNft(req, res) {
     const hashExpireTime = 600;
     try{
         const transaction = await cfxUtils.getTransaction(transactionHash);
-        console.log(transaction)
         if (transaction == null){
             return res.status(400).json({error: "given transaction is not valid"});
         }
         const nftEpoch = await cfxUtils.getEpochNumber(transaction.blockHash);
         const currentEpoch = await cfxUtils.getCurrentEpochNumber();
-        console.log(1)
         // check if the transaction is happened within 60 epochs of the last mined nft
         if (currentEpoch - nftEpoch >= hashExpireTime){
             return res.status(400).json({error: "user didn't pay commission before creating this nft"});
         }
-        console.log(2)
         // check if the database contains the given transaction hash (hash stored in the database are all used ones)
         const found = await User.findOne({
             address: transaction.from,
@@ -117,22 +114,18 @@ async function createNft(req, res) {
         if (found != null){
             return res.status(400).json({error: "user didn't pay commission before creating this nft"});
         }
-        console.log(3)
         // store the transaction hash to the database
         const updateRes = await User.findOneAndUpdate(
                 { address }, 
                 { $push: { used_commission_hash: {epochNumber: nftEpoch, hash: transactionHash}}},
                 { rawResult: true, new: true } );
-        console.log(4)
     } catch(e){
         return res.status(400).json({error: "given transaction is not valid"});
     }
-        console.log(5)
     const titleExists = await Nft.exists({ title: req.body.title });
     if (titleExists) {
         return res.status(409).send();
     }
-    console.log(6)
     const filePath = req.files.file.path;
     
     // compare image similarity
@@ -143,7 +136,6 @@ async function createNft(req, res) {
             return res.status(400).json({ error: "file already exists" });
         }
     }
-    console.log(7)
     // upload image to nft storage
     const metadataUrl = await nftStorageUtils.upload(filePath, req.body.title, req.body.description);
     console.log(7.1)
@@ -153,7 +145,6 @@ async function createNft(req, res) {
         cfxUtils.mint(address, metadataUrl),
         nftStorageUtils.getImageUrl(metadataUrl),
     ]);
-    console.log(8)
     // store nft to our own database
     const tokenId = await cfxUtils.actualTokenId(address, metadataUrl);
     if (tokenId == -1) {
@@ -177,7 +168,6 @@ async function createNft(req, res) {
     const newNft = new Nft(params);
     const user = await User.findOne({ address: address });
     user.nft_ids.push({ address: nftId, percentage: 1 });
-    console.log(9)
     await mongodbUtils
         .saveAll([newNft, user])
         .then(() => {
