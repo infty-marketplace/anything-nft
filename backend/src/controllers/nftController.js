@@ -186,7 +186,6 @@ async function createNft(req, res) {
         .catch((error) => {
             return res.status(422).json({ error: error.message });
         });
-    console.log(10)
 }
 
 async function deleteNft(req, res) {
