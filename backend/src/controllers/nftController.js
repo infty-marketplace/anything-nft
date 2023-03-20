@@ -126,8 +126,9 @@ async function createNft(req, res) {
     if (titleExists) {
         return res.status(409).send();
     }
+
     const filePath = req.files.file.path;
-    
+
     // compare image similarity
     const fileHash = await imageUtils.hash(filePath);
     const nfts = await Nft.find({}, { file_hash: 1, _id: 0 });
@@ -136,15 +137,16 @@ async function createNft(req, res) {
             return res.status(400).json({ error: "file already exists" });
         }
     }
+
     // upload image to nft storage
     const metadataUrl = await nftStorageUtils.upload(filePath, req.body.title, req.body.description);
-    console.log(7.1)
-    console.log(metadataUrl)
+
     // create nft on chain
     let [_, imageUrl] = await Promise.all([
         cfxUtils.mint(address, metadataUrl),
         nftStorageUtils.getImageUrl(metadataUrl),
     ]);
+
     // store nft to our own database
     const tokenId = await cfxUtils.actualTokenId(address, metadataUrl);
     if (tokenId == -1) {
@@ -168,6 +170,7 @@ async function createNft(req, res) {
     const newNft = new Nft(params);
     const user = await User.findOne({ address: address });
     user.nft_ids.push({ address: nftId, percentage: 1 });
+
     await mongodbUtils
         .saveAll([newNft, user])
         .then(() => {
