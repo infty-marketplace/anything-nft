@@ -6,11 +6,22 @@ from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.common.by import By
 import properties as props
+import pyautogui as pg
+import os
 
 
 def wait_for_element_visible(driver, by, value, timeout):
     WebDriverWait(driver, timeout).until(
         EC.visibility_of_element_located((by, value)))
+
+
+def wait_for_element_Clickable(driver, by, value, timeout):
+    WebDriverWait(driver, timeout).until(
+        EC.element_to_be_clickable((by, value)))
+
+
+def wait_for_new_window(driver, timeout):
+    WebDriverWait(driver, timeout).until(EC.new_window_is_opened)
 
 
 if __name__ == "__main__":
@@ -97,6 +108,7 @@ if __name__ == "__main__":
         By.XPATH, props.fluent_backbtn_xpath).click()
     wait_for_element_visible(
         driver, By.XPATH, props.fluent_openNetwork_xpath, 20)
+    time.sleep(1)
     driver.find_element(By.XPATH, props.fluent_openNetwork_xpath).click()
     time.sleep(1)
     driver.find_element(
@@ -107,46 +119,134 @@ if __name__ == "__main__":
     print("Switch Testnet - ***SUCCESS**")
     # ===========SWITCH TESTNET END===========
 
-    # ===========UPDATE PROFILE START===========
-    wait_for_element_visible(driver, By.XPATH, props.infty_logo_xpath, 20)
-    driver.find_element(By.XPATH, props.infty_logo_xpath).click()
-    driver.find_element(By.XPATH, props.infty_avatar_xpath).click()
-    wait_for_element_visible(
-        driver, By.XPATH, props.infty_profileEdit_xpath, 20)
-    driver.find_element(By.XPATH, props.infty_profileEdit_xpath).click()
-    firstname = driver.find_element(
-        By.XPATH, props.infty_profileFirst_xpath)
-    lastname = driver.find_element(
-        By.XPATH, props.infty_profileLast_xpath)
-    bio = driver.find_element(
-        By.XPATH, props.infty_profileBio_xpath)
-    firstname.clear()
-    time.sleep(1)
-    firstname.send_keys('AUTOMATION2')
-    time.sleep(1)
-    lastname.clear()
-    time.sleep(1)
-    lastname.send_keys('AUTOMATION3')
-    time.sleep(1)
-    bio.clear()
-    time.sleep(1)
-    bio.send_keys('BIO AUTOMATION')
-    time.sleep(1)
-    driver.find_element(By.XPATH, props.infty_profileEdit_xpath).click()
-    # ===========UPDATE PROFILE END===========
+    # ===========CREATE NFT START===========
+    wait_for_element_visible(driver, By.XPATH, props.infty_createNFT_xpath, 20)
+    driver.find_element(By.XPATH, props.infty_createNFT_xpath).click()
 
-    # time.sleep(3)
-    # print("===========CONFIG TESTNET START===========")
+    wait_for_element_visible(
+        driver, By.XPATH, props.infty_createTitle_xpath, 20)
+    driver.find_element(By.XPATH, props.infty_createTitle_xpath).send_keys(
+        "Test NFT #0001")
+    time.sleep(1)
+    driver.find_element(By.XPATH, props.infty_createBrowse_xpath).click()
+    pg.sleep(2)
+    pg.typewrite(os.path.join(os.getcwd(), 'createNFT.png'))
+    pg.press('enter')
+    time.sleep(1)
+    driver.find_element(By.XPATH, props.infty_createDescrp_xpath).send_keys(
+        "I'm very Yellow")
+    time.sleep(1)
+    driver.find_element(By.XPATH, props.infty_createLabelPaint_xpath).click()
+    time.sleep(1)
+    window_home = driver.window_handles[0]
+    driver.find_element(By.XPATH, props.infty_createBtn_xpath).click()
+    time.sleep(5)  # wait for create window to load
+    window_fluent_create = driver.window_handles[1]
+    driver.switch_to.window(window_fluent_create)
+    wait_for_element_Clickable(
+        driver, By.XPATH, props.fluent_sigConfirmBtn_xpath, 20)
+    driver.find_element(By.XPATH, props.fluent_sigConfirmBtn_xpath).click()
+    time.sleep(1)
+    driver.switch_to.window(window_home)
+
+    # ===========MARKETPALCE START===========
+    # wait_for_element_visible(
+    #     driver, By.XPATH, props.infty_marketplace_xpath, 20)
+    # driver.find_element(By.XPATH, props.infty_marketplace_xpath).click()
+
+    # ===========MARKETPALCE SEARCH START===========
+    # wait_for_element_visible(
+    #     driver, By.XPATH, props.infty_marketSearch_xpath, 20)
     # driver.find_element(
-    #     By.XPATH, '//*[@id="openNetworkBtn"]').click()
+    #     By.XPATH, props.infty_marketSearch_xpath).send_keys("painting")
+    # time.sleep(1)
+    # driver.find_element(By.XPATH, props.infty_marketSearchBtn_xpath).click()
+    # time.sleep(1)
+    # if not driver.find_element(By.XPATH, props.infty_marketPaint_xpath):
+    #     print("Marketplace Search - ***FAILED**")
+    # else:
+    #     print("Marketplace Search - ***SUCCESS**")
+    # ===========MARKETPALCE SEARCH END===========
+
     # driver.find_element(
-    #     By.XPATH, '//*[@id="network-list"]/div[1]/div/div[3]/div/a').click()
+    #     By.XPATH, props.infty_marketSearch_xpath).clear()
+    # time.sleep(1)
+    # driver.find_element(By.XPATH, props.infty_marketSearchBtn_xpath).click()
+    # time.sleep(1)
+
+    # ===========MARKETPALCE FILTER START===========
+    # wait_for_element_visible(driver, By.XPATH, props.infty_marketCat_xpath, 20)
+    # driver.find_element(By.XPATH, props.infty_marketCat_xpath).click()
+    # wait_for_element_visible(
+    #     driver, By.XPATH, props.infty_marketCatPaint_xpath, 20)
+    # driver.find_element(By.XPATH, props.infty_marketCatPaint_xpath).click()
+    # time.sleep(1)
+    # driver.find_element(By.XPATH, props.infty_marketApplyBtn_xpath).click()
+    # time.sleep(1)
+    # if not driver.find_element(By.XPATH, props.infty_marketPaint_xpath):
+    #     print("Marketplace Filter - ***FAILED**")
+    # else:
+    #     print("Marketplace Filter - ***SUCCESS**")
+    # ===========MARKETPALCE FILTER END===========
+
+    # ===========MARKETPALCE NFT DETAIL START===========
+    # driver.find_element(By.XPATH, props.infty_marketPaintImg_xpath).click()
+    # time.sleep(1)
+    # wait_for_element_visible(
+    #     driver, By.XPATH, props.infty_nftDetails_xpath, 20)
+    # driver.find_element(By.XPATH, props.infty_nftDetails_xpath).click()
+    # time.sleep(1)
+    # if not driver.find_element(By.XPATH, props.infty_nftTestId_xpath):
+    #     print("Marketplace NFT Detail - ***FAILED**")
+    # else:
+    #     print("Marketplace NFT Detail - ***SUCCESS**")
+    # ===========MARKETPALCE NFT DETAIL END===========
+
+    # ===========MARKETPALCE NFT BUY START===========
+    # driver.find_element(By.XPATH, props.infty_nftBuyBtn_xpath).click()
+    # time.sleep(1)
+    # window_home = driver.window_handles[0]
+    # wait_for_element_visible(
+    #     driver, By.XPATH, props.infty_nftCommision_xpath, 20)
     # driver.find_element(
-    #     By.XPATH, '//*[@id="hide-testnet"]/div/svg').click()
-    # driver.find_element(
-    #     By.XPATH, '//*[@id="go-back"]/svg').click()
-    # driver.find_element(
-    #     By.XPATH, '//*[@id="openNetworkBtn"]').click()
-    # driver.find_element(
-    #     By.XPATH, '//*[@id="item-11"]').click()
-    # print("===========CONFIG TESTNET END===========")
+    #     By.XPATH, props.infty_nftCommision_xpath).send_keys("0.25")
+    # time.sleep(1)
+    # driver.find_element(By.XPATH, props.infty_nftBuyConfirm_xpath).click()
+    # time.sleep(1)
+    # window_fluent_buy = driver.window_handles[1]
+    # driver.switch_to.window(window_fluent_buy)
+    # wait_for_element_visible(
+    #     driver, By.XPATH, props.fluent_sigConfirmBtn_xpath, 20)
+    # driver.find_element(By.XPATH, props.fluent_sigConfirmBtn_xpath).click()
+    # time.sleep(1)
+    # driver.switch_to.window(window_home)
+    # ===========MARKETPALCE END===========
+
+    # ===========UPDATE PROFILE START===========
+    # wait_for_element_visible(driver, By.XPATH, props.infty_logo_xpath, 20)
+    # driver.find_element(By.XPATH, props.infty_logo_xpath).click()
+    # driver.find_element(By.XPATH, props.infty_avatar_xpath).click()
+    # wait_for_element_visible(
+    #     driver, By.XPATH, props.infty_profileEdit_xpath, 20)
+    # driver.find_element(By.XPATH, props.infty_profileEdit_xpath).click()
+    # firstname = driver.find_element(
+    #     By.XPATH, props.infty_profileFirst_xpath)
+    # lastname = driver.find_element(
+    #     By.XPATH, props.infty_profileLast_xpath)
+    # bio = driver.find_element(
+    #     By.XPATH, props.infty_profileBio_xpath)
+    # firstname.clear()
+    # time.sleep(1)
+    # firstname.send_keys('AUTOMATION2')
+    # time.sleep(1)
+    # lastname.clear()
+    # time.sleep(1)
+    # lastname.send_keys('AUTOMATION3')
+    # time.sleep(1)
+    # bio.clear()
+    # time.sleep(1)
+    # bio.send_keys('BIO AUTOMATION')
+    # time.sleep(1)
+    # driver.find_element(By.XPATH, props.infty_profileEdit_xpath).click()
+    # print("Update Profile - ***SUCCESS**")
+    # ===========UPDATE PROFILE END===========
