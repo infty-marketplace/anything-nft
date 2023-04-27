@@ -100,32 +100,28 @@ async function createNft(req, res) {
         if (transaction == null){
             return res.status(400).json({error: "given transaction is not valid"});
         }
+        const nftEpoch = await cfxUtils.getEpochNumber(transaction.blockHash);
+        const currentEpoch = await cfxUtils.getCurrentEpochNumber();
+        // check if the transaction is happened within 60 epochs of the last mined nft
+        if (currentEpoch - nftEpoch >= hashExpireTime){
+            return res.status(400).json({error: "user didn't pay commission before creating this nft"});
+        }
+        // check if the database contains the given transaction hash (hash stored in the database are all used ones)
+        const found = await User.findOne({
+            address: transaction.from,
+            "used_commission_hash.hash": {$eq: transactionHash}
+        });
+        if (found != null){
+            return res.status(400).json({error: "user didn't pay commission before creating this nft"});
+        }
+        // store the transaction hash to the database
+        const updateRes = await User.findOneAndUpdate(
+                { address }, 
+                { $push: { used_commission_hash: {epochNumber: nftEpoch, hash: transactionHash}}},
+                { rawResult: true, new: true } );
     } catch(e){
         return res.status(400).json({error: "given transaction is not valid"});
     }
-    const nftEpoch = await cfxUtils.getEpochNumber(transaction.blockHash);
-    const currentEpoch = await cfxUtils.getCurrentEpochNumber();
-
-    // check if the transaction is happend within 60 epochs of the last mined nft
-    if (currentEpoch - nftEpoch >= hashExpireTime){
-        return res.status(400).json({error: "user didn't pay commission before creating this nft"});
-    }
-
-    // check if the database contains the given transaction hash (hash stored in the database are all used ones)
-    const found = await User.findOne({
-        address: transaction.from,
-        "used_commission_hash.hash": {$eq: transactionHash}
-    });
-    if (found != null){
-        return res.status(400).json({error: "user didn't pay commission before creating this nft"});
-    }
-    
-    // store the transaction hash to the database
-    const updateRes = await User.findOneAndUpdate(
-            { address }, 
-            { $push: { used_commission_hash: {epochNumber: nftEpoch, hash: transactionHash}}},
-            { rawResult: true, new: true } );
-
     const titleExists = await Nft.exists({ title: req.body.title });
     if (titleExists) {
         return res.status(409).send();
