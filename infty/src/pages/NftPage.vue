@@ -298,7 +298,7 @@ export default {
             const transferUrl = `${this.confluxScanUrl}/v1/transfer?address=${contractAddress}&limit=100&skip=0&tokenId=${tokenId}&transferType=ERC721`;
 
             await axios.get(transferUrl).then((res) => {
-                this.transactions = res.data.list.map((data) => {
+                this.transactions = res.data.data.list.map((data) => {
                     const txnDate = new Date(parseInt(data.timestamp) * 1000);
                     const taxDateString = `${this.padToTwoDigits(txnDate.getFullYear())}/${this.padToTwoDigits(
                         txnDate.getMonth() + 1

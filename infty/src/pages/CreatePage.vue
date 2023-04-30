@@ -141,6 +141,43 @@ export default {
                 duration: 0,
             });
 
+            // Obtain estimation
+            const estimation = (await axios.post(this.$store.getters.getApiUrl + "/mint-estimate")).data.gas;
+            // Charge User
+            const getters = this.$store.getters;
+            Notification.closeAll();
+            this.$store.dispatch("notifyLoading", { msg: "Paying commission now" });
+            
+            let error = false; // flag is set to true when errors occur in transaction
+            const receipt = 
+                await this.$store.getters.getCfx
+                    .sendTransaction({
+                        from: (await window.conflux.request({method:"cfx_requestAccounts"}))[0],
+                        to: getters.getManagerAddr,
+                        gasPrice: getters.getGasPrice,
+                        value: estimation,
+                    })
+                    .executed()
+                    .catch((e) => {
+                        Notification.closeAll();
+                        let title = "Transaction Failed";
+                        let message = "Transaction failed, please try again";
+                        if (e.code === 4001) {
+                            message = "User denied transaction signature";
+                        }
+                        this.$notify.error({
+                            title,
+                            message,
+                            duration: 3000,
+                        });
+                        error = true;
+                    });
+
+            if (error) {
+                return; // Stop to create nft if the transaction failed
+            }
+            
+            // Create nft
             const fd = new FormData();
             fd.append("file", this.imageData);
             fd.append("address", this.$store.getters.getAddress);
@@ -150,43 +187,9 @@ export default {
             fd.append("labels", JSON.stringify(selectedLabels));
             fd.append("unlockable_image", this.ucImageStr? this.ucImageStr: "");
             fd.append("unlockable_text", this.ucDescription? this.ucDescription: "");
+            fd.append("estimation", estimation);
+            fd.append("receipt", receipt.transactionHash);
 
-            // Obtain estimation
-            const estimation = (await axios.post(this.$store.getters.getApiUrl + "/mint-estimate")).data.gas;
-            // Charge User
-            const getters = this.$store.getters;
-            Notification.closeAll();
-            this.$store.dispatch("notifyLoading", { msg: "Paying commission now" });
-
-            let error = false; // flag is set to true when errors occur in transaction
-            await this.$store.getters.getCfx
-                .sendTransaction({
-                    from: (await window.conflux.request({method:"cfx_requestAccounts"}))[0],
-                    to: getters.getManagerAddr,
-                    gasPrice: getters.getGasPrice,
-                    value: estimation,
-                })
-                .executed()
-                .catch((e) => {
-                    Notification.closeAll();
-                    let title = "Transaction Failed";
-                    let message = "Transaction failed, please try again";
-                    if (e.code === 4001) {
-                        message = "User denied transaction signature";
-                    }
-                    this.$notify.error({
-                        title,
-                        message,
-                        duration: 3000,
-                    });
-                    error = true;
-                });
-
-            if (error) {
-                return; // Stop to create nft if the transaction failed
-            }
-
-            // Create nft
             axios
                 .post(this.$store.getters.getApiUrl + "/create-nft", fd)
                 .then((res) => {

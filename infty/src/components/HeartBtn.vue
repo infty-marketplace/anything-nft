@@ -3,7 +3,7 @@
 </template>
 <script>
 import axios from "axios";
-import { eventBus } from "../main";
+import {eventBus} from "../main";
 
 export default {
     props: {
@@ -35,14 +35,17 @@ export default {
             const address = this.$store.getters.getAddress;
             // if the nft is currently liked, we should unlike it, otherwise like it
             if (this.isLiked) {
-                await axios.post(this.$store.getters.getApiUrl + "/unlike-nft", { address, nft_id: this.nftId });
+                await axios.post(this.$store.getters.getApiUrl + "/unlike-nft", {address, nft_id: this.nftId});
             } else {
-                await axios.post(this.$store.getters.getApiUrl + "/like-nft", { address, nft_id: this.nftId });
+                await axios.post(this.$store.getters.getApiUrl + "/like-nft", {address, nft_id: this.nftId});
             }
 
             this.isLiked = !this.isLiked;
             this.updateHeartColor();
-            eventBus.$emit("NftPage.reload");
+            // reload the page only when the currently opened page is the nft page
+            if (this.$route.name === "nft-detail") {
+                eventBus.$emit("NftPage.reload");
+            }
         },
     },
 };
@@ -53,6 +56,7 @@ export default {
     width: 160px;
     height: 130px;
 }
+
 .heart-like-button:before {
     position: absolute;
     top: 0;
@@ -67,6 +71,7 @@ export default {
     cursor: pointer;
     transition: background 0.4s;
 }
+
 .heart-like-button:after {
     position: absolute;
     top: 0;
@@ -86,9 +91,11 @@ export default {
 .heart-like-button.liked::after {
     background-color: #d65076;
 }
+
 .heart-like-button.liked {
     animation: liked 0.4s ease;
 }
+
 @keyframes liked {
     0% {
         transform: scale(0.8);
