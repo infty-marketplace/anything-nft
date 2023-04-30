@@ -12,7 +12,7 @@ export default {
     name: "App",
     created() {
         document.title = "Infty Marketplace";
-        this.$store.dispatch("loadFromSessionStorage");
+        // this.$store.dispatch("loadFromSessionStorage");
     },
     mounted() {
         const cfx = this.$store.getters.getCfx
@@ -48,6 +48,22 @@ export default {
                 duration: 3000,
             });
         });
+        
+        eventBus.$on("Navbar.connectWalletSuccess", async () => {
+            this.$notify.success({
+                title: "Wallet Connected",
+                message: "We have connected to your wallet",
+                duration: 3000,
+            });
+        });
+        eventBus.$on("Navbar.connectWalletFailure", () => {
+            this.$notify.error({
+                title: "Wallet not Connected",
+                message: "Failed to connect to your wallet, please try again",
+                duration: 3000,
+            });
+        });
+        
     },
     beforeDestroy() {
         eventBus.$off("App.notifyWIP");

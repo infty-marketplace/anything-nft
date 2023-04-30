@@ -552,29 +552,17 @@ export default {
         },
     },
     async created() {
+        // this will be registered multiple times since navbar will be created multiple times
+        // needs fix
+        eventBus.$on("Navbar.noProfile", () => {
+            this.$refs["reg-modal"].show();
+        });
         eventBus.$on("Navbar.noWallet", () => {
             this.$notify.info({
                 title: "Wallet not Detected",
                 dangerouslyUseHTMLString: true,
-                message: `<a href="https://portal.confluxnetwork.org/" target="_blank">Please install it here</a>`,
+                message: `<a href="https://fluentwallet.com/" target="_blank">Please install it here</a>`,
                 duration: 0,
-            });
-        });
-        eventBus.$on("Navbar.noProfile", () => {
-            this.$refs["reg-modal"].show();
-        });
-        eventBus.$on("Navbar.connectWalletSuccess", async () => {
-            // this.$notify({
-            //     title: "Wallet Connected",
-            //     message: "We have connected to your wallet",
-            //     duration: 3000,
-            // });
-        });
-        eventBus.$on("Navbar.connectWalletFailure", () => {
-            this.$notify.error({
-                title: "Wallet not Connected",
-                message: "Failed to connect to your wallet, please try again",
-                duration: 3000,
             });
         });
     },

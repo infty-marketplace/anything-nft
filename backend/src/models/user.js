@@ -11,6 +11,7 @@ const userSchema = new Schema(
         album_ids: { type: [{ address: String, percentage: Number }], default: [] },
         profile_picture: { type: String },
         liked_nfts: { type: [String], default: [] },
+        used_commission_hash: {type: [{epochNumber: Number, hash: String}]},
     },
     {
         timestamps: {
