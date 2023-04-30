@@ -40,11 +40,8 @@ if __name__ == "__main__":
 
     driver.get('http://localhost:8080/')
     window_home = driver.window_handles[0]
-    wait_for_element_visible(driver, By.XPATH, props.infty_login_xpath, 20)
-    driver.find_element(By.XPATH, props.infty_login_xpath).click()
-    time.sleep(1)
-    window_fluent = driver.window_handles[1]
-    driver.switch_to.window(window_fluent)
+    driver.switch_to.new_window('tab')
+    driver.get(props.fluent_widget_url)
 
     # ===========CREATE WALLET START===========
     wait_for_element_visible(driver, By.XPATH, props.fluent_create_xpath, 20)
@@ -71,29 +68,7 @@ if __name__ == "__main__":
     print("Import PemKey - ***SUCCESS**")
     # ===========IMPORT PEMKEY END===========
 
-    # ===========REQUEST SIGNATURE START===========
-    wait_for_element_visible(
-        driver, By.XPATH, props.fluent_sigNextBtn_xpath, 20)
-    driver.find_element(By.XPATH, props.fluent_sigNextBtn_xpath).click()
-    time.sleep(1)
-    driver.find_element(By.XPATH, props.fluent_sigConfirmBtn_xpath).click()
-    time.sleep(1)
-    window_fluent_signature = driver.window_handles[1]
-    driver.switch_to.window(window_fluent_signature)
-    wait_for_element_visible(
-        driver, By.XPATH, props.fluent_sigConfirmBtn_xpath, 20)
-    driver.find_element(By.XPATH, props.fluent_sigConfirmBtn_xpath).click()
-    print("Request Signature - ***SUCCESS**")
-    # ===========REQUEST SIGNATURE END===========
-
-    time.sleep(1)
-    driver.switch_to.window(window_home)
-    # Close success connected notification
-    driver.find_element(By.XPATH, props.infty_profileNoteClose_xpath).click()
-
     # ===========SWITCH TESTNET START===========
-    driver.switch_to.new_window('tab')
-    driver.get(props.fluent_widget_url)
     wait_for_element_visible(
         driver, By.XPATH, props.fluent_openNetwork_xpath, 20)
     driver.find_element(By.XPATH, props.fluent_openNetwork_xpath).click()
@@ -119,6 +94,31 @@ if __name__ == "__main__":
     print("Switch Testnet - ***SUCCESS**")
     # ===========SWITCH TESTNET END===========
 
+    window_home = driver.window_handles[0]
+    wait_for_element_visible(driver, By.XPATH, props.infty_login_xpath, 20)
+    driver.find_element(By.XPATH, props.infty_login_xpath).click()
+    time.sleep(1)
+    window_fluent = driver.window_handles[1]
+    driver.switch_to.window(window_fluent)
+    # ===========REQUEST SIGNATURE START===========
+    wait_for_element_visible(
+        driver, By.XPATH, props.fluent_sigNextBtn_xpath, 20)
+    driver.find_element(By.XPATH, props.fluent_sigNextBtn_xpath).click()
+    time.sleep(1)
+    driver.find_element(By.XPATH, props.fluent_sigConfirmBtn_xpath).click()
+    time.sleep(1)
+    window_fluent_signature = driver.window_handles[1]
+    driver.switch_to.window(window_fluent_signature)
+    wait_for_element_visible(
+        driver, By.XPATH, props.fluent_sigConfirmBtn_xpath, 20)
+    driver.find_element(By.XPATH, props.fluent_sigConfirmBtn_xpath).click()
+    print("Request Signature - ***SUCCESS**")
+    # ===========REQUEST SIGNATURE END===========
+    time.sleep(1)
+    driver.switch_to.window(window_home)
+    # Close success connected notification
+    driver.find_element(By.XPATH, props.infty_profileNoteClose_xpath).click()
+
     # ===========CREATE NFT START===========
     wait_for_element_visible(driver, By.XPATH, props.infty_createNFT_xpath, 20)
     driver.find_element(By.XPATH, props.infty_createNFT_xpath).click()
@@ -130,7 +130,9 @@ if __name__ == "__main__":
     time.sleep(1)
     driver.find_element(By.XPATH, props.infty_createBrowse_xpath).click()
     pg.sleep(2)
-    pg.typewrite(os.path.join(os.getcwd(), 'createNFT.png'))
+    pg.typewrite(os.path.join(os.getcwd(), 'createNft.png'))
+    pg.press('enter')
+    pg.press('tab')
     pg.press('enter')
     time.sleep(1)
     driver.find_element(By.XPATH, props.infty_createDescrp_xpath).send_keys(
@@ -148,6 +150,15 @@ if __name__ == "__main__":
     driver.find_element(By.XPATH, props.fluent_sigConfirmBtn_xpath).click()
     time.sleep(1)
     driver.switch_to.window(window_home)
+    time.sleep(20)
+    wait_for_element_visible(
+        driver, By.XPATH, props.infty_collections_xpath, 20)
+    driver.find_element(By.XPATH, props.infty_collections_xpath).click()
+
+    if not driver.find_element(By.XPATH, props.infty_collectionsNFT_xpath):
+        print("Create NFT - ***FAILED**")
+    else:
+        print("Create NFT - ***SUCCESS**")
 
     # ===========MARKETPALCE START===========
     # wait_for_element_visible(
