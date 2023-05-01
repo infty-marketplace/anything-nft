@@ -10,6 +10,11 @@ export default {
         isLiked: Boolean,
         nftId: String,
     },
+    data() {
+        return {
+            isProcessingClick: false,
+        };
+    },
     async mounted() {
         this.updateHeartColor();
     },
@@ -32,6 +37,11 @@ export default {
                 return;
             }
 
+            // prevent duplicate clicks
+            if (this.isProcessingClick) {
+                return;
+            }
+            this.isProcessingClick = true;
             const address = this.$store.getters.getAddress;
             // if the nft is currently liked, we should unlike it, otherwise like it
             if (this.isLiked) {
@@ -46,6 +56,8 @@ export default {
             if (this.$route.name === "nft-detail") {
                 eventBus.$emit("NftPage.reload");
             }
+            await new Promise((resolve) => setTimeout(resolve, 500)); // rate limit the click
+            this.isProcessingClick = false;
         },
     },
 };
