@@ -1,5 +1,8 @@
 <template>
     <div class="flex-wrapper">
+        <div class="isFluent">
+            <p v-if="!isFluent">You need to install <a href="https://fluentwallet.com/">Fluent wallet</a> to access this site</p>
+        </div>
         <Navbar />
         <div class="main">
             <img class="banner" :src="banner" />
@@ -64,10 +67,21 @@ export default {
     data: () => ({
         banner: require('../assets/imgs/banner.svg'),
         team: require('../assets/imgs/aboutUs.svg'),
+        isFluent: false,
     }),
     mounted() {
         sal();
-    }
+        this.checkFluentWallet();
+    },
+    methods: {
+        checkFluentWallet() {
+            if (window.fluent) {
+                this.isFluent = true;
+            } else {
+                this.isFluent = false;
+            }
+        },
+    },
 };
 </script>
 
@@ -303,5 +317,20 @@ button a {
     font-size: 1.3em;
     font-weight: 400;
     color: #3f3e54;
+}
+
+.isFluent {
+    justify-content: center;
+    align-items: center;
+}
+
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap");
+.isFluent p {
+    font-family: "Montserrat", sans-serif;
+    background-color: #F45050;
+    color: #fff;
+    text-align: center;
+    font-weight: 500;
+    margin: 0;
 }
 </style>
