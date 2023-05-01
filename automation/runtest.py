@@ -8,6 +8,7 @@ from selenium.webdriver.common.by import By
 import properties as props
 import pyautogui as pg
 import os
+import pymongo
 
 
 def wait_for_element_visible(driver, by, value, timeout):
@@ -150,11 +151,13 @@ if __name__ == "__main__":
     driver.find_element(By.XPATH, props.fluent_sigConfirmBtn_xpath).click()
     time.sleep(1)
     driver.switch_to.window(window_home)
-    time.sleep(20)
+    wait_for_element_visible(
+        driver, By.XPATH, props.infty_createSuccess_xpath, 60)
+    time.sleep(3)
     wait_for_element_visible(
         driver, By.XPATH, props.infty_collections_xpath, 20)
     driver.find_element(By.XPATH, props.infty_collections_xpath).click()
-
+    time.sleep(2)
     if not driver.find_element(By.XPATH, props.infty_collectionsNFT_xpath):
         print("Create NFT - ***FAILED**")
     else:
@@ -261,3 +264,13 @@ if __name__ == "__main__":
     # driver.find_element(By.XPATH, props.infty_profileEdit_xpath).click()
     # print("Update Profile - ***SUCCESS**")
     # ===========UPDATE PROFILE END===========
+
+    db = pymongo.MongoClient(
+        "mongodb+srv://admin:admin@cluster0.q6hzh.mongodb.net/infty", useNewParser=True, useUnifiedTopology=True)
+    # users = db.users
+    # users.delete_many(
+    #     {"address": 'cfxtest:aasr3dg9d0ej0cb5x720yj4651rsjcr0ap640rxmce'})
+
+    nfts = db.nfts
+    nfts.delete_many(
+        {"author": 'cfxtest:aasr3dg9d0ej0cb5x720yj4651rsjcr0ap640rxmce'})

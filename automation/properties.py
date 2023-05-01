@@ -36,9 +36,10 @@ infty_createBrowse_xpath = '//*[@id="app"]/div/div[2]/div[1]/div/div/div/button'
 infty_createDescrp_xpath = '//*[@id="description"]'
 infty_createLabelPaint_xpath = '//*[@id="app"]/div/div[2]/div[3]/div[4]/button'
 infty_createBtn_xpath = '//*[@id="app"]/div/div[2]/div[4]/button[1]'
+infty_createSuccess_xpath = '//div[@class="el-notification__content" and p[contains(text(), "NFT created successfully")]]'
 
-infty_collections_xpath = '//*[@id="collections-page"]/div[1]/header/nav/ul/li[3]/a'
-infty_collectionsNFT_xpath = '//p[contains(@class, "card-text") and contains(text(), "Test NFT #0001")]'
+infty_collections_xpath = '//*[@id="app"]/div/div[1]/header/nav/ul/li[3]/a'
+infty_collectionsNFT_xpath = '//div[contains(p[@class="card-text card-detail"], "Test NFT  # 0001")]'
 
 fluent_widget_url = 'chrome-extension://eokbbaidfgdndnljmffldfgjklpjkdoi/popup/notification.html#/'
 fluent_create_xpath = '//*[@id="welcomeBtn"]'
