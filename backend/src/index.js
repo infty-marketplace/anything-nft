@@ -15,7 +15,7 @@ app.use(helmet({crossOriginEmbedderPolicy: false, contentSecurityPolicy: false})
 const apiPort = process.env.PORT || 3001;
 
 let session = require("express-session")({
-    secret: "InftySecret",
+    secret: process.env.SESSION_SECRET,
     resave: true,
     saveUninitialized: true,
     cookie: {
