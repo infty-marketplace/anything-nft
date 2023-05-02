@@ -10,7 +10,7 @@ require("dotenv").config();
 
 const app = express();
 
-app.use(helmet({ crossOriginEmbedderPolicy: false, contentSecurityPolicy: false}));
+app.use(helmet({crossOriginEmbedderPolicy: false, contentSecurityPolicy: false}));
 
 const apiPort = process.env.PORT || 3001;
 
@@ -32,7 +32,7 @@ if (!process.env.PORT) {
 }
 
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({extended: true}));
 
 app.use("/api", userRouter);
 app.use("/api", nftRouter);

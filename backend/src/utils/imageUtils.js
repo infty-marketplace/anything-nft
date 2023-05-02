@@ -1,6 +1,6 @@
 const fs = require("fs");
 const blockhash = require("blockhash-core");
-const { imageFromBuffer, getImageData } = require("@canvas/image");
+const {imageFromBuffer, getImageData} = require("@canvas/image");
 
 async function hash(imgPath) {
     try {
@@ -68,4 +68,4 @@ async function compareImages(imgPath1, imgPath2) {
     return calculateSimilarity(hash1, hash2);
 }
 
-module.exports = { hash, calculateSimilarity, compareImages };
+module.exports = {hash, calculateSimilarity, compareImages};

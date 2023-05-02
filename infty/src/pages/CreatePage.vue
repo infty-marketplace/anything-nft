@@ -1,103 +1,73 @@
 <template>
     <div class="flex-wrapper main">
-        <Navbar activeIndex="2" />
-        <div class="content mt-5 mb-5" v-if="$store.getters.getLogInStatus">
+        <Navbar activeIndex="2"/>
+        <div v-if="$store.getters.getLogInStatus" class="content mt-5 mb-5">
             <h2>{{ $t("createNft.createNft") }}</h2>
             <label class="mt-4">{{ $t("createNft.title") }}</label>
-            <b-form-input
-                v-model="title"
-                type="search"
-                v-bind:placeholder="$t('createNft.name')"
-            />
+            <b-form-input v-model="title" type="search" v-bind:placeholder="$t('createNft.name')"/>
             <label class="mt-5">{{ $t("createNft.image") }}</label>
-            <div
-                style="display:flex;min-width:100%;justify-content:space-around;"
-            >
-                <FileUploader
-                    class="file-uploader"
-                    pass-file-to-event="CreatePage.receiveFile"
-                />
+            <div style="display:flex;min-width:100%;justify-content:space-around;">
+                <FileUploader class="file-uploader" pass-file-to-event="CreatePage.receiveFile"/>
             </div>
             <label class="mt-5">{{ $t("createNft.description") }}</label>
             <div class="form-group">
                 <b-form-textarea
-                    id="description"
-                    v-bind:placeholder="$t('createNft.descriptionInput')"
-                    v-model="description"
-                    rows="3"
+                        id="description"
+                        v-model="description"
+                        rows="3"
+                        v-bind:placeholder="$t('createNft.descriptionInput')"
                 />
-                <b-icon
-                    v-if="description"
-                    font-scale="1.5"
-                    class="icon"
-                    icon="x"
-                    @click="clearTextArea"
-                ></b-icon>
+                <b-icon v-if="description" class="icon" font-scale="1.5" icon="x" @click="clearTextArea"></b-icon>
             </div>
             <label class="mt-5">{{ $t("createNft.labels") }}</label>
             <div style="width:100%">
-                <div
-                    style="display:inline-block"
-                    v-for="(item, index) in labels"
-                    :key="index"
-                >
+                <div v-for="(item, index) in labels" :key="index" style="display:inline-block">
                     <button
-                        @click="clicked(index)"
-                        class="label-selection-button"
-                        :class="{ clicked: labelState[index] }"
+                            :class="{ clicked: labelState[index] }"
+                            class="label-selection-button"
+                            @click="clicked(index)"
                     >
                         {{ labels[index] }}
                     </button>
                 </div>
             </div>
             <div class="mt-5">
-                <b-badge pill variant="info" class="ml-2"
-                    >Decentralized Image Storage on IPFS</b-badge
-                >
-                <b-button
-                    variant="primary"
-                    class="create-btn"
-                    @click="createNft"
-                    >{{ $t("createNft.create") }}</b-button
-                >
-                <b-button
-                    variant="outline-primary"
-                    class="create-btn mr-2"
-                    @click="ucVisible = true"
-                    >{{ $t("createNft.unlockableContent") }}</b-button
-                >
+                <b-badge class="ml-2" pill variant="info">Decentralized Image Storage on IPFS</b-badge>
+                <b-button class="create-btn" variant="primary" @click="createNft">{{
+                    $t("createNft.create")
+                    }}
+                </b-button>
+                <b-button class="create-btn mr-2" variant="outline-primary" @click="ucVisible = true">{{
+                    $t("createNft.unlockableContent")
+                    }}
+                </b-button>
             </div>
-            <el-dialog
-                title="Unlockable Content"
-                :visible.sync="ucVisible"
-                width="60%"
-                :before-close="(d) => d()"
-                ref="Dialog"
-            >
+            <el-dialog ref="Dialog" :before-close="(d) => d()" :visible.sync="ucVisible" title="Unlockable Content"
+                       width="60%">
                 <label>Image</label>
                 <div
                     style="display:flex;min-width:100%;justify-content:space-around;"
                 >
                     <FileUploader
-                        class="uc-file-uploader"
-                        id="uc-file-uploader"
-                        pass-file-to-event="CreatePage.receiveUCFile"
+                            id="uc-file-uploader"
+                            class="uc-file-uploader"
+                            pass-file-to-event="CreatePage.receiveUCFile"
                     />
                 </div>
                 <label class="mt-4">Text</label>
                 <div class="form-group">
                     <b-form-textarea
-                        id="description"
-                        placeholder="Enter a detailed description..."
-                        v-model="ucDescription"
-                        rows="3"
+                            id="description"
+                            v-model="ucDescription"
+                            placeholder="Enter a detailed description..."
+                            rows="3"
                     />
                     <b-icon
-                        v-if="ucDescription"
-                        font-scale="1.5"
-                        class="icon"
-                        icon="x"
-                        @click="ucDescription = ''"
+                            v-if="ucDescription"
+                            class="icon"
+                            font-scale="1.5"
+                            icon="x"
+                            @click="ucDescription = ''"
                     ></b-icon>
                 </div>
                 <span slot="footer" class="dialog-footer">
@@ -108,21 +78,22 @@
                 </span>
             </el-dialog>
         </div>
-        <ConnectWallet v-else />
-        <Footer />
+        <ConnectWallet v-else/>
+        <Footer/>
     </div>
 </template>
 
 <script>
-import { eventBus } from "../main";
+import {eventBus} from "../main";
 import axios from "axios";
-import { Notification } from "element-ui";
+import {Notification} from "element-ui";
 
 import Navbar from "../components/Navbar.vue";
 import Footer from "../components/Footer.vue";
 import FileUploader from "../components/FileUploader.vue";
 import ConnectWallet from "../components/ConnectWallet.vue";
 import constant from "../constants/index.js";
+
 export default {
     name: "CreatePage",
     components: {
@@ -181,7 +152,7 @@ export default {
                 title: "Pending",
                 dangerouslyUseHTMLString: true,
                 message:
-                    '<div style="display:flex; align-items: center;"> <div class="loader"></div><div style="display:inline">NFT minting in progress</div></div>',
+                    "<div style=\"display:flex; align-items: center;\"> <div class=\"loader\"></div><div style=\"display:inline\">NFT minting in progress</div></div>",
                 duration: 0,
             });
 
@@ -193,6 +164,7 @@ export default {
             ).data.gas;
             // Charge User
             const getters = this.$store.getters;
+
             Notification.closeAll();
             this.$store.dispatch("notifyLoading", {
                 msg: "Paying commission now",
@@ -240,14 +212,8 @@ export default {
                 (l, i) => this.labelState[i] == true
             );
             fd.append("labels", JSON.stringify(selectedLabels));
-            fd.append(
-                "unlockable_image",
-                this.ucImageStr ? this.ucImageStr : ""
-            );
-            fd.append(
-                "unlockable_text",
-                this.ucDescription ? this.ucDescription : ""
-            );
+            fd.append("unlockable_image", this.ucImageStr ? this.ucImageStr : "");
+            fd.append("unlockable_text", this.ucDescription ? this.ucDescription : "");
             fd.append("estimation", estimation);
             fd.append("receipt", receipt.transactionHash);
 
@@ -316,8 +282,7 @@ export default {
             if (this.ucImageData) {
                 await this.toBase64(this.ucImageData).catch((error) => {
                     this.$notify.error({
-                        title:
-                            "Error occurs when converting the input image file",
+                        title: "Error occurs when converting the input image file",
                         message: error,
                         duration: 3000,
                     });
@@ -348,16 +313,20 @@ export default {
     width: 60vw;
     margin: 0px auto;
 }
+
 .main {
     background-color: #f8f8f9;
 }
+
 .create-btn {
     float: right;
 }
+
 .file-uploader {
     width: 80%;
     height: 500px;
 }
+
 #uc-file-uploader {
     width: 80%;
     height: 250px;
@@ -366,6 +335,7 @@ export default {
 .form-group {
     position: relative;
 }
+
 .icon {
     position: absolute;
     bottom: 0;
@@ -377,6 +347,7 @@ export default {
 #uc-file-uploader svg {
     display: none;
 }
+
 .label-selection-button {
     background-color: white; /* Green */
     border: 1px solid rgb(54, 91, 192);
@@ -388,6 +359,7 @@ export default {
     border-radius: 12px;
     font-size: 14px;
 }
+
 .clicked {
     background: rgb(54, 91, 192);
     color: white;

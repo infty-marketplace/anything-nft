@@ -12,7 +12,7 @@ export default {
         },
     },
     computed: {
-        message: function() {
+        message: function () {
             return "Connect Wallet";
             // if (!this.$store.getters.getAddress) {
             //     return "Connect Wallet";
@@ -29,6 +29,7 @@ export default {
     display: flex;
     justify-content: center;
 }
+
 .connect {
     max-width: 20vw;
 }

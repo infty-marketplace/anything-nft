@@ -1,19 +1,23 @@
 <template>
     <div class="marketplace flex-wrapper">
-        <Navbar active-index="0" />
+        <Navbar active-index="0"/>
         <div>
-            <div id="sidebar" style="width: 25%" class="mr-2 ml-2 mb-4">
-                <b-card no-body class="filter-card">
+            <div id="sidebar" class="mr-2 ml-2 mb-4" style="width: 25%">
+                <b-card class="filter-card" no-body>
                     <template #header>
-                        <h4 class="m-0" style="width: 50%; float:left"><b-icon icon="filter-circle"></b-icon>&nbsp;{{ $t('filter') }}</h4>
-                        <div id="clearAll" @click="reset" style="display:none; float:right; cursor: pointer; margin-top: 5px;">
+                        <h4 class="m-0" style="width: 50%; float:left">
+                            <b-icon icon="filter-circle"></b-icon>&nbsp;{{ $t("filter") }}
+                        </h4>
+                        <div id="clearAll" style="display:none; float:right; cursor: pointer; margin-top: 5px;"
+                             @click="reset">
                             <a style="text:center"><u>clear filter</u></a>
                         </div>
                     </template>
                     <b-list-group flush>
                         <b-list-group-item>
-                            <b-button pill v-b-toggle.collapse-2 variant="outline-secondary" class="category-button"
-                                >{{ $t("filterOption.price") }}</b-button
+                            <b-button v-b-toggle.collapse-2 class="category-button" pill variant="outline-secondary"
+                            >{{ $t("filterOption.price") }}
+                            </b-button
                             >
                             <b-collapse id="collapse-2" class="mt-2">
                                 <b-card>
@@ -21,9 +25,11 @@
                     v-model="priceTypeSelected"
                     :options="priceTypeOptions"
                   ></b-form-select> -->
-                                    <b-form-input type="number" v-model="price_from" placeholder="Min" class="price-range"></b-form-input>
+                                    <b-form-input v-model="price_from" class="price-range" placeholder="Min"
+                                                  type="number"></b-form-input>
                                     <span>to</span>
-                                    <b-form-input type="number" v-model="price_to" placeholder="Max" class="price-range"></b-form-input>
+                                    <b-form-input v-model="price_to" class="price-range" placeholder="Max"
+                                                  type="number"></b-form-input>
                                 </b-card>
                             </b-collapse>
                         </b-list-group-item>
@@ -41,20 +47,21 @@
                                         </b-list-group-item>
                                     </b-form-checkbox-group>
                                 </b-form-group>
-                                
+
                             </b-collapse>
                         </b-list-group-item>-->
 
                         <b-list-group-item>
-                            <b-button pill v-b-toggle.collapse-5 variant="outline-secondary" class="category-button">{{
+                            <b-button v-b-toggle.collapse-5 class="category-button" pill variant="outline-secondary">{{
                                 $t("categories")
-                            }}</b-button>
+                                }}
+                            </b-button>
                             <b-collapse id="collapse-5" class="mt-2">
                                 <b-form-group>
                                     <b-form-checkbox-group id="category-selection" v-model="selectedCategory">
                                         <b-list-group-item v-for="(item, index) in categories" :key="'cat'+index">
                                             <b-form-checkbox :value="item">
-                                            {{ categories[index] }}
+                                                {{ categories[index] }}
                                             </b-form-checkbox>
                                         </b-list-group-item>
                                     </b-form-checkbox-group>
@@ -62,51 +69,53 @@
                             </b-collapse>
                         </b-list-group-item>
                     </b-list-group>
-                <div>
-                  <b-button id="price-apply-btn" variant="outline-primary" @click="applyFilter">Apply</b-button>
-                </div>
+                    <div>
+                        <b-button id="price-apply-btn" variant="outline-primary" @click="applyFilter">Apply</b-button>
+                    </div>
                 </b-card>
             </div>
 
             <div class="content">
                 <div class="search-bar-container">
                     <div id="search-bar">
-                        <b-input-group size="md" class="mb-2">
+                        <b-input-group class="mb-2" size="md">
                             <b-form-input
-                                type="search"
-                                v-model="searchText"
-                                @keyup.enter="instantSearch"
-                                placeholder="Search..."
+                                    v-model="searchText"
+                                    placeholder="Search..."
+                                    type="search"
+                                    @keyup.enter="instantSearch"
                             ></b-form-input>
                             <b-input-group-prepend is-text>
                                 <b-icon
-                                    icon="search"
-                                    style="cursor:pointer"
-                                    @click="instantSearch"
+                                        icon="search"
+                                        style="cursor:pointer"
+                                        @click="instantSearch"
                                 ></b-icon>
                             </b-input-group-prepend>
                         </b-input-group>
                     </div>
                 </div>
                 <div id="tab">
-                    <b-tabs class="main-content" content-class="ml-5 mt-3" v-model="tabIndex">
+                    <b-tabs v-model="tabIndex" class="main-content" content-class="ml-5 mt-3">
                         <b-tab title="NFT">
                             <div class="nft-container">
                                 <transition name="fade">
-                                    <div class="loading" v-show="loadingNft">
+                                    <div v-show="loadingNft" class="loading">
                                         <span class="fa fa-spinner fa-spin"></span> {{ $t("loading") }}
                                     </div>
                                 </transition>
-                                <el-empty class="flex-wrapper-row" v-if="nftCards.length == 0" description="Nothing" />
-                                <NftCard v-for="card in nftCards" :card="card" :key="card.url" class="mr-5 mb-4" />
+                                <el-empty v-if="nftCards.length == 0" class="flex-wrapper-row" description="Nothing"/>
+                                <NftCard v-for="card in nftCards" :key="card.url" :card="card" class="mr-5 mb-4"/>
                             </div>
                             <p
-                                v-if="noMoreNft"
-                                style="border-bottom: 1px solid grey; line-height: 0.1rem;text-align:center"
+                                    v-if="noMoreNft"
+                                    style="border-bottom: 1px solid grey; line-height: 0.1rem;text-align:center"
                             >
-                                <span style="padding: 0px 20px;background-color:white;color:grey;">{{ $t("endOfMarket") }}</span>
+                                <span style="padding: 0px 20px;background-color:white;color:grey;">{{
+                                    $t("endOfMarket")
+                                    }}</span>
                             </p>
-                            <div class="load-bar" v-else-if="!loadingNft">
+                            <div v-else-if="!loadingNft" class="load-bar">
                                 <span class="btn-bg">
                                     <button class="load-btn" @click="getMore">{{ $t("loadmore") }}</button>
                                 </span>
@@ -119,7 +128,7 @@
             </div>
         </div>
 
-        <Footer />
+        <Footer/>
     </div>
 </template>
 
@@ -165,10 +174,10 @@ export default {
             loadingNft: false,
             noMoreNft: false,
             user: undefined,
-            filter: {   notMine: false, },
+            filter: {notMine: false,},
             categories: constant.LABELS,
-            price_from: '',
-            price_to: '',
+            price_from: "",
+            price_to: "",
             filtermode: null,
             selectedCategory: [],
             searchText: ""
@@ -252,11 +261,11 @@ export default {
             this.price_from = "";
             this.price_to = "";
             this.selectedCategory = [],
-            this.filtermode = "searchText";
+                this.filtermode = "searchText";
             this.offsetNft = 0;
             this.nftCards = [];
             this.noMoreNft = false;
-            document.getElementById('clearAll').style.display = 'block';
+            document.getElementById("clearAll").style.display = "block";
             this.loadNftMarket();
         },
 
@@ -269,8 +278,8 @@ export default {
 
         applyFilter() {
             // if the user doesn't select any filter category or price range, do not reload the market page
-            if (!this.selectedCategory.length && !this.price_to && !this.price_from){
-                return
+            if (!this.selectedCategory.length && !this.price_to && !this.price_from) {
+                return;
             }
 
             // otherwise, reload the market page
@@ -278,7 +287,7 @@ export default {
             this.offsetNft = 0;
             this.nftCards = [];
             this.noMoreNft = false;
-            document.getElementById('clearAll').style.display = 'block';
+            document.getElementById("clearAll").style.display = "block";
             this.loadNftMarket();
         },
 
@@ -289,14 +298,14 @@ export default {
             this.price_from = "";
             this.price_to = "";
             this.selectedCategory = [],
-            this.filtermode = null;
+                this.filtermode = null;
             this.searchText = "";
             document.getElementsByClassName("price-range");
-            document.getElementById('clearAll').style.display = 'none';
+            document.getElementById("clearAll").style.display = "none";
             this.loadNftMarket();
         },
 
-        
+
     },
 };
 </script>
@@ -306,9 +315,11 @@ export default {
     text-align: left;
     /* height: 100vh; */
 }
+
 .category-button {
     width: 100%;
 }
+
 #sidebar {
     margin-top: 2em;
     display: inline-block;
@@ -317,12 +328,14 @@ export default {
     vertical-align: top;
     /* border: 1px solid #f00; */
 }
+
 .price-range {
     width: 40%;
     display: inline-block;
     margin-right: 3%;
     margin-left: 2%;
 }
+
 #price-apply-btn {
     margin-top: 1em;
     margin-bottom: 1em;
@@ -330,9 +343,11 @@ export default {
     margin-right: 30%;
     margin-left: 30%;
 }
+
 #collections-group {
     margin-top: 1em;
 }
+
 .content {
     width: 70%;
     margin-left: 10px;
@@ -353,11 +368,13 @@ export default {
     width: 50%;
     right: 0;
 }
+
 #tab {
     width: 100%;
     display: inline-block;
     margin-top: 2em;
 }
+
 .nft-container {
     display: flex;
     flex-wrap: wrap;
@@ -369,11 +386,13 @@ export default {
     display: flex;
     /* justify-content:center; */
 }
+
 .filter-card {
     width: 100%;
     max-width: 20rem;
     float: right;
 }
+
 .loading {
     text-align: center;
     position: fixed;
@@ -394,10 +413,12 @@ export default {
 .fade-leave-active {
     transition: opacity 0.5s;
 }
+
 .fade-enter,
 .fade-leave-to {
     opacity: 0;
 }
+
 .main-content {
     width: 100%;
 }

@@ -8,23 +8,31 @@
                     </span>
                     <el-dropdown-menu slot="dropdown">
                         <a v-if="!listing_status" @click="listNftClicked"
-                            ><el-dropdown-item v-if="card.status == 'private'" >List Item</el-dropdown-item></a>
+                        >
+                            <el-dropdown-item v-if="card.status == 'private'">List Item</el-dropdown-item>
+                        </a>
                         <a @click="setAvatar"
-                            ><el-dropdown-item>Set Avatar</el-dropdown-item></a>
+                        >
+                            <el-dropdown-item>Set Avatar</el-dropdown-item>
+                        </a>
                         <a @click="deleteNftClicked"
-                            ><el-dropdown-item v-if="card.status == 'private'">Delete It</el-dropdown-item></a
+                        >
+                            <el-dropdown-item v-if="card.status == 'private'">Delete It</el-dropdown-item>
+                        </a
                         >
                         <a @click="delistNft"
-                            ><el-dropdown-item v-if="card.status == 'sale'">Delist</el-dropdown-item></a
+                        >
+                            <el-dropdown-item v-if="card.status == 'sale'">Delist</el-dropdown-item>
+                        </a
                         >
                     </el-dropdown-menu>
                 </el-dropdown>
                 <div v-else class="like-container">
-                    <heart-btn :nftId="card.nft_id" :isLiked="card.isLiked" />
+                    <heart-btn :isLiked="card.isLiked" :nftId="card.nft_id"/>
                 </div>
             </template>
 
-            <img @click="cardClicked" :src="card.url" class="nft-img" />
+            <img :src="card.url" class="nft-img" @click="cardClicked"/>
             <!-- <router-link :to="{ path:'/card/:id', name: 'card-detail', params: { id: card.nft_id || 'default_id', card: card } }"> -->
             <b-card-text class="card-detail">
                 <p>{{ card.title }}</p>
@@ -39,46 +47,47 @@
                         ></span
                     > -->
                     <span class="text-muted-right"
-                        ><small class="text-muted"
-                            ><b-icon icon="suit-diamond-fill"></b-icon>&nbsp;{{ $t('price') }}: {{ card.price }}</small
-                        ></span
+                    ><small class="text-muted"
+                    ><b-icon icon="suit-diamond-fill"></b-icon>&nbsp;{{ $t("price") }}: {{ card.price }}</small
+                    ></span
                     >
                 </div>
 
                 <div v-if="card.status == 'private'">
                     <small class="text-muted">Currently Unlisted</small>
                     <el-tooltip
-                        effect="dark"
-                        class="ml-2 mt-1"
-                        style="cursor:help; float:right"
-                        content="This is a fragment of the NFT."
-                        placement="bottom"
+                            class="ml-2 mt-1"
+                            content="This is a fragment of the NFT."
+                            effect="dark"
+                            placement="bottom"
+                            style="cursor:help; float:right"
                     >
-                        <b-icon v-if="isPiece" b-icon icon="layout-wtf" />
+                        <b-icon v-if="isPiece" b-icon icon="layout-wtf"/>
                     </el-tooltip>
                     <b-modal ref="list-modal" title="List Item" @ok="handleListNft">
-                        <div style="display:block;width:100%;" class="mb-2">
+                        <div class="mb-2" style="display:block;width:100%;">
                             <label
-                                >Settlement Currency:
+                            >Settlement Currency:
                                 <el-tooltip
-                                    effect="dark"
-                                    class="ml-2"
-                                    style="cursor:help"
-                                    content="The commission fee will be waived if you choose INFT as your settlement currency."
-                                    placement="right"
+                                        class="ml-2"
+                                        content="The commission fee will be waived if you choose INFT as your settlement currency."
+                                        effect="dark"
+                                        placement="right"
+                                        style="cursor:help"
                                 >
-                                    <i class="el-icon-warning-outline" /> </el-tooltip
-                            ></label>
+                                    <i class="el-icon-warning-outline"/></el-tooltip
+                                >
+                            </label>
                             <el-select
-                                style="float:right;width:40%"
-                                v-model="currencyValue"
-                                placeholder="Settlement Currency"
+                                    v-model="currencyValue"
+                                    placeholder="Settlement Currency"
+                                    style="float:right;width:40%"
                             >
                                 <el-option
-                                    v-for="item in options"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value"
+                                        v-for="item in options"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value"
                                 >
                                 </el-option>
                             </el-select>
@@ -86,34 +95,34 @@
 
                         <label>Price</label>
                         <b-form-input
-                            class="mb-4"
-                            v-model="listing_price"
-                            :state="isListingPrice"
-                            :placeholder="`How much in ${currencyValue}...`"
-                            aria-describedby="input-live-feedback"
+                                v-model="listing_price"
+                                :placeholder="`How much in ${currencyValue}...`"
+                                :state="isListingPrice"
+                                aria-describedby="input-live-feedback"
+                                class="mb-4"
                         />
                         <b-form-invalid-feedback id="input-live-feedback">
                             Your input should be a number with a maximum of 18 decimal places.
                         </b-form-invalid-feedback>
                         <div v-if="currencyValue != 'inft'">
                             <label
-                                >Commision Fee
+                            >Commision Fee
                                 <el-tooltip
-                                    effect="dark"
-                                    class="ml-2"
-                                    style="cursor:help"
-                                    content="Minimum is 2.5% of the price, or 10 cfx."
-                                    placement="right"
+                                        class="ml-2"
+                                        content="Minimum is 2.5% of the price, or 10 cfx."
+                                        effect="dark"
+                                        placement="right"
+                                        style="cursor:help"
                                 >
-                                    <i class="el-icon-warning-outline" />
+                                    <i class="el-icon-warning-outline"/>
                                 </el-tooltip>
                             </label>
                             <b-form-input
-                                class="mb-4"
-                                v-model="listing_commision"
-                                :state="isListingCommision"
-                                aria-describedby="input-live-feedback"
-                                :placeholder="`How much in ${currencyValue}... `"
+                                    v-model="listing_commision"
+                                    :placeholder="`How much in ${currencyValue}... `"
+                                    :state="isListingCommision"
+                                    aria-describedby="input-live-feedback"
+                                    class="mb-4"
                             />
                             <b-form-invalid-feedback id="input-live-feedback">
                                 Your input should be a number with a maximum of 18 decimal places.
@@ -135,13 +144,13 @@
 </template>
 
 <script>
-import axios from 'axios';
-import { eventBus } from '../main';
-import { Notification } from 'element-ui';
-import HeartBtn from './HeartBtn.vue';
+import axios from "axios";
+import {eventBus} from "../main";
+import {Notification} from "element-ui";
+import HeartBtn from "./HeartBtn.vue";
 
 export default {
-    name: 'Card',
+    name: "Card",
     props: {
         card: Object,
     },
@@ -155,7 +164,7 @@ export default {
         deadline: null,
         fractionStatus: "no",
         currencyValue: "cfx",
-        listing_status : false,
+        listing_status: false,
         options: [
             {
                 label: "CFX",
@@ -172,7 +181,7 @@ export default {
         ],
     }),
     computed: {
-        isPiece: function() {
+        isPiece: function () {
             return this.card.owner.length > 1;
         },
         isListingPrice() {
@@ -201,7 +210,7 @@ export default {
     methods: {
         listNftClicked(e) {
             e.preventDefault();
-            this.$refs['list-modal'].show();
+            this.$refs["list-modal"].show();
         },
         async deleteNftClicked(e) {
             e.preventDefault();
@@ -241,8 +250,8 @@ export default {
                 return;
             }
             this.listing_status = true;
-            console.log('processing');
-            try{
+            console.log("processing");
+            try {
                 // const params = [{
                 //     from: (await window.conflux.request({method:"cfx_requestAccounts"}))[0],
                 //     to: this.$store.getters.getManagerAddr,
@@ -257,17 +266,17 @@ export default {
                 // // TODO: wait the transaction with hash tx to finish
                 // console.dir(tx)
                 const tx = this.$store.getters.getCfx.sendTransaction({
-                    from: (await window.conflux.request({method:"cfx_requestAccounts"}))[0],
+                    from: (await window.conflux.request({method: "cfx_requestAccounts"}))[0],
                     to: this.$store.getters.getManagerAddr,
                     gasPrice: this.$store.getters.getGasPrice,
                     value: 1e18 * this.listing_commision,
                 });
-                this.$store.dispatch("notifyLoading", { msg: "Paying commission now." });
+                this.$store.dispatch("notifyLoading", {msg: "Paying commission now."});
                 await tx.executed();
                 Notification.closeAll();
-            }catch(error){
-                console.log(1)
-                console.log(error)
+            } catch (error) {
+                console.log(1);
+                console.log(error);
                 Notification.closeAll();
                 this.$store.dispatch("notifyErr");
                 this.listing_status = false;
@@ -275,15 +284,19 @@ export default {
             }
             const getters = this.$store.getters;
             if (this.card.owner.length == 1) {
-                this.$store.dispatch("notifyLoading", { msg: "Approving platform to operate the NFT on your behalf." });
+                this.$store.dispatch("notifyLoading", {msg: "Approving platform to operate the NFT on your behalf."});
                 const tokenId = this.card.nft_id.split("-")[1];
-                try{
+                try {
                     await getters.getMinterContract
                         .approve(getters.getManagerAddr, tokenId)
-                        .sendTransaction({ from: getters.getAddress, to: getters.getMinterAddress, gasPrice: getters.getGasPrice })
+                        .sendTransaction({
+                            from: getters.getAddress,
+                            to: getters.getMinterAddress,
+                            gasPrice: getters.getGasPrice
+                        })
                         .executed();
-                }catch(error){
-                    console.log(error)
+                } catch (error) {
+                    console.log(error);
                     Notification.closeAll();
                     this.$store.dispatch("notifyErr");
                     this.listing_status = false;
@@ -294,7 +307,7 @@ export default {
                 .post(`${this.$store.getters.getApiUrl}/list-nft`, {
                     price: this.listing_price,
                     comission: this.listing_commision,
-                    currency: 'cfx',
+                    currency: "cfx",
                     nft_id: this.card.nft_id,
                     owner: getters.getAddress,
                     fractional: this.fractionStatus == "yes" ? true : false,
@@ -302,18 +315,18 @@ export default {
                 .then(() => {
                     Notification.closeAll();
                     this.$notify({
-                        title: 'Congrats',
-                        message: 'NFT listed successfully',
+                        title: "Congrats",
+                        message: "NFT listed successfully",
                         duration: 3000,
-                        type: 'success',
+                        type: "success",
                     });
 
-                    eventBus.$emit('Card.statusChanged', this.card.nft_id);
+                    eventBus.$emit("Card.statusChanged", this.card.nft_id);
                 })
                 .catch((err) => {
                     console.log(err);
-                    this.$bvToast.toast('Listing Failed', {
-                        title: 'Error',
+                    this.$bvToast.toast("Listing Failed", {
+                        title: "Error",
                         autoHideDelay: 3000,
                         appendToast: false,
                     });
@@ -328,21 +341,21 @@ export default {
                     owner: this.$store.getters.getAddress,
                 })
                 .then((res) => {
-                    this.$bvToast.toast('Delisted Successfully', {
-                        title: 'Info',
+                    this.$bvToast.toast("Delisted Successfully", {
+                        title: "Info",
                         autoHideDelay: 3000,
                         appendToast: false,
                     });
-                    eventBus.$emit('Card.statusChanged', this.card.nft_id);
+                    eventBus.$emit("Card.statusChanged", this.card.nft_id);
                     console.log(res);
                 });
         },
         cardClicked(e) {
-            if (!['BUTTON', 'LABEL', 'INPUT'].includes(e.srcElement.nodeName))
+            if (!["BUTTON", "LABEL", "INPUT"].includes(e.srcElement.nodeName))
                 this.$router.push({
-                    path: '/nft/:id',
-                    name: 'nft-detail',
-                    params: { id: this.card.nft_id || 'default_id', card: this.card },
+                    path: "/nft/:id",
+                    name: "nft-detail",
+                    params: {id: this.card.nft_id || "default_id", card: this.card},
                 });
         },
 
@@ -356,20 +369,20 @@ export default {
         },
         setAvatar() {
             // TODO: should get signature from wallet to verify the ownership
-            console.log(this.card.nft_id)
+            console.log(this.card.nft_id);
             axios.post(`${this.$store.getters.getApiUrl}/profile/set-avatar`, {
                 address: this.$store.getters.getAddress,
                 nft_id: this.card.nft_id
             }).then(() => {
                 this.$notify({
-                    title: 'Congrats',
-                    message: 'Avatar Updated',
+                    title: "Congrats",
+                    message: "Avatar Updated",
                     duration: 3000,
                     position: "top-left",
-                    type: 'success',
+                    type: "success",
                 });
                 this.$store.commit("setProfilePic");
-            })
+            });
             // TODO: error checking
         }
     },
@@ -381,9 +394,11 @@ export default {
     width: 250px;
     transition: all 0.15s ease-in-out;
 }
+
 .text-muted-right {
     float: right;
 }
+
 .card-detail {
     margin-top: 5px;
     font-size: 0.875em;
@@ -396,9 +411,11 @@ export default {
     cursor: pointer;
     border-radius: 15px;
 }
+
 .dropdown {
     float: right;
 }
+
 .like-container {
     float: right;
     margin-top: -60px;
@@ -406,6 +423,7 @@ export default {
     margin-bottom: -60px;
     transform: scale(0.15);
 }
+
 .card-owner {
     cursor: pointer;
 }

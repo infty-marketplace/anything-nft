@@ -1,12 +1,12 @@
 <template>
     <div id="app">
-        <router-view />
+        <router-view/>
     </div>
 </template>
 
 <script>
-const { abi: inftyNftAbi } = require("./assets/InftyNft.json");
-import { eventBus } from "./main";
+const {abi: inftyNftAbi} = require("./assets/InftyNft.json");
+import {eventBus} from "./main";
 
 export default {
     name: "App",
@@ -15,7 +15,7 @@ export default {
         // this.$store.dispatch("loadFromSessionStorage");
     },
     mounted() {
-        const cfx = this.$store.getters.getCfx
+        const cfx = this.$store.getters.getCfx;
         cfx.provider = window.conflux;
         window.conflux.on("chainChanged", cfx.updateNetworkId);
 
@@ -48,7 +48,7 @@ export default {
                 duration: 3000,
             });
         });
-        
+
         eventBus.$on("Navbar.connectWalletSuccess", async () => {
             this.$notify.success({
                 title: "Wallet Connected",
@@ -63,7 +63,7 @@ export default {
                 duration: 3000,
             });
         });
-        
+
     },
     beforeDestroy() {
         eventBus.$off("App.notifyWIP");

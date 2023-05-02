@@ -1,8 +1,9 @@
 import Vue from "vue";
 import Vuex from "vuex";
-import { eventBus } from "./main";
+import {eventBus} from "./main";
 import axios from "axios";
-import { Conflux } from "js-conflux-sdk" ;
+import {Conflux} from "js-conflux-sdk";
+
 Vue.use(Vuex);
 
 const store = new Vuex.Store({
@@ -31,21 +32,25 @@ const store = new Vuex.Store({
             }
             try {
                 if (!this.state.address) {
-                    await window.conflux.request({method:"cfx_requestAccounts"}); // connect wallet
-                    const accounts = await window.conflux.request({method:"cfx_accounts"}); // get accounts
-                    console.log(accounts)
+                    await window.conflux.request({method: "cfx_requestAccounts"}); // connect wallet
+                    const accounts = await window.conflux.request({method: "cfx_accounts"}); // get accounts
+                    console.log(accounts);
                     const address = accounts[0];
                     // format: Infty: <unix timestamp>
                     const timestamp = Date.now();
                     // const msg = "0x496e6674793a" + timestamp;
-                    const msg = "Infty:"+timestamp;
-                    const sig = await this.state.cfx.request({method: "personal_sign", params: [msg, address], from: address})
+                    const msg = "Infty:" + timestamp;
+                    const sig = await this.state.cfx.request({
+                        method: "personal_sign",
+                        params: [msg, address],
+                        from: address
+                    });
                     // const a = await window.conflux.request({method: "personal_sign", params:[msg], from: this.state.address})
                     await axios.post(`${this.state.apiUrl}/auth`, {
                         msg,
                         sig,
                         address: address
-                    })
+                    });
                     context.commit("setAddress", address); // needs to be last to do
                     eventBus.$emit("Navbar.connectWalletSuccess");
                 }
@@ -69,7 +74,7 @@ const store = new Vuex.Store({
         },
 
         notifyLoading(state, payload) {
-            const { msg } = payload;
+            const {msg} = payload;
             eventBus.$emit("App.notifyLoading", msg);
         },
         notifyErr() {
@@ -107,7 +112,7 @@ const store = new Vuex.Store({
         },
         setProfilePic: async (state) => {
             const res = await axios.get(`${state.apiUrl}/profile/${state.address}`);
-            state.profilePic = res.data.profile_picture
+            state.profilePic = res.data.profile_picture;
         },
     },
     getters: {

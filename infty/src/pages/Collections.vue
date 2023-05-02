@@ -1,35 +1,42 @@
 <template>
-    <div class="flex-wrapper" id="collections-page">
-        <Navbar active-index="3" />
-        <div class="flex-wrapper-row mt-3" v-if="$store.getters.getLogInStatus">
+    <div id="collections-page" class="flex-wrapper">
+        <Navbar active-index="3"/>
+        <div v-if="$store.getters.getLogInStatus" class="flex-wrapper-row mt-3">
             <el-tabs class="main-content">
                 <el-tab-pane label="NFT">
                     <p>Unlisted</p>
                     <div class="cards-container p-2">
-                        <NftCard class="mb-4 card" v-for="nft in private_nfts" :card="nft" :key="nft.url" />
-                        <p class="mb-4" v-if="private_nfts.length == 0"><el-empty description="Nothing"></el-empty></p>
+                        <NftCard v-for="nft in private_nfts" :key="nft.url" :card="nft" class="mb-4 card"/>
+                        <p v-if="private_nfts.length == 0" class="mb-4">
+                            <el-empty description="Nothing"></el-empty>
+                        </p>
                     </div>
                     <p>On Sale</p>
                     <div class="cards-container p-2">
-                        <NftCard class="mb-4 card" v-for="nft in sale_nfts" :card="nft" :key="nft.url" />
-                        <p class="mb-4" v-if="sale_nfts.length == 0"><el-empty description="Nothing"></el-empty></p>
+                        <NftCard v-for="nft in sale_nfts" :key="nft.url" :card="nft" class="mb-4 card"/>
+                        <p v-if="sale_nfts.length == 0" class="mb-4">
+                            <el-empty description="Nothing"></el-empty>
+                        </p>
                     </div>
                 </el-tab-pane>
             </el-tabs>
             <a href="/mine/create">
-                <b-btn variant="primary" class="add-btn"> <b-icon icon="plus-circle-fill"></b-icon> </b-btn
-            ></a>
+                <b-btn class="add-btn" variant="primary">
+                    <b-icon icon="plus-circle-fill"></b-icon>
+                </b-btn
+                >
+            </a>
         </div>
         <div v-else class="flex-wrapper-row" style="height: auto;">
-            <ConnectWallet />
+            <ConnectWallet/>
         </div>
-        <Footer style="z-index: 0" />
+        <Footer style="z-index: 0"/>
     </div>
 </template>
 
 <script>
 import axios from "axios";
-import { eventBus } from "../main";
+import {eventBus} from "../main";
 
 import Navbar from "../components/Navbar.vue";
 import Footer from "../components/Footer.vue";
@@ -48,7 +55,7 @@ export default {
         nfts: [],
     }),
     computed: {
-        private_nfts: function() {
+        private_nfts: function () {
             const nfts = this.nfts.filter((n) => n.status == "private");
             const res = [];
             nfts.forEach((n) => {
@@ -59,7 +66,7 @@ export default {
 
             return res;
         },
-        sale_nfts: function() {
+        sale_nfts: function () {
             return this.nfts.filter((n) => n.status == "sale");
         },
     },
@@ -154,6 +161,7 @@ export default {
 .card {
     height: 100%;
 }
+
 .alb-card {
     width: 300px;
 }

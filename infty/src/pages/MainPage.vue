@@ -1,20 +1,31 @@
 <template>
     <div class="flex-wrapper">
-        <Navbar />
+        <div class="fluent-warning">
+            <p v-if="!isFluent">
+                You need to install
+                <a href="https://fluentwallet.com/">Fluent wallet</a> to access this
+                site
+            </p>
+        </div>
+        <Navbar/>
         <div class="main">
-            <img class="banner" :src="banner" />
+            <img :src="banner" class="banner"/>
             <p class="banner-text mt-5">
-                {{ $t('banner') }}
+                {{ $t("banner") }}
             </p>
             <div class="btn-bg bg-1">
                 <div class="btn btn-2">
                     <router-link to="/marketplace"
-                        ><button>{{ $t('explore') }}</button></router-link
+                    >
+                        <button>{{ $t("explore") }}</button>
+                    </router-link
                     >
                 </div>
                 <div class="btn btn-1">
                     <router-link to="/mine/create"
-                        ><button>{{ $t('create') }}</button></router-link
+                    >
+                        <button>{{ $t("create") }}</button>
+                    </router-link
                     >
                 </div>
             </div>
@@ -22,75 +33,102 @@
             <span class="shape"></span>
             <span class="shape"></span>
 
-            <div class="about-us" data-sal="fade" data-sal-delay="200" data-sal-duration="800">
+            <div
+                    class="about-us"
+                    data-sal="fade"
+                    data-sal-delay="200"
+                    data-sal-duration="800"
+            >
                 <span class="about-shape"></span>
                 <div class="sm:w-2/3 sm:mr-10">
                     <div class="about-text">
-                        <h2 class="font-bold stress">{{ $t('about') }} <span class="font-bold stress">{{ $t('our_team') }}</span></h2>
+                        <h2 class="font-bold stress">
+                            {{ $t("about") }}
+                            <span class="font-bold stress">{{ $t("our_team") }}</span>
+                        </h2>
                         <p class="text-gray-700">
-                            {{ $t('aboutUsContent') }}
+                            {{ $t("aboutUsContent") }}
                         </p>
                     </div>
                 </div>
-                <img class="team" :src="team" />
+                <img :src="team" class="team"/>
             </div>
         </div>
-        <svg class="editorial" viewBox="0 24 150 28" preserveAspectRatio="none">
+        <svg class="editorial" preserveAspectRatio="none" viewBox="0 24 150 28">
             <defs>
-                <path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
+                <path
+                        id="gentle-wave"
+                        d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z"
+                />
             </defs>
             <g class="parallax">
-                <use xlink:href="#gentle-wave" x="50" y="2" fill="#95d0f9" />
-                <use xlink:href="#gentle-wave" x="50" y="6" fill="#379eff" />
-                <use xlink:href="#gentle-wave" x="50" y="8" fill="#121212" />
+                <use fill="#95d0f9" x="50" xlink:href="#gentle-wave" y="2"/>
+                <use fill="#379eff" x="50" xlink:href="#gentle-wave" y="6"/>
+                <use fill="#121212" x="50" xlink:href="#gentle-wave" y="8"/>
             </g>
         </svg>
 
-        <Footer />
+        <Footer/>
     </div>
 </template>
 
 <script>
-import Navbar from '../components/Navbar.vue';
-import Footer from '../components/Footer.vue';
-import sal from 'sal.js';
+import Navbar from "../components/Navbar.vue";
+import Footer from "../components/Footer.vue";
+import sal from "sal.js";
 
 export default {
-    name: 'App',
+    name: "App",
     components: {
         Navbar,
         Footer,
     },
     data: () => ({
-        banner: require('../assets/imgs/banner.svg'),
-        team: require('../assets/imgs/aboutUs.svg'),
+        banner: require("../assets/imgs/banner.svg"),
+        team: require("../assets/imgs/aboutUs.svg"),
+        isFluent: false,
     }),
     mounted() {
         sal();
-    }
+        this.checkFluentWallet();
+    },
+    methods: {
+        checkFluentWallet() {
+            if (window.fluent) {
+                this.isFluent = true;
+            } else {
+                this.isFluent = false;
+            }
+        },
+    },
 };
 </script>
 
 <style scoped>
-@import '../../node_modules/sal.js/dist/sal.css';
+@import "../../node_modules/sal.js/dist/sal.css";
+
 .main {
     text-align: center;
     overflow: hidden;
 }
+
 .banner {
     margin-top: 150px;
     width: 40%;
 }
+
 @media screen and (max-width: 1500px) {
     .banner {
         margin-top: 150px;
         width: 50%;
     }
 }
+
 .banner-text {
     font-size: 2rem;
     font-weight: 1000;
 }
+
 .editorial {
     display: block;
     width: 100%;
@@ -99,20 +137,24 @@ export default {
     margin: 0;
     /* opacity: 0.5; */
 }
+
 .parallax > use {
     animation: move-forever 12s linear infinite;
 }
+
 .parallax > use:nth-child(1) {
     /* animation: move-forever -2s; */
     animation-delay: 2s;
     opacity: 0.4;
     /* animation-delay: -2s; */
 }
+
 .parallax > use:nth-child(2) {
     animation-delay: -2s;
     animation-duration: 5s;
     opacity: 0.4;
 }
+
 .parallax > use:nth-child(3) {
     animation-delay: -4s;
     animation-duration: 3s;
@@ -162,6 +204,7 @@ export default {
     z-index: -1;
     animation: wave 15s ease-in-out infinite;
 }
+
 .about-shape {
     width: 125%;
     height: 100%;
@@ -206,9 +249,11 @@ export default {
     -webkit-transform: translate(0, 0);
     transform: translate(0, 0);
 }
+
 body .btn-bg.bg-1 .btn-1 button a {
     color: #95d0f9;
 }
+
 body .btn-bg.bg-1 .btn-1 button:hover {
     background: #95d0f9;
     color: #ffffff;
@@ -216,11 +261,13 @@ body .btn-bg.bg-1 .btn-1 button:hover {
     -webkit-transition: all 0.35s ease;
     transition: all 0.35s ease;
 }
+
 .btn-bg.bg-1 .btn-1 button:hover > a {
     color: #6ab1c9;
     -webkit-transition: all 0.35s ease;
     transition: all 0.35s ease;
 }
+
 .btn-bg.bg-1 .btn-1 button:active {
     -webkit-transform: translate(5px, 5px);
     transform: translate(5px, 5px);
@@ -228,7 +275,7 @@ body .btn-bg.bg-1 .btn-1 button:hover {
 
 .btn-bg.bg-1 .btn-2 button {
     /* color: #95d0f9;
-  background: transparent; */
+    background: transparent; */
     background: #95d0f9;
     color: #ffffff;
     border: 3px solid #95d0f9;
@@ -238,22 +285,26 @@ body .btn-bg.bg-1 .btn-1 button:hover {
     -webkit-transform: translate(0, 0);
     transform: translate(0, 0);
 }
+
 body .btn-bg.bg-1 .btn-2 button a {
     color: #95d0f9;
 }
+
 body .btn-bg.bg-1 .btn-2 button:hover {
     /* background: #95d0f9;
-  color: #ffffff; */
+    color: #ffffff; */
     background: #55b8ff;
     border: 3px solid #95d0f9;
     -webkit-transition: all 0.35s ease;
     transition: all 0.35s ease;
 }
+
 .btn-bg.bg-1 .btn-1 button:hover > a {
     color: #6ab1c9;
     -webkit-transition: all 0.35s ease;
     transition: all 0.35s ease;
 }
+
 .btn-bg.bg-1 .btn-2 button:active {
     -webkit-transform: translate(5px, 5px);
     transform: translate(5px, 5px);
@@ -274,12 +325,14 @@ button {
     font-weight: 400;
     padding: 1rem 3rem 1rem 3rem;
     text-transform: uppercase;
-    font-family: 'Lato';
+    font-family: "Lato";
     font-size: 1.5em;
 }
+
 button a {
     text-decoration: none;
 }
+
 .about-us {
     position: relative;
     text-align: left;
@@ -287,21 +340,40 @@ button a {
     padding: 5%;
     margin-top: 10%;
 }
+
 .team {
     height: 40%;
     width: 40%;
 }
+
 .font-bold {
     font-weight: 600;
 }
+
 .font-bold > .stress {
     font-weight: 900;
     color: #2f7df6;
 }
+
 .about-us p {
     margin-top: 2em;
     font-size: 1.3em;
     font-weight: 400;
     color: #3f3e54;
+}
+
+.fluent-warning {
+    justify-content: center;
+    align-items: center;
+}
+
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap");
+.fluent-warning p {
+    font-family: "Montserrat", sans-serif;
+    background-color: #f45050;
+    color: #fff;
+    text-align: center;
+    font-weight: 500;
+    margin: 0;
 }
 </style>
