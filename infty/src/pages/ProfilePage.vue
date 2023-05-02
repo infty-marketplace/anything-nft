@@ -17,7 +17,7 @@
             <img id="profile-pic" :src="avatar"/>
             <h2 class="mt-2">{{ first_name }} {{ last_name }}</h2>
             <a :href="`${confluxScanUrl}/address/${$route.params.address}`" target="_blank"
-            ><p class="mt-2">{{ this.$route.params.address }}</p></a
+                ><p class="mt-2">{{ this.$route.params.address }}</p></a
             >
         </div>
 
@@ -147,9 +147,9 @@
                         <el-card class="box-card m-5">
                             <el-table
                                     :data="selectedIndex == '6-1' ? receivedSupports : givenSupports"
-                                    empty-text="Nothing"
-                                    height="calc(100vh - 250px)"
-                                    stripe
+                                empty-text="Nothing"
+                                height="calc(100vh - 250px)"
+                                stripe
                             >
                                 <el-table-column type="expand">
                                     <template #default="props">
@@ -190,16 +190,16 @@
                             <div slot="header" class="clearfix">
                                 <span>Settings</span>
                                 <i
-                                        v-if="!editModes"
-                                        class="el-icon-edit"
-                                        style="float:right;cursor:pointer;"
-                                        @click="() => (editModes = true)"
+                                    v-if="!editModes"
+                                    class="el-icon-edit"
+                                    style="float:right;cursor:pointer;"
+                                    @click="() => (editModes = true)"
                                 ></i>
                                 <i
-                                        v-if="editModes"
-                                        class="el-icon-finished"
-                                        style="float:right;cursor:pointer;"
-                                        @click="update"
+                                    v-if="editModes"
+                                    class="el-icon-finished"
+                                    style="float:right;cursor:pointer;"
+                                    @click="update"
                                 />
                             </div>
                             <p>Your Wallet Address</p>
@@ -211,20 +211,20 @@
                                 <el-col :span="12" class=""
                                 >
                                     <el-input
-                                            ref="first"
-                                            v-model="new_first"
-                                            :disabled="!editModes"
-                                            placeholder="First Name"
+                                        ref="first"
+                                        v-model="new_first"
+                                        :disabled="!editModes"
+                                        placeholder="First Name"
                                     ></el-input
                                     >
                                 </el-col>
                                 <el-col :span="10" class="pl-3"
                                 >
                                     <el-input
-                                            ref="last"
-                                            v-model="new_last"
-                                            :disabled="!editModes"
-                                            placeholder="Last Name"
+                                        ref="last"
+                                        v-model="new_last"
+                                        :disabled="!editModes"
+                                        placeholder="Last Name"
                                     ></el-input
                                     >
                                 </el-col>
@@ -238,13 +238,13 @@
                                 <el-col :span="22" class=""
                                 >
                                     <el-input
-                                            ref="bio"
-                                            v-model="bio"
-                                            :disabled="!editModes"
-                                            maxlength="300"
-                                            placeholder="Please enter..."
-                                            show-word-limit
-                                            type="textarea"
+                                        ref="bio"
+                                        v-model="bio"
+                                        :disabled="!editModes"
+                                        maxlength="300"
+                                        placeholder="Please enter..."
+                                        show-word-limit
+                                        type="textarea"
                                     >
                                     </el-input
                                     >
@@ -267,11 +267,11 @@
                         >
                         </el-switch> -->
                         <el-button
-                                class="mr-5"
-                                style="display:inline; float:right;"
-                                type="danger"
-                                @click="logout"
-                        >Log Out
+                            class="mr-5"
+                            style="display:inline; float:right;"
+                            type="danger"
+                            @click="logout"
+                            >Log Out
                         </el-button>
                     </div>
                 </el-col>
@@ -377,10 +377,11 @@ export default {
                     });
                 })
                 .catch(() => {
-                    this.$bvToast.toast("Update Failed", {
+                    this.$notify({
                         title: "Error",
-                        autoHideDelay: 3000,
-                        appendToast: false,
+                        message: "Update Failed",
+                        duration: 3000,
+                        type: "error",
                     });
                 });
             this.editModes = false;
@@ -459,15 +460,15 @@ export default {
         async loadNfts(nftIds, enableLike = false) {
             const nftPromises = nftIds.map((nftId) => {
                 return axios.get(`${this.$store.getters.getApiUrl}/nft/${nftId}`).then(async (res) => {
-                    const nft = res.data;
-                    nft.url = nft.file;
-                    nft.enableLike = enableLike;
+                        const nft = res.data;
+                        nft.url = nft.file;
+                        nft.enableLike = enableLike;
                     nft.isLiked = nft.liked_users.includes(this.$store.getters.getAddress);
-                    const ownerAddress = this.getOwnerAddress(nft.owner);
-                    nft.ownerAddress = ownerAddress;
+                        const ownerAddress = this.getOwnerAddress(nft.owner);
+                        nft.ownerAddress = ownerAddress;
                     nft.ownerName = await this.getNameByAddress(ownerAddress);
-                    return nft;
-                });
+                        return nft;
+                    });
             });
             const results = await Promise.allSettled(nftPromises);
             let nfts = results.filter((result) => result.status === "fulfilled").map((result) => result.value);

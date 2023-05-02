@@ -16,12 +16,12 @@
                     </p>
                 </b-card-text>
                 <span
-                        v-for="(item, index) in card.labels"
-                        :key="index"
-                        class="badge badge-pill badge-info"
-                        style="display:inline-block;margin-right:5px;"
+                    v-for="(item, index) in card.labels"
+                    :key="index"
+                    class="badge badge-pill badge-info"
+                    style="display:inline-block;margin-right:5px;"
                 >
-                            {{ item }}
+                    {{ item }}
                 </span>
                 <b-list-group flush>
                     <b-list-group-item>
@@ -36,8 +36,8 @@
                                 Contract Address:
                                 <a
                                         :href="`${this.confluxScanUrl}/address/${$store.getters.getMinterAddress}`"
-                                        target="_blank"
-                                >{{ card.nft_id.split("-")[0] }}
+                                    target="_blank"
+                                    >{{ card.nft_id.split("-")[0] }}
                                 </a>
                             </p>
                             <p>Token ID {{ card.nft_id.split("-")[1] }}</p>
@@ -51,9 +51,9 @@
                 <h5 class="owner">
                     &nbsp;&nbsp;&nbsp;&nbsp;
                     <div
-                            v-if="!card.fragmented"
-                            class="card-owner"
-                            @click="handleRedirectToProfile(card.owner[0].address)"
+                        v-if="!card.fragmented"
+                        class="card-owner"
+                        @click="handleRedirectToProfile(card.owner[0].address)"
                     >
                         Owned by {{ card.owner_name }}&nbsp;&nbsp;&nbsp;
                     </div>
@@ -73,10 +73,10 @@
                 <div v-show="card.unlockable_content.text && card.unlockable_content.text" id="lockable-content"
                      style="width: 100%">
                     <el-tooltip
-                            content="You'll see the content once you purchase the NFT."
-                            effect="dark"
-                            placement="top"
-                            style="cursor:pointer"
+                        content="You'll see the content once you purchase the NFT."
+                        effect="dark"
+                        placement="top"
+                        style="cursor:pointer"
                     >
                         <div class="unlock" style="width: 100%" @click="ucVisible = isOwner"><i
                                 class="el-icon-lock"></i>&nbsp;&nbsp;Contains Unlockable Content
@@ -121,9 +121,9 @@
                         </p>
                         <label>Commision Fee</label>
                         <b-form-input
-                                v-model="listing_commision"
-                                class="mb-4"
-                                placeholder="How much in cfx... (Minimum 2.5%)"
+                            v-model="listing_commision"
+                            class="mb-4"
+                            placeholder="How much in cfx... (Minimum 2.5%)"
                         />
                     </b-modal>
                 </b-card>
@@ -419,17 +419,18 @@ export default {
                         const ownerAddress = getters.getAddress;
                         axios.get(`${this.$store.getters.getApiUrl}/profile/${ownerAddress}`).then((resp) => {
                             this.card.owner_name = resp.data.first_name + " " + resp.data.last_name;
-                            this.isOwner = true;
-                            this.card.status = "private";
-                            this.$forceUpdate();
-                        });
+                                this.isOwner = true;
+                                this.card.status = "private";
+                                this.$forceUpdate();
+                            });
                     }
                 })
                 .catch(() => {
-                    this.$bvToast.toast("Purchase Failed", {
+                    this.$notify({
                         title: "Error",
-                        autoHideDelay: 3000,
-                        appendToast: false,
+                        message: "Purchase Failed",
+                        duration: 3000,
+                        type: "error",
                     });
                 });
         },
