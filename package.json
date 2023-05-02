@@ -15,14 +15,14 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/InfTkm/anything-nft.git"
+        "url": "git+https://github.com/infty-marketplace/anything-nft.git"
     },
     "author": "",
     "license": "ISC",
     "bugs": {
-        "url": "https://github.com/InfTkm/anything-nft/issues"
+        "url": "https://github.com/infty-marketplace/anything-nft/issues"
     },
-    "homepage": "https://github.com/InfTkm/anything-nft#readme",
+    "homepage": "https://github.com/infty-marketplace/anything-nft#readme",
     "dependencies": {
         "element-ui": "^2.15.5"
     }

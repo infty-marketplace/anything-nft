@@ -7,15 +7,15 @@
 <a href='http://infty.market' style='display:block'>
     <img src='https://i.giphy.com/2AsUh6drRSF8bBQ1Zv.gif' /></a>
 
-![GitHub language count](https://img.shields.io/github/languages/count/InfTkm/anything-nft)
-![GitHub top language](https://img.shields.io/github/languages/top/inftkm/anything-nft?color=42b883)
-![GitHub issues](https://img.shields.io/github/issues/inftkm/anything-nft)
-![GitHub commit activity](https://img.shields.io/github/commit-activity/y/inftkm/anything-nft)
+![GitHub language count](https://img.shields.io/github/languages/count/infty-marketplace/anything-nft)
+![GitHub top language](https://img.shields.io/github/languages/top/infty-marketplace/anything-nft?color=42b883)
+![GitHub issues](https://img.shields.io/github/issues/infty-marketplace/anything-nft)
+![GitHub commit activity](https://img.shields.io/github/commit-activity/y/infty-marketplace/anything-nft)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
-![GitHub contributors](https://img.shields.io/github/contributors/inftkm/anything-nft)
+![GitHub contributors](https://img.shields.io/github/contributors/infty-marketplace/anything-nft)
 ![Website](https://img.shields.io/website?url=http%3A%2F%2Finfty.market)
-![GitHub Repo stars](https://img.shields.io/github/stars/inftkm/anything-nft?style=social)
+![GitHub Repo stars](https://img.shields.io/github/stars/infty-marketplace/anything-nft?style=social)
 
 </div>
 
@@ -113,13 +113,13 @@ It's also deployed at http://infty.market.
 
 ## Roadmap
 
-See the [open issues](https://github.com/inftkm/anything-nft/issues) for a list of proposed features (and known issues).
+See the [open issues](https://github.com/infty-marketplace/anything-nft/issues) for a list of proposed features (and known issues).
 
-- [Top Feature Requests](https://github.com/inftkm/anything-nft/issues?q=label%3Aenhancement+is%3Aopen+sort%3Areactions-%2B1-desc) (
+- [Top Feature Requests](https://github.com/infty-marketplace/anything-nft/issues?q=label%3Aenhancement+is%3Aopen+sort%3Areactions-%2B1-desc) (
   Add your votes using the 👍 reaction)
-- [Top Bugs](https://github.com/inftkm/anything-nft/issues?q=is%3Aissue+is%3Aopen+label%3Abug+sort%3Areactions-%2B1-desc) (
+- [Top Bugs](https://github.com/infty-marketplace/anything-nft/issues?q=is%3Aissue+is%3Aopen+label%3Abug+sort%3Areactions-%2B1-desc) (
   Add your votes using the 👍 reaction)
-- [Newest Bugs](https://github.com/inftkm/anything-nft/issues?q=is%3Aopen+is%3Aissue+label%3Abug)
+- [Newest Bugs](https://github.com/infty-marketplace/anything-nft/issues?q=is%3Aopen+is%3Aissue+label%3Abug)
 
 ## Contributing
 

@@ -9,7 +9,7 @@
                     >
                 </router-link>
                 <div class="media-icons">
-                    <a href="https://github.com/InfTkm/anything-nft" target="_blank"
+                    <a href="https://github.com/infty-marketplace/anything-nft" target="_blank"
                     >
                         <b-icon icon="github"></b-icon>
                     </a>
