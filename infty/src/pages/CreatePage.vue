@@ -4,10 +4,19 @@
         <div class="content mt-5 mb-5" v-if="$store.getters.getLogInStatus">
             <h2>{{ $t("createNft.createNft") }}</h2>
             <label class="mt-4">{{ $t("createNft.title") }}</label>
-            <b-form-input v-model="title" type="search" v-bind:placeholder="$t('createNft.name')" />
+            <b-form-input
+                v-model="title"
+                type="search"
+                v-bind:placeholder="$t('createNft.name')"
+            />
             <label class="mt-5">{{ $t("createNft.image") }}</label>
-            <div style="display:flex;min-width:100%;justify-content:space-around;">
-                <FileUploader class="file-uploader" pass-file-to-event="CreatePage.receiveFile" />
+            <div
+                style="display:flex;min-width:100%;justify-content:space-around;"
+            >
+                <FileUploader
+                    class="file-uploader"
+                    pass-file-to-event="CreatePage.receiveFile"
+                />
             </div>
             <label class="mt-5">{{ $t("createNft.description") }}</label>
             <div class="form-group">
@@ -17,11 +26,21 @@
                     v-model="description"
                     rows="3"
                 />
-                <b-icon v-if="description" font-scale="1.5" class="icon" icon="x" @click="clearTextArea"></b-icon>
+                <b-icon
+                    v-if="description"
+                    font-scale="1.5"
+                    class="icon"
+                    icon="x"
+                    @click="clearTextArea"
+                ></b-icon>
             </div>
             <label class="mt-5">{{ $t("createNft.labels") }}</label>
             <div style="width:100%">
-                <div style="display:inline-block" v-for="(item, index) in labels" :key="index">
+                <div
+                    style="display:inline-block"
+                    v-for="(item, index) in labels"
+                    :key="index"
+                >
                     <button
                         @click="clicked(index)"
                         class="label-selection-button"
@@ -32,17 +51,33 @@
                 </div>
             </div>
             <div class="mt-5">
-                <b-badge pill variant="info" class="ml-2">Decentralized Image Storage on IPFS</b-badge>
-                <b-button variant="primary" class="create-btn" @click="createNft">{{
-                    $t("createNft.create")
-                }}</b-button>
-                <b-button variant="outline-primary" class="create-btn mr-2" @click="ucVisible = true">{{
-                    $t("createNft.unlockableContent")
-                }}</b-button>
+                <b-badge pill variant="info" class="ml-2"
+                    >Decentralized Image Storage on IPFS</b-badge
+                >
+                <b-button
+                    variant="primary"
+                    class="create-btn"
+                    @click="createNft"
+                    >{{ $t("createNft.create") }}</b-button
+                >
+                <b-button
+                    variant="outline-primary"
+                    class="create-btn mr-2"
+                    @click="ucVisible = true"
+                    >{{ $t("createNft.unlockableContent") }}</b-button
+                >
             </div>
-            <el-dialog title="Unlockable Content" :visible.sync="ucVisible" width="60%" :before-close="(d) => d()" ref="Dialog">
+            <el-dialog
+                title="Unlockable Content"
+                :visible.sync="ucVisible"
+                width="60%"
+                :before-close="(d) => d()"
+                ref="Dialog"
+            >
                 <label>Image</label>
-                <div style="display:flex;min-width:100%;justify-content:space-around;">
+                <div
+                    style="display:flex;min-width:100%;justify-content:space-around;"
+                >
                     <FileUploader
                         class="uc-file-uploader"
                         id="uc-file-uploader"
@@ -67,7 +102,9 @@
                 </div>
                 <span slot="footer" class="dialog-footer">
                     <el-button @click="ucVisible = false">Cancel</el-button>
-                    <el-button type="primary" @click="convertImage">Confirm</el-button>
+                    <el-button type="primary" @click="convertImage"
+                        >Confirm</el-button
+                    >
                 </span>
             </el-dialog>
         </div>
@@ -107,12 +144,18 @@ export default {
     }),
 
     beforeMount() {
-        this.labels.forEach((item, index) => this.$set(this.labelState, index, false));
+        this.labels.forEach((item, index) =>
+            this.$set(this.labelState, index, false)
+        );
     },
 
     methods: {
         async createNft() {
-            if (!this.imageData || !this.title || this.title.replace(/\s+/g, "").length === 0) {
+            if (
+                !this.imageData ||
+                !this.title ||
+                this.title.replace(/\s+/g, "").length === 0
+            ) {
                 Notification.closeAll();
                 this.$notify.error({
                     title: "Missing Required Information",
@@ -127,7 +170,8 @@ export default {
                 Notification.closeAll();
                 this.$notify.error({
                     title: "File Too Large",
-                    message: "Please ensure the file size is no larger than 100 MB",
+                    message:
+                        "Please ensure the file size is no larger than 100 MB",
                     duration: 3000,
                 });
                 return;
@@ -142,51 +186,68 @@ export default {
             });
 
             // Obtain estimation
-            const estimation = (await axios.post(this.$store.getters.getApiUrl + "/mint-estimate")).data.gas;
+            const estimation = (
+                await axios.post(
+                    this.$store.getters.getApiUrl + "/mint-estimate"
+                )
+            ).data.gas;
             // Charge User
             const getters = this.$store.getters;
             Notification.closeAll();
-            this.$store.dispatch("notifyLoading", { msg: "Paying commission now" });
-            
+            this.$store.dispatch("notifyLoading", {
+                msg: "Paying commission now",
+            });
+
             let error = false; // flag is set to true when errors occur in transaction
-            const receipt = 
-                await this.$store.getters.getCfx
-                    .sendTransaction({
-                        from: (await window.conflux.request({method:"cfx_requestAccounts"}))[0],
-                        to: getters.getManagerAddr,
-                        gasPrice: getters.getGasPrice,
-                        value: estimation,
-                    })
-                    .executed()
-                    .catch((e) => {
-                        Notification.closeAll();
-                        let title = "Transaction Failed";
-                        let message = "Transaction failed, please try again";
-                        if (e.code === 4001) {
-                            message = "User denied transaction signature";
-                        }
-                        this.$notify.error({
-                            title,
-                            message,
-                            duration: 3000,
-                        });
-                        error = true;
+            const receipt = await this.$store.getters.getCfx
+                .sendTransaction({
+                    from: (
+                        await window.conflux.request({
+                            method: "cfx_requestAccounts",
+                        })
+                    )[0],
+                    to: getters.getManagerAddr,
+                    gasPrice: getters.getGasPrice,
+                    value: estimation,
+                })
+                .executed()
+                .catch((e) => {
+                    Notification.closeAll();
+                    let title = "Transaction Failed";
+                    let message = "Transaction failed, please try again";
+                    if (e.code === 4001) {
+                        message = "User denied transaction signature";
+                    }
+                    this.$notify.error({
+                        title,
+                        message,
+                        duration: 3000,
                     });
+                    error = true;
+                });
 
             if (error) {
                 return; // Stop to create nft if the transaction failed
             }
-            
+
             // Create nft
             const fd = new FormData();
             fd.append("file", this.imageData);
             fd.append("address", this.$store.getters.getAddress);
             fd.append("title", this.title);
             fd.append("description", this.description);
-            const selectedLabels = this.labels.filter((l, i) => this.labelState[i] == true);
+            const selectedLabels = this.labels.filter(
+                (l, i) => this.labelState[i] == true
+            );
             fd.append("labels", JSON.stringify(selectedLabels));
-            fd.append("unlockable_image", this.ucImageStr? this.ucImageStr: "");
-            fd.append("unlockable_text", this.ucDescription? this.ucDescription: "");
+            fd.append(
+                "unlockable_image",
+                this.ucImageStr ? this.ucImageStr : ""
+            );
+            fd.append(
+                "unlockable_text",
+                this.ucDescription ? this.ucDescription : ""
+            );
             fd.append("estimation", estimation);
             fd.append("receipt", receipt.transactionHash);
 
@@ -218,10 +279,12 @@ export default {
                         message = "Please try another title for your NFT";
                     } else if (err.response.status == 429) {
                         title = "Daily Creation Limit Reached";
-                        message = "If you'd like to create more NFTs, please contact us at contacts@infty.market";
+                        message =
+                            "If you'd like to create more NFTs, please contact us at contacts@infty.market";
                     } else if (err.response.status == 413) {
                         title = "File Too Large";
-                        message = "Please ensure the file size is no larger than 100 MB";
+                        message =
+                            "Please ensure the file size is no larger than 100 MB";
                     }
                     this.$notify.error({
                         title: title,
@@ -243,25 +306,28 @@ export default {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
-                reader.onload = () => resolve(this.ucImageStr = reader.result);
-                reader.onerror = error => reject(error);
+                reader.onload = () =>
+                    resolve((this.ucImageStr = reader.result));
+                reader.onerror = (error) => reject(error);
             });
         },
 
         async convertImage() {
-            if (this.ucImageData){
+            if (this.ucImageData) {
                 await this.toBase64(this.ucImageData).catch((error) => {
                     this.$notify.error({
-                    title: "Error occurs when converting the input image file",
-                    message: error,
-                    duration: 3000,
-                });})
+                        title:
+                            "Error occurs when converting the input image file",
+                        message: error,
+                        duration: 3000,
+                    });
+                });
             } else {
                 // since no image is uploaded, base64 representation of the image is set to undefined
                 this.ucImageStr = undefined;
             }
             this.$refs.Dialog.hide();
-        }
+        },
     },
     async mounted() {
         eventBus.$on("CreatePage.receiveFile", (imageData) => {
