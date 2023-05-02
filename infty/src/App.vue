@@ -12,7 +12,7 @@ export default {
     name: "App",
     created() {
         document.title = "Infty Marketplace";
-        // this.$store.dispatch("loadFromSessionStorage");
+        this.$store.dispatch("loadFromSessionStorage");
     },
     mounted() {
         const cfx = this.$store.getters.getCfx;
