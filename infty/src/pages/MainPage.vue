@@ -1,6 +1,6 @@
 <template>
   <div class="flex-wrapper">
-    <div class="isFluent">
+    <div class="fluent-warning">
       <p v-if="!isFluent">
         You need to install
         <a href="https://fluentwallet.com/">Fluent wallet</a> to access this
@@ -333,12 +333,12 @@ button a {
   font-weight: 400;
   color: #3f3e54;
 }
-.isFluent {
+.fluent-warning {
   justify-content: center;
   align-items: center;
 }
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap");
-.isFluent p {
+.fluent-warning p {
   font-family: "Montserrat", sans-serif;
   background-color: #f45050;
   color: #fff;
