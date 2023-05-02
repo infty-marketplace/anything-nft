@@ -1,34 +1,35 @@
 <template>
     <div class="flex-wrapper main">
-        <Navbar />
-        <button @click="$router.go(-1)" class="back-btn"><i class="el-icon-back" style="color:white" /></button>
-        <div class="actions" v-if="!this.isMyself && $store.getters.getLogInStatus">
+        <Navbar/>
+        <button class="back-btn" @click="$router.go(-1)"><i class="el-icon-back" style="color:white"/></button>
+        <div v-if="!this.isMyself && $store.getters.getLogInStatus" class="actions">
             <el-button type="primary" @click="openSupportModal">打赏</el-button>
             <b-modal ref="support-modal" title="Support Creator" @ok="supportCreator">
                 <label>Please enter the amount in CFX</label>
-                <b-form-input class="mb-4" v-model="supportAmount" placeholder="" />
+                <b-form-input v-model="supportAmount" class="mb-4" placeholder=""/>
                 <label>(Optioal) Leave a message to the creator</label>
-                <b-form-input class="mb-4" v-model="supportMessage" placeholder="" />
+                <b-form-input v-model="supportMessage" class="mb-4" placeholder=""/>
             </b-modal>
             <el-button type="primary" @click="$store.dispatch('notifyWIP')">关注</el-button>
             <el-button type="primary" @click="$store.dispatch('notifyWIP')">站内信</el-button>
         </div>
-        <div class="profile-pic-container" v-if="$store.getters.getLogInStatus">
-            <img :src="avatar" id="profile-pic" />
+        <div v-if="$store.getters.getLogInStatus" class="profile-pic-container">
+            <img id="profile-pic" :src="avatar"/>
             <h2 class="mt-2">{{ first_name }} {{ last_name }}</h2>
-            <a target="_blank" :href="`${confluxScanUrl}/address/${$route.params.address}`"
-                ><p class="mt-2">{{ this.$route.params.address }}</p></a
+            <a :href="`${confluxScanUrl}/address/${$route.params.address}`" target="_blank"
+            ><p class="mt-2">{{ this.$route.params.address }}</p></a
             >
         </div>
 
-        <div class="content" v-if="$store.getters.getLogInStatus">
+        <div v-if="$store.getters.getLogInStatus" class="content">
             <div class="padding-border"></div>
             <el-row class="tac">
                 <el-col :span="5">
-                    <el-menu @select="handleSelect" default-active="0" class="el-menu-vertical-demo" @open="loadSupports">
+                    <el-menu class="el-menu-vertical-demo" default-active="0" @open="loadSupports"
+                             @select="handleSelect">
                         <!-- @open="handleOpen" -->
                         <!-- @close="handleClose" -->
-                        <el-submenu index="1" v-if="!this.isMyself">
+                        <el-submenu v-if="!this.isMyself" index="1">
                             <template slot="title">
                                 <i class="el-icon-menu"></i>
                                 <span>Listing</span>
@@ -36,15 +37,15 @@
                             <el-menu-item index="1-1">NFT</el-menu-item>
                             <el-menu-item index="1-2">Raffle</el-menu-item>
                         </el-submenu>
-                        <el-menu-item index="2" v-if="this.isMyself">
+                        <el-menu-item v-if="this.isMyself" index="2">
                             <i class="el-icon-notebook-2"></i>
                             <span slot="title">Transaction History</span>
                         </el-menu-item>
-                        <el-menu-item index="4" v-if="this.isMyself" id="fav">
+                        <el-menu-item v-if="this.isMyself" id="fav" index="4">
                             <i class="el-icon-star-off"></i>
                             <span slot="title">My liked NFTs</span>
                         </el-menu-item>
-                        <el-submenu index="6" v-if="this.isMyself">
+                        <el-submenu v-if="this.isMyself" index="6">
                             <template slot="title">
                                 <i class="el-icon-goods"></i>
                                 <span>Supports</span>
@@ -52,11 +53,11 @@
                             <el-menu-item index="6-1">Received</el-menu-item>
                             <el-menu-item index="6-2">Given</el-menu-item>
                         </el-submenu>
-                        <el-menu-item index="3" v-if="this.isMyself" id="account-menu">
+                        <el-menu-item v-if="this.isMyself" id="account-menu" index="3">
                             <i class="el-icon-setting"></i>
                             <span slot="title">My Account</span>
                         </el-menu-item>
-                        <el-menu-item index="5" v-if="!this.isMyself" id="bang">
+                        <el-menu-item v-if="!this.isMyself" id="bang" index="5">
                             <i class="el-icon-coin"></i>
                             <span slot="title">粉丝打榜</span>
                         </el-menu-item>
@@ -67,8 +68,8 @@
                     <div v-if="selectedIndex == '1-1'">
                         <el-card class="box-card m-5 card-container">
                             <div class="card-container">
-                                <NftCard class="mt-4 card" v-for="nft in saleNfts" :card="nft" :key="nft.url" />
-                                <p class="mt-4" v-if="saleNfts.length == 0">
+                                <NftCard v-for="nft in saleNfts" :key="nft.url" :card="nft" class="mt-4 card"/>
+                                <p v-if="saleNfts.length == 0" class="mt-4">
                                     <el-empty description="Nothing"></el-empty>
                                 </p>
                             </div>
@@ -78,8 +79,8 @@
                     <div v-if="selectedIndex == '1-2'">
                         <el-card class="box-card m-5 card-container">
                             <div class="card-container">
-                                <NftCard class="mt-4 card" v-for="nft in drawNfts" :card="nft" :key="nft.url" />
-                                <p class="mt-4" v-if="drawNfts.length == 0">
+                                <NftCard v-for="nft in drawNfts" :key="nft.url" :card="nft" class="mt-4 card"/>
+                                <p v-if="drawNfts.length == 0" class="mt-4">
                                     <el-empty description="Nothing"></el-empty>
                                 </p>
                             </div>
@@ -93,49 +94,49 @@
                                     <template #default="props">
                                         <p v-for="(value, key) in props.row.details" :key="key">
                                             {{
-                                                key + ": " + (typeof value === "object" ? JSON.stringify(value) : value)
+                                            key + ": " + (typeof value === "object" ? JSON.stringify(value) : value)
                                             }}
                                         </p>
                                     </template>
                                 </el-table-column>
 
-                                <el-table-column prop="time" label="Time" align="center"> </el-table-column>
-                                <el-table-column label="Title" align="center">
+                                <el-table-column align="center" label="Time" prop="time"></el-table-column>
+                                <el-table-column align="center" label="Title">
                                     <template slot-scope="scope">
-                                        <el-link target="_blank" :href="`/nft/${scope.row.nft_id}`">
+                                        <el-link :href="`/nft/${scope.row.nft_id}`" target="_blank">
                                             {{ scope.row.title }}
                                         </el-link>
                                     </template>
                                 </el-table-column>
-                                <el-table-column prop="price" label="Price" align="center"> </el-table-column>
-                                <el-table-column prop="currency" label="Currency" align="center"> </el-table-column>
-                                <el-table-column prop="commission" label="Commission Fee" align="center">
+                                <el-table-column align="center" label="Price" prop="price"></el-table-column>
+                                <el-table-column align="center" label="Currency" prop="currency"></el-table-column>
+                                <el-table-column align="center" label="Commission Fee" prop="commission">
                                 </el-table-column>
-                                <el-table-column prop="commission_currency" label="Commission Currency" align="center">
+                                <el-table-column align="center" label="Commission Currency" prop="commission_currency">
                                 </el-table-column>
-                                <el-table-column label="From" align="center">
+                                <el-table-column align="center" label="From">
                                     <template slot-scope="scope">
                                         <el-link :href="`/profile/${scope.row.fromAddress}`">
                                             {{ scope.row.from }}
                                         </el-link>
                                     </template>
                                 </el-table-column>
-                                <el-table-column label="To" align="center">
+                                <el-table-column align="center" label="To">
                                     <template slot-scope="scope">
                                         <el-link :href="`/profile/${scope.row.toAddress}`">
                                             {{ scope.row.to }}
                                         </el-link>
                                     </template>
                                 </el-table-column>
-                                <el-table-column prop="type" label="Transaction Type" align="center"> </el-table-column>
+                                <el-table-column align="center" label="Transaction Type" prop="type"></el-table-column>
                             </el-table>
                         </el-card>
                     </div>
                     <div v-if="selectedIndex == '4'">
                         <el-card class="box-card m-5 card-container">
                             <div class="card-container">
-                                <NftCard class="mt-4 card" v-for="nft in likedNfts" :card="nft" :key="nft.url" />
-                                <p class="mt-4" v-if="likedNfts.length == 0">
+                                <NftCard v-for="nft in likedNfts" :key="nft.url" :card="nft" class="mt-4 card"/>
+                                <p v-if="likedNfts.length == 0" class="mt-4">
                                     <el-empty description="Nothing"></el-empty>
                                 </p>
                             </div>
@@ -145,10 +146,10 @@
                     <div v-if="selectedIndex == '6-1' || selectedIndex == '6-2'">
                         <el-card class="box-card m-5">
                             <el-table
-                                :data="selectedIndex == '6-1' ? receivedSupports : givenSupports"
-                                empty-text="Nothing"
-                                height="calc(100vh - 250px)"
-                                stripe
+                                    :data="selectedIndex == '6-1' ? receivedSupports : givenSupports"
+                                    empty-text="Nothing"
+                                    height="calc(100vh - 250px)"
+                                    stripe
                             >
                                 <el-table-column type="expand">
                                     <template #default="props">
@@ -157,9 +158,9 @@
                                         </p>
                                     </template>
                                 </el-table-column>
-                                <el-table-column prop="time" label="Time" align="center"> </el-table-column>
+                                <el-table-column align="center" label="Time" prop="time"></el-table-column>
 
-                                <el-table-column label="From" align="center">
+                                <el-table-column align="center" label="From">
                                     <template slot-scope="scope">
                                         <el-link :href="`/profile/${scope.row.fromAddress}`">
                                             {{ scope.row.from }}
@@ -167,14 +168,14 @@
                                     </template>
                                 </el-table-column>
 
-                                <el-table-column label="To" align="center">
+                                <el-table-column align="center" label="To">
                                     <template slot-scope="scope">
                                         <el-link :href="`/profile/${scope.row.toAddress}`">
                                             {{ scope.row.to }}
                                         </el-link>
                                     </template>
                                 </el-table-column>
-                                <el-table-column prop="amount" label="Amount" align="center"></el-table-column>
+                                <el-table-column align="center" label="Amount" prop="amount"></el-table-column>
                             </el-table>
                         </el-card>
                     </div>
@@ -189,66 +190,72 @@
                             <div slot="header" class="clearfix">
                                 <span>Settings</span>
                                 <i
-                                    v-if="!editModes"
-                                    style="float:right;cursor:pointer;"
-                                    class="el-icon-edit"
-                                    @click="() => (editModes = true)"
+                                        v-if="!editModes"
+                                        class="el-icon-edit"
+                                        style="float:right;cursor:pointer;"
+                                        @click="() => (editModes = true)"
                                 ></i>
                                 <i
-                                    v-if="editModes"
-                                    style="float:right;cursor:pointer;"
-                                    @click="update"
-                                    class="el-icon-finished"
+                                        v-if="editModes"
+                                        class="el-icon-finished"
+                                        style="float:right;cursor:pointer;"
+                                        @click="update"
                                 />
                             </div>
                             <p>Your Wallet Address</p>
-                            <el-input :placeholder="this.$store.getters.getAddress" :disabled="true">
+                            <el-input :disabled="true" :placeholder="this.$store.getters.getAddress">
                                 <el-button slot="append" @click="$store.dispatch('notifyWIP')">Copy</el-button>
                             </el-input>
                             <p class="mt-3">Info</p>
                             <el-row>
-                                <el-col class="" :span="12"
-                                    ><el-input
-                                        ref="first"
-                                        placeholder="First Name"
-                                        v-model="new_first"
-                                        :disabled="!editModes"
+                                <el-col :span="12" class=""
+                                >
+                                    <el-input
+                                            ref="first"
+                                            v-model="new_first"
+                                            :disabled="!editModes"
+                                            placeholder="First Name"
                                     ></el-input
-                                ></el-col>
-                                <el-col class="pl-3" :span="10"
-                                    ><el-input
-                                        ref="last"
-                                        placeholder="Last Name"
-                                        v-model="new_last"
-                                        :disabled="!editModes"
+                                    >
+                                </el-col>
+                                <el-col :span="10" class="pl-3"
+                                >
+                                    <el-input
+                                            ref="last"
+                                            v-model="new_last"
+                                            :disabled="!editModes"
+                                            placeholder="Last Name"
                                     ></el-input
-                                ></el-col>
-                                <el-col class="pr-3" :span="2">
+                                    >
+                                </el-col>
+                                <el-col :span="2" class="pr-3">
                                     <!-- <i v-if="!editModes.name" style='margin-top:10px;float:right;cursor:pointer;' class="el-icon-edit" @click="()=> enableEdit('name')"></i>
                             <i v-if="editModes.name" style='margin-top:10px;float:right;cursor:pointer;' @click="update" class='el-icon-finished'/> -->
                                 </el-col>
                             </el-row>
                             <p class="mt-3">Bio</p>
                             <el-row class="mb-3">
-                                <el-col class="" :span="22"
-                                    ><el-input
-                                        type="textarea"
-                                        placeholder="Please enter..."
-                                        v-model="bio"
-                                        maxlength="300"
-                                        show-word-limit
-                                        ref="bio"
-                                        :disabled="!editModes"
+                                <el-col :span="22" class=""
+                                >
+                                    <el-input
+                                            ref="bio"
+                                            v-model="bio"
+                                            :disabled="!editModes"
+                                            maxlength="300"
+                                            placeholder="Please enter..."
+                                            show-word-limit
+                                            type="textarea"
                                     >
                                     </el-input
-                                ></el-col>
-                                <el-col class="pr-3" :span="2">
+                                    >
+                                </el-col>
+                                <el-col :span="2" class="pr-3">
                                     <!-- <i v-if="!editModes.bio" style='margin-top:10px;float:right;cursor:pointer;' class="el-icon-edit" @click="() => enableEdit('bio')"></i>
                             <i v-if="editModes.bio" style='margin-top:10px;float:right;cursor:pointer;' @click="update" class='el-icon-finished'/> -->
                                 </el-col>
                             </el-row>
                         </el-card>
-                        
+
                         <!-- TODO: Night mode support <el-switch
                             class="ml-5"
                             style="display: inline-block"
@@ -259,18 +266,19 @@
                             inactive-text="Night Mode"
                         >
                         </el-switch> -->
-                        <el-button 
-                            class="mr-5"
-                            style="display:inline; float:right;"
-                            type="danger"
-                            @click="logout"
-                        >Log Out</el-button>
+                        <el-button
+                                class="mr-5"
+                                style="display:inline; float:right;"
+                                type="danger"
+                                @click="logout"
+                        >Log Out
+                        </el-button>
                     </div>
                 </el-col>
             </el-row>
         </div>
-        <ConnectWallet v-else />
-        <Footer />
+        <ConnectWallet v-else/>
+        <Footer/>
     </div>
 </template>
 
@@ -280,7 +288,7 @@ import Footer from "../components/Footer.vue";
 import NftCard from "../components/NftCard.vue";
 import ConnectWallet from "../components/ConnectWallet.vue";
 import axios from "axios";
-import { Notification } from "element-ui";
+import {Notification} from "element-ui";
 
 export default {
     name: "ProfilePage",
@@ -314,16 +322,16 @@ export default {
         addressToName: {},
     }),
     computed: {
-        isMyself: function() {
+        isMyself: function () {
             return this.$store.getters.getAddress === this.$route.params.address;
         },
-        saleNfts: function() {
+        saleNfts: function () {
             return this.nfts.filter((n) => n.status == "sale");
         },
-        drawNfts: function() {
+        drawNfts: function () {
             return this.nfts.filter((n) => n.status == "draw");
         },
-        transactions: function() {
+        transactions: function () {
             if (this.selectedIndex === "2") {
                 return this.nftTransactions;
             }
@@ -406,7 +414,7 @@ export default {
                 const date = new Date(Date.parse(transaction.created_at));
 
                 return {
-                    details: { ...details, time: date.toString() },
+                    details: {...details, time: date.toString()},
                     time: `${this.padToTwoDigits(date.getFullYear())}/${this.padToTwoDigits(
                         date.getMonth() + 1
                     )}/${this.padToTwoDigits(date.getDate())} ${this.padToTwoDigits(
@@ -532,10 +540,10 @@ export default {
         async supportCreator() {
             const to = this.$route.params.address;
             try {
-                this.$store.dispatch("notifyLoading", { msg: "Sending transaction" });
+                this.$store.dispatch("notifyLoading", {msg: "Sending transaction"});
                 await this.$store.getters.getCfx
                     .sendTransaction({
-                        from: (await window.conflux.request({method:"cfx_requestAccounts"}))[0],
+                        from: (await window.conflux.request({method: "cfx_requestAccounts"}))[0],
                         to: to,
                         gasPrice: this.$store.getters.getGasPrice,
                         value: 1e18 * parseFloat(this.supportAmount),
@@ -563,7 +571,7 @@ export default {
             }
             // record in database
             let data = {
-                fromAddress: (await window.conflux.request({method:"cfx_requestAccounts"}))[0],
+                fromAddress: (await window.conflux.request({method: "cfx_requestAccounts"}))[0],
                 toAddress: to,
                 amount: parseFloat(this.supportAmount),
             };
@@ -621,6 +629,7 @@ export default {
     top: 150px;
     right: 10px;
 }
+
 .content {
     width: 100%;
     margin-top: 200px;
@@ -628,9 +637,11 @@ export default {
     height: 100%;
     padding-bottom: 5%;
 }
+
 .main {
     background-color: #f8f8f9;
 }
+
 #profile-pic {
     border-radius: 50%;
     height: 300px;
@@ -648,14 +659,17 @@ export default {
     text-align: center;
     z-index: 1;
 }
+
 .padding-border {
     height: 250px;
     border-bottom: solid rgb(195, 236, 255) 5px;
 }
+
 .el-menu,
 .tac {
     height: 100%;
 }
+
 .el-col {
     height: calc(100% - 250px);
 }
@@ -678,11 +692,11 @@ export default {
     padding-left: 10%;
 }
 
-/deep/.el-dropdown {
+/deep/ .el-dropdown {
     display: none;
 }
 
-/deep/.btn-info {
+/deep/ .btn-info {
     display: none;
 }
 </style>

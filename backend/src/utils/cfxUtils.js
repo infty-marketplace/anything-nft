@@ -1,5 +1,5 @@
 require("dotenv").config();
-const { Conflux, Drip } = require("js-conflux-sdk");
+const {Conflux, Drip} = require("js-conflux-sdk");
 const s3 = require("../database/s3");
 
 // cfx init
@@ -9,15 +9,15 @@ const cfx = new Conflux({
 });
 
 const managerAccount = cfx.wallet.addPrivateKey(process.env.MANAGER_KEY);
-const { abi: minterAbi } = require("../assets/InftyNft.json");
-const { abi: raffleAbi } = require("../assets/Raffle.json");
+const {abi: minterAbi} = require("../assets/InftyNft.json");
+const {abi: raffleAbi} = require("../assets/Raffle.json");
 
-const minterContract = cfx.Contract({ abi: minterAbi, address: process.env.MINTER_ADDRESS });
-const raffleContract = cfx.Contract({ abi: raffleAbi, address: process.env.RAFFLE_ADDRESS });
+const minterContract = cfx.Contract({abi: minterAbi, address: process.env.MINTER_ADDRESS});
+const raffleContract = cfx.Contract({abi: raffleAbi, address: process.env.RAFFLE_ADDRESS});
 
 // Mint NFT on chain.
 async function mint(addr, uri) {
-    return await minterContract.mint(addr, uri).sendTransaction({ from: process.env.MANAGER_ADDRESS }).executed();
+    return await minterContract.mint(addr, uri).sendTransaction({from: process.env.MANAGER_ADDRESS}).executed();
 }
 
 //TODO: the burn function is currently internal in our nft contract, make it public, redeploy it so we can use it here
@@ -30,7 +30,7 @@ async function burn(tokenId) {
 // Multiply by 1.2 to avoid transaction failing due to potential underestimation
 async function mintEstimate(addr, uri) {
     const estimate = await minterContract.mint(addr, uri).estimateGasAndCollateral();
-    const estimated_gas = estimate.gasLimit + estimate.storageCollateralized
+    const estimated_gas = estimate.gasLimit + estimate.storageCollateralized;
     return estimated_gas / 5n + estimated_gas;
     // both estimate.gasLimit and esitmate.storageCollateralized are bigInt which can't be multiplied by a float directly
     // also, since bigInt is an integer, we use integer division instead of division in the formula below
@@ -46,12 +46,12 @@ async function createRaffle(details) {
             details.nft_id.split("-")[0],
             details.nft_id.split("-")[1]
         )
-        .sendTransaction({ from: process.env.MANAGER_ADDRESS })
+        .sendTransaction({from: process.env.MANAGER_ADDRESS})
         .executed();
 }
 
 async function drawRaffle(minter, tokenId) {
-    return await raffleContract.draw(minter, tokenId).sendTransaction({ from: process.env.MANAGER_ADDRESS }).executed();
+    return await raffleContract.draw(minter, tokenId).sendTransaction({from: process.env.MANAGER_ADDRESS}).executed();
 }
 
 function decodeRaffleLog(log) {
@@ -65,7 +65,7 @@ async function getOwnerOnChain(tokenId) {
 async function transferOwnershipOnChain(fromAddr, toAddr, tokenID) {
     return await minterContract
         .transferFrom(fromAddr, toAddr, tokenID)
-        .sendTransaction({ from: process.env.MANAGER_ADDRESS })
+        .sendTransaction({from: process.env.MANAGER_ADDRESS})
         .executed();
 }
 
@@ -109,17 +109,17 @@ async function actualTokenId(ownerAddr, uri) {
     return -1;
 }
 
-async function getTransaction(hash){
+async function getTransaction(hash) {
     return await cfx.getTransactionByHash(hash);
 }
 
-async function getEpochNumber(hash){
-    const block = await cfx.getBlockByHash(hash)
+async function getEpochNumber(hash) {
+    const block = await cfx.getBlockByHash(hash);
     return block.epochNumber;
 }
 
-async function getCurrentEpochNumber(){
-    return await cfx.getEpochNumber('latest_mined');
+async function getCurrentEpochNumber() {
+    return await cfx.getEpochNumber("latest_mined");
 }
 
 module.exports = {

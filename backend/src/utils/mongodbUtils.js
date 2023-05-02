@@ -20,4 +20,4 @@ async function saveAll(schedules) {
         });
 }
 
-module.exports = { saveAll };
+module.exports = {saveAll};

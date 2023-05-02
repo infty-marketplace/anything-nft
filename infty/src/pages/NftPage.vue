@@ -1,10 +1,12 @@
 <template>
     <div class="flex-wrapper">
-        <Navbar />
-        <button @click="$router.go(-1)" class="back-btn"><i class="el-icon-back" style="color:white" /></button>
+        <Navbar/>
+        <button class="back-btn" @click="$router.go(-1)"><i class="el-icon-back" style="color:white"/></button>
         <div class="detail-content mb-4">
-            <b-card class="detailed-card" :img-src="card && card.url" img-alt="Card image" img-top>
-                <b-card-title><b-icon icon="card-text"></b-icon>&nbsp;Description</b-card-title>
+            <b-card :img-src="card && card.url" class="detailed-card" img-alt="Card image" img-top>
+                <b-card-title>
+                    <b-icon icon="card-text"></b-icon>&nbsp;Description
+                </b-card-title>
                 <b-card-text>
                     <p class="card-owner" @click="handleRedirectToProfile(card.author)">
                         Created by {{ card && card.author_name }}
@@ -14,25 +16,28 @@
                     </p>
                 </b-card-text>
                 <span
-                            class="badge badge-pill badge-info"
-                            style="display:inline-block;margin-right:5px;"
-                            v-for="(item, index) in card.labels"
-                            :key="index"
-                        >
+                        v-for="(item, index) in card.labels"
+                        :key="index"
+                        class="badge badge-pill badge-info"
+                        style="display:inline-block;margin-right:5px;"
+                >
                             {{ item }}
                 </span>
                 <b-list-group flush>
                     <b-list-group-item>
-                        <b-button v-b-toggle.collapse-2 variant="outline-secondary" class="category-button"
-                            ><b-icon icon="file-earmark-text"></b-icon>Details</b-button
+                        <b-button v-b-toggle.collapse-2 class="category-button" variant="outline-secondary"
+                        >
+                            <b-icon icon="file-earmark-text"></b-icon>
+                            Details
+                        </b-button
                         >
                         <b-collapse id="collapse-2" class="mt-2">
                             <p>
                                 Contract Address:
                                 <a
-                                    target="_blank"
-                                    :href="`${this.confluxScanUrl}/address/${$store.getters.getMinterAddress}`"
-                                    >{{ card.nft_id.split("-")[0] }}
+                                        :href="`${this.confluxScanUrl}/address/${$store.getters.getMinterAddress}`"
+                                        target="_blank"
+                                >{{ card.nft_id.split("-")[0] }}
                                 </a>
                             </p>
                             <p>Token ID {{ card.nft_id.split("-")[1] }}</p>
@@ -46,36 +51,43 @@
                 <h5 class="owner">
                     &nbsp;&nbsp;&nbsp;&nbsp;
                     <div
-                        class="card-owner"
-                        v-if="!card.fragmented"
-                        @click="handleRedirectToProfile(card.owner[0].address)"
+                            v-if="!card.fragmented"
+                            class="card-owner"
+                            @click="handleRedirectToProfile(card.owner[0].address)"
                     >
                         Owned by {{ card.owner_name }}&nbsp;&nbsp;&nbsp;
                     </div>
-                    <div style="display: inline-block"><b-icon icon="eye" />&nbsp;{{ views }} views</div>
+                    <div style="display: inline-block">
+                        <b-icon icon="eye"/>&nbsp;{{ views }} views
+                    </div>
                     <div style="display: inline-block">
                         <div class="like">
-                            <heart-btn ref="heartBtn" :nftId="card.nft_id" :isLiked="card.isLiked" />
+                            <heart-btn ref="heartBtn" :isLiked="card.isLiked" :nftId="card.nft_id"/>
                         </div>
                         {{ card.likes }} likes
                     </div>
                 </h5>
             </div>
 
-            <b-card-group deck class="transaction">
-                <div id="lockable-content" v-show="card.unlockable_content.text && card.unlockable_content.text" style="width: 100%">
+            <b-card-group class="transaction" deck>
+                <div v-show="card.unlockable_content.text && card.unlockable_content.text" id="lockable-content"
+                     style="width: 100%">
                     <el-tooltip
-                    style="cursor:pointer"
-                    effect="dark"
-                    content="You'll see the content once you purchase the NFT."
-                    placement="top"
-                >
-                        <div class="unlock" @click="ucVisible = isOwner" style="width: 100%"><i class="el-icon-lock"></i>&nbsp;&nbsp;Contains Unlockable Content</div>
+                            content="You'll see the content once you purchase the NFT."
+                            effect="dark"
+                            placement="top"
+                            style="cursor:pointer"
+                    >
+                        <div class="unlock" style="width: 100%" @click="ucVisible = isOwner"><i
+                                class="el-icon-lock"></i>&nbsp;&nbsp;Contains Unlockable Content
+                        </div>
                     </el-tooltip>
-                    <el-dialog title="Unlockable Content" :visible.sync="ucVisible" width="60%" :before-close="(d) => d()">
+                    <el-dialog :before-close="(d) => d()" :visible.sync="ucVisible" title="Unlockable Content"
+                               width="60%">
                         <label>Image</label>
                         <div v-if="!card.unlockable_content.image.length">No Unlockable Image</div>
-                        <img style="display:flex;margin-left:auto;margin-right:auto;justify-content:space-around;max-height:50vh;" :src="card.unlockable_content.image">
+                        <img :src="card.unlockable_content.image"
+                             style="display:flex;margin-left:auto;margin-right:auto;justify-content:space-around;max-height:50vh;">
                         <label class="mt-4">Text</label>
                         <div v-if="!card.unlockable_content.text.length">No Unlockable Text</div>
                         <p>{{ card.unlockable_content.text }}</p>
@@ -84,9 +96,11 @@
                         </span>
                     </el-dialog>
                 </div>
-                <b-card class="transaction-info" header-tag="header" footer-tag="footer" v-if="card.status == 'sale'">
+                <b-card v-if="card.status == 'sale'" class="transaction-info" footer-tag="footer" header-tag="header">
                     <template #header>
-                        <h6 class="mb-0"><b-icon icon="clock"></b-icon>&nbsp;For Sale Now</h6>
+                        <h6 class="mb-0">
+                            <b-icon icon="clock"></b-icon>&nbsp;For Sale Now
+                        </h6>
                     </template>
                     <b-card-text>Current Price</b-card-text>
                     <p>
@@ -94,8 +108,10 @@
                         {{ card.price }}
                     </p>
 
-                    <b-button href="#" variant="primary" @click="buyNowClicked" v-if="!isOwner && card.status == 'sale'"
-                        ><b-icon icon="wallet2"></b-icon>&nbsp;&nbsp;Buy now</b-button
+                    <b-button v-if="!isOwner && card.status == 'sale'" href="#" variant="primary" @click="buyNowClicked"
+                    >
+                        <b-icon icon="wallet2"></b-icon>&nbsp;&nbsp;Buy now
+                    </b-button
                     >
                     <b-modal ref="buy-modal" title="List Item" @ok="purchaseNft">
                         <label>Price</label>
@@ -105,17 +121,17 @@
                         </p>
                         <label>Commision Fee</label>
                         <b-form-input
-                            class="mb-4"
-                            v-model="listing_commision"
-                            placeholder="How much in cfx... (Minimum 2.5%)"
+                                v-model="listing_commision"
+                                class="mb-4"
+                                placeholder="How much in cfx... (Minimum 2.5%)"
                         />
                     </b-modal>
                 </b-card>
-                <b-card class="transaction-info" header-tag="header" footer-tag="footer">
+                <b-card class="transaction-info" footer-tag="footer" header-tag="header">
                     <template #header>
                         Transaction History
                     </template>
-                    <el-table :data="transactions" style="width: 100%" stripe empty-text="Nothing">
+                    <el-table :data="transactions" empty-text="Nothing" stripe style="width: 100%">
                         <el-table-column type="expand">
                             <template #default="props">
                                 <p v-for="(value, key) in props.row.details" :key="key">
@@ -123,26 +139,26 @@
                                 </p>
                             </template>
                         </el-table-column>
-                        <el-table-column prop="txnHash" label="Txn Hash" width="180">
+                        <el-table-column label="Txn Hash" prop="txnHash" width="180">
                             <template slot-scope="scope">
-                                <a target="_blank" :href="scope.row.txnHashUrl">{{ scope.row.txnHash }}</a>
+                                <a :href="scope.row.txnHashUrl" target="_blank">{{ scope.row.txnHash }}</a>
                             </template>
                         </el-table-column>
-                        <el-table-column prop="from" label="From" width="180">
+                        <el-table-column label="From" prop="from" width="180">
                             <template slot-scope="scope">
-                                <a target="_blank" :href="scope.row.fromUrl">{{ scope.row.from }}</a>
+                                <a :href="scope.row.fromUrl" target="_blank">{{ scope.row.from }}</a>
                             </template>
                         </el-table-column>
-                        <el-table-column prop="to" label="To" width="180">
+                        <el-table-column label="To" prop="to" width="180">
                             <template slot-scope="scope">
-                                <a target="_blank" :href="scope.row.toUrl">{{ scope.row.to }}</a>
+                                <a :href="scope.row.toUrl" target="_blank">{{ scope.row.to }}</a>
                             </template>
                         </el-table-column>
-                        <el-table-column prop="time" label="Time" width="180"> </el-table-column>
-                        <el-table-column prop="age" label="Age" width="180"> </el-table-column>
-                        <el-table-column prop="epoch" label="Epoch" width="180">
+                        <el-table-column label="Time" prop="time" width="180"></el-table-column>
+                        <el-table-column label="Age" prop="age" width="180"></el-table-column>
+                        <el-table-column label="Epoch" prop="epoch" width="180">
                             <template slot-scope="scope">
-                                <a target="_blank" :href="scope.row.epochUrl">{{ scope.row.epoch }}</a>
+                                <a :href="scope.row.epochUrl" target="_blank">{{ scope.row.epoch }}</a>
                             </template>
                         </el-table-column>
                     </el-table>
@@ -150,7 +166,7 @@
             </b-card-group>
         </div>
 
-        <Footer style="z-index: 1" />
+        <Footer style="z-index: 1"/>
     </div>
 </template>
 
@@ -159,8 +175,8 @@ import axios from "axios";
 import Navbar from "../components/Navbar.vue";
 import Footer from "../components/Footer.vue";
 import HeartBtn from "../components/HeartBtn.vue";
-import { Notification } from "element-ui";
-import { eventBus } from "../main";
+import {Notification} from "element-ui";
+import {eventBus} from "../main";
 
 export default {
     name: "DetailPage",
@@ -224,7 +240,7 @@ export default {
                 card = (await axios.get(`${getters.getApiUrl}/nft/${this.$route.params.id}`)).data;
             } catch (error) {
                 // if nft not found, redirect to marketplace
-                this.$router.push({ path: "/marketplace" });
+                this.$router.push({path: "/marketplace"});
                 this.$notify.error({
                     title: "Error",
                     message: "NFT not found",
@@ -257,7 +273,7 @@ export default {
             card.likes = card.liked_users.length;
             card.isLiked = card.liked_users.includes(this.$store.getters.getAddress);
             if (!card.unlockable_content) {
-                card.unlockable_content = {image:"", text:""}
+                card.unlockable_content = {image: "", text: ""};
             }
 
             this.card = card;
@@ -346,7 +362,7 @@ export default {
         async purchaseNft() {
             const getters = this.$store.getters;
             try {
-                await axios.post(`${getters.getApiUrl}/validate-nft`, { nft_id: this.card.nft_id });
+                await axios.post(`${getters.getApiUrl}/validate-nft`, {nft_id: this.card.nft_id});
             } catch (err) {
                 this.$notify.error({
                     title: "NFT No Longer Available for Purchase",
@@ -357,10 +373,10 @@ export default {
                 return;
             }
 
-            this.$store.dispatch("notifyLoading", { msg: "Purchasing now" });
+            this.$store.dispatch("notifyLoading", {msg: "Purchasing now"});
             const res = await this.$store.getters.getCfx
                 .sendTransaction({
-                    from: (await window.conflux.request({method:"cfx_requestAccounts"}))[0],
+                    from: (await window.conflux.request({method: "cfx_requestAccounts"}))[0],
                     to: getters.getManagerAddr,
                     gasPrice: getters.getGasPrice,
                     value: 1e18 * (parseFloat(this.listing_commision) + parseFloat(this.card.price)),
@@ -435,23 +451,28 @@ export default {
     margin-bottom: 2rem;
     margin-right: 1rem;
 }
+
 @media screen and (max-width: 2000px) {
     .detailed-card {
         width: 300px;
     }
 }
+
 .category-button {
     margin-top: 2rem;
     width: 100%;
 }
+
 .heart {
     float: right;
 }
+
 .detail-content {
     width: 80%;
     margin-left: auto;
     margin-right: auto;
 }
+
 @media screen and (max-width: 2000px) {
     .detailed-content {
         width: 100%;
@@ -459,6 +480,7 @@ export default {
         margin-right: auto;
     }
 }
+
 .transaction {
     float: left;
     margin-top: 2rem;
@@ -468,11 +490,13 @@ export default {
     flex-direction: column;
     gap: 40px;
 }
+
 @media screen and (max-width: 2000px) {
     .transaction {
         width: calc(80vw - 350px);
     }
 }
+
 .transaction-info {
     max-width: 100%;
 }
@@ -480,6 +504,7 @@ export default {
 .title-container {
     margin-top: 2rem;
 }
+
 .title {
     font-weight: bold;
     font-size: 4rem;
@@ -493,6 +518,7 @@ export default {
     margin-left: -30px;
     margin-right: -60px;
 }
+
 .back-btn {
     position: absolute;
     top: 150px;
@@ -503,6 +529,7 @@ export default {
     border: unset;
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
 }
+
 .unlock {
     display: inline-block;
     padding: 0.3rem;
@@ -527,6 +554,7 @@ export default {
     z-index: -1;
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
 }
+
 .card-owner {
     cursor: pointer;
     display: inline-block;

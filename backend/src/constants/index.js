@@ -17,6 +17,7 @@ function constructTransactionTypeToCollectionTypeMap() {
     temp[TRANSACTION_TYPE.PURCHASE_NFT] = COLLECTION_TYPE.NFT;
     return Object.freeze(temp);
 }
+
 const TRANSACTION_TYPE_TO_COLLECTION_TYPE = constructTransactionTypeToCollectionTypeMap();
 
 module.exports = {

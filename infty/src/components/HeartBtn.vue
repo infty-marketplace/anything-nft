@@ -1,5 +1,5 @@
 <template>
-    <div class="heart-like-button" ref="heart" @click="onClickLike"></div>
+    <div ref="heart" class="heart-like-button" @click="onClickLike"></div>
 </template>
 <script>
 import axios from "axios";
