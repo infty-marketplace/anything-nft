@@ -45,7 +45,9 @@
             <el-dialog ref="Dialog" :before-close="(d) => d()" :visible.sync="ucVisible" title="Unlockable Content"
                        width="60%">
                 <label>Image</label>
-                <div style="display:flex;min-width:100%;justify-content:space-around;">
+                <div
+                    style="display:flex;min-width:100%;justify-content:space-around;"
+                >
                     <FileUploader
                             id="uc-file-uploader"
                             class="uc-file-uploader"
@@ -70,7 +72,9 @@
                 </div>
                 <span slot="footer" class="dialog-footer">
                     <el-button @click="ucVisible = false">Cancel</el-button>
-                    <el-button type="primary" @click="convertImage">Confirm</el-button>
+                    <el-button type="primary" @click="convertImage"
+                        >Confirm</el-button
+                    >
                 </span>
             </el-dialog>
         </div>
@@ -111,12 +115,18 @@ export default {
     }),
 
     beforeMount() {
-        this.labels.forEach((item, index) => this.$set(this.labelState, index, false));
+        this.labels.forEach((item, index) =>
+            this.$set(this.labelState, index, false)
+        );
     },
 
     methods: {
         async createNft() {
-            if (!this.imageData || !this.title || this.title.replace(/\s+/g, "").length === 0) {
+            if (
+                !this.imageData ||
+                !this.title ||
+                this.title.replace(/\s+/g, "").length === 0
+            ) {
                 Notification.closeAll();
                 this.$notify.error({
                     title: "Missing Required Information",
@@ -131,7 +141,8 @@ export default {
                 Notification.closeAll();
                 this.$notify.error({
                     title: "File Too Large",
-                    message: "Please ensure the file size is no larger than 100 MB",
+                    message:
+                        "Please ensure the file size is no larger than 100 MB",
                     duration: 3000,
                 });
                 return;
@@ -146,35 +157,46 @@ export default {
             });
 
             // Obtain estimation
-            const estimation = (await axios.post(this.$store.getters.getApiUrl + "/mint-estimate")).data.gas;
+            const estimation = (
+                await axios.post(
+                    this.$store.getters.getApiUrl + "/mint-estimate"
+                )
+            ).data.gas;
             // Charge User
             const getters = this.$store.getters;
-            this.$store.dispatch("notifyLoading", {msg: "Paying commission now"});
+
+            Notification.closeAll();
+            this.$store.dispatch("notifyLoading", {
+                msg: "Paying commission now",
+            });
 
             let error = false; // flag is set to true when errors occur in transaction
-            const receipt =
-                await this.$store.getters.getCfx
-                    .sendTransaction({
-                        from: (await window.conflux.request({method: "cfx_requestAccounts"}))[0],
-                        to: getters.getManagerAddr,
-                        gasPrice: getters.getGasPrice,
-                        value: estimation,
-                    })
-                    .executed()
-                    .catch((e) => {
-                        Notification.closeAll();
-                        let title = "Transaction Failed";
-                        let message = "Transaction failed, please try again";
-                        if (e.code === 4001) {
-                            message = "User denied transaction signature";
-                        }
-                        this.$notify.error({
-                            title,
-                            message,
-                            duration: 3000,
-                        });
-                        error = true;
+            const receipt = await this.$store.getters.getCfx
+                .sendTransaction({
+                    from: (
+                        await window.conflux.request({
+                            method: "cfx_requestAccounts",
+                        })
+                    )[0],
+                    to: getters.getManagerAddr,
+                    gasPrice: getters.getGasPrice,
+                    value: estimation,
+                })
+                .executed()
+                .catch((e) => {
+                    Notification.closeAll();
+                    let title = "Transaction Failed";
+                    let message = "Transaction failed, please try again";
+                    if (e.code === 4001) {
+                        message = "User denied transaction signature";
+                    }
+                    this.$notify.error({
+                        title,
+                        message,
+                        duration: 3000,
                     });
+                    error = true;
+                });
 
             if (error) {
                 return; // Stop to create nft if the transaction failed
@@ -186,7 +208,9 @@ export default {
             fd.append("address", this.$store.getters.getAddress);
             fd.append("title", this.title);
             fd.append("description", this.description);
-            const selectedLabels = this.labels.filter((l, i) => this.labelState[i] == true);
+            const selectedLabels = this.labels.filter(
+                (l, i) => this.labelState[i] == true
+            );
             fd.append("labels", JSON.stringify(selectedLabels));
             fd.append("unlockable_image", this.ucImageStr ? this.ucImageStr : "");
             fd.append("unlockable_text", this.ucDescription ? this.ucDescription : "");
@@ -221,10 +245,12 @@ export default {
                         message = "Please try another title for your NFT";
                     } else if (err.response.status == 429) {
                         title = "Daily Creation Limit Reached";
-                        message = "If you'd like to create more NFTs, please contact us at contacts@infty.market";
+                        message =
+                            "If you'd like to create more NFTs, please contact us at contacts@infty.market";
                     } else if (err.response.status == 413) {
                         title = "File Too Large";
-                        message = "Please ensure the file size is no larger than 100 MB";
+                        message =
+                            "Please ensure the file size is no larger than 100 MB";
                     }
                     this.$notify.error({
                         title: title,
@@ -246,8 +272,9 @@ export default {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
-                reader.onload = () => resolve(this.ucImageStr = reader.result);
-                reader.onerror = error => reject(error);
+                reader.onload = () =>
+                    resolve((this.ucImageStr = reader.result));
+                reader.onerror = (error) => reject(error);
             });
         },
 
@@ -265,7 +292,7 @@ export default {
                 this.ucImageStr = undefined;
             }
             this.$refs.Dialog.hide();
-        }
+        },
     },
     async mounted() {
         eventBus.$on("CreatePage.receiveFile", (imageData) => {

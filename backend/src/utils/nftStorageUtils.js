@@ -35,8 +35,14 @@ async function burn(url) {
 }
 
 async function getImageUrl(metadataUrl) {
-    const res = await axios.get(metadataUrl);
-    return ipfsToHttps(res.data.image);
+    for (let i = 0; i < 10; i++) {
+        const res = await axios.get(metadataUrl);
+        if (res && res.data.image) {
+            return ipfsToHttps(res.data.image);
+        }
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
 }
 
-module.exports = {upload, getImageUrl, burn};
+module.exports = { upload, getImageUrl, burn };
+
