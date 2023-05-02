@@ -47,47 +47,47 @@
                         ></span
                     > -->
                     <span class="text-muted-right"
-                    ><small class="text-muted"
-                    ><b-icon icon="suit-diamond-fill"></b-icon>&nbsp;{{ $t("price") }}: {{ card.price }}</small
-                    ></span
+                        ><small class="text-muted"
+                            ><b-icon icon="suit-diamond-fill"></b-icon>&nbsp;{{ $t("price") }}: {{ card.price }}</small
+                        ></span
                     >
                 </div>
 
                 <div v-if="card.status == 'private'">
                     <small class="text-muted">Currently Unlisted</small>
                     <el-tooltip
-                            class="ml-2 mt-1"
-                            content="This is a fragment of the NFT."
-                            effect="dark"
-                            placement="bottom"
-                            style="cursor:help; float:right"
+                        class="ml-2 mt-1"
+                        content="This is a fragment of the NFT."
+                        effect="dark"
+                        placement="bottom"
+                        style="cursor:help; float:right"
                     >
                         <b-icon v-if="isPiece" b-icon icon="layout-wtf"/>
                     </el-tooltip>
                     <b-modal ref="list-modal" title="List Item" @ok="handleListNft">
                         <div class="mb-2" style="display:block;width:100%;">
                             <label
-                            >Settlement Currency:
+                                >Settlement Currency:
                                 <el-tooltip
-                                        class="ml-2"
-                                        content="The commission fee will be waived if you choose INFT as your settlement currency."
-                                        effect="dark"
-                                        placement="right"
-                                        style="cursor:help"
+                                    class="ml-2"
+                                    content="The commission fee will be waived if you choose INFT as your settlement currency."
+                                    effect="dark"
+                                    placement="right"
+                                    style="cursor:help"
                                 >
                                     <i class="el-icon-warning-outline"/></el-tooltip
                                 >
                             </label>
                             <el-select
-                                    v-model="currencyValue"
-                                    placeholder="Settlement Currency"
-                                    style="float:right;width:40%"
+                                v-model="currencyValue"
+                                placeholder="Settlement Currency"
+                                style="float:right;width:40%"
                             >
                                 <el-option
-                                        v-for="item in options"
-                                        :key="item.value"
-                                        :label="item.label"
-                                        :value="item.value"
+                                    v-for="item in options"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value"
                                 >
                                 </el-option>
                             </el-select>
@@ -95,34 +95,34 @@
 
                         <label>Price</label>
                         <b-form-input
-                                v-model="listing_price"
-                                :placeholder="`How much in ${currencyValue}...`"
-                                :state="isListingPrice"
-                                aria-describedby="input-live-feedback"
-                                class="mb-4"
+                            v-model="listing_price"
+                            :placeholder="`How much in ${currencyValue}...`"
+                            :state="isListingPrice"
+                            aria-describedby="input-live-feedback"
+                            class="mb-4"
                         />
                         <b-form-invalid-feedback id="input-live-feedback">
                             Your input should be a number with a maximum of 18 decimal places.
                         </b-form-invalid-feedback>
                         <div v-if="currencyValue != 'inft'">
                             <label
-                            >Commision Fee
+                                >Commision Fee
                                 <el-tooltip
-                                        class="ml-2"
-                                        content="Minimum is 2.5% of the price, or 10 cfx."
-                                        effect="dark"
-                                        placement="right"
-                                        style="cursor:help"
+                                    class="ml-2"
+                                    content="Minimum is 2.5% of the price, or 10 cfx."
+                                    effect="dark"
+                                    placement="right"
+                                    style="cursor:help"
                                 >
                                     <i class="el-icon-warning-outline"/>
                                 </el-tooltip>
                             </label>
                             <b-form-input
-                                    v-model="listing_commision"
-                                    :placeholder="`How much in ${currencyValue}... `"
-                                    :state="isListingCommision"
-                                    aria-describedby="input-live-feedback"
-                                    class="mb-4"
+                                v-model="listing_commision"
+                                :placeholder="`How much in ${currencyValue}... `"
+                                :state="isListingCommision"
+                                aria-describedby="input-live-feedback"
+                                class="mb-4"
                             />
                             <b-form-invalid-feedback id="input-live-feedback">
                                 Your input should be a number with a maximum of 18 decimal places.
@@ -325,10 +325,11 @@ export default {
                 })
                 .catch((err) => {
                     console.log(err);
-                    this.$bvToast.toast("Listing Failed", {
+                    this.$notify({
                         title: "Error",
-                        autoHideDelay: 3000,
-                        appendToast: false,
+                        message: "Listing Failed",
+                        duration: 3000,
+                        type: "error",
                     });
                     this.listing_status = false;
                 });
@@ -341,10 +342,11 @@ export default {
                     owner: this.$store.getters.getAddress,
                 })
                 .then((res) => {
-                    this.$bvToast.toast("Delisted Successfully", {
+                    this.$notify({
                         title: "Info",
-                        autoHideDelay: 3000,
-                        appendToast: false,
+                        message: "Delisted Successfully",
+                        duration: 3000,
+                        type: "info",
                     });
                     eventBus.$emit("Card.statusChanged", this.card.nft_id);
                     console.log(res);
@@ -371,18 +373,18 @@ export default {
             // TODO: should get signature from wallet to verify the ownership
             console.log(this.card.nft_id);
             axios.post(`${this.$store.getters.getApiUrl}/profile/set-avatar`, {
-                address: this.$store.getters.getAddress,
+                    address: this.$store.getters.getAddress,
                 nft_id: this.card.nft_id
             }).then(() => {
-                this.$notify({
-                    title: "Congrats",
-                    message: "Avatar Updated",
-                    duration: 3000,
-                    position: "top-left",
-                    type: "success",
+                    this.$notify({
+                        title: "Congrats",
+                        message: "Avatar Updated",
+                        duration: 3000,
+                        position: "top-left",
+                        type: "success",
+                    });
+                    this.$store.commit("setProfilePic");
                 });
-                this.$store.commit("setProfilePic");
-            });
             // TODO: error checking
         }
     },
