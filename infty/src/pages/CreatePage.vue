@@ -3,7 +3,7 @@
         <Navbar activeIndex="2"/>
         <div v-if="$store.getters.getLogInStatus" class="content mt-5 mb-5">
             <h2>{{ $t("createNft.createNft") }}</h2>
-            <label class="mt-4">{{ $t("createNft.title") }}</label>
+            <label class="mt-4">{{ $t("title") }}</label>
             <b-form-input v-model="title" type="search" v-bind:placeholder="$t('createNft.name')"/>
             <label class="mt-5">{{ $t("createNft.image") }}</label>
             <div style="display:flex;min-width:100%;justify-content:space-around;">
@@ -148,14 +148,6 @@ export default {
                 return;
             }
 
-            this.$notify({
-                title: "Pending",
-                dangerouslyUseHTMLString: true,
-                message:
-                    "<div style=\"display:flex; align-items: center;\"> <div class=\"loader\"></div><div style=\"display:inline\">NFT minting in progress</div></div>",
-                duration: 0,
-            });
-
             // Obtain estimation
             const estimation = (
                 await axios.post(
@@ -201,6 +193,11 @@ export default {
             if (error) {
                 return; // Stop to create nft if the transaction failed
             }
+
+            Notification.closeAll();
+            this.$store.dispatch("notifyLoading", {
+                msg: "Minting NFT now",
+            });
 
             // Create nft
             const fd = new FormData();
