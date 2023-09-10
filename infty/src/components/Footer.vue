@@ -19,26 +19,17 @@
                 <ul class="box">
                     <li class="link_name">{{ $t("marketplace") }}</li>
                     <li><a href="/marketplace">{{ $t("footer.allNFTs") }}</a></li>
-                    <li><a href="/marketplace">{{ $t("footer.art") }}</a></li>
-                    <li><a href="/marketplace">{{ $t("footer.tradingCards") }}</a></li>
-                    <li><a href="/marketplace">{{ $t("footer.collectibles") }}</a></li>
-                </ul>
-                <ul class="box">
-                    <li class="link_name">{{ $t("account") }}</li>
-                    <li><a href="#">{{ $t("footer.appDesign") }}</a></li>
-                    <li><a href="#">{{ $t("footer.webDesign") }}</a></li>
-                    <li><a href="#">{{ $t("footer.logoDesign") }}</a></li>
-                    <li><a href="#">{{ $t("footer.bannerDesign") }}</a></li>
-                </ul>
-                <ul class="box">
-                    <li class="link_name">{{ $t("stats") }}</li>
-                    <li><a href="#">{{ $t("footer.rankings") }}</a></li>
-                    <li><a href="#">{{ $t("footer.activity") }}</a></li>
+                    <li v-for="category in categories" :key="category">
+                        <router-link :to="`/marketplace?category=${category}`">
+                            {{ category }}
+                        </router-link>
+                    </li>
+
                 </ul>
                 <ul class="box">
                     <li class="link_name">{{ $t("cutoffx") }}</li>
-                    <li><a href="#">{{ $t("footer.contactUs") }}</a></li>
-                    <li><a href="#">{{ $t("footer.aboutUs") }}</a></li>
+                    <li><a href="mailto:contact@whileone.solutions">{{ $t("footer.contactUs") }}</a></li>
+                    <li><a href="/">{{ $t("footer.aboutUs") }}</a></li>
                 </ul>
                 <ul class="box input-box">
                     <li class="link_name">{{ $t("subscribe") }}</li>
@@ -72,9 +63,11 @@
 </template>
 
 <script>
+import constant from "../constants/index.js";
+import { eventBus } from '../main.js';
 export default {
     name: "Navbar",
-    data: () => ({}),
+    data() { return { categories: constant.LABELS,};},
     methods: {
         subscribe() {
             this.$notify({
@@ -331,6 +324,10 @@ footer .bottom-details .bottom_text {
 
 .bottom-details .bottom_text a {
     margin-right: 10px;
+}
+
+ul.box.input-box {
+    margin-left: auto;
 }
 
 @media (max-width: 900px) {

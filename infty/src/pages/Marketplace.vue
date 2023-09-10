@@ -96,7 +96,7 @@
                     </div>
                 </div>
                 <div id="tab">
-                    <b-tabs v-model="tabIndex" class="main-content" content-class="ml-5 mt-3">
+                    <b-tabs class="main-content" content-class="ml-5 mt-3">
                         <b-tab title="NFT">
                             <div class="nft-container">
                                 <transition name="fade">
@@ -152,7 +152,10 @@ export default {
         this.user = this.$store.getters.getAddress;
         this.loadNftMarket();
     },
-
+    mounted(){
+        this.selectedCategory = !this.$route.query.category? []: [this.$route.query.category]
+        this.applyFilter()
+    },
     data() {
         return {
             offsetNft: 0,
@@ -182,6 +185,13 @@ export default {
             selectedCategory: [],
             searchText: ""
         };
+    },
+    watch: {
+        '$route' (to, from) {
+            console.log(`the route is changed to ${this.$route.fullPath}`)
+            this.selectedCategory = !this.$route.query.category? []: [this.$route.query.category]
+            this.applyFilter()
+        }
     },
 
     methods: {
@@ -277,6 +287,7 @@ export default {
         },
 
         applyFilter() {
+            console.log("apply filter")
             // if the user doesn't select any filter category or price range, do not reload the market page
             if (!this.selectedCategory.length && !this.price_to && !this.price_from) {
                 return;
@@ -303,9 +314,7 @@ export default {
             document.getElementsByClassName("price-range");
             document.getElementById("clearAll").style.display = "none";
             this.loadNftMarket();
-        },
-
-
+        }
     },
 };
 </script>
