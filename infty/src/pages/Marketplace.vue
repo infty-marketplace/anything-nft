@@ -96,7 +96,7 @@
                     </div>
                 </div>
                 <div id="tab">
-                    <b-tabs v-model="tabIndex" class="main-content" content-class="ml-5 mt-3">
+                    <b-tabs class="main-content" content-class="ml-5 mt-3">
                         <b-tab title="NFT">
                             <div class="nft-container">
                                 <transition name="fade">
@@ -188,7 +188,7 @@ export default {
     },
     watch: {
         '$route' (to, from) {
-            console.log("watcher")
+            console.log(`the route is changed to ${this.$route.fullPath}`)
             this.selectedCategory = !this.$route.query.category? []: [this.$route.query.category]
             this.applyFilter()
         }

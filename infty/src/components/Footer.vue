@@ -19,12 +19,12 @@
                 <ul class="box">
                     <li class="link_name">{{ $t("marketplace") }}</li>
                     <li><a href="/marketplace">{{ $t("footer.allNFTs") }}</a></li>
-                    <li v-for="category in categories" 
-                        :key="category"  
-                        @click="onCategoryClicked(category)"
-                    >
-                        {{ category }}
+                    <li v-for="category in categories" :key="category">
+                        <router-link :to="`/marketplace?category=${category}`">
+                            {{ category }}
+                        </router-link>
                     </li>
+
                 </ul>
                 <ul class="box">
                     <li class="link_name">{{ $t("cutoffx") }}</li>
@@ -76,12 +76,6 @@ export default {
                 duration: 5000,
                 type: "success",
             });
-        },
-        onCategoryClicked(category){
-            const destination = `/marketplace?category=${category}`
-            if (this.$router.currentRoute.fullPath != destination){
-                this.$router.push({ path: destination, query: { category }})
-            }
         }
     },
 };

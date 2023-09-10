@@ -64,7 +64,9 @@ Note: the database currently used is publicly accessible, and only used for test
 - [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) / [docker](docker.com)
 - clone the repo and the submodules into the your local computer
 - **Ask the team for the .env file**
-
+- npm required version: 8.11.0
+- node required version: 16.16.0
+  
 ### Usage
 
 #### Enable Submodule
