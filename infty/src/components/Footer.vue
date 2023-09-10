@@ -326,6 +326,10 @@ footer .bottom-details .bottom_text {
     margin-right: 10px;
 }
 
+ul.box.input-box {
+    margin-left: auto;
+}
+
 @media (max-width: 900px) {
     footer .content .link-boxes {
         flex-wrap: wrap;
