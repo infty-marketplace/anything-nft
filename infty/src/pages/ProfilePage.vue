@@ -3,15 +3,15 @@
         <Navbar/>
         <button class="back-btn" @click="$router.go(-1)"><i class="el-icon-back" style="color:white"/></button>
         <div v-if="!this.isMyself && $store.getters.getLogInStatus" class="actions">
-            <el-button type="primary" @click="openSupportModal">打赏</el-button>
+            <el-button type="primary" @click="openSupportModal">{{ $t("profile.supports") }}</el-button>
             <b-modal ref="support-modal" title="Support Creator" @ok="supportCreator">
                 <label>Please enter the amount in CFX</label>
                 <b-form-input v-model="supportAmount" class="mb-4" placeholder=""/>
                 <label>(Optioal) Leave a message to the creator</label>
                 <b-form-input v-model="supportMessage" class="mb-4" placeholder=""/>
             </b-modal>
-            <el-button type="primary" @click="$store.dispatch('notifyWIP')">关注</el-button>
-            <el-button type="primary" @click="$store.dispatch('notifyWIP')">站内信</el-button>
+            <el-button type="primary" @click="$store.dispatch('notifyWIP')">{{ $t("profile.subscribe") }}</el-button>
+            <el-button type="primary" @click="$store.dispatch('notifyWIP')">{{ $t("profile.messages") }}</el-button>
         </div>
         <div v-if="$store.getters.getLogInStatus" class="profile-pic-container">
             <img id="profile-pic" :src="avatar"/>
@@ -32,34 +32,34 @@
                         <el-submenu v-if="!this.isMyself" index="1">
                             <template slot="title">
                                 <i class="el-icon-menu"></i>
-                                <span>Listing</span>
+                                <span>{{ $t("profile.listing") }}</span>
                             </template>
                             <el-menu-item index="1-1">NFT</el-menu-item>
                             <el-menu-item index="1-2">Raffle</el-menu-item>
                         </el-submenu>
                         <el-menu-item v-if="this.isMyself" index="2">
                             <i class="el-icon-notebook-2"></i>
-                            <span slot="title">Transaction History</span>
+                            <span slot="title">{{ $t("profile.transactionHistory") }}</span>
                         </el-menu-item>
                         <el-menu-item v-if="this.isMyself" id="fav" index="4">
                             <i class="el-icon-star-off"></i>
-                            <span slot="title">My liked NFTs</span>
+                            <span slot="title">{{ $t("profile.likedNfts") }}</span>
                         </el-menu-item>
                         <el-submenu v-if="this.isMyself" index="6">
                             <template slot="title">
                                 <i class="el-icon-goods"></i>
-                                <span>Supports</span>
+                                <span>{{ $t("profile.supports") }}</span>
                             </template>
-                            <el-menu-item index="6-1">Received</el-menu-item>
-                            <el-menu-item index="6-2">Given</el-menu-item>
+                            <el-menu-item index="6-1">{{ $t("profile.received") }}</el-menu-item>
+                            <el-menu-item index="6-2">{{ $t("profile.given") }}</el-menu-item>
                         </el-submenu>
                         <el-menu-item v-if="this.isMyself" id="account-menu" index="3">
                             <i class="el-icon-setting"></i>
-                            <span slot="title">My Account</span>
+                            <span slot="title">{{ $t("profile.myAccount") }}</span>
                         </el-menu-item>
                         <el-menu-item v-if="!this.isMyself" id="bang" index="5">
                             <i class="el-icon-coin"></i>
-                            <span slot="title">粉丝打榜</span>
+                            <span slot="title">{{ $t("profile.patreonList") }}</span>
                         </el-menu-item>
                     </el-menu>
                 </el-col>
@@ -70,7 +70,7 @@
                             <div class="card-container">
                                 <NftCard v-for="nft in saleNfts" :key="nft.url" :card="nft" class="mt-4 card"/>
                                 <p v-if="saleNfts.length == 0" class="mt-4">
-                                    <el-empty description="Nothing"></el-empty>
+                                    <el-empty v-bind:description="$t('profile.nothing')"></el-empty>
                                 </p>
                             </div>
                         </el-card>
@@ -81,7 +81,7 @@
                             <div class="card-container">
                                 <NftCard v-for="nft in drawNfts" :key="nft.url" :card="nft" class="mt-4 card"/>
                                 <p v-if="drawNfts.length == 0" class="mt-4">
-                                    <el-empty description="Nothing"></el-empty>
+                                    <el-empty v-bind:description-text="$t('profile.nothing')"></el-empty>
                                 </p>
                             </div>
                         </el-card>
@@ -89,7 +89,7 @@
 
                     <div v-if="selectedIndex == '2'">
                         <el-card class="box-card m-5">
-                            <el-table :data="transactions" empty-text="Nothing" height="calc(100vh - 250px)" stripe>
+                            <el-table :data="transactions" v-bind:empty-text="$t('profile.nothing')"  height="calc(100vh - 250px)" stripe>
                                 <el-table-column type="expand">
                                     <template #default="props">
                                         <p v-for="(value, key) in props.row.details" :key="key">
@@ -100,35 +100,35 @@
                                     </template>
                                 </el-table-column>
 
-                                <el-table-column align="center" label="Time" prop="time"></el-table-column>
-                                <el-table-column align="center" label="Title">
+                                <el-table-column align="center" v-bind:label="$t('time')" prop="time"></el-table-column>
+                                <el-table-column align="center" v-bind:label="$t('title')">
                                     <template slot-scope="scope">
                                         <el-link :href="`/nft/${scope.row.nft_id}`" target="_blank">
                                             {{ scope.row.title }}
                                         </el-link>
                                     </template>
                                 </el-table-column>
-                                <el-table-column align="center" label="Price" prop="price"></el-table-column>
-                                <el-table-column align="center" label="Currency" prop="currency"></el-table-column>
-                                <el-table-column align="center" label="Commission Fee" prop="commission">
+                                <el-table-column align="center" v-bind:label="$t('price')" prop="price"></el-table-column>
+                                <el-table-column align="center" v-bind:label="$t('profile.currency')" prop="currency"></el-table-column>
+                                <el-table-column align="center" v-bind:label="$t('profile.commissionFee')" prop="commission">
                                 </el-table-column>
-                                <el-table-column align="center" label="Commission Currency" prop="commission_currency">
+                                <el-table-column align="center" v-bind:label="$t('profile.commissionCurrency')" prop="commission_currency">
                                 </el-table-column>
-                                <el-table-column align="center" label="From">
+                                <el-table-column align="center" v-bind:label="$t('from')">
                                     <template slot-scope="scope">
                                         <el-link :href="`/profile/${scope.row.fromAddress}`">
                                             {{ scope.row.from }}
                                         </el-link>
                                     </template>
                                 </el-table-column>
-                                <el-table-column align="center" label="To">
+                                <el-table-column align="center" v-bind:label="$t('to')">
                                     <template slot-scope="scope">
                                         <el-link :href="`/profile/${scope.row.toAddress}`">
                                             {{ scope.row.to }}
                                         </el-link>
                                     </template>
                                 </el-table-column>
-                                <el-table-column align="center" label="Transaction Type" prop="type"></el-table-column>
+                                <el-table-column align="center" v-bind:label="$t('profile.transactionType')" prop="type"></el-table-column>
                             </el-table>
                         </el-card>
                     </div>
@@ -137,7 +137,7 @@
                             <div class="card-container">
                                 <NftCard v-for="nft in likedNfts" :key="nft.url" :card="nft" class="mt-4 card"/>
                                 <p v-if="likedNfts.length == 0" class="mt-4">
-                                    <el-empty description="Nothing"></el-empty>
+                                    <el-empty v-bind:description-text="$t('profile.nothing')"></el-empty>
                                 </p>
                             </div>
                         </el-card>
@@ -147,7 +147,7 @@
                         <el-card class="box-card m-5">
                             <el-table
                                     :data="selectedIndex == '6-1' ? receivedSupports : givenSupports"
-                                empty-text="Nothing"
+                                v-bind:empty-text="$t('profile.nothing')"
                                 height="calc(100vh - 250px)"
                                 stripe
                             >
@@ -158,9 +158,9 @@
                                         </p>
                                     </template>
                                 </el-table-column>
-                                <el-table-column align="center" label="Time" prop="time"></el-table-column>
+                                <el-table-column align="center" v-bind:label="$t('time')" prop="time"></el-table-column>
 
-                                <el-table-column align="center" label="From">
+                                <el-table-column align="center" v-bind:label="$t('from')">
                                     <template slot-scope="scope">
                                         <el-link :href="`/profile/${scope.row.fromAddress}`">
                                             {{ scope.row.from }}
@@ -168,27 +168,27 @@
                                     </template>
                                 </el-table-column>
 
-                                <el-table-column align="center" label="To">
+                                <el-table-column align="center" v-bind:label="$t('to')">
                                     <template slot-scope="scope">
                                         <el-link :href="`/profile/${scope.row.toAddress}`">
                                             {{ scope.row.to }}
                                         </el-link>
                                     </template>
                                 </el-table-column>
-                                <el-table-column align="center" label="Amount" prop="amount"></el-table-column>
+                                <el-table-column align="center" v-bind:label="$t('amount')" prop="amount"></el-table-column>
                             </el-table>
                         </el-card>
                     </div>
 
                     <div v-if="selectedIndex == 5">
                         <el-card class="box-card m-5 card-container">
-                            <el-empty description="Nothing"></el-empty>
+                            <el-empty v-bind:description="$t('profile.nothing')"></el-empty>
                         </el-card>
                     </div>
                     <div v-if="selectedIndex == '3'">
                         <el-card class="box-card m-5">
                             <div slot="header" class="clearfix">
-                                <span>Settings</span>
+                                <span>{{ $t("profile.settings") }}</span>
                                 <i
                                     v-if="!editModes"
                                     class="el-icon-edit"
@@ -202,11 +202,11 @@
                                     @click="update"
                                 />
                             </div>
-                            <p>Your Wallet Address</p>
+                            <p>{{ $t("profile.walletAddress") }}</p>
                             <el-input :disabled="true" :placeholder="this.$store.getters.getAddress">
-                                <el-button slot="append" @click="$store.dispatch('notifyWIP')">Copy</el-button>
+                                <el-button slot="append" @click="$store.dispatch('notifyWIP')">{{ $t("profile.copy") }}</el-button>
                             </el-input>
-                            <p class="mt-3">Info</p>
+                            <p class="mt-3">{{ $t("profile.info") }}</p>
                             <el-row>
                                 <el-col :span="12" class=""
                                 >
@@ -214,7 +214,7 @@
                                         ref="first"
                                         v-model="new_first"
                                         :disabled="!editModes"
-                                        placeholder="First Name"
+                                        v-bind:placeholder="$t('firstName')"
                                     ></el-input
                                     >
                                 </el-col>
@@ -224,7 +224,7 @@
                                         ref="last"
                                         v-model="new_last"
                                         :disabled="!editModes"
-                                        placeholder="Last Name"
+                                        v-bind:placeholder="$t('lastName')"
                                     ></el-input
                                     >
                                 </el-col>
@@ -233,7 +233,7 @@
                             <i v-if="editModes.name" style='margin-top:10px;float:right;cursor:pointer;' @click="update" class='el-icon-finished'/> -->
                                 </el-col>
                             </el-row>
-                            <p class="mt-3">Bio</p>
+                            <p class="mt-3">{{ $t("profile.bio") }}</p>
                             <el-row class="mb-3">
                                 <el-col :span="22" class=""
                                 >
@@ -242,7 +242,7 @@
                                         v-model="bio"
                                         :disabled="!editModes"
                                         maxlength="300"
-                                        placeholder="Please enter..."
+                                        v-bind:placeholder="$t('profile.pleaseEnter')"
                                         show-word-limit
                                         type="textarea"
                                     >
@@ -271,7 +271,7 @@
                             style="display:inline; float:right;"
                             type="danger"
                             @click="logout"
-                            >Log Out
+                            >{{ $t("profile.logOut") }}
                         </el-button>
                     </div>
                 </el-col>
